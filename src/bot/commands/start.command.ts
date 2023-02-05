@@ -1,9 +1,9 @@
 import { Composer, InputFile } from 'grammy'
+import { Context } from '@/bot/types'
 
 import { Logger } from '@/libs/pino/logger.pino'
-
 import { i18n } from '@/bot/core'
-import { Context } from '@/bot/types'
+
 import { ContextUtils } from '@/bot/helpers/context.utils'
 import { StartMarkup } from '@/bot/markups'
 
@@ -23,6 +23,7 @@ composer.command('start', async (ctx) => {
   return ctx.replyWithAnimation(file, {
     caption: i18n.t('pt', 'welcome'),
     reply_markup: StartMarkup,
+    thumb: new InputFile(process.cwd() + '/assets/images/mahina_welcome.png'),
   })
 })
 
