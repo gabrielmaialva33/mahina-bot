@@ -17,6 +17,7 @@
     "type": "git",
     "url": "https://github.com/gabrielmaialva33/mahina-bot"
   },
+  "private": false,
   "license": "MIT",
   "scripts": {
     "clean": "rimraf dist",
@@ -89,13 +90,13 @@
     "@grammyjs/menu": "^1.1.2",
     "@grammyjs/parse-mode": "^1.6.0",
     "better-sqlite3": "^8.0.1",
-    "chalk": "^4.1.2",
     "dotenv": "^16.0.3",
     "envalid": "^7.3.1",
     "grammy": "^1.14.1",
     "knex": "^2.4.2",
     "luxon": "^3.2.1",
     "objection": "^3.0.1",
-    "pino": "^8.8.0"
+    "pino": "^8.8.0",
+    "telegram": "^2.15.5"
   }
 }
