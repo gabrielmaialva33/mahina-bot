@@ -1,3 +1,9 @@
-import { Env } from '@/env'
+import '@/libs/orm/objection.orm'
 
-console.log(Env)
+import { Bot } from '@/bot/core'
+
+const Mahina = new Bot()
+
+;(async () => {
+  await Mahina.start()
+})()
