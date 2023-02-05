@@ -1,3 +1,3 @@
-import { hello } from '@/hello'
+import { Env } from '@/env'
 
-hello()
+console.log(Env)
