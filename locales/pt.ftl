@@ -1,1 +1,1 @@
-welcome = Olá! Sou a <i>Winx</i> 🧚‍♀️ e estou aqui para te ajudar a encontrar o que você precisa! 🤗
+welcome = Olá! Sou a <b><i>Mahina</i></b> 🧚‍♀️ e estou aqui para te ajudar a encontrar o que você precisa! 🤗
