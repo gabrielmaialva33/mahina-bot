@@ -8,6 +8,7 @@ import { Logger } from '@/libs/pino/logger.pino'
 import { Context } from '@/bot/types'
 
 import Commands from '@/bot/commands'
+import { DateTime } from 'luxon'
 
 export class Bot extends BotGrammy<Context> {
   constructor() {
@@ -35,4 +36,14 @@ export class Bot extends BotGrammy<Context> {
       onStart: () => Logger.info('Bot started', 'Bot'),
     })
   }
+
+  public async ping() {
+    const start = DateTime.local()
+    await this.api.getMe()
+    const end = DateTime.local()
+
+    return end.diff(start, 'milliseconds').milliseconds
+  }
 }
+
+export const Mahina = new Bot()

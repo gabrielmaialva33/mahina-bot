@@ -1,9 +1,6 @@
 import '@/libs/orm/objection.orm'
 
-import { Bot } from '@/bot/core'
-
-const Mahina = new Bot()
-
+import { Mahina } from '@/bot/core'
 ;(async () => {
   await Mahina.start()
 })()
