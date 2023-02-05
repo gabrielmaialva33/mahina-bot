@@ -92,7 +92,7 @@ The following software must be installed:
 ### :writing_hand: **Author**
 
 | [![Gabriel Maia](https://avatars.githubusercontent.com/u/26732067?size=100)](https://github.com/demartini) |
-|------------------------------------------------------------------------------------------------------------|
+| ---------------------------------------------------------------------------------------------------------- |
 | [Gabriel Maia](https://github.com/gabrielmaialva33)                                                        |
 
 ## License
