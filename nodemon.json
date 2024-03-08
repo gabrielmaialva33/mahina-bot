@@ -2,5 +2,5 @@
   "watch": ["src"],
   "ext": "ts,json",
   "ignore": ["./**/*.spec.ts"],
-  "exec": "ts-node ./src/main.ts"
+  "exec": "tsup && node build/main.js"
 }

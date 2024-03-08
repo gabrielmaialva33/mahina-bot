@@ -1,7 +1,7 @@
 {
-  "name": "node-ts-app",
+  "name": "tbd-mahina-bot",
   "version": "1.0.0",
-  "description": "A complete Node.js project template using TypeScript and following general best practices.",
+  "description": "An discord bot to stream videos from any source",
   "keywords": [
     "typescript",
     "template"
@@ -15,9 +15,10 @@
     "url": "https://github.com/gabrielmaialva33/node-ts-app.git"
   },
   "engines": {
-    "node": ">=20.10.0"
+    "node": ">=20.11.1"
   },
   "private": true,
+  "type": "module",
   "license": "MIT",
   "scripts": {
     "clean": "rimraf dist",
@@ -27,9 +28,15 @@
     "lint": "eslint . --ext=.ts",
     "format": "prettier --write ."
   },
+  "imports": {
+    "#src/*": "./src/*.js"
+  },
   "tsup": {
     "entry": [
       "src/**/*.ts"
+    ],
+    "format": [
+      "esm"
     ],
     "splitting": false,
     "sourcemap": true,
@@ -39,51 +46,31 @@
     "outDir": "build"
   },
   "eslintConfig": {
-    "extends": [
-      "plugin:adonis/typescriptApp",
-      "prettier"
-    ],
-    "plugins": [
-      "prettier"
-    ],
-    "rules": {
-      "prettier/prettier": [
-        "error"
-      ]
-    }
+    "extends": "@adonisjs/eslint-config/app"
   },
-  "eslintIgnore": [
-    "build"
-  ],
-  "prettier": {
-    "trailingComma": "es5",
-    "semi": false,
-    "singleQuote": true,
-    "useTabs": false,
-    "quoteProps": "consistent",
-    "bracketSpacing": true,
-    "arrowParens": "always",
-    "printWidth": 100
-  },
+  "prettier": "@adonisjs/prettier-config",
   "devDependencies": {
+    "@adonisjs/eslint-config": "^1.3.0",
+    "@adonisjs/prettier-config": "^1.3.0",
+    "@adonisjs/tsconfig": "^1.3.0",
     "@types/node": "^20.11.25",
-    "@typescript-eslint/eslint-plugin": "^7.1.1",
-    "@typescript-eslint/parser": "^7.1.1",
     "eslint": "^8.57.0",
-    "eslint-config-prettier": "^9.1.0",
-    "eslint-plugin-adonis": "^2.1.1",
-    "eslint-plugin-prettier": "^5.1.3",
     "nodemon": "^3.1.0",
     "openapi-types": "^12.1.3",
     "prettier": "^3.2.5",
     "rimraf": "^5.0.5",
-    "ts-node": "^10.9.2",
     "tsconfig-paths": "^4.2.0",
     "tsup": "^8.0.2",
     "typescript": "^5.4.2"
   },
   "dependencies": {
+    "@dank074/discord-video-stream": "^3.0.5",
     "@swc/core": "^1.4.5",
+    "discord.js-selfbot-v13": "^3.1.4",
+    "dotenv": "^16.4.5",
+    "envalid": "^8.0.0",
+    "opus": "^0.0.0",
+    "opusscript": "^0.1.1",
     "reflect-metadata": "^0.2.1",
     "source-map-support": "^0.5.21"
   }
