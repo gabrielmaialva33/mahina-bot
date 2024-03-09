@@ -1,6 +1,6 @@
-import * as console from 'console'
-import * as process from 'process'
-import * as os from 'os'
+import * as console from 'node:console'
+import * as process from 'node:process'
+import * as os from 'node:os'
 
 const platform = os.platform()
 const arch = os.arch()
@@ -27,4 +27,17 @@ export function systemInfo() {
     - uptime: ${uptime / 60} minutes
     - user: ${userInfo.username}
   `)
+
+  return `
+    Your system:
+    - platform: ${platform}
+    - arch: ${arch}
+    - release: ${release}
+    - cpus: ${cpus.length}
+    - totalmem: ${totalmem / 1024 / 1024 / 1024} GB
+    - freemem: ${freemem / 1024 / 1024 / 1024} GB
+    - hostname: ${hostname}
+    - uptime: ${uptime / 60} minutes
+    - user: ${userInfo.username}
+  `
 }
