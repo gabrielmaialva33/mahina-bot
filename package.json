@@ -1,7 +1,7 @@
 {
-  "name": "tbd-mahina-bot",
+  "name": "winx-discord-bot",
   "version": "1.0.0",
-  "description": "An discord bot to stream videos from any source",
+  "description": "A simple discord bot to play videos on voice channels",
   "keywords": [
     "typescript",
     "template"
@@ -12,7 +12,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/gabrielmaialva33/node-ts-app.git"
+    "url": "https://github.com/gabrielmaialva33/winx-discord-bot"
   },
   "engines": {
     "node": ">=20.11.1"
