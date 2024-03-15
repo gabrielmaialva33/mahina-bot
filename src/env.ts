@@ -12,6 +12,7 @@ export const env = cleanEnv(process.env, {
   // Database
 
   // Discord
+  DISC_BOT_TOKEN: str({ default: '' }),
   DISC_USER_1_TOKEN: str({ default: '' }),
   DISC_GUILD_ID: str({ default: '' }),
   DISC_CHANNEL_ID: str({ default: '' }),

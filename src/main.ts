@@ -1,5 +1,15 @@
-import { systemInfo } from '#src/system'
-import stream from '#src/bot/stream'
+import { Client, GatewayIntentBits } from 'discord.js'
+import { Bot } from '#src/bot/core'
 
-systemInfo()
-await stream.createStream()
+export const bot = new Bot(
+  new Client({
+    intents: [
+      GatewayIntentBits.Guilds,
+      GatewayIntentBits.GuildVoiceStates,
+      GatewayIntentBits.GuildMessages,
+      GatewayIntentBits.GuildMessageReactions,
+      GatewayIntentBits.MessageContent,
+      GatewayIntentBits.DirectMessages,
+    ],
+  })
+)
