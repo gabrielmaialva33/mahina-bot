@@ -28,6 +28,7 @@ export default class Info extends Command {
       options: [],
     })
   }
+
   async run(client: Mahina, ctx: Context): Promise<any> {
     const osType = os.type()
     const osRelease = os.release()

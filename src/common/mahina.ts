@@ -2,6 +2,7 @@ import { fileURLToPath } from 'node:url'
 import path from 'node:path'
 
 import {
+  ApplicationCommandType,
   Client,
   ClientOptions,
   Collection,
@@ -9,10 +10,9 @@ import {
   Events,
   Interaction,
   PermissionsBitField,
-  ApplicationCommandType,
+  REST,
   RESTPostAPIChatInputApplicationCommandsJSONBody,
   Routes,
-  REST,
 } from 'discord.js'
 
 import { ShoukakuClient } from '#common/shoukaku'
@@ -20,6 +20,7 @@ import * as fs from 'node:fs'
 import { env } from '#src/env'
 
 const dirname = path.dirname(fileURLToPath(import.meta.url))
+
 export class Mahina extends Client {
   commands: Collection<string, any> = new Collection()
   aliases: Collection<string, any> = new Collection()
@@ -48,6 +49,7 @@ export class Mahina extends Client {
 
     await this.login(token)
 
+    // @ts-ignore
     this.on(Events.InteractionCreate, async (interaction: Interaction<'cached'>): Promise<void> => {
       if (interaction.isButton()) this.emit('setupButtons', interaction)
     })

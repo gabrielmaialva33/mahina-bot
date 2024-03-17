@@ -6,6 +6,7 @@ export class Event {
   file: string
   name: string
   file_name: string
+
   constructor(client: Mahina, file: string, options: EventOptions) {
     this.client = client
     this.file = file
@@ -13,6 +14,7 @@ export class Event {
     this.one = options.one || false
     this.file_name = file.split('.')[0]
   }
+
   async run(..._args: any[]): Promise<any> {
     return await Promise.resolve()
   }

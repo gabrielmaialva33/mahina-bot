@@ -30,6 +30,7 @@ export class Context {
   member: GuildMemberResolvable | GuildMember | APIInteractionGuildMember | null
   args: any[] | undefined
   msg: any
+
   constructor(ctx: ChatInputCommandInteraction | Message, args: any[]) {
     this.ctx = ctx
     this.interaction = this.ctx instanceof ChatInputCommandInteraction ? this.ctx : null
@@ -51,6 +52,11 @@ export class Context {
     return this.ctx instanceof ChatInputCommandInteraction
   }
 
+  get deferred(): boolean | Promise<any> {
+    if (this.isInteraction) if (this.interaction) return this.interaction.deferred
+    return !!this.msg
+  }
+
   setArgs(args: any[]): void {
     if (this.isInteraction) {
       this.args = args.map((arg: { value: any }) => arg.value)
@@ -58,6 +64,7 @@ export class Context {
       this.args = args
     }
   }
+
   async sendMessage(content: any): Promise<Message | void> {
     if (this.isInteraction) {
       if (this.interaction) {
@@ -71,6 +78,7 @@ export class Context {
       }
     }
   }
+
   async editMessage(content: any) {
     if (this.isInteraction) {
       if (this.msg) {
@@ -84,6 +92,7 @@ export class Context {
       return this.msg
     }
   }
+
   async sendDeferMessage(content: any): Promise<Message | void> {
     if (this.isInteraction) {
       if (this.interaction) {
@@ -97,13 +106,10 @@ export class Context {
       }
     }
   }
+
   async sendFollowUp(content: any): Promise<void> {
     if (this.isInteraction)
       if (this.interaction) await this.interaction.followUp(content)
       else if (this.message) this.msg = await (this.message.channel as TextChannel).send(content)
-  }
-  get deferred(): boolean | Promise<any> {
-    if (this.isInteraction) if (this.interaction) return this.interaction.deferred
-    return !!this.msg
   }
 }

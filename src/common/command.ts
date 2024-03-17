@@ -4,13 +4,13 @@ import { ApplicationCommandOption, PermissionResolvable } from 'discord.js'
 export class Command {
   client: Mahina
   name: string
-  name_localizations: any
+  name_localizations?: any
   description: {
     content: string | null
     usage: string | null
     examples: string[] | null
   }
-  description_localizations: any
+  description_localizations?: any
   aliases: string[] = []
   cooldown: number = 3
   options: ApplicationCommandOption[]
@@ -76,13 +76,13 @@ export class Command {
 
 interface CommandOptions {
   name: string
-  name_localizations: any
+  name_localizations?: any
   description?: {
     content: string
     usage: string
     examples: string[]
   }
-  description_localizations: any
+  description_localizations?: any
   cooldown: number
   aliases?: string[]
   options?: ApplicationCommandOption[]

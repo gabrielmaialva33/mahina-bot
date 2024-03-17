@@ -3,6 +3,7 @@ import { Mahina } from '#common/mahina'
 
 export class ShoukakuClient extends Shoukaku {
   client: Mahina
+
   constructor(client: Mahina) {
     super(
       new Connectors.DiscordJS(client),

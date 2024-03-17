@@ -1,11 +1,11 @@
 import {
   AutocompleteInteraction,
+  ChannelType,
+  Collection,
   CommandInteraction,
   GuildMember,
   InteractionType,
   PermissionFlagsBits,
-  ChannelType,
-  Collection,
 } from 'discord.js'
 
 import { Mahina } from '#common/mahina'
@@ -14,10 +14,9 @@ import { Context } from '#common/context'
 
 export default class InteractionCreate extends Event {
   constructor(client: Mahina, file: string) {
-    super(client, file, {
-      name: 'interactionCreate',
-    })
+    super(client, file, { name: 'interactionCreate' })
   }
+
   async run(interaction: CommandInteraction | AutocompleteInteraction): Promise<any> {
     if (
       interaction instanceof CommandInteraction &&
@@ -26,37 +25,35 @@ export default class InteractionCreate extends Event {
       const { commandName } = interaction
       const command = this.client.commands.get(interaction.commandName)
       if (!command) return
+
       const ctx = new Context(interaction as any, interaction.options.data as any)
       ctx.setArgs(interaction.options.data as any)
 
       if (
         !interaction.inGuild() ||
         !interaction
-          .channel!.permissionsFor(interaction.guild.members.me)
+          .channel!.permissionsFor(interaction.guild!.members.me!)
           .has(PermissionFlagsBits.ViewChannel)
       )
         return
 
-      if (!interaction.guild.members.me.permissions.has(PermissionFlagsBits.SendMessages)) {
+      if (!interaction.guild!.members.me!.permissions.has(PermissionFlagsBits.SendMessages)) {
         return await (interaction.member as GuildMember)
           .send({
-            content: `I don't have **\`SendMessage\`** permission in \`${interaction.guild.name}\`\nchannel: <#${interaction.channelId}>`,
+            content: `I don't have **\`SendMessage\`** permission in \`${interaction.guild!.name}\`\nchannel: <#${interaction.channelId}>`,
           })
           .catch(() => {})
       }
 
-      if (!interaction.guild.members.me.permissions.has(PermissionFlagsBits.EmbedLinks))
-        return await interaction.reply({
-          content: "I don't have **`EmbedLinks`** permission.",
-        })
+      if (!interaction.guild!.members.me!.permissions.has(PermissionFlagsBits.EmbedLinks))
+        return await interaction.reply({ content: "I don't have **`EmbedLinks`** permission." })
 
       if (command.permissions) {
-        if (command.permissions.client) {
-          if (!interaction.guild.members.me.permissions.has(command.permissions.client))
+        if (command.permissions.client)
+          if (!interaction.guild!.members.me!.permissions.has(command.permissions.client))
             return await interaction.reply({
               content: "I don't have enough permissions to execute this command.",
             })
-        }
 
         if (command.permissions.user) {
           if (!(interaction.member as GuildMember).permissions.has(command.permissions.user)) {
@@ -83,31 +80,31 @@ export default class InteractionCreate extends Event {
               content: `You must be connected to a voice channel to use this \`${command.name}\` command.`,
             })
 
-          if (!interaction.guild.members.me.permissions.has(PermissionFlagsBits.Speak))
+          if (!interaction.guild!.members.me!.permissions.has(PermissionFlagsBits.Speak))
             return await interaction.reply({
               content: `I don't have \`CONNECT\` permissions to execute this \`${command.name}\` command.`,
             })
 
-          if (!interaction.guild.members.me.permissions.has(PermissionFlagsBits.Speak))
+          if (!interaction.guild!.members.me!.permissions.has(PermissionFlagsBits.Speak))
             return await interaction.reply({
               content: `I don't have \`SPEAK\` permissions to execute this \`${command.name}\` command.`,
             })
 
           if (
-            (interaction.member as GuildMember).voice.channel.type ===
+            (interaction.member as GuildMember).voice.channel!.type ===
               ChannelType.GuildStageVoice &&
-            !interaction.guild.members.me.permissions.has(PermissionFlagsBits.RequestToSpeak)
+            !interaction.guild!.members.me!.permissions.has(PermissionFlagsBits.RequestToSpeak)
           )
             return await interaction.reply({
               content: `I don't have \`REQUEST TO SPEAK\` permission to execute this \`${command.name}\` command.`,
             })
-          if (interaction.guild.members.me.voice.channel) {
+          if (interaction.guild!.members.me!.voice.channel) {
             if (
-              interaction.guild.members.me.voice.channelId !==
+              interaction.guild!.members.me!.voice.channelId !==
               (interaction.member as GuildMember).voice.channelId
             )
               return await interaction.reply({
-                content: `You are not connected to <#${interaction.guild.members.me.voice.channel.id}> to use this \`${command.name}\` command.`,
+                content: `You are not connected to <#${interaction.guild!.members.me!.voice.channel.id}> to use this \`${command.name}\` command.`,
               })
           }
         }

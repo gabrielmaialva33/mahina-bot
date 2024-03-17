@@ -32,7 +32,7 @@ export default class Ping extends Command {
 
     const embed = client
       .embed()
-      .setAuthor({ name: 'Pong', iconURL: this.client.user!.displayAvatarURL() })
+      .setAuthor({ name: 'Pong 🏓', iconURL: this.client.user!.displayAvatarURL() })
       .setColor(this.client.color.main)
       .addFields([
         {
