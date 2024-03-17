@@ -1,5 +1,6 @@
 import { fileURLToPath } from 'node:url'
 import path from 'node:path'
+import * as fs from 'node:fs'
 
 import {
   ApplicationCommandType,
@@ -16,8 +17,9 @@ import {
 } from 'discord.js'
 
 import { ShoukakuClient } from '#common/shoukaku'
-import * as fs from 'node:fs'
+import { Utils } from '#src/utils/system'
 import { env } from '#src/env'
+import { Logger } from '#src/lib/logger'
 
 const dirname = path.dirname(fileURLToPath(import.meta.url))
 
@@ -27,7 +29,10 @@ export class Mahina extends Client {
   body: RESTPostAPIChatInputApplicationCommandsJSONBody[] = []
   shoukaku: ShoukakuClient
   cooldown: Collection<string, any> = new Collection()
+
   env: typeof env = env
+  utils: typeof Utils = Utils
+  logger: Logger = new Logger()
 
   readonly color = {
     red: 0xff0000,
@@ -59,6 +64,11 @@ export class Mahina extends Client {
     return new EmbedBuilder()
   }
 
+  /**
+   * ------------------------------
+   * Private methods
+   * ------------------------------
+   */
   private loadCommands(): void {
     const commandsPath = fs.readdirSync(path.join(dirname, 'commands'))
     commandsPath.forEach((dir) => {
@@ -99,12 +109,11 @@ export class Mahina extends Client {
       })
     })
     this.once('ready', async () => {
-      console.log(`USER ID ${this.user!.id}`)
       const applicationCommands = Routes.applicationCommands(this.user!.id ?? '')
       try {
         const rest = new REST({ version: '10' }).setToken(env.DISC_BOT_TOKEN)
         await rest.put(applicationCommands, { body: this.body })
-        console.log('Successfully registered application commands.')
+        this.logger.success('Successfully registered application commands.')
       } catch (error) {
         console.error(error)
       }

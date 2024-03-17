@@ -23,11 +23,9 @@ export default class Ping extends Command {
       slashCommand: true,
       options: [],
     })
-    console.log('Ping command loaded')
   }
 
   async run(client: Mahina, ctx: Context): Promise<any> {
-    console.log('Running ping command')
     const msg = await ctx.sendDeferMessage('Pinging...')
 
     const embed = client
