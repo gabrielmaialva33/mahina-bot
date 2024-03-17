@@ -54,15 +54,10 @@
   },
   "prettier": "@adonisjs/prettier-config",
   "dependencies": {
-    "@dank074/discord-video-stream": "^3.0.5",
     "@swc/core": "^1.4.8",
-    "discord-stream-client": "^1.4.8",
     "discord.js": "^14.14.1",
-    "discord.js-selfbot-v13": "^3.1.4",
     "dotenv": "^16.4.5",
     "envalid": "^8.0.0",
-    "opus": "^0.0.0",
-    "opusscript": "^0.1.1",
     "reflect-metadata": "^0.2.1",
     "shoukaku": "^4.0.1",
     "source-map-support": "^0.5.21"

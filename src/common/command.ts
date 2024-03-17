@@ -4,11 +4,13 @@ import { ApplicationCommandOption, PermissionResolvable } from 'discord.js'
 export class Command {
   client: Mahina
   name: string
+  name_localizations: any
   description: {
     content: string | null
     usage: string | null
     examples: string[] | null
   }
+  description_localizations: any
   aliases: string[] = []
   cooldown: number = 3
   options: ApplicationCommandOption[]
@@ -20,20 +22,39 @@ export class Command {
   args: boolean = false
   slashCommand?: boolean
   category: string | null
+  player: {
+    voice: boolean
+    dj: boolean
+    active: boolean
+    dj_perm: string | null
+  }
 
   constructor(client: Mahina, options: CommandOptions) {
     this.client = client
 
     this.name = options.name
-    this.description = options.description || {
-      content: 'No description provided',
-      usage: null,
-      examples: [],
+    this.name_localizations = options.name_localizations
+    this.description = {
+      content: options.description
+        ? options.description.content || 'No description provided'
+        : 'No description provided',
+      usage: options.description
+        ? options.description.usage || 'No usage provided'
+        : 'No usage provided',
+      examples: options.description ? options.description.examples || [''] : [''],
     }
+    this.description_localizations = options.description_localizations
 
     this.aliases = options.aliases || []
     this.cooldown = options.cooldown || 3
     this.args = options.args || false
+
+    this.player = {
+      voice: options.player ? options.player.voice || false : false,
+      dj: options.player ? options.player.dj || false : false,
+      active: options.player ? options.player.active || false : false,
+      dj_perm: options.player ? options.player.dj_perm || null : null,
+    }
 
     this.permissions = {
       dev: options.permissions ? options.permissions.dev || false : false,
@@ -55,17 +76,25 @@ export class Command {
 
 interface CommandOptions {
   name: string
+  name_localizations: any
   description?: {
     content: string
     usage: string
     examples: string[]
   }
+  description_localizations: any
   cooldown: number
   aliases?: string[]
   options?: ApplicationCommandOption[]
   slashCommand?: boolean
   category?: string
   args?: boolean
+  player?: {
+    voice: boolean
+    dj: boolean
+    active: boolean
+    dj_perm: string | null
+  }
   permissions?: {
     dev: boolean
     client: string[] | PermissionResolvable

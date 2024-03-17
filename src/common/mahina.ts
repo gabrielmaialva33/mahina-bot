@@ -25,6 +25,8 @@ export class Mahina extends Client {
   aliases: Collection<string, any> = new Collection()
   body: RESTPostAPIChatInputApplicationCommandsJSONBody[] = []
   shoukaku: ShoukakuClient
+  cooldown: Collection<string, any> = new Collection()
+  env: typeof env = env
 
   readonly color = {
     red: 0xff0000,
@@ -42,13 +44,12 @@ export class Mahina extends Client {
 
   async start(token: string): Promise<void> {
     this.loadCommands()
+    this.loadEvents()
 
     await this.login(token)
 
-    this.on(Events.InteractionCreate, async (interaction: Interaction): Promise<void> => {
-      if (interaction.isButton()) {
-        this.emit('setupButtons', interaction)
-      }
+    this.on(Events.InteractionCreate, async (interaction: Interaction<'cached'>): Promise<void> => {
+      if (interaction.isButton()) this.emit('setupButtons', interaction)
     })
   }
 
@@ -58,7 +59,6 @@ export class Mahina extends Client {
 
   private loadCommands(): void {
     const commandsPath = fs.readdirSync(path.join(dirname, 'commands'))
-
     commandsPath.forEach((dir) => {
       const commandFiles = fs
         .readdirSync(path.join(dirname, `/commands/${dir}`))
@@ -67,11 +67,13 @@ export class Mahina extends Client {
       commandFiles.forEach(async (file) => {
         const { default: cmd } = await import(dirname + `/commands/${dir}/${file}`)
         const command = new cmd(this)
+        command.category = dir
         this.commands.set(command.name, command)
-
-        if (command.aliases.length !== 0)
-          command.aliases.forEach((alias: any) => this.aliases.set(alias, command.name))
-
+        if (command.aliases.length !== 0) {
+          command.aliases.forEach((alias: any) => {
+            this.aliases.set(alias, command.name)
+          })
+        }
         if (command.slashCommand) {
           const data = {
             name: command.name,
@@ -85,33 +87,46 @@ export class Mahina extends Client {
             default_member_permissions:
               command.permissions.user.length > 0 ? command.permissions.user : null,
           }
-
           if (command.permissions.user.length > 0) {
             const permissionValue = PermissionsBitField.resolve(command.permissions.user)
             data.default_member_permissions = permissionValue.toString()
           }
-
           const json = JSON.stringify(data)
           this.body.push(JSON.parse(json))
         }
       })
     })
-
     this.once('ready', async () => {
-      console.log('Bot is ready')
-
-      const applicationCommands = Routes.applicationGuildCommands(
-        this.user!.id ?? '',
-        env.DISC_GUILD_ID
-      )
+      console.log(`USER ID ${this.user!.id}`)
+      const applicationCommands = Routes.applicationCommands(this.user!.id ?? '')
       try {
-        const rest = new REST({ version: '9' }).setToken(env.DISC_BOT_TOKEN)
-
+        const rest = new REST({ version: '10' }).setToken(env.DISC_BOT_TOKEN)
         await rest.put(applicationCommands, { body: this.body })
         console.log('Successfully registered application commands.')
       } catch (error) {
         console.error(error)
       }
+    })
+  }
+
+  private loadEvents(): void {
+    const eventsPath = fs.readdirSync(path.join(dirname, '/events'))
+    eventsPath.forEach((dir) => {
+      const events = fs
+        .readdirSync(path.join(dirname, `/events/${dir}`))
+        .filter((file) => file.endsWith('.js'))
+      events.forEach(async (file) => {
+        const { default: event } = await import(dirname + `/events/${dir}/${file}`)
+        const evt = new event(this, file)
+        switch (dir) {
+          case 'player':
+            this.shoukaku.on(evt.name, (...args) => evt.run(...args))
+            break
+          default:
+            this.on(evt.name, (...args) => evt.run(...args))
+            break
+        }
+      })
     })
   }
 }
