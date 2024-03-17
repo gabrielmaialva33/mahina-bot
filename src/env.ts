@@ -17,4 +17,5 @@ export const env = cleanEnv(process.env, {
   DISC_GUILD_ID: str({ default: '' }),
   DISC_CHANNEL_ID: str({ default: '' }),
   DISC_OWNER_IDS: str({ default: '[]' }),
+  DISC_BOT_PREFIX: str({ default: '!' }),
 })

@@ -35,11 +35,12 @@ export class Mahina extends Client {
   logger: Logger = new Logger()
 
   readonly color = {
-    red: 0xff0000,
-    green: 0x00ff00,
-    blue: 0x0000ff,
-    yellow: 0xffff00,
-    main: 0x2f3136,
+    red: 0xd78799,
+    green: 0xbfe4b2,
+    blue: 0x499cc2,
+    yellow: 0xfcf9a3,
+    violet: 0x9e48a8,
+    main: 0x4f5aa1,
   }
 
   constructor(options: ClientOptions) {
@@ -112,7 +113,6 @@ export class Mahina extends Client {
       const applicationCommands = Routes.applicationCommands(this.user!.id ?? '')
       try {
         const rest = new REST({ version: '10' }).setToken(env.DISC_BOT_TOKEN)
-        await rest.put(applicationCommands, { body: [] })
         await rest.put(applicationCommands, { body: this.body })
         this.logger.success('Successfully registered application commands.')
       } catch (error) {
