@@ -1,15 +1,20 @@
-import { Client, GatewayIntentBits } from 'discord.js'
-import { Bot } from '#src/bot/core'
+import { ShardingManager } from 'discord.js'
 
-export const bot = new Bot(
-  new Client({
-    intents: [
-      GatewayIntentBits.Guilds,
-      GatewayIntentBits.GuildVoiceStates,
-      GatewayIntentBits.GuildMessages,
-      GatewayIntentBits.GuildMessageReactions,
-      GatewayIntentBits.MessageContent,
-      GatewayIntentBits.DirectMessages,
-    ],
+import { env } from '#src/env'
+
+const manager = new ShardingManager('./build/bot.js', {
+  respawn: true,
+  token: env.DISC_BOT_TOKEN,
+  totalShards: 'auto',
+  shardList: 'auto',
+})
+
+manager.spawn({ amount: manager.totalShards, timeout: -1 }).catch((err: any) => {
+  console.error(err)
+})
+
+manager.on('shardCreate', (shard) => {
+  shard.on('ready', () => {
+    console.log(`Shard ${shard.id} is ready`)
   })
-)
+})

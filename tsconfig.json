@@ -4,7 +4,10 @@
     "rootDir": "./",
     "outDir": "./build",
     "paths": {
-      "#src/*": ["./src/*.js"]
+      "#src/*": ["./src/*.js"],
+      "#common/*": ["./src/common/*.js"],
+      "#commands/*": ["./src/commands/*.js"],
+      "#interfaces/*": ["./src/interfaces/*.js"]
     }
   }
 }

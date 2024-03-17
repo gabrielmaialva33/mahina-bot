@@ -10,11 +10,10 @@ const hostname = os.hostname()
 const uptime = os.uptime()
 const userInfo = os.userInfo()
 
-export function systemInfo(name: string, ping: number) {
+export function systemInfo(name: string) {
   return `
     Olá ${name}!  Aqui estão algumas informações sobre meu sistema:
 
-    ping: ${ping}ms
     platform: ${platform}
     arch: ${arch}
     release: ${release}
