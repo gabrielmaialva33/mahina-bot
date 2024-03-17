@@ -14,9 +14,15 @@ export const env = cleanEnv(process.env, {
   // Discord
   DISC_BOT_TOKEN: str({ default: '' }),
   DISC_USER_TOKEN: str({ default: '' }),
+
   DISC_GUILD_ID: str({ default: '' }),
   DISC_CHANNEL_ID: str({ default: '' }),
   DISC_CLIENT_ID: str({ default: '' }),
   DISC_OWNER_IDS: str({ default: '[]' }),
+
   DISC_BOT_PREFIX: str({ default: '!' }),
+
+  SEARCH_ENGINE: str({ default: 'ytsearch' }),
+  MAX_QUEUE_SIZE: num({ default: 30 }),
+  MAX_PLAYLIST_SIZE: num({ default: 50 }),
 })

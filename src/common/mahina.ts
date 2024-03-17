@@ -16,10 +16,11 @@ import {
   Routes,
 } from 'discord.js'
 
-import { ShoukakuClient } from '#common/shoukaku'
-import { Utils } from '#src/utils/system'
 import { env } from '#src/env'
+
+import { Utils } from '#src/utils/system'
 import { Logger } from '#src/lib/logger'
+import { Queue, ShoukakuClient } from '#common/index'
 
 const dirname = path.dirname(fileURLToPath(import.meta.url))
 
@@ -33,6 +34,7 @@ export class Mahina extends Client {
   env: typeof env = env
   utils: typeof Utils = Utils
   logger: Logger = new Logger()
+  queue = new Queue(this)
 
   readonly color = {
     red: 0xd78799,
