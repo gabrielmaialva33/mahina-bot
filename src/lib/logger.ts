@@ -1,4 +1,5 @@
 import pkg, { SignaleOptions } from 'signale'
+
 const { Signale } = pkg
 
 const options: SignaleOptions = {
@@ -7,6 +8,7 @@ const options: SignaleOptions = {
   logLevel: 'info',
   scope: 'ＷｉｎｘＢｏｔ',
 }
+
 export class Logger extends Signale {
   constructor() {
     super({

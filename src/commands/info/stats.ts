@@ -27,6 +27,7 @@ export default class Stats extends Command {
       slashCommand: true,
     })
   }
+
   async run(client: Mahina, ctx: Context): Promise<any> {
     const embed = this.client.embed()
     embed.setTitle('📊 ＷｉｎｘＢｏｔ Ｓｔａｔｓ')

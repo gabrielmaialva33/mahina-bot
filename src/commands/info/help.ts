@@ -1,4 +1,4 @@
-import { Command, Mahina, Context } from '#common/index'
+import { Command, Context, Mahina } from '#common/index'
 
 export default class Help extends Command {
   constructor(client: Mahina) {

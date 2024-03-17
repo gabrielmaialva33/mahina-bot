@@ -30,6 +30,7 @@ export default class Invite extends Command {
       options: [],
     })
   }
+
   async run(client: Mahina, ctx: Context): Promise<any> {
     const clientId = client.env.DISC_CLIENT_ID
     if (!clientId) {

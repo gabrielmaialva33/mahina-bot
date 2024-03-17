@@ -60,6 +60,7 @@ export class Utils {
     }
     return ms
   }
+
   static progressBar(current: number, total: number, size = 20): string {
     const percent = Math.round((current / total) * 100)
     const filledSize = Math.round((size * current) / total)
