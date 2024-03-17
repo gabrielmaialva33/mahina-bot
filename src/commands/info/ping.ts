@@ -7,7 +7,7 @@ export default class Ping extends Command {
     super(client, {
       name: 'ping',
       description: {
-        content: "Shows the bot's ping",
+        content: 'Mostra o ping da ＷｉｎｘＢｏｔ',
         examples: ['ping'],
         usage: 'ping',
       },

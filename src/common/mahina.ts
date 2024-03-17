@@ -112,6 +112,7 @@ export class Mahina extends Client {
       const applicationCommands = Routes.applicationCommands(this.user!.id ?? '')
       try {
         const rest = new REST({ version: '10' }).setToken(env.DISC_BOT_TOKEN)
+        await rest.put(applicationCommands, { body: [] })
         await rest.put(applicationCommands, { body: this.body })
         this.logger.success('Successfully registered application commands.')
       } catch (error) {

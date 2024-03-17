@@ -11,7 +11,7 @@ export default class Info extends Command {
     super(client, {
       name: 'info',
       description: {
-        content: 'Information about the bot',
+        content: 'Mostra informações sobre a ＷｉｎｘＢｏｔ',
         examples: ['info'],
         usage: 'info',
       },
