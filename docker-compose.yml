@@ -1,12 +1,23 @@
 version: '3.8'
 services:
-  app:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    container_name: app
-    ports:
-      - '3000:3000'
-    restart: always
+  lavalink:
+    container_name: lavamusic-lavalink
+    image: ghcr.io/lavalink-devs/lavalink
+    restart: on-failure
+    environment:
+      SERVER_PORT: 2333
+      SERVER_ADDRESS: 0.0.0.0
+      LAVALINK_SERVER_PASSWORD: "Mahina@551238"
     volumes:
-      - .:/app
+      - ./Lavalink/application.yml:/opt/Lavalink/application.yml
+      - ./Lavalink/plugins/:/opt/Lavalink/plugins/
+    expose:
+      - 2333
+    ports:
+      - "2333:2333"
+    healthcheck:
+      test: 'curl -H "Authorization: Mahina@551238" -s http://localhost:2333/version'
+      interval: 10s
+      timeout: 10s
+      retries: 5
+      start_period: 10s

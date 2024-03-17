@@ -1,11 +1,13 @@
 import {
   ActionRowBuilder,
   ButtonBuilder,
-  ButtonStyle,
   CommandInteraction,
   TextChannel,
+  ButtonStyle,
+  ActivityType,
 } from 'discord.js'
-import { Context } from 'node:vm'
+
+import { Context, Mahina } from '#common/index'
 
 export class Utils {
   static formatTime(ms: number): string {
@@ -20,6 +22,30 @@ export class Utils {
       return `${Math.floor(ms / hourMs)}h ${Math.floor((ms % hourMs) / minuteMs)}m`
     } else {
       return `${Math.floor(ms / dayMs)}d ${Math.floor((ms % dayMs) / hourMs)}h`
+    }
+  }
+
+  static updateStatus(client: Mahina, guildId?: string): void {
+    if (client.user) {
+      if (guildId === client.env.DISC_GUILD_ID) {
+        const player = client.queue.get(client.env.DISC_GUILD_ID)
+        if (player && player.current) {
+          client.user.setActivity({
+            name: `🎶 | ${player.current.info.title}`,
+            type: ActivityType.Listening,
+          })
+        } else {
+          client.user?.setPresence({
+            activities: [
+              {
+                name: client.env.BOT_ACTIVITY,
+                type: client.env.BOT_ACTIVITY_TYPE,
+              },
+            ],
+            status: client.env.BOT_STATUS as any,
+          })
+        }
+      }
     }
   }
 
@@ -74,8 +100,8 @@ export class Utils {
     if (embed.length < 2) {
       if (ctx.isInteraction) {
         ctx.deferred
-          ? ctx.interaction.followUp({ embeds: embed })
-          : ctx.interaction.reply({ embeds: embed })
+          ? ctx.interaction!.followUp({ embeds: embed })
+          : ctx.interaction!.reply({ embeds: embed })
         return
       } else {
         await (ctx.channel as TextChannel).send({ embeds: embed })
@@ -118,11 +144,11 @@ export class Utils {
     let msg: any
     if (ctx.isInteraction) {
       msg = ctx.deferred
-        ? await ctx.interaction.followUp({
+        ? await ctx.interaction!.followUp({
             ...msgOptions,
             fetchReply: true as boolean,
           })
-        : await ctx.interaction.reply({
+        : await ctx.interaction!.reply({
             ...msgOptions,
             fetchReply: true,
           })

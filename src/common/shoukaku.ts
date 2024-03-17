@@ -11,7 +11,7 @@ export class ShoukakuClient extends Shoukaku {
         {
           name: 'Mahina',
           url: '0.0.0.0:2333',
-          auth: '123456',
+          auth: 'Mahina@551238',
           secure: false,
         },
       ],

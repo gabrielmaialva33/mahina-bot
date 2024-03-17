@@ -45,7 +45,7 @@ export default class Ping extends Command {
         },
       ])
       .setFooter({
-        text: `Requested by ${ctx.author!.tag}`,
+        text: `𝙋𝙚𝙙𝙞𝙙𝙖 𝙥𝙤𝙧 ${ctx.author!.tag}`,
         iconURL: ctx.author!.avatarURL({})!,
       })
       .setTimestamp()

@@ -18,7 +18,7 @@ import {
 
 import { env } from '#src/env'
 
-import { Utils } from '#src/utils/system'
+import { Utils } from '#src/utils/utils'
 import { Logger } from '#src/lib/logger'
 import { Queue, ShoukakuClient } from '#common/index'
 
@@ -43,6 +43,18 @@ export class Mahina extends Client {
     yellow: 0xfcf9a3,
     violet: 0x9e48a8,
     main: 0x4f5aa1,
+  }
+
+  readonly icons = {
+    youtube: 'https://telegra.ph/file/b691a3033fe2946b68029.png',
+    spotify: 'https://telegra.ph/file/4c7d513f95b5419e31e1d.png',
+    soundcloud: 'https://telegra.ph/file/151d98d56b1f5e67af6df.png',
+    apple_music: 'https://telegra.ph/file/99880df27b3400cc2a513.png',
+    deezer: 'https://telegra.ph/file/3f6792d8b87860899e6f9.png',
+  }
+
+  readonly links = {
+    img: 'https://telegra.ph/file/3d54575cc6b0bdc16095e.png',
   }
 
   constructor(options: ClientOptions) {

@@ -32,7 +32,8 @@
     "#src/*": "./src/*.js",
     "#common/*": "./src/common/*.js",
     "#commands/*": "./src/commands/*.js",
-    "#interfaces/*": "./src/interfaces/*.js"
+    "#interfaces/*": "./src/interfaces/*.js",
+    "#utils/*": "./src/utils/*.js"
   },
   "tsup": {
     "entry": [
@@ -53,6 +54,15 @@
     "extends": "@adonisjs/eslint-config/app"
   },
   "prettier": "@adonisjs/prettier-config",
+  "signale": {
+    "displayScope": true,
+    "displayBadge": true,
+    "displayDate": true,
+    "displayFilename": true,
+    "displayLabel": true,
+    "displayTimestamp": true,
+    "underlineLabel": true
+  },
   "dependencies": {
     "@swc/core": "^1.4.8",
     "discord.js": "^14.14.1",

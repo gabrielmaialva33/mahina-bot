@@ -18,9 +18,15 @@ export const env = cleanEnv(process.env, {
   DISC_GUILD_ID: str({ default: '' }),
   DISC_CHANNEL_ID: str({ default: '' }),
   DISC_CLIENT_ID: str({ default: '' }),
+  DISC_VOICE_ID: str({ default: '' }),
+  DISC_LOG_CHANNEL_ID: str({ default: '' }),
   DISC_OWNER_IDS: str({ default: '[]' }),
 
   DISC_BOT_PREFIX: str({ default: '!' }),
+
+  BOT_STATUS: str({ default: 'online' }),
+  BOT_ACTIVITY: str({ default: 'ＷｉｎｘＢｏｔ' }),
+  BOT_ACTIVITY_TYPE: num({ default: 2 }),
 
   SEARCH_ENGINE: str({ default: 'ytsearch' }),
   MAX_QUEUE_SIZE: num({ default: 30 }),
