@@ -188,7 +188,8 @@ export default class InteractionCreate extends Event {
         await command.run(this.client, ctx, ctx.args)
       } catch (error) {
         console.error(error)
-        await interaction.reply({ content: `🥺 𝙛𝙪𝙢𝙚𝙞 𝙙𝙚 𝙢𝙖𝙞𝙨.. 𝙢𝙖𝙣𝙖̃.. : \`${error}\`` })
+        //await interaction.reply({ content: `🥺 𝙛𝙪𝙢𝙚𝙞 𝙙𝙚 𝙢𝙖𝙞𝙨.. 𝙢𝙖𝙣𝙖̃.. : \`${error}\`` })
+        await interaction.reply({ content: `🥺𝙢𝙖𝙣𝙖̃.. 𝙤𝙪𝙫𝙚 𝙪𝙢 𝙚𝙧𝙧𝙤𝙧 : \`${error}\`` })
       }
     } else if (interaction.type === InteractionType.ApplicationCommandAutocomplete) {
       this.client.logger.info('Autocomplete interaction detected')
