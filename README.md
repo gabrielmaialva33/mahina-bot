@@ -1,22 +1,23 @@
 <h1 align="center">
   <br>
-  <img src="https://raw.githubusercontent.com/gabrielmaialva33/node-ts-app/master/.github/assets/icon.png" alt="TypeScript" width="200">
+  <img src=".github/assets/key.png" alt="TypeScript" width="400">
   <br>
-  A template for <a href="https://nodejs.org/en/">Node.js</a>
+   A  WinxBot for <a href="https://discord.com/">Discord</a>
   <br>
 </h1>
 
 <p align="center">
-  <strong>A complete Node.js project template using TypeScript </strong>
+  <strong>An open-source Discord bot for your server</strong>
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/github/license/gabrielmaialva33/node-ts-app?color=00b8d3?style=flat&logo=appveyor" alt="License" />
-  <img src="https://img.shields.io/github/languages/top/gabrielmaialva33/node-ts-app?style=flat&logo=appveyor" alt="GitHub top language" >
-  <img src="https://img.shields.io/github/languages/count/gabrielmaialva33/node-ts-app?style=flat&logo=appveyor" alt="GitHub language count" >
-  <img src="https://img.shields.io/github/repo-size/gabrielmaialva33/node-ts-app?style=flat&logo=appveyor" alt="Repository size" >
-  <a href="https://github.com/gabrielmaialva33/node-ts-app/commits/master">
-    <img src="https://img.shields.io/github/last-commit/gabrielmaialva33/node-ts-app?style=flat&logo=appveyor" alt="GitHub last commit" >
+  <img src="https://wakatime.com/badge/user/e61842d0-c588-4586-96a3-f0448a434be4/project/ee4d4424-8e03-4569-a868-c1680db34d70.svg" alt="waka" />
+  <img src="https://img.shields.io/github/license/gabrielmaialva33/mahina-bot?color=00b8d3?style=flat&logo=appveyor" alt="License" />
+  <img src="https://img.shields.io/github/languages/top/gabrielmaialva33/mahina-bot?style=flat&logo=appveyor" alt="GitHub top language" >
+  <img src="https://img.shields.io/github/languages/count/gabrielmaialva33/mahina-bot?style=flat&logo=appveyor" alt="GitHub language count" >
+  <img src="https://img.shields.io/github/repo-size/gabrielmaialva33/mahina-bot?style=flat&logo=appveyor" alt="Repository size" >
+  <a href="https://github.com/gabrielmaialva33/mahina-bot/commits/master">
+    <img src="https://img.shields.io/github/last-commit/gabrielmaialva33/mahina-bot?style=flat&logo=appveyor" alt="GitHub last commit" >
     <img src="https://img.shields.io/badge/made%20by-Maia-15c3d6?style=flat&logo=appveyor" alt="Maia" >  
   </a>
 </p>
@@ -35,7 +36,7 @@
 
 ## :bookmark: About
 
-**Node Typescript App** A complete Node.js project template using TypeScript and following general best practices.
+**ＷｉｎｘＢｏｔ** is a Discord bot that aims to help server administrators to manage their servers, providing a set of commands to help with moderation, music, and fun.
 
 <br>
 
@@ -45,13 +46,15 @@
 - **[Node.js](https://nodejs.org/)**
 - **[Eslint](https://eslint.org/)**
 - **[Prettier](https://prettier.io/)**
-- **[Japa](https://japa.dev/)**
+- **[Discord.js](https://discord.js.org/)**
+- **[Knex](http://knexjs.org/)**
+- **[Sqlite3](https://www.sqlite.org/index.html)**
 
 <br>
 
 ## :wrench: Tools
 
-- **[Visual Studio Code](https://code.visualstudio.com/)**
+- **[Docker](https://www.docker.com/)**
 - **[WebStorm](https://www.jetbrains.com/webstorm/)**
 
 <br>
@@ -73,7 +76,7 @@ The following software must be installed:
 ### :arrow_down: **Cloning the repository**
 
 ```sh
-  $ git clone https://github.com/gabrielmaialva33/node-ts-app.git
+  $ git clone https://github.com/gabrielmaialva33/mahina-bot.git
 ```
 
 <br>
@@ -83,11 +86,11 @@ The following software must be installed:
 - :package: API
 
 ```sh
-  $ cd node-ts-app
+  $ cd mahina-bot
   # install dependencies
-  $ yarn # or npm install
+  $ pnpm # or npm install
   # run the application
-  $ yarn start:dev # or yarn start
+  $ pnpm start:dev # or yarn start
 ```
 
 <br>
