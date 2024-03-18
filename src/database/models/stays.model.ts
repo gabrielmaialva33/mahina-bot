@@ -1,10 +1,11 @@
-import { Model } from 'objection'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
+import { ObjectionModel } from '#src/lib/objection'
+
 const dirname = path.dirname(fileURLToPath(import.meta.url))
 
-export class Stay extends Model {
+export class Stay extends ObjectionModel {
   static tableName = 'stays'
 
   /**
@@ -26,7 +27,7 @@ export class Stay extends Model {
    */
   static relationMappings = {
     guild: {
-      relation: Model.BelongsToOneRelation,
+      relation: ObjectionModel.BelongsToOneRelation,
       modelClass: path.join(dirname, 'guild.model.js'),
       join: {
         from: 'stays.guild_id',

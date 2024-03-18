@@ -1,6 +1,6 @@
-import { Model } from 'objection'
+import { ObjectionModel } from '#src/lib/objection'
 
-export class Guild extends Model {
+export class Guild extends ObjectionModel {
   static tableName = 'guilds'
 
   /**

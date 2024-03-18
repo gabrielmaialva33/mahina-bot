@@ -8,7 +8,7 @@ export async function up(knex: Knex): Promise<void> {
     table.string('text_id').notNullable()
     table.string('voice_id').notNullable()
 
-    table.foreign('guild_id').references('id').inTable('guilds').onDelete('CASCADE')
+    //table.foreign('guild_id').references('id').inTable('guilds').onDelete('CASCADE')
 
     table.timestamp('created_at').defaultTo(knex.fn.now())
     table.timestamp('updated_at').defaultTo(knex.fn.now())

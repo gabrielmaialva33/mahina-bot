@@ -4,7 +4,7 @@ export async function up(knex: Knex): Promise<void> {
   await knex.schema.createTable('djs', (table) => {
     table.string('id').primary()
     table.string('guild_id').notNullable()
-    table.foreign('guild_id').references('id').inTable('guilds').onDelete('CASCADE')
+    //table.foreign('guild_id').references('id').inTable('guilds').onDelete('CASCADE')
 
     table.boolean('mode').notNullable().defaultTo(false)
 
