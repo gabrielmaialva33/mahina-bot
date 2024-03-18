@@ -6,7 +6,7 @@ import { KnexLogger } from '#utils/knex.utils'
 
 export const SQLITE_CONFIG: Knex.Config<Knex.Sqlite3ConnectionConfig> = {
   client: 'better-sqlite3',
-  connection: process.cwd() + '/src/database/database.sqlite',
+  connection: process.cwd() + '/database.sqlite',
   debug: env.DB_DEBUG,
   log: KnexLogger,
   useNullAsDefault: true,

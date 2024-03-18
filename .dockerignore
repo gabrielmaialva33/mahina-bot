@@ -12,3 +12,4 @@ Procfile
 Dockerfile
 .dockerignore
 build
+database.sqlite
