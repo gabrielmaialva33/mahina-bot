@@ -30,12 +30,4 @@ export class Guild extends Model {
    * Scopes
    * ------------------------------------------------------
    */
-
-  /**
-   * ------------------------------------------------------
-   * Misc
-   * ------------------------------------------------------
-   * - jsonSchema is used by objection to validate the data before inserting it into the database (optional)
-   * - $formatJson is used by objection to format the data before sending it to the client (optional)
-   */
 }

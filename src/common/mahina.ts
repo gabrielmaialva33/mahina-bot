@@ -21,6 +21,7 @@ import { env } from '#src/env'
 import { Utils } from '#src/utils/utils'
 import { Logger } from '#src/lib/logger'
 import { Queue, ShoukakuClient } from '#common/index'
+import { DB } from '#src/database/models/db'
 
 const dirname = path.dirname(fileURLToPath(import.meta.url))
 
@@ -30,6 +31,7 @@ export class Mahina extends Client {
   body: RESTPostAPIChatInputApplicationCommandsJSONBody[] = []
   shoukaku: ShoukakuClient
   cooldown: Collection<string, any> = new Collection()
+  db = new DB()
 
   env: typeof env = env
   utils: typeof Utils = Utils
@@ -71,7 +73,16 @@ export class Mahina extends Client {
 
     // @ts-ignore
     this.on(Events.InteractionCreate, async (interaction: Interaction<'cached'>): Promise<void> => {
-      if (interaction.isButton()) this.emit('setupButtons', interaction)
+      if (interaction.isButton()) {
+        const setup = await this.db.getSetup(interaction.guildId)
+        if (
+          setup &&
+          interaction.channelId === setup.text_id &&
+          interaction.message.id === setup.message_id
+        ) {
+          this.emit('setupButtons', interaction)
+        }
+      }
     })
   }
 

@@ -108,6 +108,45 @@ export default class InteractionCreate extends Event {
               })
           }
         }
+        if (command.player.active) {
+          if (!this.client.queue.get(interaction.guildId))
+            return await interaction.reply({
+              content: '𝙉𝙖̃𝙤 𝙩𝙖 𝙩𝙤𝙘𝙖𝙣𝙙𝙤 𝙣𝙖𝙙𝙚 𝙢𝙖𝙣𝙖̃..',
+            })
+          if (!this.client.queue.get(interaction.guildId).queue)
+            return await interaction.reply({
+              content: '𝙉𝙖̃𝙤 𝙩𝙖 𝙩𝙤𝙘𝙖𝙣𝙙𝙤 𝙣𝙖𝙙𝙚 𝙢𝙖𝙣𝙖̃..',
+            })
+          if (!this.client.queue.get(interaction.guildId).current)
+            return await interaction.reply({
+              content: '𝙉𝙖̃𝙤 𝙩𝙖 𝙩𝙤𝙘𝙖𝙣𝙙𝙤 𝙣𝙖𝙙𝙚 𝙢𝙖𝙣𝙖̃..',
+            })
+        }
+        if (command.player.dj) {
+          const dj = await this.client.db.getDj(interaction.guildId)
+          if (dj && dj.mode) {
+            const djRole = await this.client.db.getRoles(interaction.guildId)
+            if (!djRole)
+              return await interaction.reply({
+                content: '𝙉𝙖̃𝙤 𝙩𝙚𝙢 𝙧𝙤𝙡𝙚 𝙙𝙚 𝘿𝙅 𝙥𝙖𝙧𝙖 𝙪𝙨𝙖𝙧 𝙚𝙨𝙩𝙚 𝙘𝙤𝙢𝙖𝙣𝙙𝙤.',
+              })
+            const findDJRole = (interaction.member as GuildMember).roles.cache.find((x: any) =>
+              djRole.map((y: any) => y.role_id).includes(x.id)
+            )
+            if (!findDJRole) {
+              if (
+                !(interaction.member as GuildMember).permissions.has(
+                  PermissionFlagsBits.ManageGuild
+                )
+              ) {
+                return await interaction.reply({
+                  content: '𝙈𝙖𝙣𝙖̃.. 𝙤𝙘𝙚 𝙥𝙧𝙚𝙘𝙞𝙨𝙖 𝙩𝙚𝙧 𝙤 𝙘𝙖𝙧𝙜𝙤 𝙙𝙚 𝘿𝙅 𝙥𝙖𝙧𝙖 𝙪𝙨𝙖𝙧 𝙚𝙨𝙩𝙚 𝙘𝙤𝙢𝙖𝙣𝙙𝙚.',
+                  ephemeral: true,
+                })
+              }
+            }
+          }
+        }
       }
 
       if (!this.client.cooldown.has(commandName))
