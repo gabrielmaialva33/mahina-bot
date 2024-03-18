@@ -1,6 +1,5 @@
 import type { Knex } from 'knex'
 
-//        'CREATE TABLE IF NOT EXISTS stay (guildId TEXT PRIMARY KEY, textId TEXT, voiceId TEXT)'
 export async function up(knex: Knex): Promise<void> {
   await knex.schema.createTable('stays', (table) => {
     table.string('id').primary()

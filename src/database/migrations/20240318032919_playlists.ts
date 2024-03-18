@@ -6,7 +6,7 @@ export async function up(knex: Knex): Promise<void> {
 
     table.string('user_id').notNullable()
     table.string('name').notNullable()
-    table.string('songs').notNullable()
+    table.text('songs').notNullable()
 
     //table.foreign('user_id').references('id').inTable('users').onDelete('CASCADE')
 

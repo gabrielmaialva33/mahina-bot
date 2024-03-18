@@ -3,6 +3,7 @@
   "compilerOptions": {
     "rootDir": "./",
     "outDir": "./build",
+    "strictPropertyInitialization": false,
     "paths": {
       "#src/*": ["./src/*.js"],
       "#common/*": ["./src/common/*.js"],
