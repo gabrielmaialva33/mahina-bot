@@ -27,7 +27,7 @@ export const env = cleanEnv(process.env, {
   DISC_BOT_PREFIX: str({ default: '!' }),
 
   BOT_STATUS: str({ default: 'online' }),
-  BOT_ACTIVITY: str({ default: 'ＷｉｎｘＢｏｔ' }),
+  BOT_ACTIVITY: str({ default: 'com oce manã..' }),
   BOT_ACTIVITY_TYPE: num({ default: 2 }),
 
   SEARCH_ENGINE: str({ default: 'ytsearch' }),

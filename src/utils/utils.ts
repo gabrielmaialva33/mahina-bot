@@ -26,25 +26,23 @@ export class Utils {
   }
 
   static updateStatus(client: Mahina, guildId?: string): void {
-    if (client.user) {
-      if (guildId === client.env.DISC_GUILD_ID) {
-        const player = client.queue.get(client.env.DISC_GUILD_ID)
-        if (player && player.current) {
-          client.user.setActivity({
-            name: `🎶 | ${player.current.info.title}`,
-            type: ActivityType.Listening,
-          })
-        } else {
-          client.user?.setPresence({
-            activities: [
-              {
-                name: client.env.BOT_ACTIVITY,
-                type: client.env.BOT_ACTIVITY_TYPE,
-              },
-            ],
-            status: client.env.BOT_STATUS as any,
-          })
-        }
+    if (client.user && guildId) {
+      const player = client.queue.get(guildId)
+      if (player && player.current) {
+        client.user.setActivity({
+          name: `🎶 | ${player.current.info.title}`,
+          type: ActivityType.Listening,
+        })
+      } else {
+        client.user?.setPresence({
+          activities: [
+            {
+              name: client.env.BOT_ACTIVITY,
+              type: client.env.BOT_ACTIVITY_TYPE,
+            },
+          ],
+          status: client.env.BOT_STATUS as any,
+        })
       }
     }
   }
