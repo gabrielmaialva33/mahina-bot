@@ -34,7 +34,7 @@
     "db:make": "tsup && ./node_modules/knex/bin/cli.js --knexfile ./knexfile.mjs migrate:make $1 -x ts --migrations-directory src/database/migrations",
     "db:reset": "tsup && ./node_modules/knex/bin/cli.js --knexfile ./knexfile.mjs migrate:rollback && tsup && ./node_modules/knex/bin/cli.js --knexfile ./knexfile.mjs migrate:latest",
     "db:seed": "tsup && ./node_modules/knex/bin/cli.js --knexfile ./knexfile.mjs seed:run",
-    "db:prune:sqlite": "rimraf ./src/database/database.sqlite"
+    "db:prune:sqlite": "rimraf ./database.sqlite"
   },
   "imports": {
     "#src/*": "./src/*.js",
@@ -47,10 +47,7 @@
     "entry": [
       "src/**/*.ts"
     ],
-    "format": [
-      "esm",
-      "cjs"
-    ],
+    "format": ["esm"],
     "splitting": false,
     "sourcemap": true,
     "clean": true,
