@@ -60,6 +60,43 @@ export class DB {
    * Stay Methods
    * ------------------------------------------------------
    */
+  //     public get_247(guildId?: string): any {
+  //         if (guildId) {
+  //             const data: any = db.prepare('SELECT * FROM stay WHERE guildId = ?').get(guildId);
+  //             if (!data) {
+  //                 db.prepare('INSERT INTO stay (guildId) VALUES (?)').run(guildId);
+  //                 return false;
+  //             } else {
+  //                 return data;
+  //             }
+  //         } else {
+  //             const data: any = db.prepare('SELECT * FROM stay').all();
+  //             if (!data) {
+  //                 return false;
+  //             } else {
+  //                 return data;
+  //             }
+  //         }
+  //     }
+  async get_247(guildId?: string): Promise<Stay[]> {
+    if (guildId) {
+      const data = await this.stay.query().findOne({ guild_id: guildId })
+      if (!data) {
+        await this.stay.query().insert({ guild_id: guildId })
+        return this.get_247(guildId)
+      } else {
+        return [data]
+      }
+    } else {
+      const data = await this.stay.query().select()
+      if (!data) {
+        return this.get_247()
+      } else {
+        return data
+      }
+    }
+  }
+
   async set_247(guildId: string, textId: string, voiceId: string): Promise<void> {
     let data = await this.stay.query().findOne({ guild_id: guildId })
     if (!data) {
