@@ -82,7 +82,7 @@ export default class About extends Command {
     return await ctx.sendMessage({
       content: '',
       embeds: [embed],
-      components: [row],
+      components: [],
     })
   }
 }
