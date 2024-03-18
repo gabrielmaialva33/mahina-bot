@@ -1,6 +1,6 @@
 import 'dotenv/config'
 
-import { cleanEnv, num, str, bool } from 'envalid'
+import { bool, cleanEnv, num, str } from 'envalid'
 
 export const env = cleanEnv(process.env, {
   TZ: str({ default: 'America/Sao_Paulo' }),

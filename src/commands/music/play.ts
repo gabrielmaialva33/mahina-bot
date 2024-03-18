@@ -41,6 +41,7 @@ export default class Play extends Command {
       ],
     })
   }
+
   async run(client: Mahina, ctx: Context, args: string[]): Promise<any> {
     const query = args.join(' ')
     if (!ctx.guild) return

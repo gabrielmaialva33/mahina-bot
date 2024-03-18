@@ -2,21 +2,27 @@ import { Guild } from 'discord.js'
 import { LavalinkResponse, Node } from 'shoukaku'
 
 import { Dispatcher, Mahina } from '#common/index'
+
 export class Queue extends Map {
   client: Mahina
+
   constructor(client: Mahina) {
     super()
     this.client = client
   }
+
   get(guildId: string): Dispatcher {
     return super.get(guildId)
   }
+
   set(guildId: string, dispatcher: Dispatcher): this {
     return super.set(guildId, dispatcher)
   }
+
   delete(guildId: string): boolean {
     return super.delete(guildId)
   }
+
   clear(): void {
     return super.clear()
   }

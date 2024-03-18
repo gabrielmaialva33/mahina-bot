@@ -225,6 +225,7 @@ async function setupStart(
     }
   }
 }
+
 async function trackStart(
   msgId: any,
   channel: TextChannel,
@@ -400,4 +401,5 @@ async function oops(channel: TextChannel, args: string): Promise<void> {
     return console.error(e)
   }
 }
+
 export { setupStart, trackStart, buttonReply, updateSetup, oops }

@@ -33,7 +33,6 @@ export class Song implements Track {
 }
 
 export class Dispatcher {
-  private client: Mahina
   guildId: string
   channelId: string
   player: Player
@@ -52,6 +51,7 @@ export class Dispatcher {
   autoplay: boolean
   nowPlayingMessage: Message | null
   history: Song[] = []
+  private client: Mahina
 
   constructor(options: DispatcherOptions) {
     this.client = options.client
@@ -87,9 +87,11 @@ export class Dispatcher {
   get exists(): boolean {
     return this.client.queue.has(this.guildId)
   }
+
   get volume(): number {
     return this.player.volume
   }
+
   async play(): Promise<void> {
     if (!this.exists || (!this.queue.length && !this.current)) return
 
@@ -105,6 +107,7 @@ export class Dispatcher {
       }
     }
   }
+
   pause(): void {
     if (!this.player) return
     if (!this.paused) {
@@ -115,17 +118,20 @@ export class Dispatcher {
       this.paused = false
     }
   }
+
   remove(index: number): void {
     if (!this.player) return
     if (index > this.queue.length) return
     this.queue.splice(index, 1)
   }
+
   previousTrack(): void {
     if (!this.player) return
     if (!this.previous) return
     this.queue.unshift(this.previous)
     this.player.stopTrack()
   }
+
   destroy(): void {
     this.queue.length = 0
     this.history = []
@@ -134,6 +140,7 @@ export class Dispatcher {
     if (this.stopped) return
     this.client.shoukaku.emit('playerDestroy', this.player)
   }
+
   setShuffle(shuffle: boolean): void {
     if (!this.player) return
     this.shuffle = shuffle
@@ -151,6 +158,7 @@ export class Dispatcher {
       this.queue.unshift(current)
     }
   }
+
   async skip(skipTo = 1): Promise<void> {
     if (!this.player) return
     if (skipTo > 1) {
@@ -163,10 +171,12 @@ export class Dispatcher {
     this.repeat = this.repeat === 1 ? 0 : this.repeat
     this.player.stopTrack()
   }
+
   seek(time: number): void {
     if (!this.player) return
     this.player.seekTo(time)
   }
+
   stop(): void {
     if (!this.player) return
     this.queue.length = 0
@@ -177,6 +187,7 @@ export class Dispatcher {
     this.stopped = true
     this.player.stopTrack()
   }
+
   setLoop(loop: any): void {
     this.loop = loop
   }
@@ -184,11 +195,13 @@ export class Dispatcher {
   buildTrack(track: Song | Track, user: User): Song {
     return new Song(track, user)
   }
+
   async isPlaying(): Promise<void> {
     if (this.queue.length && !this.current && !this.player.paused) {
       this.play()
     }
   }
+
   async Autoplay(song: Song): Promise<void> {
     const resolve = await this.node.rest.resolve(
       `${this.client.env.SEARCH_ENGINE}:${song.info.author}`
@@ -222,6 +235,7 @@ export class Dispatcher {
     }
     return this.destroy()
   }
+
   async setAutoplay(autoplay: boolean): Promise<void> {
     this.autoplay = autoplay
     if (autoplay) {
