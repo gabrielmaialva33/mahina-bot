@@ -1,6 +1,6 @@
 import 'dotenv/config'
 
-import { cleanEnv, num, str } from 'envalid'
+import { cleanEnv, num, str, bool } from 'envalid'
 
 export const env = cleanEnv(process.env, {
   TZ: str({ default: 'America/Sao_Paulo' }),
@@ -10,6 +10,8 @@ export const env = cleanEnv(process.env, {
   NODE_ENV: str({ default: 'development' }),
 
   // Database
+  DB_CLIENT: str({ default: 'sqlite' }),
+  DB_DEBUG: bool({ default: false }),
 
   // Discord
   DISC_BOT_TOKEN: str({ default: '' }),
@@ -31,4 +33,10 @@ export const env = cleanEnv(process.env, {
   SEARCH_ENGINE: str({ default: 'ytsearch' }),
   MAX_QUEUE_SIZE: num({ default: 30 }),
   MAX_PLAYLIST_SIZE: num({ default: 50 }),
+
+  LAVALINK_URL: str({ default: 'http://localhost:2333' }),
+  LAVALINK_AUTH: str({ default: '' }),
+  LAVALINK_PORT: num({ default: 2333 }),
+  LAVALINK_NAME: str({ default: 'WinxBot' }),
+  LAVALINK_SECURE: bool({ default: false }),
 })
