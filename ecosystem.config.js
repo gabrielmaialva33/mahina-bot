@@ -1,7 +1,7 @@
-export default {
+module.exports = {
   apps: [
     {
-      name: 'mahina-bot',
+      name: 'mahina',
       command: 'pnpm build && pnpm start',
     },
   ],
