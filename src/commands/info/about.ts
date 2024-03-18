@@ -33,6 +33,7 @@ export default class About extends Command {
 
   async run(client: Mahina, ctx: Context): Promise<any> {
     client.logger.info('About command used')
+    // @ts-ignore
     const row = new ActionRowBuilder().addComponents(
       new ButtonBuilder()
         .setLabel(' 𝙄𝙣𝙫𝙞𝙩𝙚-𝙢𝙚 𝙥𝙖𝙧𝙖 𝙤 𝙨𝙚𝙪 𝙨𝙚𝙧𝙫𝙞𝙙𝙤𝙧  🍁')
@@ -75,9 +76,14 @@ export default class About extends Command {
         },
         {
           name: '\u200b',
-          value: ` 𝙁𝙪𝙢𝙚 𝙢𝙪𝙞𝙩𝙖 𝙢𝙖𝙘𝙤𝙣𝙝𝙖 🍁`,
+          value: `𝙎𝙚𝙟𝙖 𝙛𝙚𝙡𝙞𝙯 🍁`,
           inline: true,
         },
+        // {
+        //   name: '\u200b',
+        //   value: ` 𝙁𝙪𝙢𝙚 𝙢𝙪𝙞𝙩𝙖 𝙢𝙖𝙘𝙤𝙣𝙝𝙖 🍁`,
+        //   inline: true,
+        // },
       ])
     return await ctx.sendMessage({
       content: '',
