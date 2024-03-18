@@ -1,5 +1,6 @@
 import { Connectors, Shoukaku } from 'shoukaku'
 import { Mahina } from '#common/mahina'
+import { env } from '#src/env'
 
 export class ShoukakuClient extends Shoukaku {
   client: Mahina
@@ -10,9 +11,9 @@ export class ShoukakuClient extends Shoukaku {
       [
         {
           name: 'Mahina',
-          url: '0.0.0.0:2333',
-          auth: 'Mahina@551238',
-          secure: false,
+          url: env.LAVALINK_URL,
+          auth: env.LAVALINK_AUTH,
+          secure: true,
         },
       ],
       {
