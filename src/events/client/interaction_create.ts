@@ -40,25 +40,25 @@ export default class InteractionCreate extends Event {
       if (!interaction.guild!.members.me!.permissions.has(PermissionFlagsBits.SendMessages)) {
         return await (interaction.member as GuildMember)
           .send({
-            content: `I don't have **\`SendMessage\`** permission in \`${interaction.guild!.name}\`\nchannel: <#${interaction.channelId}>`,
+            content: `𝙉𝙖̃𝙤 𝙩𝙚𝙣𝙝𝙤 𝙥𝙚𝙧𝙢𝙞𝙨𝙨𝙖̃𝙤 𝙙𝙚 **\`SendMessage\`** 𝙚𝙣𝙫𝙞𝙖𝙧 𝙢𝙚𝙣𝙨𝙖𝙜𝙚𝙣𝙨 𝙣𝙚𝙨𝙨𝙚 𝙘𝙖𝙣𝙖𝙡 \`${interaction.guild!.name}\`\n𝘾𝙖𝙣𝙖𝙡: <#${interaction.channelId}>`,
           })
           .catch(() => {})
       }
 
       if (!interaction.guild!.members.me!.permissions.has(PermissionFlagsBits.EmbedLinks))
-        return await interaction.reply({ content: "I don't have **`EmbedLinks`** permission." })
+        return await interaction.reply({ content: '𝙉𝙖̃𝙤 𝙩𝙚𝙣𝙝𝙤 𝙥𝙚𝙧𝙢𝙞𝙨𝙨𝙖̃𝙤 𝙙𝙚 **`EmbedLinks`** .' })
 
       if (command.permissions) {
         if (command.permissions.client)
           if (!interaction.guild!.members.me!.permissions.has(command.permissions.client))
             return await interaction.reply({
-              content: "I don't have enough permissions to execute this command.",
+              content: "'𝙈𝙖𝙣𝙖̃.. 𝙤𝙘𝙚 𝙣𝙖̃𝙤 𝙩𝙚𝙢 𝙥𝙚𝙧𝙢𝙞𝙨𝙨𝙤̃𝙚𝙨 𝙨𝙪𝙛𝙞𝙘𝙞𝙚𝙣𝙩𝙚𝙨 𝙥𝙖𝙧𝙖 𝙪𝙨𝙖𝙧 𝙚𝙨𝙩𝙚 𝙘𝙤𝙢𝙖𝙣𝙙𝙚.",
             })
 
         if (command.permissions.user) {
           if (!(interaction.member as GuildMember).permissions.has(command.permissions.user)) {
             await interaction.reply({
-              content: "You don't have enough permissions to use this command.",
+              content: '𝙈𝙖𝙣𝙖̃.. 𝙤𝙘𝙚 𝙣𝙖̃𝙤 𝙩𝙚𝙢 𝙥𝙚𝙧𝙢𝙞𝙨𝙨𝙤̃𝙚𝙨 𝙨𝙪𝙛𝙞𝙘𝙞𝙚𝙣𝙩𝙚𝙨 𝙥𝙖𝙧𝙖 𝙪𝙨𝙖𝙧 𝙚𝙨𝙩𝙚 𝙘𝙤𝙢𝙖𝙣𝙙𝙚.',
               ephemeral: true,
             })
             return
@@ -77,17 +77,17 @@ export default class InteractionCreate extends Event {
         if (command.player.voice) {
           if (!(interaction.member as GuildMember).voice.channel)
             return await interaction.reply({
-              content: `You must be connected to a voice channel to use this \`${command.name}\` command.`,
+              content: `𝙈𝙖𝙣𝙖̃.. 𝙣𝙖̃𝙤 𝙫𝙤 𝙛𝙞𝙘𝙖𝙚 𝙨𝙤𝙯𝙞𝙣𝙝𝙚..🥺𝙚𝙣𝙩𝙧𝙖 𝙘𝙤𝙢𝙞𝙜𝙪 𝙘𝙤𝙢 𝙚𝙘̧𝙚 𝙘𝙤𝙢𝙖𝙣𝙙𝙚. \`${command.name}\` .`,
             })
 
           if (!interaction.guild!.members.me!.permissions.has(PermissionFlagsBits.Speak))
             return await interaction.reply({
-              content: `I don't have \`CONNECT\` permissions to execute this \`${command.name}\` command.`,
+              content: `𝙈𝙖𝙣𝙖̃..🥺 𝙣𝙖̃𝙤 𝙩𝙚𝙣𝙝𝙤 \`CONNECT\` 𝙥𝙚𝙧𝙢𝙞𝙨𝙨𝙖̃𝙤 𝙥𝙧𝙖 𝙚𝙣𝙩𝙧𝙖𝙚 𝙚 𝙧𝙤𝙙𝙖 \`${command.name}\` 𝙘̧𝙚 𝙘𝙤𝙢𝙖𝙣𝙙𝙚.`,
             })
 
           if (!interaction.guild!.members.me!.permissions.has(PermissionFlagsBits.Speak))
             return await interaction.reply({
-              content: `I don't have \`SPEAK\` permissions to execute this \`${command.name}\` command.`,
+              content: `𝙈𝙖𝙣𝙖̃..🥺 𝙣𝙖̃𝙤 𝙩𝙚𝙣𝙝𝙤  \`SPEAK\` 𝙥𝙚𝙧𝙢𝙞𝙨𝙨𝙖̃𝙤 𝙥𝙧𝙖 𝙛𝙖𝙡𝙖𝙚 𝙚 𝙧𝙤𝙙𝙖 \`${command.name}\` 𝙚𝙘̧𝙚 𝙘𝙤𝙢𝙖𝙣𝙙𝙚.`,
             })
 
           if (
@@ -96,7 +96,7 @@ export default class InteractionCreate extends Event {
             !interaction.guild!.members.me!.permissions.has(PermissionFlagsBits.RequestToSpeak)
           )
             return await interaction.reply({
-              content: `I don't have \`REQUEST TO SPEAK\` permission to execute this \`${command.name}\` command.`,
+              content: `𝙈𝙖𝙣𝙖̃..🥺 𝙣𝙖̃𝙤 𝙩𝙚𝙣𝙝𝙤 \`REQUEST TO SPEAK\` 𝙥𝙚𝙧𝙢𝙞𝙨𝙨𝙖̃𝙤 𝙥𝙧𝙖 𝙛𝙖𝙡𝙖𝙚 𝙚 𝙧𝙤𝙙𝙖 \`${command.name}\` 𝙚𝙘̧𝙚 𝙘𝙤𝙢𝙖𝙣𝙙𝙚.`,
             })
           if (interaction.guild!.members.me!.voice.channel) {
             if (
@@ -104,7 +104,7 @@ export default class InteractionCreate extends Event {
               (interaction.member as GuildMember).voice.channelId
             )
               return await interaction.reply({
-                content: `You are not connected to <#${interaction.guild!.members.me!.voice.channel.id}> to use this \`${command.name}\` command.`,
+                content: `𝙈𝙖𝙣𝙖̃..🥺 𝙫𝙘 𝙣𝙖̃𝙤 𝙚𝙨𝙩𝙖́ 𝙘𝙤𝙣𝙚𝙘𝙩𝙖𝙙𝙚 <#${interaction.guild!.members.me!.voice.channel.id}> 𝙪𝙨𝙚 𝙤 𝙘𝙤𝙢𝙖𝙣𝙙𝙤 \`${command.name}\` .`,
               })
           }
         }
@@ -125,9 +125,9 @@ export default class InteractionCreate extends Event {
         const timeLeft = (expirationTime - now) / 1000
         if (now < expirationTime && timeLeft > 0.9) {
           return await interaction.reply({
-            content: `Please wait ${timeLeft.toFixed(
+            content: `𝙈𝙖𝙣𝙖̃..🥺 𝙚𝙨𝙥𝙚𝙧𝙖 ${timeLeft.toFixed(
               1
-            )} more second(s) before reusing the \`${commandName}\` command.`,
+            )} 𝙪𝙣𝙨 𝙨𝙚𝙜𝙪𝙣𝙙𝙚𝙨 𝙥𝙧𝙖 𝙪𝙨𝙖𝙧 𝙤 𝙘𝙤𝙢𝙖𝙣𝙙𝙚 \`${commandName}\` .`,
           })
         }
         timestamps.set(interaction.user.id, now)
@@ -142,17 +142,17 @@ export default class InteractionCreate extends Event {
         )
       )
         return await interaction.reply({
-          content: "You can't mention everyone or here.",
+          content: '𝙈𝙖𝙣𝙖̃..🥺 𝙤𝙘𝙚 𝙣𝙖̃𝙤 𝙥𝙤𝙙𝙚 𝙢𝙚𝙣𝙘𝙞𝙤𝙣𝙖𝙧 𝙩𝙤𝙙𝙚𝙨..',
           ephemeral: true,
         })
       try {
         await command.run(this.client, ctx, ctx.args)
       } catch (error) {
         console.error(error)
-        await interaction.reply({ content: `An error occurred: \`${error}\`` })
+        await interaction.reply({ content: `🥺 𝙛𝙪𝙢𝙚𝙞 𝙙𝙚 𝙢𝙖𝙞𝙨.. 𝙢𝙖𝙣𝙖̃.. : \`${error}\`` })
       }
     } else if (interaction.type === InteractionType.ApplicationCommandAutocomplete) {
-      console.log(`Autocomplete interaction detected`)
+      this.client.logger.info('Autocomplete interaction detected')
     }
   }
 }

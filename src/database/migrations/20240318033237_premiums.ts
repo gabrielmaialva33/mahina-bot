@@ -1,9 +1,5 @@
 import type { Knex } from 'knex'
 
-//         db.prepare(
-//             'CREATE TABLE IF NOT EXISTS premium (userId TEXT PRIMARY KEY, guildId TEXT)'
-//         ).run();
-
 export async function up(knex: Knex): Promise<void> {
   await knex.schema.createTable('premiums', (table) => {
     table.string('id').primary()
