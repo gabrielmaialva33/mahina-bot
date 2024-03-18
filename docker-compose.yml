@@ -9,8 +9,8 @@ services:
       SERVER_ADDRESS: 0.0.0.0
       LAVALINK_SERVER_PASSWORD: "Mahina@551238"
     volumes:
-      - ./Lavalink/application.yml:/opt/Lavalink/application.yml
-      - ./Lavalink/plugins/:/opt/Lavalink/plugins/
+      - ./application.yml:/opt/Lavalink/application.yml
+      - ./plugins/:/opt/Lavalink/plugins/
     expose:
       - 2333
     ports:
