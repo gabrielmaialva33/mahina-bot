@@ -35,6 +35,7 @@ export default class Volume extends Command {
       ],
     })
   }
+
   async run(client: Mahina, ctx: Context, args: string[]): Promise<any> {
     if (!ctx.guild) return
 

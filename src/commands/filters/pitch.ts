@@ -37,6 +37,7 @@ export default class Pitch extends Command {
       ],
     })
   }
+
   async run(client: Mahina, ctx: Context, args: string[]): Promise<any> {
     const player = client.queue.get(ctx.guild!.id)
 

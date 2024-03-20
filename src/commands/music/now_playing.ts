@@ -28,6 +28,7 @@ export default class NowPlaying extends Command {
       options: [],
     })
   }
+
   async run(client: Mahina, ctx: Context): Promise<any> {
     const player = client.queue.get(ctx.guild!.id)
 

@@ -27,6 +27,7 @@ export default class BassBoost extends Command {
       slashCommand: true,
     })
   }
+
   async run(client: Mahina, ctx: Context): Promise<any> {
     const player = client.queue.get(ctx.guild!.id)
 

@@ -28,6 +28,7 @@ export default class ClearQueue extends Command {
       options: [],
     })
   }
+
   async run(client: Mahina, ctx: Context): Promise<any> {
     if (!ctx.guild) return
 

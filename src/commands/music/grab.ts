@@ -28,6 +28,7 @@ export default class Grab extends Command {
       options: [],
     })
   }
+
   async run(client: Mahina, ctx: Context): Promise<any> {
     const embed = client.embed().setColor(client.color.main)
     let player = client.queue.get(ctx.guild!.id)

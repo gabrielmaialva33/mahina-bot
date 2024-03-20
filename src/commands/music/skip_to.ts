@@ -1,16 +1,16 @@
 import { Command, Context, Mahina } from '#common/index'
 
-export default class Remove extends Command {
+export default class SkipTo extends Command {
   constructor(client: Mahina) {
     super(client, {
-      name: 'remove',
+      name: 'skipto',
       description: {
-        content: 'Remove uma música da fila',
-        examples: ['remove 1'],
-        usage: 'remove <song number>',
+        content: 'Avança para a música desejada',
+        examples: ['skipto 3'],
+        usage: 'skipto <number>',
       },
       category: 'music',
-      aliases: ['rm'],
+      aliases: ['st'],
       cooldown: 3,
       args: true,
       player: {
@@ -27,8 +27,8 @@ export default class Remove extends Command {
       slashCommand: true,
       options: [
         {
-          name: 'song',
-          description: 'O número da música que você deseja remover',
+          name: 'number',
+          description: 'O número da música que deseja pular',
           type: 4,
           required: true,
         },
@@ -61,12 +61,13 @@ export default class Remove extends Command {
           embed.setColor(this.client.color.red).setDescription('𝙄𝙨𝙨𝙤 𝙣𝙖̃𝙤 𝙚́ 𝙪𝙢 𝙣𝙪́𝙢𝙚𝙧𝙤 𝙫𝙖́𝙡𝙞𝙙𝙤.'),
         ],
       })
-    player.remove(Number(args[0]) - 1)
+    player.skip(Number(args[0]))
+
     return await ctx.sendMessage({
       embeds: [
         embed
           .setColor(this.client.color.main)
-          .setDescription(`𝙈𝙪́𝙨𝙞𝙘𝙖 ${Number(args[0])} 𝙧𝙚𝙢𝙤𝙫𝙞𝙙𝙖 𝙙𝙖 𝙛𝙞𝙡𝙖.`),
+          .setDescription(`𝙋𝙪𝙡𝙤𝙪 𝙥𝙖𝙧𝙖 𝙤 𝙣𝙪́𝙢𝙚𝙧𝙤 ${args[0]} 𝙙𝙖 𝙛𝙞𝙡𝙖`),
       ],
     })
   }

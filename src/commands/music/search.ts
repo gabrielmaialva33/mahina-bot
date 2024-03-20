@@ -37,6 +37,7 @@ export default class Search extends Command {
       ],
     })
   }
+
   async run(client: Mahina, ctx: Context, args: string[]): Promise<any> {
     const embed = client.embed().setColor(client.color.main)
     let player = client.queue.get(ctx.guild!.id)

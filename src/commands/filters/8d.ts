@@ -29,6 +29,7 @@ export default class _8d extends Command {
       options: [],
     })
   }
+
   async run(client: Mahina, ctx: Context): Promise<any> {
     const player = client.queue.get(ctx.guild!.id)
     if (!player) return

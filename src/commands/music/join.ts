@@ -28,6 +28,7 @@ export default class Join extends Command {
       options: [],
     })
   }
+
   async run(client: Mahina, ctx: Context): Promise<any> {
     let player = client.queue.get(ctx.guild!.id)
     const embed = this.client.embed()
