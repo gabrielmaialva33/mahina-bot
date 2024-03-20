@@ -1,7 +1,7 @@
-import { Command, Context, Mahina } from '#common/index'
+import { Command, Context, BaseClient } from '#common/index'
 
 export default class Volume extends Command {
-  constructor(client: Mahina) {
+  constructor(client: BaseClient) {
     super(client, {
       name: 'volume',
       description: {
@@ -36,7 +36,7 @@ export default class Volume extends Command {
     })
   }
 
-  async run(client: Mahina, ctx: Context, args: string[]): Promise<any> {
+  async run(client: BaseClient, ctx: Context, args: string[]): Promise<any> {
     if (!ctx.guild) return
 
     const player = client.queue.get(ctx.guild.id)

@@ -1,9 +1,9 @@
 import { ApplicationCommandOptionType } from 'discord.js'
 
-import { Command, Context, Mahina } from '#common/index'
+import { Command, Context, BaseClient } from '#common/index'
 
 export default class Load extends Command {
-  constructor(client: Mahina) {
+  constructor(client: BaseClient) {
     super(client, {
       name: 'load',
       description: {
@@ -37,7 +37,7 @@ export default class Load extends Command {
       ],
     })
   }
-  async run(client: Mahina, ctx: Context, args: string[]): Promise<any> {
+  async run(client: BaseClient, ctx: Context, args: string[]): Promise<any> {
     let player = client.queue.get(ctx.guild!.id)
     const playlist = args.join(' ').replace(/\s/g, '')
     const playlistData = await client.db.getPlaylist(ctx.author!.id, playlist)

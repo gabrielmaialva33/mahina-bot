@@ -1,9 +1,9 @@
 import { Player } from 'shoukaku'
 
-import { Dispatcher, Event, Mahina, Song } from '#common/index'
+import { Dispatcher, Event, BaseClient, Song } from '#common/index'
 
 export default class TrackEnd extends Event {
-  constructor(client: Mahina, file: string) {
+  constructor(client: BaseClient, file: string) {
     super(client, file, { name: 'trackEnd' })
   }
 

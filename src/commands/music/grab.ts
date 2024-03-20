@@ -1,7 +1,7 @@
-import { Command, Context, Mahina } from '#common/index'
+import { Command, Context, BaseClient } from '#common/index'
 
 export default class Grab extends Command {
-  constructor(client: Mahina) {
+  constructor(client: BaseClient) {
     super(client, {
       name: 'grab',
       description: {
@@ -29,7 +29,7 @@ export default class Grab extends Command {
     })
   }
 
-  async run(client: Mahina, ctx: Context): Promise<any> {
+  async run(client: BaseClient, ctx: Context): Promise<any> {
     const embed = client.embed().setColor(client.color.main)
     let player = client.queue.get(ctx.guild!.id)
     let song = player.current

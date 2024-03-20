@@ -1,10 +1,10 @@
 import { Player } from 'shoukaku'
 
-import { Dispatcher, Event, Mahina, Song } from '#common/index'
+import { Dispatcher, Event, BaseClient, Song } from '#common/index'
 import { updateSetup } from '#utils/setup_system'
 
 export default class QueueEnd extends Event {
-  constructor(client: Mahina, file: string) {
+  constructor(client: BaseClient, file: string) {
     super(client, file, { name: 'queueEnd' })
   }
 

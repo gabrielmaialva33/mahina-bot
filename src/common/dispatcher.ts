@@ -1,7 +1,7 @@
 import { Node, Player, Track } from 'shoukaku'
 import { Message, User } from 'discord.js'
 
-import { Mahina } from '#common/mahina'
+import { BaseClient } from '#common/base_client'
 
 export class Song implements Track {
   encoded: string
@@ -50,7 +50,7 @@ export class Dispatcher {
   autoplay: boolean
   nowPlayingMessage: Message | null
   history: Song[] = []
-  private client: Mahina
+  private client: BaseClient
 
   constructor(options: DispatcherOptions) {
     this.client = options.client
@@ -244,7 +244,7 @@ export class Dispatcher {
 }
 
 export interface DispatcherOptions {
-  client: Mahina
+  client: BaseClient
   guildId: string
   channelId: string
   player: Player

@@ -1,7 +1,7 @@
-import { Command, Context, Mahina } from '#common/index'
+import { Command, Context, BaseClient } from '#common/index'
 
 export default class GuildList extends Command {
-  constructor(client: Mahina) {
+  constructor(client: BaseClient) {
     super(client, {
       name: 'guildlist',
       description: {
@@ -29,7 +29,7 @@ export default class GuildList extends Command {
     })
   }
 
-  async run(client: Mahina, ctx: Context): Promise<any> {
+  async run(client: BaseClient, ctx: Context): Promise<any> {
     const guilds = this.client.guilds.cache.map((g) => `${g.name} (${g.id})`)
 
     let chunks = client.utils.chunk(guilds, 10) as any

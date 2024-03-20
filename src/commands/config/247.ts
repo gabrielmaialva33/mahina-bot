@@ -1,8 +1,8 @@
-import { Command, Context, Mahina } from '#common/index'
+import { Command, Context, BaseClient } from '#common/index'
 
 // eslint-disable-next-line @typescript-eslint/naming-convention
 export default class _247 extends Command {
-  constructor(client: Mahina) {
+  constructor(client: BaseClient) {
     super(client, {
       name: '247',
       description: {
@@ -29,7 +29,7 @@ export default class _247 extends Command {
       options: [],
     })
   }
-  async run(client: Mahina, ctx: Context): Promise<any> {
+  async run(client: BaseClient, ctx: Context): Promise<any> {
     const embed = client.embed()
     let player = client.shoukaku.players.get(ctx.guild!.id) as any
 

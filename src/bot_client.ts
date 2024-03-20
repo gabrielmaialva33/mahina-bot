@@ -1,7 +1,7 @@
 import { ClientOptions, GatewayIntentBits } from 'discord.js'
 
 import { env } from '#src/env'
-import { Mahina } from '#common/mahina'
+import { BaseClient } from '#common/base_client'
 
 const options: ClientOptions = {
   intents: [
@@ -18,6 +18,6 @@ const options: ClientOptions = {
   },
 }
 
-const client = new Mahina(options)
+const client = new BaseClient(options)
 
 client.start(env.DISC_BOT_TOKEN)

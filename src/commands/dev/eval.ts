@@ -1,10 +1,10 @@
 import { ActionRowBuilder, ButtonBuilder, ButtonStyle } from 'discord.js'
 import { fetch } from 'undici'
 
-import { Command, Context, Mahina } from '#common/index'
+import { Command, Context, BaseClient } from '#common/index'
 
 export default class Eval extends Command {
-  constructor(client: Mahina) {
+  constructor(client: BaseClient) {
     super(client, {
       name: 'eval',
       description: {
@@ -32,7 +32,7 @@ export default class Eval extends Command {
     })
   }
 
-  async run(client: Mahina, ctx: Context, args: string[]): Promise<any> {
+  async run(client: BaseClient, ctx: Context, args: string[]): Promise<any> {
     const code = args.join(' ')
     try {
       // eslint-disable-next-line no-eval

@@ -3,11 +3,11 @@ import os from 'node:os'
 import { version } from 'discord.js'
 
 import { Command } from '#common/command'
-import { Mahina } from '#common/mahina'
+import { BaseClient } from '#common/base_client'
 import { Context } from '#common/context'
 
 export default class Info extends Command {
-  constructor(client: Mahina) {
+  constructor(client: BaseClient) {
     super(client, {
       name: 'info',
       description: {
@@ -35,7 +35,7 @@ export default class Info extends Command {
     })
   }
 
-  async run(client: Mahina, ctx: Context): Promise<any> {
+  async run(client: BaseClient, ctx: Context): Promise<any> {
     const osType = os.type()
     const osRelease = os.release()
     const osUptime = os.uptime()

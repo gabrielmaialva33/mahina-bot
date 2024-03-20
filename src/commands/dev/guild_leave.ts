@@ -1,7 +1,7 @@
-import { Command, Context, Mahina } from '#common/index'
+import { Command, Context, BaseClient } from '#common/index'
 
 export default class GuildLeave extends Command {
-  constructor(client: Mahina) {
+  constructor(client: BaseClient) {
     super(client, {
       name: 'guildleave',
       description: {
@@ -29,7 +29,7 @@ export default class GuildLeave extends Command {
     })
   }
 
-  async run(_client: Mahina, ctx: Context, args: string[]): Promise<any> {
+  async run(_client: BaseClient, ctx: Context, args: string[]): Promise<any> {
     const guild = this.client.guilds.cache.get(args[0])
     if (!guild) return await ctx.sendMessage('𝙉𝙖𝙤 𝙚𝙣𝙘𝙤𝙣𝙩𝙧𝙚𝙞 𝙤 𝙨𝙚𝙧𝙫𝙞𝙙𝙤𝙧')
     try {

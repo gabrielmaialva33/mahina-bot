@@ -1,7 +1,7 @@
-import { Event, Mahina } from '#common/index'
+import { Event, BaseClient } from '#common/index'
 
 export default class NodeRaw extends Event {
-  constructor(client: Mahina, file: string) {
+  constructor(client: BaseClient, file: string) {
     super(client, file, { name: 'nodeRaw' })
   }
 

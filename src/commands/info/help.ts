@@ -1,7 +1,7 @@
-import { Command, Context, Mahina } from '#common/index'
+import { Command, Context, BaseClient } from '#common/index'
 
 export default class Help extends Command {
-  constructor(client: Mahina) {
+  constructor(client: BaseClient) {
     super(client, {
       name: 'help',
       description: {
@@ -36,7 +36,7 @@ export default class Help extends Command {
     })
   }
 
-  async run(client: Mahina, ctx: Context, args: string[]): Promise<any> {
+  async run(client: BaseClient, ctx: Context, args: string[]): Promise<any> {
     const embed = client.embed()
 
     const prefix = client.env.DISC_BOT_PREFIX

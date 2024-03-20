@@ -1,9 +1,9 @@
 import { ActionRowBuilder, ButtonBuilder, ButtonStyle } from 'discord.js'
 
-import { Command, Context, Mahina } from '#common/index'
+import { Command, Context, BaseClient } from '#common/index'
 
 export default class About extends Command {
-  constructor(client: Mahina) {
+  constructor(client: BaseClient) {
     super(client, {
       name: 'about',
       description: {
@@ -31,7 +31,7 @@ export default class About extends Command {
     })
   }
 
-  async run(client: Mahina, ctx: Context): Promise<any> {
+  async run(client: BaseClient, ctx: Context): Promise<any> {
     client.logger.info('about command used')
 
     const row = new ActionRowBuilder().addComponents(

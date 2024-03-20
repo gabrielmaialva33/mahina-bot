@@ -1,7 +1,7 @@
-import { Command, Context, Mahina } from '#common/index'
+import { Command, Context, BaseClient } from '#common/index'
 
 export default class Stats extends Command {
-  constructor(client: Mahina) {
+  constructor(client: BaseClient) {
     super(client, {
       name: 'stats',
       description: {
@@ -28,7 +28,7 @@ export default class Stats extends Command {
     })
   }
 
-  async run(client: Mahina, ctx: Context): Promise<any> {
+  async run(client: BaseClient, ctx: Context): Promise<any> {
     const embed = this.client.embed()
     embed.setTitle(`📊 ${this.client.env.DISC_BOT_NAME} Ｓｔａｔｓ`)
     embed.setColor(this.client.color.main)

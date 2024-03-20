@@ -1,13 +1,13 @@
-import { Mahina } from '#common/mahina'
+import { BaseClient } from '#common/base_client'
 
 export class Event {
-  client: Mahina
+  client: BaseClient
   one: boolean
   file: string
   name: string
   file_name: string
 
-  constructor(client: Mahina, file: string, options: EventOptions) {
+  constructor(client: BaseClient, file: string, options: EventOptions) {
     this.client = client
     this.file = file
     this.name = options.name

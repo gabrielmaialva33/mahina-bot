@@ -2,10 +2,10 @@ import { ColorResolvable, EmbedBuilder, Message, TextChannel } from 'discord.js'
 import { LoadType } from 'shoukaku'
 
 import { getButtons } from '#utils/buttons'
-import { Dispatcher, Mahina, Song } from '#common/index'
+import { Dispatcher, BaseClient, Song } from '#common/index'
 import { env } from '#src/env'
 
-function neb(embed: EmbedBuilder, player: Dispatcher, client: Mahina): EmbedBuilder {
+function neb(embed: EmbedBuilder, player: Dispatcher, client: BaseClient): EmbedBuilder {
   if (!player.current) return embed
   if (!client.user) return embed
 
@@ -29,7 +29,7 @@ function neb(embed: EmbedBuilder, player: Dispatcher, client: Mahina): EmbedBuil
 }
 
 async function setupStart(
-  client: Mahina,
+  client: BaseClient,
   query: string,
   player: Dispatcher,
   message: Message
@@ -231,7 +231,7 @@ async function trackStart(
   channel: TextChannel,
   player: Dispatcher,
   track: Song,
-  client: Mahina
+  client: BaseClient
 ): Promise<void> {
   let icon = player.current ? player.current.info.artworkUrl : client.links.img
   let m: Message
@@ -304,7 +304,7 @@ async function trackStart(
   }
 }
 
-async function updateSetup(client: Mahina, guild: any): Promise<void> {
+async function updateSetup(client: BaseClient, guild: any): Promise<void> {
   let m: Message
 
   const textChannel = guild.channels.cache.get(env.DISC_LOG_CHANNEL_ID) as TextChannel

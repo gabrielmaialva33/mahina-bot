@@ -1,8 +1,8 @@
-import { Command, Context, Mahina } from '#common/index'
+import { Command, Context, BaseClient } from '#common/index'
 
 // eslint-disable-next-line @typescript-eslint/naming-convention
 export default class _8d extends Command {
-  constructor(client: Mahina) {
+  constructor(client: BaseClient) {
     super(client, {
       name: '8d',
       description: {
@@ -30,7 +30,7 @@ export default class _8d extends Command {
     })
   }
 
-  async run(client: Mahina, ctx: Context): Promise<any> {
+  async run(client: BaseClient, ctx: Context): Promise<any> {
     const player = client.queue.get(ctx.guild!.id)
     if (!player) return
     if (player.filters.includes('8D')) {

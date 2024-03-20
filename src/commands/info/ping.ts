@@ -1,9 +1,9 @@
 import { Command } from '#common/command'
-import { Mahina } from '#common/mahina'
+import { BaseClient } from '#common/base_client'
 import { Context } from '#common/context'
 
 export default class Ping extends Command {
-  constructor(client: Mahina) {
+  constructor(client: BaseClient) {
     super(client, {
       name: 'ping',
       description: {
@@ -25,7 +25,7 @@ export default class Ping extends Command {
     })
   }
 
-  async run(client: Mahina, ctx: Context): Promise<any> {
+  async run(client: BaseClient, ctx: Context): Promise<any> {
     const msg = await ctx.sendDeferMessage('📡 𝙥𝙞𝙣𝙜𝙖𝙣𝙙𝙚..')
 
     const embed = client

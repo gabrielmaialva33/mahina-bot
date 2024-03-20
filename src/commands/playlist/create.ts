@@ -1,9 +1,9 @@
 import { ApplicationCommandOptionType } from 'discord.js'
 
-import { Command, Context, Mahina } from '#common/index'
+import { Command, Context, BaseClient } from '#common/index'
 
 export default class Create extends Command {
-  constructor(client: Mahina) {
+  constructor(client: BaseClient) {
     super(client, {
       name: 'create',
       description: {
@@ -37,7 +37,7 @@ export default class Create extends Command {
       ],
     })
   }
-  async run(client: Mahina, ctx: Context, args: string[]): Promise<any> {
+  async run(client: BaseClient, ctx: Context, args: string[]): Promise<any> {
     const name = args.join(' ').replace(/\s/g, '')
     if (name.length > 50)
       return await ctx.sendMessage({

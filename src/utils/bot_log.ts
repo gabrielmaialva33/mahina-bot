@@ -1,9 +1,9 @@
 import { TextChannel } from 'discord.js'
 
-import { Mahina } from '#common/mahina'
+import { BaseClient } from '#common/base_client'
 
 export default class BotLog {
-  static send(client: Mahina, message: string, type: string): void {
+  static send(client: BaseClient, message: string, type: string): void {
     if (!client) return
     if (!client.channels.cache) return
     if (!client.env.DISC_LOG_CHANNEL_ID) return

@@ -1,9 +1,9 @@
-import { Command, Context, Mahina, Song } from '#common/index'
+import { Command, Context, BaseClient, Song } from '#common/index'
 import { ActionRowBuilder, ButtonBuilder, ButtonStyle } from 'discord.js'
 import { LoadType } from 'shoukaku'
 
 export default class Search extends Command {
-  constructor(client: Mahina) {
+  constructor(client: BaseClient) {
     super(client, {
       name: 'search',
       description: {
@@ -38,7 +38,7 @@ export default class Search extends Command {
     })
   }
 
-  async run(client: Mahina, ctx: Context, args: string[]): Promise<any> {
+  async run(client: BaseClient, ctx: Context, args: string[]): Promise<any> {
     const embed = client.embed().setColor(client.color.main)
     let player = client.queue.get(ctx.guild!.id)
     const query = args.join(' ')

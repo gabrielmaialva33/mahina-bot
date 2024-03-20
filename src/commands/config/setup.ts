@@ -5,11 +5,11 @@ import {
   PermissionFlagsBits,
 } from 'discord.js'
 
-import { Command, Context, Mahina } from '#common/index'
+import { Command, Context, BaseClient } from '#common/index'
 import { getButtons } from '#utils/buttons'
 
 export default class Setup extends Command {
-  constructor(client: Mahina) {
+  constructor(client: BaseClient) {
     super(client, {
       name: 'setup',
       description: {
@@ -52,7 +52,7 @@ export default class Setup extends Command {
       ],
     })
   }
-  async run(client: Mahina, ctx: Context, args: string[]): Promise<any> {
+  async run(client: BaseClient, ctx: Context, args: string[]): Promise<any> {
     let subCommand: string
     if (ctx.isInteraction) subCommand = ctx.interaction!.options.data[0].name
     else subCommand = args[0]

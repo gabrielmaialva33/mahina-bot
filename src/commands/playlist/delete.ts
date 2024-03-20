@@ -1,9 +1,9 @@
 import { ApplicationCommandOptionType } from 'discord.js'
 
-import { Command, Context, Mahina } from '#common/index'
+import { Command, Context, BaseClient } from '#common/index'
 
 export default class Delete extends Command {
-  constructor(client: Mahina) {
+  constructor(client: BaseClient) {
     super(client, {
       name: 'delete',
       description: {
@@ -37,7 +37,7 @@ export default class Delete extends Command {
       ],
     })
   }
-  async run(client: Mahina, ctx: Context, args: string[]): Promise<any> {
+  async run(client: BaseClient, ctx: Context, args: string[]): Promise<any> {
     const playlist = args.join(' ').replace(/\s/g, '')
 
     const playlistExists = client.db.getPlaylist(ctx.author!.id, playlist)

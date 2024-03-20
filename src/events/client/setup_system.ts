@@ -1,10 +1,10 @@
 import { Message, PermissionsBitField, TextChannel } from 'discord.js'
 
-import { Event, Mahina } from '#common/index'
+import { Event, BaseClient } from '#common/index'
 import { oops, setupStart } from '#utils/setup_system'
 
 export default class SetupSystem extends Event {
-  constructor(client: Mahina, file: string) {
+  constructor(client: BaseClient, file: string) {
     super(client, file, { name: 'setupSystem' })
   }
 

@@ -1,7 +1,7 @@
-import { Command, Context, Mahina } from '#common/index'
+import { Command, Context, BaseClient } from '#common/index'
 
 export default class Remove extends Command {
-  constructor(client: Mahina) {
+  constructor(client: BaseClient) {
     super(client, {
       name: 'remove',
       description: {
@@ -36,7 +36,7 @@ export default class Remove extends Command {
     })
   }
 
-  async run(client: Mahina, ctx: Context, args: string[]): Promise<any> {
+  async run(client: BaseClient, ctx: Context, args: string[]): Promise<any> {
     const player = client.queue.get(ctx.guild!.id)
     const embed = this.client.embed()
     if (!player.queue.length)

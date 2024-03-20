@@ -25,7 +25,7 @@ import { DB } from '#src/database/models/db'
 
 const dirname = path.dirname(fileURLToPath(import.meta.url))
 
-export class Mahina extends Client {
+export class BaseClient extends Client {
   commands: Collection<string, any> = new Collection()
   aliases: Collection<string, any> = new Collection()
   body: RESTPostAPIChatInputApplicationCommandsJSONBody[] = []

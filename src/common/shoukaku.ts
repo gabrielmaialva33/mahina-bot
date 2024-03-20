@@ -1,11 +1,11 @@
 import { Connectors, Shoukaku } from 'shoukaku'
-import { Mahina } from '#common/mahina'
+import { BaseClient } from '#common/base_client'
 import { env } from '#src/env'
 
 export class ShoukakuClient extends Shoukaku {
-  client: Mahina
+  client: BaseClient
 
-  constructor(client: Mahina) {
+  constructor(client: BaseClient) {
     super(
       new Connectors.DiscordJS(client),
       [

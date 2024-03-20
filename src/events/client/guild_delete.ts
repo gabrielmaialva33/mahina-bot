@@ -1,9 +1,9 @@
 import { EmbedBuilder, Guild, GuildMember, TextChannel } from 'discord.js'
 
-import { Event, Mahina } from '#common/index'
+import { Event, BaseClient } from '#common/index'
 
 export default class GuildDelete extends Event {
-  constructor(client: Mahina, file: string) {
+  constructor(client: BaseClient, file: string) {
     super(client, file, { name: 'guildDelete' })
   }
 

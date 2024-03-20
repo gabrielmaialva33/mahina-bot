@@ -13,7 +13,7 @@ import {
   User,
 } from 'discord.js'
 
-import { Mahina } from '#common/mahina'
+import { BaseClient } from '#common/base_client'
 
 export class Context {
   ctx: CommandInteraction | Message | ChatInputCommandInteraction
@@ -21,7 +21,7 @@ export class Context {
   message: Message | null
   id: string
   channelId: string
-  client: Mahina
+  client: BaseClient
   author: User | null
   channel: PartialDMChannel | GuildTextBasedChannel | TextChannel | DMChannel | null = null
   guild: Guild | null
@@ -38,7 +38,7 @@ export class Context {
     this.channel = this.ctx.channel
     this.id = ctx.id
     this.channelId = ctx.channelId
-    this.client = ctx.client as Mahina
+    this.client = ctx.client as BaseClient
     this.author = ctx instanceof Message ? ctx.author : ctx.user
     this.channel = ctx.channel
     this.guild = ctx.guild

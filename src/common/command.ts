@@ -1,8 +1,8 @@
-import { Mahina } from '#common/mahina'
+import { BaseClient } from '#common/base_client'
 import { ApplicationCommandOption, PermissionResolvable } from 'discord.js'
 
 export class Command {
-  client: Mahina
+  client: BaseClient
   name: string
   name_localizations?: any
   description: {
@@ -29,7 +29,7 @@ export class Command {
     dj_perm: string | null
   }
 
-  constructor(client: Mahina, options: CommandOptions) {
+  constructor(client: BaseClient, options: CommandOptions) {
     this.client = client
 
     this.name = options.name
@@ -69,7 +69,7 @@ export class Command {
     this.category = options.category || 'general'
   }
 
-  async run(_client: Mahina, _message: any, _args: string[]): Promise<any> {
+  async run(_client: BaseClient, _message: any, _args: string[]): Promise<any> {
     return await Promise.resolve()
   }
 }

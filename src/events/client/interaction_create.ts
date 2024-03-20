@@ -8,13 +8,13 @@ import {
   PermissionFlagsBits,
 } from 'discord.js'
 
-import { Mahina } from '#common/mahina'
+import { BaseClient } from '#common/base_client'
 import { Event } from '#common/event'
 import { Context } from '#common/context'
 import { LoadType } from 'shoukaku'
 
 export default class InteractionCreate extends Event {
-  constructor(client: Mahina, file: string) {
+  constructor(client: BaseClient, file: string) {
     super(client, file, { name: 'interactionCreate' })
   }
 

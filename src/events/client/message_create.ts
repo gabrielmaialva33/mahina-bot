@@ -1,9 +1,9 @@
 import { ChannelType, Collection, Message, PermissionFlagsBits } from 'discord.js'
 
-import { Context, Event, Mahina } from '#common/index'
+import { Context, Event, BaseClient } from '#common/index'
 
 export default class MessageCreate extends Event {
-  constructor(client: Mahina, file: string) {
+  constructor(client: BaseClient, file: string) {
     super(client, file, { name: 'messageCreate' })
   }
 

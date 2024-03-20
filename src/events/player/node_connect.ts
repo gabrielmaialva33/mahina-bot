@@ -1,8 +1,8 @@
-import { Event, Mahina } from '#common/index'
+import { Event, BaseClient } from '#common/index'
 import BotLog from '#src/utils/bot_log'
 
 export default class NodeConnect extends Event {
-  constructor(client: Mahina, file: string) {
+  constructor(client: BaseClient, file: string) {
     super(client, file, { name: 'nodeConnect' })
   }
 

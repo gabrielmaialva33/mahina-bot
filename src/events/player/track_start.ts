@@ -13,11 +13,11 @@ import {
 } from 'discord.js'
 import { Player } from 'shoukaku'
 
-import { Dispatcher, Event, Mahina, Song } from '#common/index'
+import { Dispatcher, Event, BaseClient, Song } from '#common/index'
 import { trackStart } from '#utils/setup_system'
 
 export default class TrackStart extends Event {
-  constructor(client: Mahina, file: string) {
+  constructor(client: BaseClient, file: string) {
     super(client, file, { name: 'trackStart' })
   }
 
@@ -251,7 +251,7 @@ export default class TrackStart extends Event {
 }
 
 export async function checkDj(
-  client: Mahina,
+  client: BaseClient,
   interaction:
     | ButtonInteraction<'cached'>
     | StringSelectMenuInteraction<'cached'>
