@@ -1,6 +1,6 @@
 <h1 align="center">
   <br>
-  <img src=".github/assets/key.png" alt="TypeScript" width="400">
+  <img src=".github/assets/key.png" alt="TypeScript" width="200">
   <br>
    A  WinxBot for <a href="https://discord.com/">Discord</a>
   <br>
