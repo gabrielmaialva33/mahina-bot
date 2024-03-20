@@ -2,6 +2,7 @@ import { ShardingManager } from 'discord.js'
 
 import { env } from '#src/env'
 import { startObjection } from '#src/lib/objection'
+import { Logger } from '#src/lib/logger'
 
 const manager = new ShardingManager('./build/bot_client.js', {
   respawn: true,
@@ -17,6 +18,6 @@ manager.spawn({ amount: manager.totalShards, timeout: -1 }).catch((err: any) => 
 manager.on('shardCreate', (shard) => {
   shard.on('ready', () => {
     startObjection().then(() => {})
-    console.log(`Shard ${shard.id} is ready`)
+    new Logger().info(`Shard ${shard.id} is ready`)
   })
 })

@@ -68,7 +68,11 @@
     "displayFilename": true,
     "displayLabel": true,
     "displayTimestamp": true,
-    "underlineLabel": true
+    "underlineLabel": true,
+    "underlineMessage": false,
+    "underlinePrefix": false,
+    "underlineSuffix": false,
+    "uppercaseLabel": false
   },
   "dependencies": {
     "@swc/core": "^1.4.8",

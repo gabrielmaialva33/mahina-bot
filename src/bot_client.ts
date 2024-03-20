@@ -20,4 +20,6 @@ const options: ClientOptions = {
 
 const client = new BaseClient(options)
 
-client.start(env.DISC_BOT_TOKEN)
+client.start(env.DISC_BOT_TOKEN).then(() => {
+  client.logger.info('Bot is ready')
+})
