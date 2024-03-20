@@ -38,13 +38,13 @@ export default class ClearQueue extends Command {
         embeds: [
           embed
             .setColor(this.client.color.red)
-            .setDescription('𝙈𝙖𝙣𝙖̃.. 𝙢𝙖𝙨 𝙣𝙖̃𝙤 𝙝𝙖́ 𝙢𝙪́𝙨𝙞𝙘𝙖𝙨 𝙣𝙖 𝙛𝙞𝙡𝙖.'),
+            .setDescription('𝙈𝙖𝙣𝙖̃.. 😑🤷‍♀️ 𝙢𝙖𝙨 𝙣𝙖̃𝙤 𝙝𝙖́ 𝙢𝙪́𝙨𝙞𝙘𝙖𝙨 𝙣𝙖 𝙛𝙞𝙡𝙖.'),
         ],
       })
     player.queue = []
 
     return await ctx.sendMessage({
-      embeds: [embed.setColor(this.client.color.main).setDescription(`𝙇𝙞𝙢𝙥𝙚𝙞 𝙖 𝙛𝙞𝙡𝙖 :3`)],
+      embeds: [embed.setColor(this.client.color.main).setDescription(`🧹 𝙇𝙞𝙢𝙥𝙚𝙞 𝙖 𝙛𝙞𝙡𝙖 :3`)],
     })
   }
 }

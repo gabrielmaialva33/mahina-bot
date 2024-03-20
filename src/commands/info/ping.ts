@@ -7,7 +7,7 @@ export default class Ping extends Command {
     super(client, {
       name: 'ping',
       description: {
-        content: 'Mostra o ping da ＷｉｎｘＢｏｔ',
+        content: `Mostra o ping da ${client.env.DISC_BOT_NAME}`,
         examples: ['ping'],
         usage: 'ping',
       },
@@ -26,29 +26,30 @@ export default class Ping extends Command {
   }
 
   async run(client: Mahina, ctx: Context): Promise<any> {
-    const msg = await ctx.sendDeferMessage('Pinging...')
+    const msg = await ctx.sendDeferMessage('📡 𝙥𝙞𝙣𝙜𝙖𝙣𝙙𝙚..')
 
     const embed = client
       .embed()
-      .setAuthor({ name: 'Pong 🏓', iconURL: this.client.user!.displayAvatarURL() })
+      .setAuthor({ name: '𝙋𝙤𝙣𝙜 🏓', iconURL: this.client.user!.displayAvatarURL() })
       .setColor(this.client.color.main)
       .addFields([
         {
-          name: 'Bot Latency',
+          name: '𝐁𝐨𝐭 𝐋𝐚𝐭𝐞𝐧𝐜𝐲',
           value: `\`\`\`ini\n[ ${msg!.createdTimestamp - ctx.createdTimestamp}ms ]\n\`\`\``,
           inline: true,
         },
         {
-          name: 'API Latency',
+          name: '𝐀𝐏𝐈 𝐋𝐚𝐭𝐞𝐧𝐜𝐲',
           value: `\`\`\`ini\n[ ${Math.round(ctx.client.ws.ping)}ms ]\n\`\`\``,
           inline: true,
         },
       ])
       .setFooter({
-        text: `𝙋𝙚𝙙𝙞𝙙𝙖 𝙥𝙤𝙧 ${ctx.author!.tag}`,
+        text: `𝙥𝙚𝙙𝙞𝙙𝙤 𝙥𝙤𝙧 ${ctx.author!.tag}`,
         iconURL: ctx.author!.avatarURL({})!,
       })
       .setTimestamp()
+
     return await ctx.editMessage({ content: '', embeds: [embed] })
   }
 }

@@ -20,7 +20,7 @@ function neb(embed: EmbedBuilder, player: Dispatcher, client: Mahina): EmbedBuil
     .setDescription(
       `[${player.current.info.title}](${player.current.info.uri}) 𝙥𝙤𝙧 ${
         player.current.info.author
-      } • \`[${client.utils.formatTime(player.current.info.length)}]\` - 𝙋𝙚𝙙𝙞𝙙𝙖 𝙥𝙤𝙧 ${
+      } • \`[${client.utils.formatTime(player.current.info.length)}]\` - 𝙥𝙚𝙙𝙞𝙙𝙖 𝙥𝙤𝙚 ${
         player.current.info.requestedBy
       }`
     )
@@ -254,7 +254,7 @@ async function trackStart(
       .setDescription(
         `[${track.info.title}](${track.info.uri}) - \`[${client.utils.formatTime(
           track.info.length
-        )}]\` - 𝙋𝙚𝙙𝙞𝙙𝙖 𝙥𝙤𝙧 ${track.info.requestedBy}`
+        )}]\` - 𝙥𝙚𝙙𝙞𝙙𝙖 𝙥𝙤𝙚 ${track.info.requestedBy}`
       )
       .setImage(icon!)
     await m
@@ -280,7 +280,7 @@ async function trackStart(
       .setDescription(
         `[${track.info.title}](${track.info.uri}) - \`[${client.utils.formatTime(
           track.info.length
-        )}]\` - 𝙋𝙚𝙙𝙞𝙙𝙖 𝙥𝙤𝙧 ${track.info.requestedBy}`
+        )}]\` - 𝙥𝙚𝙙𝙞𝙙𝙖 𝙥𝙤𝙚 ${track.info.requestedBy}`
       )
       .setImage(icon!)
     await channel
@@ -332,7 +332,7 @@ async function updateSetup(client: Mahina, guild: any): Promise<void> {
             player.current.info.uri
           }) - \`[${client.utils.formatTime(
             player.current.info.length
-          )}]\` - 𝙋𝙚𝙙𝙞𝙙𝙖 𝙥𝙤𝙧 ${player.current.info.requestedBy}`
+          )}]\` - 𝙥𝙚𝙙𝙞𝙙𝙖 𝙥𝙤𝙚 ${player.current.info.requestedBy}`
         )
         .setImage(player.current.info.artworkUrl!)
       await m

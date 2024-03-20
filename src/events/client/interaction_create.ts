@@ -11,6 +11,7 @@ import {
 import { Mahina } from '#common/mahina'
 import { Event } from '#common/event'
 import { Context } from '#common/context'
+import { LoadType } from 'shoukaku'
 
 export default class InteractionCreate extends Event {
   constructor(client: Mahina, file: string) {
@@ -113,10 +114,12 @@ export default class InteractionCreate extends Event {
             return await interaction.reply({
               content: '𝙉𝙖̃𝙤 𝙩𝙖 𝙩𝙤𝙘𝙖𝙣𝙙𝙤 𝙣𝙖𝙙𝙚 𝙢𝙖𝙣𝙖̃..',
             })
+
           if (!this.client.queue.get(interaction.guildId).queue)
             return await interaction.reply({
               content: '𝙉𝙖̃𝙤 𝙩𝙖 𝙩𝙤𝙘𝙖𝙣𝙙𝙤 𝙣𝙖𝙙𝙚 𝙢𝙖𝙣𝙖̃..',
             })
+
           if (!this.client.queue.get(interaction.guildId).current)
             return await interaction.reply({
               content: '𝙉𝙖̃𝙤 𝙩𝙖 𝙩𝙤𝙘𝙖𝙣𝙙𝙤 𝙣𝙖𝙙𝙚 𝙢𝙖𝙣𝙖̃..',
@@ -187,12 +190,31 @@ export default class InteractionCreate extends Event {
       try {
         await command.run(this.client, ctx, ctx.args)
       } catch (error) {
-        console.error(error)
-        //await interaction.reply({ content: `🥺 𝙛𝙪𝙢𝙚𝙞 𝙙𝙚 𝙢𝙖𝙞𝙨.. 𝙢𝙖𝙣𝙖̃.. : \`${error}\`` })
+        this.client.logger.error(error)
         await interaction.reply({ content: `🥺𝙢𝙖𝙣𝙖̃.. 𝙤𝙪𝙫𝙚 𝙪𝙢 𝙚𝙧𝙧𝙤𝙧 : \`${error}\`` })
       }
     } else if (interaction.type === InteractionType.ApplicationCommandAutocomplete) {
-      this.client.logger.info('Autocomplete interaction detected')
+      if (interaction.commandName === 'play') {
+        const song = interaction.options.getString('song')
+        if (!song) return
+
+        const res = await this.client.queue.search(song)
+        if (!res) return
+
+        let songs: { name: any; value: any }[] = []
+        switch (res.loadType) {
+          case LoadType.SEARCH:
+            if (!res.data.length) return
+            res.data.slice(0, 10).forEach((x) => {
+              songs.push({ name: x.info.title, value: x.info.uri })
+            })
+            break
+          default:
+            break
+        }
+
+        return await interaction.respond(songs).catch(() => {})
+      }
     }
   }
 }

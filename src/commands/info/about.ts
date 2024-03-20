@@ -7,12 +7,12 @@ export default class About extends Command {
     super(client, {
       name: 'about',
       description: {
-        content: 'Mostra informações sobre a ＷｉｎｘＢｏｔ',
+        content: `Mostra informações sobre ${client.env.DISC_BOT_NAME}`,
         examples: ['about'],
         usage: 'about',
       },
       category: 'info',
-      aliases: ['ab'],
+      aliases: ['ab', 'sobre'],
       cooldown: 3,
       args: false,
       player: {
@@ -32,35 +32,32 @@ export default class About extends Command {
   }
 
   async run(client: Mahina, ctx: Context): Promise<any> {
-    client.logger.info('About command used')
-    // @ts-ignore
+    client.logger.info('about command used')
+
     const row = new ActionRowBuilder().addComponents(
       new ButtonBuilder()
-        .setLabel(' 𝙄𝙣𝙫𝙞𝙩𝙚-𝙢𝙚 𝙥𝙖𝙧𝙖 𝙤 𝙨𝙚𝙪 𝙨𝙚𝙧𝙫𝙞𝙙𝙤𝙧  🍁')
+        .setLabel(' 𝙄𝙣𝙫𝙞𝙩𝙚-𝙢𝙚 𝙥𝙖𝙧𝙖 𝙤 𝙨𝙚𝙪 𝙨𝙚𝙧𝙫𝙞𝙙𝙤𝙧 🌺')
         .setStyle(ButtonStyle.Link)
         .setURL(
           `https://discord.com/api/oauth2/authorize?client_id=1022712928291532851&permissions=8&scope=bot%20applications.commands`
         ),
       new ButtonBuilder()
-        .setLabel('𝙒𝙚𝙚𝙙 𝙊𝙛 𝙒𝙖𝙧𝙘𝙧𝙖𝙛𝙩  🍁')
+        .setLabel('𝐂𝐥𝐮𝐛𝐞 𝐝𝐚𝐬 𝐖𝐢𝐧𝐱 🎡🔥')
         .setStyle(ButtonStyle.Link)
-        .setURL('https://discord.gg/maconha')
+        .setURL('https://discord.gg/3PJ9CMgpBx')
     )
 
     const embed = this.client
       .embed()
       .setAuthor({
-        name: 'ＷｉｎｘＢｏｔ',
-        iconURL:
-          'https://cdn.discordapp.com/attachments/695434003930415165/1216407776843006052/file-Ja2FXEN0aUsbESuXFJFfn5hl.png?ex=66098185&is=65f70c85&hm=c9348ea2ab56ed2ec6967eb82588e4231fcecb29e67d5433f471699ac384bb1b&',
+        name: this.client.env.DISC_BOT_NAME,
+        iconURL: this.client.env.DISC_BOT_PROFILE,
       })
-      .setThumbnail(
-        'https://cdn.discordapp.com/attachments/695434003930415165/1216407776843006052/file-Ja2FXEN0aUsbESuXFJFfn5hl.png?ex=66098185&is=65f70c85&hm=c9348ea2ab56ed2ec6967eb82588e4231fcecb29e67d5433f471699ac384bb1b&'
-      )
+      .setThumbnail(this.client.env.DISC_BOT_THUMBNAIL)
       .setColor(this.client.color.main)
       .addFields([
         {
-          name: '𝙊𝙬𝙣𝙚𝙧',
+          name: '𝘿𝙤𝙣𝙤',
           value: '[Maia 𓆏](https://github.com/gabrielmaialva33)',
           inline: true,
         },
@@ -71,24 +68,20 @@ export default class About extends Command {
         },
         {
           name: '𝙎𝙪𝙥𝙤𝙧𝙩𝙚',
-          value: '[aqui](https://discord.gg/maconha)',
+          value: '[aqui](https://discord.gg/VpUEBnCZQW)',
           inline: true,
         },
         {
           name: '\u200b',
-          value: `𝙎𝙚𝙟𝙖 𝙛𝙚𝙡𝙞𝙯 🍁`,
+          value: `𝙎𝙚𝙟𝙖 𝙛𝙚𝙡𝙞𝙯 🍁 𝙘𝙤𝙢 𝙦𝙪𝙚𝙢 𝙨𝙚𝙧 𝙛𝙚𝙡𝙞𝙯 𝙘𝙤𝙢 𝙫𝙤𝙘𝙚̂ 🌺`,
           inline: true,
         },
-        // {
-        //   name: '\u200b',
-        //   value: ` 𝙁𝙪𝙢𝙚 𝙢𝙪𝙞𝙩𝙖 𝙢𝙖𝙘𝙤𝙣𝙝𝙖 🍁`,
-        //   inline: true,
-        // },
       ])
+
     return await ctx.sendMessage({
       content: '',
       embeds: [embed],
-      components: [],
+      components: [row],
     })
   }
 }

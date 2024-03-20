@@ -10,6 +10,7 @@ export class Guild extends ObjectionModel {
    */
   id: number
   prefix: string
+  guild_id: string
   created_at: string
   updated_at: string
 

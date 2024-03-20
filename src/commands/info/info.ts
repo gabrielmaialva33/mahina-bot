@@ -11,7 +11,7 @@ export default class Info extends Command {
     super(client, {
       name: 'info',
       description: {
-        content: 'Mostra informações sobre a ＷｉｎｘＢｏｔ',
+        content: `Mostra informações do sistema ${client.env.DISC_BOT_NAME}`,
         examples: ['info'],
         usage: 'info',
       },
@@ -52,7 +52,7 @@ export default class Info extends Command {
     const botUsers = client.users.cache.size
     const botCommands = client.commands.size
 
-    const botInfo = `ＷｉｎｘＢｏｔ Ｓｙｓｔｅｍ:
+    const botInfo = `${this.client.env.DISC_BOT_NAME} Ｓｙｓｔｅｍ:
 - **Operating System**: ${osType} ${osRelease}
 - **Uptime**: ${client.utils.formatTime(osUptime)}
 - **Hostname**: ${osHostname}

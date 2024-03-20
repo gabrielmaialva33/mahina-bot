@@ -33,26 +33,16 @@ export class DB {
    * Guild Methods
    * ------------------------------------------------------
    */
-  async get(guildId: string): Promise<any> {
+  async get(guildId: string): Promise<Guild> {
     const data = await this.guild.query().findOne({ guild_id: guildId })
-    if (!data) {
-      // @ts-ignore
-      await this.guild.query().insert({ guild_id: guildId })
-      return false
-    } else {
-      return data
-    }
+    if (!data) return this.guild.query().insertAndFetch({ guild_id: guildId })
+    else return data
   }
 
-  async getPrefix(guildId: string): Promise<string> {
+  async getPrefix(guildId: string): Promise<Guild> {
     const data = await this.guild.query().findOne({ guild_id: guildId })
-    if (!data) {
-      // @ts-ignore
-      await this.guild.query().insert({ guild_id: guildId })
-      return '!'
-    } else {
-      return data.prefix
-    }
+    if (!data) return this.guild.query().insert({ guild_id: guildId })
+    else return data
   }
 
   /**

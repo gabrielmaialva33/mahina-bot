@@ -38,13 +38,13 @@ export default class Shuffle extends Command {
         embeds: [
           embed
             .setColor(this.client.color.red)
-            .setDescription('𝙈𝙖𝙣𝙖̃.. 𝙢𝙖𝙨 𝙣𝙚𝙢 𝙩𝙚𝙢 𝙢𝙪𝙨𝙞𝙦𝙪𝙚 𝙣𝙖 𝙛𝙞𝙡𝙚.'),
+            .setDescription('𝙈𝙖𝙣𝙖̃..😑🤷‍♀️ 𝙢𝙖𝙨 𝙣𝙚𝙢 𝙩𝙚𝙢 𝙢𝙪𝙨𝙞𝙦𝙪𝙚 𝙣𝙖 𝙛𝙞𝙡𝙚.'),
         ],
       })
     player.setShuffle(true)
 
     return await ctx.sendMessage({
-      embeds: [embed.setColor(this.client.color.main).setDescription(`𝙀𝙢𝙗𝙖𝙧𝙖𝙡𝙝𝙖𝙙𝙤 𝙢𝙖𝙣𝙖̃..`)],
+      embeds: [embed.setColor(this.client.color.main).setDescription(`🔀 𝙀𝙢𝙗𝙖𝙧𝙖𝙡𝙝𝙖𝙙𝙤 𝙢𝙖𝙣𝙖̃..`)],
     })
   }
 }

@@ -10,7 +10,7 @@ export default class Help extends Command {
         usage: 'help',
       },
       category: 'info',
-      aliases: ['h'],
+      aliases: ['h', 'ajuda'],
       cooldown: 3,
       args: false,
       player: {
@@ -38,7 +38,9 @@ export default class Help extends Command {
 
   async run(client: Mahina, ctx: Context, args: string[]): Promise<any> {
     const embed = client.embed()
+
     const prefix = client.env.DISC_BOT_PREFIX
+
     const commands = this.client.commands.filter((cmd) => cmd.category !== 'dev')
     const categories = commands
       .map((cmd) => cmd.category)
@@ -56,13 +58,15 @@ export default class Help extends Command {
           inline: false,
         })
       })
+
       const helpEmbed = embed
         .setColor(this.client.color.main)
-        .setTitle(' ⛑️ 𝘼𝙟𝙪𝙙𝙖 𝙙𝙖 𝙒𝙞𝙣𝙭 ')
+        .setTitle(` ⛑️ 𝘼𝙟𝙪𝙙𝙖 𝙙𝙖 ${client.env.DISC_BOT_NAME} `)
         .setDescription(
-          `𝙊𝙡𝙖́ 𝙢𝙖𝙣𝙖̃  🌈 𝙚𝙪 𝙨𝙤𝙪 𝙖 ＷｉｎｘＢｏｔ ♪ 𝙥𝙖𝙧𝙖 𝙤𝙗𝙩𝙚𝙧 𝙖𝙟𝙪𝙙𝙖𝙧 𝙖𝙟𝙪𝙙𝙖 𝙚 𝙙𝙞𝙫𝙚𝙧𝙩𝙞𝙧 𝙘𝙤𝙢𝙖𝙣𝙙𝙤𝙨 𝙙𝙞𝙨𝙥𝙤𝙣𝙞́𝙫𝙚𝙞𝙨 𝙚 𝙛𝙖́𝙘𝙚𝙞𝙨 𝙙𝙚 𝙪𝙨𝙤. 𝙑𝙤𝙘𝙚̂ 𝙥𝙤𝙙𝙚 𝙪𝙨𝙖𝙧 \`${prefix}help <𝙘𝙤𝙢𝙢𝙖𝙣𝙙>\` 𝙥𝙖𝙧𝙖 𝙤𝙗𝙩𝙚𝙧 𝙖𝙟𝙪𝙙𝙖 𝙙𝙞𝙨𝙥𝙤𝙣𝙞́𝙫𝙚𝙡.`
+          `𝙊𝙡𝙖́ 𝙢𝙖𝙣𝙖̃  🌈 𝙚𝙪 𝙨𝙤𝙪 𝙖 ${this.client.env.DISC_BOT_NAME} ♪ 𝙥𝙖𝙧𝙖 𝙤𝙗𝙩𝙚𝙧 𝙖𝙟𝙪𝙙𝙖𝙧 𝙖𝙟𝙪𝙙𝙖 𝙚 𝙙𝙞𝙫𝙚𝙧𝙩𝙞𝙧 𝙘𝙤𝙢𝙖𝙣𝙙𝙤𝙨 𝙙𝙞𝙨𝙥𝙤𝙣𝙞́𝙫𝙚𝙞𝙨 𝙚 𝙛𝙖́𝙘𝙚𝙞𝙨 𝙙𝙚 𝙪𝙨𝙤. 𝙑𝙤𝙘𝙚̂ 𝙥𝙤𝙙𝙚 𝙪𝙨𝙖𝙧 \`${prefix}help <𝙘𝙤𝙢𝙢𝙖𝙣𝙙>\` 𝙥𝙖𝙧𝙖 𝙤𝙗𝙩𝙚𝙧 𝙖𝙟𝙪𝙙𝙖 𝙙𝙞𝙨𝙥𝙤𝙣𝙞́𝙫𝙚𝙡.`
         )
         .setFooter({ text: `𝙐𝙨𝙚 ${prefix}𝙝𝙚𝙡𝙥 <𝙘𝙤𝙢𝙢𝙖𝙣𝙙> 𝙥𝙖𝙧𝙖 𝙤𝙗𝙩𝙚𝙧 𝙖𝙟𝙪𝙙𝙖 🔧` })
+
       fildes.forEach((field) => helpEmbed.addFields(field))
       await ctx.sendMessage({ embeds: [helpEmbed] })
     } else {
@@ -79,7 +83,7 @@ export default class Help extends Command {
       const e = this.client.embed()
       const helpEmbed = e
         .setColor(this.client.color.main)
-        .setTitle(` ☎️ 𝘼𝙟𝙪𝙙𝙖 𝙙𝙖 𝙒𝙞𝙣𝙭𝘽𝙤𝙩: 𝘾𝙤𝙢𝙖𝙣𝙙𝙤 ${command.name}`)
+        .setTitle(` ☎️ 𝘼𝙟𝙪𝙙𝙖 𝙙𝙖 ${this.client.env.DISC_BOT_NAME}: 𝘾𝙤𝙢𝙖𝙣𝙙𝙤 ${command.name}`)
         .setDescription(`** 📝 𝘿𝙚𝙨𝙘𝙧𝙞𝙘̧𝙖̃𝙤: ** ${command.description.content}
 **𝙐𝙨𝙤:** ${prefix}${command.description.usage}
 **𝙀𝙭𝙚𝙢𝙥𝙡𝙤𝙨:** ${command.description.examples.map((example: any) => `${prefix}${example}`).join(', ')}

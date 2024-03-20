@@ -46,7 +46,7 @@ export default class Volume extends Command {
         embeds: [
           embed
             .setColor(this.client.color.red)
-            .setDescription('𝙈𝙖𝙣𝙖̃.. 𝙫𝙘 𝙚 𝙗𝙪𝙧𝙧𝙚.. 𝙥𝙖𝙨𝙨𝙖 𝙪𝙢 𝙣𝙪𝙢𝙚𝙧𝙤..'),
+            .setDescription('𝙈𝙖𝙣𝙖̃.. 𝙫𝙘 𝙚 𝙗𝙪𝙧𝙧𝙚..😐 𝙥𝙖𝙨𝙨𝙖 𝙪𝙢 𝙣𝙪𝙢𝙚𝙧𝙤..'),
         ],
       })
     if (number > 200)
@@ -54,7 +54,7 @@ export default class Volume extends Command {
         embeds: [
           embed
             .setColor(this.client.color.red)
-            .setDescription('𝙈𝙖𝙣𝙖̃.. 𝙤 𝙫𝙤𝙡𝙪𝙢𝙚 𝙣𝙖̃𝙤 𝙥𝙤𝙙𝙚 𝙨𝙚𝙧 𝙢𝙖𝙞𝙤𝙧 𝙦𝙪𝙚 200.'),
+            .setDescription('𝙈𝙖𝙣𝙖̃.. 😐 𝙤 𝙫𝙤𝙡𝙪𝙢𝙚 𝙣𝙖̃𝙤 𝙥𝙤𝙙𝙚 𝙨𝙚𝙧 𝙢𝙖𝙞𝙤𝙧 𝙦𝙪𝙚 200.'),
         ],
       })
     if (number < 0)
@@ -62,7 +62,7 @@ export default class Volume extends Command {
         embeds: [
           embed
             .setColor(this.client.color.red)
-            .setDescription('𝙈𝙖𝙣𝙖̃.. 𝙗𝙪𝙧𝙧𝙚.. 𝙣𝙖̃𝙤 𝙥𝙤𝙙𝙚 𝙨𝙚𝙧 𝙢𝙚𝙣𝙤𝙧 𝙦𝙪𝙚 0'),
+            .setDescription('𝙈𝙖𝙣𝙖̃.. 𝙗𝙪𝙧𝙧𝙚..😐 𝙣𝙖̃𝙤 𝙥𝙤𝙙𝙚 𝙨𝙚𝙧 𝙢𝙚𝙣𝙤𝙧 𝙦𝙪𝙚 0'),
         ],
       })
     player.player.setGlobalVolume(number)
@@ -70,7 +70,7 @@ export default class Volume extends Command {
       embeds: [
         embed
           .setColor(this.client.color.main)
-          .setDescription(`𝙑𝙤𝙡𝙪𝙢𝙚 𝙙𝙚𝙛𝙞𝙣𝙞𝙙𝙤 𝙥𝙖𝙧𝙖 ${player.player.volume}`),
+          .setDescription(`𝙑𝙤𝙡𝙪𝙢𝙚 𝙙𝙚𝙛𝙞𝙣𝙞𝙙𝙤 𝙥𝙖𝙧𝙖 ${player.player.volume} 🤗`),
       ],
     })
   }

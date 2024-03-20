@@ -3,7 +3,7 @@ import { ShardingManager } from 'discord.js'
 import { env } from '#src/env'
 import { startObjection } from '#src/lib/objection'
 
-const manager = new ShardingManager('./build/bot.js', {
+const manager = new ShardingManager('./build/bot_client.js', {
   respawn: true,
   token: env.DISC_BOT_TOKEN,
   totalShards: 'auto',

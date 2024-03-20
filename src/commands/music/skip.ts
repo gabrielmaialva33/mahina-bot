@@ -38,7 +38,7 @@ export default class Skip extends Command {
         embeds: [
           embed
             .setColor(this.client.color.red)
-            .setDescription('𝙈𝙖𝙣𝙖̃.. 𝙢𝙖𝙨 𝙣𝙚𝙢 𝙩𝙚𝙢 𝙢𝙪𝙨𝙞𝙦𝙪𝙚 𝙣𝙖 𝙛𝙞𝙡𝙚.'),
+            .setDescription('𝙈𝙖𝙣𝙖̃..🥺 𝙢𝙖𝙨 𝙣𝙚𝙢 𝙩𝙚𝙢 𝙢𝙪𝙨𝙞𝙦𝙪𝙚 𝙣𝙖 𝙛𝙞𝙡𝙚.'),
         ],
       })
     player.skip()

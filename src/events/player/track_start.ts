@@ -74,7 +74,7 @@ export default class TrackStart extends Event {
       .setColor(this.client.color.main)
       .setDescription(`**[${track.info.title}](${track.info.uri})**`)
       .setFooter({
-        text: `𝙋𝙚𝙙𝙞𝙙𝙖 𝙥𝙤𝙧 ${track.info.requestedBy.tag}`,
+        text: `𝙥𝙚𝙙𝙞𝙙𝙖 𝙥𝙤𝙚 ${track.info.requestedBy.tag}`,
         iconURL: track.info.requestedBy.avatarURL()!,
       })
       .setThumbnail(track.info.artworkUrl!)
@@ -160,7 +160,7 @@ export default class TrackStart extends Event {
               await message.edit({
                 embeds: [
                   embed.setFooter({
-                    text: `${player.paused ? '𝙋𝙖𝙪𝙨𝙖𝙙𝙤' : '𝙍𝙚𝙨𝙪𝙢𝙞𝙙𝙤'} 𝙥𝙤𝙧 ${interaction.user.tag}`,
+                    text: `${player.paused ? '𝙥𝙖𝙪𝙨𝙖𝙙𝙤' : '𝙧𝙚𝙨𝙪𝙢𝙞𝙙𝙤'} 𝙥𝙤𝙧 ${interaction.user.tag}`,
                     iconURL: interaction.user.avatarURL({})!,
                   }),
                 ],

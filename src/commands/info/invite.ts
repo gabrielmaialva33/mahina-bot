@@ -34,7 +34,9 @@ export default class Invite extends Command {
   async run(client: Mahina, ctx: Context): Promise<any> {
     const clientId = client.env.DISC_CLIENT_ID
     if (!clientId) {
-      console.error('Client ID not found in environment variables, cannot generate invite link.')
+      this.client.logger.error(
+        'Client ID not found in environment variables, cannot generate invite link.'
+      )
       return await ctx.sendMessage(
         '🥺 𝘿𝙚𝙨𝙘𝙪𝙡𝙥𝙚, 𝙢𝙚𝙪 𝙡𝙞𝙣𝙠 𝙙𝙚 𝙘𝙤𝙣𝙫𝙞𝙩𝙚 𝙣𝙖̃𝙤 𝙚𝙨𝙩𝙖́ 𝙙𝙞𝙨𝙥𝙤𝙣𝙞́𝙫𝙚𝙡 𝙣𝙤 𝙢𝙤𝙢𝙚𝙣𝙩𝙤. 𝙋𝙤𝙧 𝙛𝙖𝙫𝙤𝙧, 𝙙𝙞𝙜𝙖 𝙖𝙤 𝙗𝙪𝙧𝙧𝙚 𝙙𝙤 𝙈𝙖𝙞𝙖 𝙥𝙖𝙧𝙖 𝙫𝙚𝙧𝙞𝙛𝙞𝙘𝙖𝙧 𝙨𝙚𝙪 𝙘𝙤𝙣𝙨𝙤𝙡𝙚.'
       )
@@ -49,9 +51,9 @@ export default class Invite extends Command {
           `https://discord.com/api/oauth2/authorize?client_id=${clientId}&permissions=8&scope=bot%20applications.commands`
         ),
       new ButtonBuilder()
-        .setLabel('𝙒𝙚𝙚𝙙 𝙊𝙛 𝙒𝙖𝙧𝙘𝙧𝙖𝙛𝙩  🍁')
+        .setLabel('𝐂𝐥𝐮𝐛𝐞 𝐝𝐚𝐬 𝐖𝐢𝐧𝐱 🎡🔥')
         .setStyle(ButtonStyle.Link)
-        .setURL('https://discord.gg/maconha')
+        .setURL('https://discord.gg/3PJ9CMgpBx')
     )
 
     return await ctx.sendMessage({

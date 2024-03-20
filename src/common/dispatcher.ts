@@ -41,7 +41,6 @@ export class Dispatcher {
   previous: Song | null
   current: Song | null
   loop: 'off' | 'repeat' | 'queue'
-  // @ts-ignore
   requestedBy: User
   repeat: number
   node: Node

@@ -32,7 +32,7 @@ export default class Queue extends Command {
     if (!ctx.guild) return
 
     const player = client.queue.get(ctx.guild.id)
-    if (!player.current) return await ctx.sendMessage('𝙈𝙖𝙣𝙖̃.. 𝙢𝙖𝙨 𝙣𝙚𝙢 𝙩𝙖 𝙩𝙤𝙘𝙖𝙣𝙙𝙚 𝙢𝙪𝙨𝙞𝙦𝙪𝙚..')
+    if (!player.current) return await ctx.sendMessage('𝙈𝙖𝙣𝙖̃.. 🥺 𝙢𝙖𝙨 𝙣𝙚𝙢 𝙩𝙖 𝙩𝙤𝙘𝙖𝙣𝙙𝙚 𝙢𝙪𝙨𝙞𝙦𝙪𝙚..')
     if (player.queue.length === 0)
       return await ctx.sendMessage({
         embeds: [
@@ -42,7 +42,7 @@ export default class Queue extends Command {
             .setDescription(
               `📀 𝙉𝙤𝙬 𝙥𝙡𝙖𝙮𝙞𝙣𝙜: [${player.current.info.title}](${
                 player.current.info.uri
-              }) - 𝙋𝙚𝙙𝙞𝙙𝙖 𝙥𝙤𝙧: ${player.current?.info.requestedBy} - 𝘿𝙪𝙧𝙖𝙘̧𝙖̃𝙤: ${
+              }) - 𝙥𝙚𝙙𝙞𝙙𝙖 𝙥𝙤𝙚: ${player.current?.info.requestedBy} - 𝘿𝙪𝙧𝙖𝙘̧𝙖̃𝙤: ${
                 player.current.info.isStream
                   ? '🔴 𝙇𝙄𝙑𝙀'
                   : this.client.utils.formatTime(player.current.info.length)
@@ -52,7 +52,7 @@ export default class Queue extends Command {
       })
     const queue = player.queue.map(
       (track, index) =>
-        `${index + 1}. [${track.info.title}](${track.info.uri}) - 𝙋𝙚𝙙𝙞𝙙𝙖 𝙥𝙤𝙧: ${
+        `${index + 1}. [${track.info.title}](${track.info.uri}) - 𝙥𝙚𝙙𝙞𝙙𝙖 𝙥𝙤𝙚: ${
           track?.info.requestedBy
         } - 𝘿𝙪𝙧𝙖𝙘̧𝙖̃𝙤: ${
           track.info.isStream ? '🔴 𝙇𝙄𝙑𝙀' : this.client.utils.formatTime(track.info.length)

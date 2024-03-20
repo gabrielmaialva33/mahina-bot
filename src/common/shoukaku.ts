@@ -10,7 +10,7 @@ export class ShoukakuClient extends Shoukaku {
       new Connectors.DiscordJS(client),
       [
         {
-          name: 'Mahina',
+          name: env.LAVALINK_NAME,
           url: env.LAVALINK_URL,
           auth: env.LAVALINK_AUTH,
           secure: true,
@@ -22,7 +22,7 @@ export class ShoukakuClient extends Shoukaku {
         reconnectInterval: 30,
         reconnectTries: 2,
         restTimeout: 10000,
-        userAgent: `Mahina (@mrootx)`,
+        userAgent: `${client.env.DISC_BOT_NAME.normalize('NFKC')} (@mrootx)`,
         nodeResolver: (nodes) =>
           [...nodes.values()]
             .filter((node) => node.state === 2)

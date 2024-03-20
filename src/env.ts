@@ -14,6 +14,12 @@ export const env = cleanEnv(process.env, {
   DB_DEBUG: bool({ default: false }),
 
   // Discord
+  DISC_BOT_NAME: str({ default: 'Ｂｏｔ' }),
+  DISC_BOT_PROFILE: str({ default: '' }),
+  DISC_BOT_THUMBNAIL: str({ default: '' }),
+  DISC_BOT_COLOR: str({ default: '0x4f5aa1' }),
+
+  DISC_BOT_ID: str({ default: '' }),
   DISC_BOT_TOKEN: str({ default: '' }),
   DISC_USER_TOKEN: str({ default: '' }),
 
@@ -34,9 +40,10 @@ export const env = cleanEnv(process.env, {
   MAX_QUEUE_SIZE: num({ default: 30 }),
   MAX_PLAYLIST_SIZE: num({ default: 50 }),
 
+  // LavaLink
   LAVALINK_URL: str({ default: 'http://localhost:2333' }),
   LAVALINK_AUTH: str({ default: '' }),
   LAVALINK_PORT: num({ default: 2333 }),
-  LAVALINK_NAME: str({ default: 'WinxBot' }),
+  LAVALINK_NAME: str({ default: 'Bot' }),
   LAVALINK_SECURE: bool({ default: false }),
 })
