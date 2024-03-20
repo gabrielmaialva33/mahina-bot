@@ -45,29 +45,15 @@ export class DB {
     else return data
   }
 
-  /**
-   * ------------------------------------------------------
-   * Stay Methods
-   * ------------------------------------------------------
-   */
-  //     public get_247(guildId?: string): any {
-  //         if (guildId) {
-  //             const data: any = db.prepare('SELECT * FROM stay WHERE guildId = ?').get(guildId);
-  //             if (!data) {
-  //                 db.prepare('INSERT INTO stay (guildId) VALUES (?)').run(guildId);
-  //                 return false;
-  //             } else {
-  //                 return data;
-  //             }
-  //         } else {
-  //             const data: any = db.prepare('SELECT * FROM stay').all();
-  //             if (!data) {
-  //                 return false;
-  //             } else {
-  //                 return data;
-  //             }
-  //         }
-  //     }
+  async setPrefix(guildId: string, prefix: string): Promise<void> {
+    let data = await this.guild.query().findOne({ guild_id: guildId })
+    if (!data) {
+      await this.guild.query().insert({ guild_id: guildId, prefix: prefix })
+    } else {
+      await this.guild.query().update({ prefix: prefix }).where({ guild_id: guildId })
+    }
+  }
+
   async get_247(guildId?: string): Promise<Stay[]> {
     if (guildId) {
       const data = await this.stay.query().findOne({ guild_id: guildId })
@@ -146,6 +132,17 @@ export class DB {
     } else {
       await this.dj.query().update({ mode: false }).where({ guild_id: guildId })
       return data
+    }
+  }
+
+  async setDj(guildId: string, mode: boolean): Promise<void> {
+    const modeNum = mode ? 1 : 0
+    let data = await this.dj.query().findOne({ guild_id: guildId })
+    if (!data) {
+      // @ts-ignore
+      await this.dj.query().insert({ guild_id: guildId, mode: modeNum })
+    } else {
+      await this.dj.query().update({ mode: !!modeNum }).where({ guild_id: guildId })
     }
   }
 

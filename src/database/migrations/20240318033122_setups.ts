@@ -5,7 +5,6 @@ export async function up(knex: Knex): Promise<void> {
     table.string('id').primary()
 
     table.string('guild_id').notNullable()
-    //table.foreign('guild_id').references('id').inTable('guilds').onDelete('CASCADE')
 
     table.string('text_id').nullable()
     table.string('message_id').nullable()

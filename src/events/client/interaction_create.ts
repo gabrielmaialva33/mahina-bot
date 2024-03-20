@@ -191,7 +191,7 @@ export default class InteractionCreate extends Event {
         await command.run(this.client, ctx, ctx.args)
       } catch (error) {
         this.client.logger.error(error)
-        await interaction.reply({ content: `🥺𝙢𝙖𝙣𝙖̃.. 𝙤𝙪𝙫𝙚 𝙪𝙢 𝙚𝙧𝙧𝙤𝙧 : \`${error}\`` })
+        await interaction.reply({ content: `🥺 𝙢𝙖𝙣𝙖̃.. 𝙤𝙪𝙫𝙚 𝙪𝙢 𝙚𝙧𝙧𝙤𝙧 : \`${error}\`` })
       }
     } else if (interaction.type === InteractionType.ApplicationCommandAutocomplete) {
       if (interaction.commandName === 'play') {

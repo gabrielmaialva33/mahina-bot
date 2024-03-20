@@ -38,6 +38,9 @@ dependencies:
   source-map-support:
     specifier: ^0.5.21
     version: 0.5.21
+  undici:
+    specifier: ^6.9.0
+    version: 6.9.0
 
 devDependencies:
   '@adonisjs/eslint-config':
@@ -4336,6 +4339,14 @@ packages:
     engines: { node: '>=14.0' }
     dependencies:
       '@fastify/busboy': 2.1.1
+    dev: false
+
+  /undici@6.9.0:
+    resolution:
+      {
+        integrity: sha512-XPWfXzJedevUziHwun70EKNvGnxv4CnfraFZ4f/JV01+fcvMYzHE26r/j8AY/9c/70nkN4B1zX7E2Oyuqwz4+Q==,
+      }
+    engines: { node: '>=18.0' }
     dev: false
 
   /uri-js@4.4.1:
