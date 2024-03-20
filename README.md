@@ -95,12 +95,26 @@ The following software must be installed:
 
 <br>
 
-### :writing_hand: **Author**
+## :memo: License
 
-| [![Gabriel Maia](https://avatars.githubusercontent.com/u/26732067?size=100)](https://github.com/gabrielmaialva33) |
-| ----------------------------------------------------------------------------------------------------------------- |
-| [Gabriel Maia](https://github.com/gabrielmaialva33)                                                               |
+This project is under the **MIT** license. [MIT](./LICENSE) ❤️
 
-## License
+<br>
 
-[MIT License](LICENSE)
+## :rocket: **Contributors**
+
+| [![Maia](https://avatars.githubusercontent.com/u/26732067?size=100)](https://github.com/gabrielmaialva33) |
+|-----------------------------------------------------------------------------------------------------------|
+| [Maia](https://github.com/gabrielmaialva33)                                                               |
+
+Made with ❤️ by Maia 👋🏽 [Get in touch!](https://t.me/mrootx)
+
+## :star:
+
+Liked? Leave a little star to help the project ⭐
+
+<br/>
+<br/>
+
+<p align="center"><img src="https://raw.githubusercontent.com/gabrielmaialva33/gabrielmaialva33/master/assets/gray0_ctp_on_line.svg?sanitize=true" /></p>
+<p align="center">&copy; 2017-present <a href="https://github.com/gabrielmaialva33/" target="_blank">Maia</a>
