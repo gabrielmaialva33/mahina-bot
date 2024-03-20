@@ -38,7 +38,7 @@ export default class Leave extends Command {
           embed
             .setColor(this.client.color.main)
             .setDescription(
-              `𝙎𝙖𝙞𝙣𝙙𝙤 <#${player.node.manager.connections.get(ctx.guild!.id)!.channelId}>`
+              `𝙎𝙖𝙞𝙪 𝙙𝙚 <#${player.node.manager.connections.get(ctx.guild!.id)!.channelId}>`
             ),
         ],
       })
