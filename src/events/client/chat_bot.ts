@@ -32,7 +32,7 @@ export default class ChatBot extends Event {
       const history = HistoryUtils.build_gpt_history(input, randomChoice, username)
       HistoryUtils.write_history(history)
 
-      return message.reply(randomChoice)
+      return message.reply(`***${randomChoice}***`)
     }
 
     // if the message is a reply to a message from the bot and does not include '/'
@@ -56,7 +56,7 @@ export default class ChatBot extends Event {
         const history = HistoryUtils.build_gpt_history(input, randomChoice, username)
         HistoryUtils.write_history(history)
 
-        return message.reply(randomChoice)
+        return message.reply(`***${randomChoice}***`)
       }
     }
   }
