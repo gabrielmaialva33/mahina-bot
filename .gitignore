@@ -8,6 +8,6 @@ coverage
 !.env.example
 .idea/
 dist
-tmp
+tmp/
 !tmp/.gitkeep
 database.sqlite

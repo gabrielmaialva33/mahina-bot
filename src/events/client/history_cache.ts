@@ -10,7 +10,8 @@ export default class HistoryCache extends Event {
 
   async run(message: Message): Promise<any> {
     if (!message.guildId) return
-    if (message.guildId !== this.client.env.BOT_AI_GUILD_ID) return
+    // if (message.guildId !== this.client.env.BOT_AI_GUILD_ID) return
+    if (!this.client.env.BOT_AI_GUILD_IDS.includes(message.guildId)) return
 
     // ignore messages from bots, messages with the bot prefix, messages starting with '!', messages with attachments, embeds, system messages, and system users
     if (message.content.startsWith(this.client.env.DISC_BOT_PREFIX)) return
