@@ -1,4 +1,4 @@
-import { Event, BaseClient } from '#common/index'
+import { BaseClient, Event } from '#common/index'
 
 import BotLog from '#src/utils/bot_log'
 

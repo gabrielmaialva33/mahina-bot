@@ -1,6 +1,6 @@
 import { ApplicationCommandOptionType } from 'discord.js'
 
-import { Command, Context, BaseClient } from '#common/index'
+import { BaseClient, Command, Context } from '#common/index'
 
 export default class Create extends Command {
   constructor(client: BaseClient) {
@@ -37,6 +37,7 @@ export default class Create extends Command {
       ],
     })
   }
+
   async run(client: BaseClient, ctx: Context, args: string[]): Promise<any> {
     const name = args.join(' ').replace(/\s/g, '')
     if (name.length > 50)

@@ -1,4 +1,4 @@
-import { Command, Context, BaseClient } from '#common/index'
+import { BaseClient, Command, Context } from '#common/index'
 
 export default class Seek extends Command {
   constructor(client: BaseClient) {

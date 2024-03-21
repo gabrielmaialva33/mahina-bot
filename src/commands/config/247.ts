@@ -1,4 +1,4 @@
-import { Command, Context, BaseClient } from '#common/index'
+import { BaseClient, Command, Context } from '#common/index'
 
 // eslint-disable-next-line @typescript-eslint/naming-convention
 export default class _247 extends Command {
@@ -29,6 +29,7 @@ export default class _247 extends Command {
       options: [],
     })
   }
+
   async run(client: BaseClient, ctx: Context): Promise<any> {
     const embed = client.embed()
     let player = client.shoukaku.players.get(ctx.guild!.id) as any

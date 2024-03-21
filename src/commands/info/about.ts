@@ -1,6 +1,6 @@
 import { ActionRowBuilder, ButtonBuilder, ButtonStyle } from 'discord.js'
 
-import { Command, Context, BaseClient } from '#common/index'
+import { BaseClient, Command, Context } from '#common/index'
 
 export default class About extends Command {
   constructor(client: BaseClient) {
@@ -39,7 +39,7 @@ export default class About extends Command {
         .setLabel(' 𝙄𝙣𝙫𝙞𝙩𝙚-𝙢𝙚 𝙥𝙖𝙧𝙖 𝙤 𝙨𝙚𝙪 𝙨𝙚𝙧𝙫𝙞𝙙𝙤𝙧 🌺')
         .setStyle(ButtonStyle.Link)
         .setURL(
-          `https://discord.com/api/oauth2/authorize?client_id=1022712928291532851&permissions=8&scope=bot%20applications.commands`
+          `https://discord.com/api/oauth2/authorize?client_id=${client.env.DISC_CLIENT_ID}&permissions=8&scope=bot%20applications.commands`
         ),
       new ButtonBuilder()
         .setLabel('𝐂𝐥𝐮𝐛𝐞 𝐝𝐚𝐬 𝐖𝐢𝐧𝐱 🎡🔥')

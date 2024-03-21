@@ -1,6 +1,6 @@
 import { ChannelType } from 'discord.js'
 
-import { Event, BaseClient } from '#common/index'
+import { BaseClient, Event } from '#common/index'
 
 export default class VoiceStateUpdate extends Event {
   constructor(client: BaseClient, file: string) {
@@ -10,14 +10,16 @@ export default class VoiceStateUpdate extends Event {
   async run(_oldState: any, newState: any): Promise<void> {
     const guildId = newState.guild.id
     if (!guildId) return
+
     const player = this.client.queue.get(guildId)
     if (!player) return
+
     if (
       newState.guild.members.cache.get(this.client.user!.id) &&
       !newState.guild.members.cache.get(this.client.user!.id).voice.channelId
-    ) {
+    )
       if (player) return player.destroy()
-    }
+
     if (
       newState.id === this.client.user!.id &&
       newState.channelId &&
@@ -27,10 +29,10 @@ export default class VoiceStateUpdate extends Event {
       if (
         newState.guild.members.me.permissions.has(['Connect', 'Speak']) ||
         newState.channel.permissionsFor(newState.guild.members.me).has('MuteMembers')
-      ) {
+      )
         await newState.guild.members.me.voice.setSuppressed(false).catch(() => {})
-      }
     }
+
     if (newState.id === this.client.user!.id) return
     const vc = newState.guild.channels.cache.get(
       player.node.manager.connections.get(newState.guild.id)!.channelId
@@ -65,11 +67,8 @@ export default class VoiceStateUpdate extends Event {
             player &&
             playerVoiceChannel &&
             playerVoiceChannel.members.filter((x: any) => !x.user.bot).size <= 0
-          ) {
-            if (player) {
-              player.destroy()
-            }
-          }
+          )
+            if (player) player.destroy()
         }, 5000)
       } else {
         if (server) return
@@ -82,11 +81,8 @@ export default class VoiceStateUpdate extends Event {
             player &&
             playerVoiceChannel &&
             playerVoiceChannel.members.filter((x: any) => !x.user.bot).size <= 0
-          ) {
-            if (player) {
-              player.destroy()
-            }
-          }
+          )
+            if (player) player.destroy()
         }, 5000)
       }
     }

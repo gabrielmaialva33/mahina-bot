@@ -1,6 +1,6 @@
 import { Player } from 'shoukaku'
 
-import { Dispatcher, Event, BaseClient, Song } from '#common/index'
+import { BaseClient, Dispatcher, Event, Song } from '#common/index'
 import { updateSetup } from '#utils/setup_system'
 
 export default class QueueEnd extends Event {

@@ -1,6 +1,6 @@
 import { Message, PermissionsBitField, TextChannel } from 'discord.js'
 
-import { Event, BaseClient } from '#common/index'
+import { BaseClient, Event } from '#common/index'
 import { oops, setupStart } from '#utils/setup_system'
 
 export default class SetupSystem extends Event {

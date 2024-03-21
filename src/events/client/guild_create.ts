@@ -1,6 +1,6 @@
 import { EmbedBuilder, Guild, GuildMember, TextChannel } from 'discord.js'
 
-import { Event, BaseClient } from '#common/index'
+import { BaseClient, Event } from '#common/index'
 
 export default class GuildCreate extends Event {
   constructor(client: BaseClient, file: string) {

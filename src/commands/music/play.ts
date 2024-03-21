@@ -1,6 +1,6 @@
 import { LoadType } from 'shoukaku'
 
-import { Command, Context, BaseClient } from '#common/index'
+import { BaseClient, Command, Context } from '#common/index'
 
 export default class Play extends Command {
   constructor(client: BaseClient) {

@@ -22,6 +22,7 @@ import { Utils } from '#src/utils/utils'
 import { Logger } from '#src/lib/logger'
 import { Queue, ShoukakuClient } from '#common/index'
 import { DB } from '#src/database/models/db'
+import { AI } from '#src/plugins/gpt.plugin'
 
 const dirname = path.dirname(fileURLToPath(import.meta.url))
 
@@ -37,6 +38,7 @@ export class BaseClient extends Client {
   utils: typeof Utils = Utils
   logger: Logger = new Logger()
   queue = new Queue(this)
+  ai = new AI()
 
   readonly color = {
     red: 0xd78799,
@@ -141,7 +143,7 @@ export class BaseClient extends Client {
         await rest.put(applicationCommands, { body: this.body })
         this.logger.success('Successfully registered application commands.')
       } catch (error) {
-        console.error(error)
+        this.logger.error(error)
       }
     })
   }

@@ -35,6 +35,7 @@ export const env = cleanEnv(process.env, {
   BOT_STATUS: str({ default: 'online' }),
   BOT_ACTIVITY: str({ default: 'com oce manã..' }),
   BOT_ACTIVITY_TYPE: num({ default: 2 }),
+  BOT_AI_GUILD_ID: str({ default: '' }),
 
   SEARCH_ENGINE: str({ default: 'ytsearch' }),
   MAX_QUEUE_SIZE: num({ default: 30 }),
@@ -46,4 +47,7 @@ export const env = cleanEnv(process.env, {
   LAVALINK_PORT: num({ default: 2333 }),
   LAVALINK_NAME: str({ default: 'Bot' }),
   LAVALINK_SECURE: bool({ default: false }),
+
+  // OpenAI
+  OPENAI_API_KEY: str({ default: '' }),
 })

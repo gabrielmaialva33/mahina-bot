@@ -1,7 +1,7 @@
 import { Guild } from 'discord.js'
 import { LavalinkResponse, Node } from 'shoukaku'
 
-import { Dispatcher, BaseClient } from '#common/index'
+import { BaseClient, Dispatcher } from '#common/index'
 
 export class Queue extends Map {
   client: BaseClient

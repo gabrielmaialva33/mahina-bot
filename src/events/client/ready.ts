@@ -1,4 +1,4 @@
-import { Event, BaseClient } from '#common/index'
+import { BaseClient, Event } from '#common/index'
 
 export default class Ready extends Event {
   constructor(client: BaseClient, file: string) {

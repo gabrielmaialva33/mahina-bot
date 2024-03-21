@@ -1,4 +1,4 @@
-import { Command, Context, BaseClient } from '#common/index'
+import { BaseClient, Command, Context } from '#common/index'
 
 export default class Prefix extends Command {
   constructor(client: BaseClient) {
@@ -47,6 +47,7 @@ export default class Prefix extends Command {
       ],
     })
   }
+
   async run(client: BaseClient, ctx: Context, args: string[]): Promise<any> {
     const embed = client.embed().setColor(client.color.main)
     let prefix = await client.db.getPrefix(ctx.guild!.id)

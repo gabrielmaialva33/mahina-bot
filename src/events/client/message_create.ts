@@ -1,6 +1,6 @@
 import { ChannelType, Collection, Message, PermissionFlagsBits } from 'discord.js'
 
-import { Context, Event, BaseClient } from '#common/index'
+import { BaseClient, Context, Event } from '#common/index'
 
 export default class MessageCreate extends Event {
   constructor(client: BaseClient, file: string) {
@@ -8,6 +8,8 @@ export default class MessageCreate extends Event {
   }
 
   async run(message: Message): Promise<any> {
+    this.client.logger.info('MessageCreate event triggered')
+
     if (message.author.bot) return
     if (!message.guildId) return
 
@@ -24,7 +26,7 @@ export default class MessageCreate extends Event {
       return
     }
     const escapeRegex = (str: string): string => {
-      if (str.trim() === null) return '!'
+      if (str && str.trim() === null) return '!'
       return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
     }
     const prefixRegex = new RegExp(

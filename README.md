@@ -36,7 +36,8 @@
 
 ## :bookmark: About
 
-**ＷｉｎｘＢｏｔ** is a Discord bot that aims to help server administrators to manage their servers, providing a set of commands to help with moderation, music, and fun.
+**ＷｉｎｘＢｏｔ** is a Discord bot that aims to help server administrators to manage their servers, providing a set of
+commands to help with moderation, music, and fun.
 
 <br>
 
@@ -104,7 +105,7 @@ This project is under the **MIT** license. [MIT](./LICENSE) ❤️
 ## :rocket: **Contributors**
 
 | [![Maia](https://avatars.githubusercontent.com/u/26732067?size=100)](https://github.com/gabrielmaialva33) |
-|-----------------------------------------------------------------------------------------------------------|
+| --------------------------------------------------------------------------------------------------------- |
 | [Maia](https://github.com/gabrielmaialva33)                                                               |
 
 Made with ❤️ by Maia 👋🏽 [Get in touch!](https://t.me/mrootx)

@@ -1,7 +1,7 @@
 import { ApplicationCommandOptionType } from 'discord.js'
 import { LoadType } from 'shoukaku'
 
-import { Command, Context, BaseClient } from '#common/index'
+import { BaseClient, Command, Context } from '#common/index'
 
 export default class Add extends Command {
   constructor(client: BaseClient) {
@@ -44,6 +44,7 @@ export default class Add extends Command {
       ],
     })
   }
+
   async run(client: BaseClient, ctx: Context, args: string[]): Promise<any> {
     const playlist = args[0]
     const song = args[1]

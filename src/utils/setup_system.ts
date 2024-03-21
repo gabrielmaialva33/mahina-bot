@@ -2,7 +2,7 @@ import { ColorResolvable, EmbedBuilder, Message, TextChannel } from 'discord.js'
 import { LoadType } from 'shoukaku'
 
 import { getButtons } from '#utils/buttons'
-import { Dispatcher, BaseClient, Song } from '#common/index'
+import { BaseClient, Dispatcher, Song } from '#common/index'
 import { env } from '#src/env'
 
 function neb(embed: EmbedBuilder, player: Dispatcher, client: BaseClient): EmbedBuilder {

@@ -1,4 +1,4 @@
-import { Command, Context, BaseClient } from '#common/index'
+import { BaseClient, Command, Context } from '#common/index'
 
 // eslint-disable-next-line @typescript-eslint/naming-convention
 export default class _8d extends Command {

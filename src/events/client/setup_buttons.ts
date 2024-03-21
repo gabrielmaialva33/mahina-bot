@@ -1,4 +1,4 @@
-import { Event, BaseClient } from '#common/index'
+import { BaseClient, Event } from '#common/index'
 import { buttonReply } from '#utils/setup_system'
 import { checkDj } from '#src/events/player/track_start'
 

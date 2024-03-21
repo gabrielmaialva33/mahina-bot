@@ -13,7 +13,7 @@ import {
 } from 'discord.js'
 import { Player } from 'shoukaku'
 
-import { Dispatcher, Event, BaseClient, Song } from '#common/index'
+import { BaseClient, Dispatcher, Event, Song } from '#common/index'
 import { trackStart } from '#utils/setup_system'
 
 export default class TrackStart extends Event {

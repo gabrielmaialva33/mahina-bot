@@ -7,7 +7,7 @@ import {
   TextChannel,
 } from 'discord.js'
 
-import { Context, BaseClient } from '#common/index'
+import { BaseClient, Context } from '#common/index'
 
 export class Utils {
   static formatTime(ms: number): string {
@@ -26,6 +26,7 @@ export class Utils {
   }
 
   static updateStatus(client: BaseClient, guildId?: string): void {
+    // todo: add status per guild
     if (client.user && guildId) {
       const player = client.queue.get(guildId)
       if (player && player.current) {

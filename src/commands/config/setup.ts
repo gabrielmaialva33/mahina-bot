@@ -5,7 +5,7 @@ import {
   PermissionFlagsBits,
 } from 'discord.js'
 
-import { Command, Context, BaseClient } from '#common/index'
+import { BaseClient, Command, Context } from '#common/index'
 import { getButtons } from '#utils/buttons'
 
 export default class Setup extends Command {
@@ -52,6 +52,7 @@ export default class Setup extends Command {
       ],
     })
   }
+
   async run(client: BaseClient, ctx: Context, args: string[]): Promise<any> {
     let subCommand: string
     if (ctx.isInteraction) subCommand = ctx.interaction!.options.data[0].name
