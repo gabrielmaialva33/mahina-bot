@@ -13,7 +13,7 @@ export class ShoukakuClient extends Shoukaku {
           name: env.LAVALINK_NAME,
           url: env.LAVALINK_URL,
           auth: env.LAVALINK_AUTH,
-          secure: true,
+          secure: env.LAVALINK_SECURE,
         },
       ],
       {
