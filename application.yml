@@ -1,5 +1,5 @@
-server: # REST and WS server
-  port: 2333 # The port that the server listens on
+server:
+  port: 2333
   address: 0.0.0.0
 plugins:
   lavasrc:
@@ -29,8 +29,26 @@ plugins:
         repository: 'https://maven.lavalink.dev/releases'
         snapshot: false
       - dependency: 'com.github.topi314.sponsorblock:sponsorblock-plugin:3.0.0'
-        repository: 'https://maven.lavalink.dev/releases' # this is optional for lavalink v4.0.0-beta.5 or greater
+        repository: 'https://maven.lavalink.dev/releases'
         snapshot: false
+      - dependency: "com.dunctebot:skybot-lavalink-plugin:1.6.3"
+        repository: "https://maven.lavalink.dev/releases"
+        snapshot: false
+      - dependency: "com.github.topi314.sponsorblock:sponsorblock-plugin:3.0.0"
+        repository: "https://maven.lavalink.dev/releases"
+        snapshot: false
+  dunctebot:
+    ttsLanguage: "en-AU" # language of the TTS engine
+    sources:
+      getyarn: true # www.getyarn.io
+      clypit: true # www.clyp.it
+      tts: true # speak:Words to speak
+      pornhub: true # should be self-explanatory
+      reddit: true # should be self-explanatory
+      ocremix: true # www.ocremix.org
+      tiktok: true # tiktok.com
+      mixcloud: true # mixcloud.com
+      soundgasm: true # soundgasm.net
 
   pluginsDir: './plugins'
   server:

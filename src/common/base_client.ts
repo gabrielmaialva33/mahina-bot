@@ -53,7 +53,7 @@ export class BaseClient extends Client {
     youtube: 'https://telegra.ph/file/b691a3033fe2946b68029.png',
     spotify: 'https://telegra.ph/file/4c7d513f95b5419e31e1d.png',
     soundcloud: 'https://telegra.ph/file/151d98d56b1f5e67af6df.png',
-    apple_music: 'https://telegra.ph/file/99880df27b3400cc2a513.png',
+    applemusic: 'https://telegra.ph/file/99880df27b3400cc2a513.png',
     deezer: 'https://telegra.ph/file/3f6792d8b87860899e6f9.png',
   }
 
