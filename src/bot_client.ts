@@ -1,7 +1,9 @@
 import { ClientOptions, GatewayIntentBits } from 'discord.js'
 
 import { env } from '#src/env'
+
 import { BaseClient } from '#common/base_client'
+import { SelfClient } from '#common/self_client'
 
 const options: ClientOptions = {
   intents: [
@@ -20,6 +22,7 @@ const options: ClientOptions = {
 
 const client = new BaseClient(options)
 
-client.start(env.DISC_BOT_TOKEN).then(() => {
-  client.logger.info('Bot is ready')
-})
+client.start(env.DISC_BOT_TOKEN).then(() => client.logger.info('Bot is ready'))
+
+const streamer = new SelfClient()
+streamer.start(env.DISC_USER_TOKEN).then(() => client.logger.info('Self bot is ready'))
