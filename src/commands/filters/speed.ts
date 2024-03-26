@@ -1,6 +1,6 @@
 import { ApplicationCommandOptionType } from 'discord.js'
 
-import { Command, Context, BaseClient } from '#common/index'
+import { BaseClient, Command, Context } from '#common/index'
 
 export default class Speed extends Command {
   constructor(client: BaseClient) {

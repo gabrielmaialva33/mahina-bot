@@ -1,4 +1,4 @@
-import { Command, Context, BaseClient } from '#common/index'
+import { BaseClient, Command, Context } from '#common/index'
 
 export default class NightCore extends Command {
   constructor(client: BaseClient) {
@@ -28,6 +28,7 @@ export default class NightCore extends Command {
       options: [],
     })
   }
+
   async run(client: BaseClient, ctx: Context): Promise<any> {
     const player = client.queue.get(ctx.guild!.id)
     if (player.filters.includes('nightcore')) {
