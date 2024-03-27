@@ -1,4 +1,4 @@
-import { Client, StageChannel } from 'discord.js-selfbot-v13'
+import { Client, CustomStatus, StageChannel, ActivityOptions } from 'discord.js-selfbot-v13'
 import {
   command,
   getInputMetadata,
@@ -10,8 +10,10 @@ import {
 } from '@dank074/discord-video-stream'
 
 setStreamOpts({
-  width: 1920,
-  height: 1080,
+  // width: 1920,
+  // height: 1080,
+  width: 1080,
+  height: 720,
   fps: 30,
   bitrateKbps: 8000,
   maxBitrateKbps: 2500,
@@ -22,6 +24,9 @@ setStreamOpts({
 export class SelfClient extends Client {
   streamer: Streamer
 
+  status_idle = () => new CustomStatus().setState(`𝘼𝙨𝙨𝙞𝙨𝙩𝙞𝙣𝙙𝙤 𝙖𝙡𝙜𝙤`).setEmoji('🎥')
+  status_watch = (name: string) => new CustomStatus().setState(`𝙑𝙞𝙚𝙣𝙙𝙤 𝙖 ${name}`).setEmoji('🎥')
+
   constructor() {
     super()
     this.streamer = new Streamer(this)
@@ -29,9 +34,53 @@ export class SelfClient extends Client {
 
   async start(token: string): Promise<void> {
     await this.streamer.client.login(token)
+    this.streamer.client.user!.setActivity(this.status_idle() as unknown as ActivityOptions)
+
+    let streamStatus = {
+      joined: false,
+      joinsucc: false,
+      playing: false,
+      channelInfo: { guildId: '', channelId: '', cmdChannelId: '' },
+      starttime: '00:00:00',
+      timemark: '',
+    }
+
+    this.streamer.client.on('voiceStateUpdate', (oldState, newState) => {
+      // when exit channel
+      if (oldState.member?.user.id === this.streamer.client.user?.id) {
+        if (oldState.channelId && !newState.channelId) {
+          streamStatus.joined = false
+          streamStatus.joinsucc = false
+          streamStatus.playing = false
+          streamStatus.channelInfo = {
+            guildId: '',
+            channelId: '',
+            cmdChannelId: streamStatus.channelInfo.cmdChannelId,
+          }
+          this.streamer.client.user?.setActivity(this.status_idle() as unknown as ActivityOptions)
+        }
+      }
+
+      // when join channel success
+      if (newState.member?.user.id === this.streamer.client.user?.id) {
+        if (newState.channelId && !oldState.channelId) {
+          streamStatus.joined = true
+
+          if (
+            newState.guild.id === streamStatus.channelInfo.guildId &&
+            newState.channelId === streamStatus.channelInfo.channelId
+          )
+            streamStatus.joinsucc = true
+        }
+      }
+    })
 
     this.on('messageCreate', async (message) => {
-      if (message.content.startsWith('!vplay')) {
+      if (message.author.bot) return // ignore bots
+      if (message.author.id === this.streamer.client.user?.id) return // ignore self
+      if (!message.content.startsWith('!')) return // ignore non-commands
+
+      if (message.content.startsWith('!viplay')) {
         const args = message.content.split(' ')
         args.shift()
         console.log({ args })
@@ -46,10 +95,12 @@ export class SelfClient extends Client {
 
           const streamLinkUdpConn = await this.streamer.createStream()
 
-          await this.playVideo(
-            'https://cdn.discordapp.com/attachments/1219766706696884245/1222140197366399107/Space_Song_A7blkCcowvk.mp4?ex=661521c1&is=6602acc1&hm=d971e767ad3fbf24d35e2b332296e096a066bde004f759a3e647cb20ecee91cb&',
-            streamLinkUdpConn
-          )
+          const tmpFolder = process.cwd() + '/tmp'
+          console.log({ tmpFolder })
+          const moviePath = tmpFolder + '/movie.mp4'
+          console.log({ moviePath })
+
+          await this.playVideo(moviePath, streamLinkUdpConn)
         } else {
           console.log('No voice channel')
         }

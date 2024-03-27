@@ -85,6 +85,7 @@
     "luxon": "^3.4.4",
     "objection": "^3.1.4",
     "openai": "^4.29.2",
+    "opusscript": "^0.1.1",
     "reflect-metadata": "^0.2.1",
     "shoukaku": "^4.0.1",
     "signale": "^1.4.0",
