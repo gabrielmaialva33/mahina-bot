@@ -23,6 +23,7 @@ import { Logger } from '#src/lib/logger'
 import { Queue, ShoukakuClient } from '#common/index'
 import { DB } from '#src/database/models/db'
 import { AI } from '#src/plugins/gpt.plugin'
+import { SelfClient } from '#common/self_client'
 
 const dirname = path.dirname(fileURLToPath(import.meta.url))
 
@@ -39,6 +40,8 @@ export class BaseClient extends Client {
   logger: Logger = new Logger()
   queue = new Queue(this)
   ai = new AI()
+
+  selfClient: SelfClient
 
   readonly color = {
     red: 0xd78799,
@@ -65,6 +68,7 @@ export class BaseClient extends Client {
     super(options)
 
     this.shoukaku = new ShoukakuClient(this)
+    this.selfClient = new SelfClient(this)
   }
 
   async start(token: string): Promise<void> {
