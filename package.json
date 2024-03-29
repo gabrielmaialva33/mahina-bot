@@ -88,10 +88,8 @@
     "openai": "^4.30.0",
     "opusscript": "^0.1.1",
     "play-dl": "^1.9.7",
-    "reflect-metadata": "^0.2.1",
     "shoukaku": "^4.0.1",
     "signale": "^1.4.0",
-    "source-map-support": "^0.5.21",
     "ytdl-core": "^4.11.5"
   },
   "devDependencies": {

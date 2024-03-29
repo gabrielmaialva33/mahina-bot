@@ -44,18 +44,12 @@ dependencies:
   play-dl:
     specifier: ^1.9.7
     version: 1.9.7
-  reflect-metadata:
-    specifier: ^0.2.1
-    version: 0.2.1
   shoukaku:
     specifier: ^4.0.1
     version: 4.0.1
   signale:
     specifier: ^1.4.0
     version: 1.4.0
-  source-map-support:
-    specifier: ^0.5.21
-    version: 0.5.21
   ytdl-core:
     specifier: ^4.11.5
     version: 4.11.5
@@ -4262,13 +4256,6 @@ packages:
       resolve: 1.22.8
     dev: false
 
-  /reflect-metadata@0.2.1:
-    resolution:
-      {
-        integrity: sha512-i5lLI6iw9AU3Uu4szRNPPEkomnkjRTaVt9hy/bn5g/oSzekBSMeLZblcjP74AW0vBabqERLLIrz+gR8QYR54Tw==,
-      }
-    dev: false
-
   /regexp-tree@0.1.27:
     resolution:
       {
@@ -4548,24 +4535,6 @@ packages:
       }
     engines: { node: '>=8' }
     dev: true
-
-  /source-map-support@0.5.21:
-    resolution:
-      {
-        integrity: sha512-uBHU3L3czsIyYXKX88fdrGovxdSCoTGDRZ6SYXtSRxLZUzHg5P/66Ht6uoUlHu9EZod+inXhKo3qQgwXUT/y1w==,
-      }
-    dependencies:
-      buffer-from: 1.1.2
-      source-map: 0.6.1
-    dev: false
-
-  /source-map@0.6.1:
-    resolution:
-      {
-        integrity: sha512-UjgapumWlbMhkBgzT7Ykc5YXUT46F0iKu8SGXq0bcwP5dz/h0Plj6enJqjz1Zbq2l5WaqYnrVbwWOWMyF3F47g==,
-      }
-    engines: { node: '>=0.10.0' }
-    dev: false
 
   /source-map@0.8.0-beta.0:
     resolution:
