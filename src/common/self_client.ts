@@ -24,7 +24,7 @@ setStreamOpts({
   fps: 30,
   bitrateKbps: 8000,
   maxBitrateKbps: 2500,
-  hardware_acceleration: true,
+  hardware_acceleration: false,
   video_codec: 'H264',
 })
 
