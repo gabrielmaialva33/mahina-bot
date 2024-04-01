@@ -10,4 +10,8 @@ coverage
 dist
 tmp/
 !tmp/.gitkeep
+movies
+!movies/.gitkeep
+cache
+!cache/.gitkeep
 database.sqlite

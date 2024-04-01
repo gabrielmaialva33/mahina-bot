@@ -9,6 +9,9 @@ export const env = cleanEnv(process.env, {
   LOG_LEVEL: str({ default: 'info' }),
   NODE_ENV: str({ default: 'development' }),
 
+  USERNAME: str({ default: 'admin' }),
+  PASSWORD: str({ default: 'admin' }),
+
   // Database
   DB_CLIENT: str({ default: 'sqlite' }),
   DB_DEBUG: bool({ default: false }),
