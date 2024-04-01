@@ -7,18 +7,6 @@ const dirname = path.dirname(fileURLToPath(import.meta.url))
 
 export class Role extends ObjectionModel {
   static tableName = 'roles'
-
-  /**
-   * ------------------------------------------------------
-   * Columns
-   * ------------------------------------------------------
-   */
-  id: number
-  guild_id: string
-  role_id: string
-  created_at: string
-  updated_at: string
-
   /**
    * ------------------------------------------------------
    * Relations
@@ -34,4 +22,14 @@ export class Role extends ObjectionModel {
       },
     },
   }
+  /**
+   * ------------------------------------------------------
+   * Columns
+   * ------------------------------------------------------
+   */
+  id: number
+  guild_id: string
+  role_id: string
+  created_at: string
+  updated_at: string
 }

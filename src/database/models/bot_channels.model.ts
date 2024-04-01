@@ -6,18 +6,6 @@ const dirname = path.dirname(fileURLToPath(import.meta.url))
 
 export class BotChannels extends ObjectionModel {
   static tableName = 'bot_channels'
-
-  /**
-   * ------------------------------------------------------
-   * Columns
-   * ------------------------------------------------------
-   */
-  id: number
-  guild_id: string
-  text_id: string
-  created_at: string
-  updated_at: string
-
   /**
    * ------------------------------------------------------
    * Relations
@@ -33,4 +21,14 @@ export class BotChannels extends ObjectionModel {
       },
     },
   }
+  /**
+   * ------------------------------------------------------
+   * Columns
+   * ------------------------------------------------------
+   */
+  id: number
+  guild_id: string
+  text_id: string
+  created_at: string
+  updated_at: string
 }

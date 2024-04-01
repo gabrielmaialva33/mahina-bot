@@ -7,18 +7,6 @@ const dirname = path.dirname(fileURLToPath(import.meta.url))
 
 export class Dj extends ObjectionModel {
   static tableName = 'djs'
-
-  /**
-   * ------------------------------------------------------
-   * Columns
-   * ------------------------------------------------------
-   */
-  id: number
-  guild_id: string
-  mode: boolean
-  created_at: string
-  updated_at: string
-
   /**
    * ------------------------------------------------------
    * Relations
@@ -34,4 +22,14 @@ export class Dj extends ObjectionModel {
       },
     },
   }
+  /**
+   * ------------------------------------------------------
+   * Columns
+   * ------------------------------------------------------
+   */
+  id: number
+  guild_id: string
+  mode: boolean
+  created_at: string
+  updated_at: string
 }

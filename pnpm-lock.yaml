@@ -88,9 +88,6 @@ devDependencies:
   '@types/luxon':
     specifier: ^3.4.2
     version: 3.4.2
-  '@types/mime':
-    specifier: ^4.0.0
-    version: 4.0.0
   '@types/multer':
     specifier: ^1.4.11
     version: 1.4.11
@@ -732,7 +729,7 @@ packages:
       }
     engines: { node: '>=10.10.0' }
     dependencies:
-      '@humanwhocodes/object-schema': 2.0.2
+      '@humanwhocodes/object-schema': 2.0.3
       debug: 4.3.4(supports-color@5.5.0)
       minimatch: 3.1.2
     transitivePeerDependencies:
@@ -747,10 +744,10 @@ packages:
     engines: { node: '>=12.22' }
     dev: true
 
-  /@humanwhocodes/object-schema@2.0.2:
+  /@humanwhocodes/object-schema@2.0.3:
     resolution:
       {
-        integrity: sha512-6EwiSjwWYP7pTckG6I5eyFANjPhmPjUX9JRLUSfNPC7FX7zK9gyZAfUEaECL6ALTpGX5AjnBq3C9XmVWPitNpw==,
+        integrity: sha512-93zYdMES/c1D69yZiKDBj0V24vqNzB/koF26KPaagAfd3P/4gUlh3Dys5ogAK+Exi9QyzlD8x/08Zt7wIKcDcA==,
       }
     dev: true
 

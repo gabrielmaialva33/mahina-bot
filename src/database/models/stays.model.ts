@@ -7,19 +7,6 @@ const dirname = path.dirname(fileURLToPath(import.meta.url))
 
 export class Stay extends ObjectionModel {
   static tableName = 'stays'
-
-  /**
-   * ------------------------------------------------------
-   * Columns
-   * ------------------------------------------------------
-   */
-  id: number
-  guild_id: string
-  text_id: string
-  voice_id: string
-  created_at: string
-  updated_at: string
-
   /**
    * ------------------------------------------------------
    * Relations
@@ -35,6 +22,17 @@ export class Stay extends ObjectionModel {
       },
     },
   }
+  /**
+   * ------------------------------------------------------
+   * Columns
+   * ------------------------------------------------------
+   */
+  id: number
+  guild_id: string
+  text_id: string
+  voice_id: string
+  created_at: string
+  updated_at: string
 
   /**
    * ------------------------------------------------------

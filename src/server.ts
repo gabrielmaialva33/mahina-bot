@@ -102,74 +102,85 @@ const TemplateStyle = `
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.1/css/bootstrap.min.css" integrity="sha512-Z/def5z5u2aR89OuzYcxmDJ0Bnd5V1cKqBEbvLOiUNWdg9PQeXVvXLI90SE4QOHGlfLqUnDNVAYyZi8UwUTmWQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <style>
         body {
-        background-color: #f8f8f8;
-        color: #333;
-        font-family: "Arial", sans-serif;
+          background-color: #f8f8f8;
+          color: #333;
+          font-family: "Arial", sans-serif;
         }
 
         h1,h2,h3 {
-        color: #555;
-        margin-bottom: 20px;
+          color: #555;
+          margin-bottom: 20px;
         }
 
         .container {
-        margin: 20px auto;
-        max-width: 800px;
+          margin: 20px auto;
+          max-width: 800px;
         }
 
         .table {
-        background-color: #fff;
-        border: 1px solid #ddd;
-        border-collapse: collapse;
-        width: 100%;
+          background-color: #fff;
+          border: 1px solid #ddd;
+          border-collapse: collapse;
+          width: 100%;
         }
 
         .table th,
         .table td {
-        padding: 10px;
+          padding: 10px;
         }
 
         .table th {
-        font-weight: bold;
-        background-color: #f5f5f5;
-        border-top: 1px solid #ddd;
-        border-bottom: 1px solid #ddd;
+          font-weight: bold;
+          background-color: #f5f5f5;
+          border-top: 1px solid #ddd;
+          border-bottom: 1px solid #ddd;
         }
 
         .table tr:hover {
-        background-color: #f9f9f9;
+          background-color: #f9f9f9;
         }
 
         .form-group {
-        margin-bottom: 20px;
+          margin-bottom: 20px;
         }
 
         .form-control {
-        width: 100%;
-        padding: 8px;
-        font-size: 14px;
-        border: 1px solid #ccc;
-        border-radius: 4px;
+          width: 100%;
+          padding: 8px;
+          font-size: 14px;
+          border: 1px solid #ccc;
+          border-radius: 4px;
         }
 
         .btn-primary {
-        background-color: #4f5aa1;
-        color: #fff;
-        border: none;
+          background-color: #4f5aa1;
+          color: #fff;
+          border: none;
         }
 
         .btn-primary:hover {
-        background-color: #36408f;
+          background-color: #36408f;
         }
 
         .btn-success {
-        background-color: #28a745;
-        color: #fff;
-        border: none;
+          background-color: #28a745;
+          color: #fff;
+          border: none;
         }
 
         .btn-success:hover {
-        background-color: #218838;
+          background-color: #218838;
+        }
+
+        .img-padding {
+          padding: 10px; /* Ajuste o valor do padding conforme necessário */
+        }
+        .video-container {
+          padding-top: 20px; /* Espaçamento acima do player de vídeo */
+        }
+        .video-player {
+          width: 100%; /* Ajuste a largura conforme necessário */
+          height: auto; /* Ajuste a altura conforme necessário */
         }
     </style>
     `
@@ -205,7 +216,7 @@ app.get('/', (_req, res) => {
                   <h1>Mahina: Gerenciador de Arquivos</h1>
                 </div>
 
-              <h2>Lista de Arquivos</h2>
+              <h3>Lista de Arquivos</h3>
               <div class="table-responsive">
                 <table class="table table-striped table-sm">
                   <thead>
@@ -240,7 +251,7 @@ app.get('/', (_req, res) => {
                 </table>
               </div>
 
-              <h2>Enviar Arquivo</h2>
+              <h3>Enviar Arquivo</h3>
               <form action="/api/upload" method="post" enctype="multipart/form-data">
                 <div class="form-group">
                   <label for="fileInput">Selecione um arquivo:</label>
@@ -292,9 +303,7 @@ async function ffmpegScreenshot(video: string) {
     if (ffmpegRunning[video]) {
       // wait for ffmpeg to finish
       let wait = () => {
-        if (ffmpegRunning[video] === false) {
-          resolve()
-        }
+        if (!ffmpegRunning[video]) resolve()
         setTimeout(wait, 100)
       }
       wait()
@@ -322,7 +331,6 @@ async function ffmpegScreenshot(video: string) {
           filename: `${video}-${i + 1}.jpg`,
           timestamps: [ts[i]],
           folder: cacheFolder,
-          // take screenshot at 640x480
           size: '1280x720',
         })
     }
@@ -357,10 +365,7 @@ app.get('/api/preview/:file/:id', async (req, res) => {
 
 // stringify object to <ul><li>...</li></ul>
 const stringify = (obj: string | any[]): string => {
-  // if string, return it
-  if (typeof obj === 'string') {
-    return obj
-  }
+  if (typeof obj === 'string') return obj
 
   if (Array.isArray(obj)) {
     return `<ul>${obj
@@ -425,17 +430,24 @@ app.get('/preview/:file', (req, res) => {
                     </table>
                 </div>
                 <h1>Prévia</h1>
-                <!-- waterfall layout the preview images -->
                 <div class="row">
-                    <div class="col-6 col-md-4 col-lg-3">
+                    <!-- As imagens agora têm a classe img-padding para o padding -->
+                    <div class="col-6 col-md-4 col-lg-3 img-padding">
                         <a href="/api/preview/${file}/1"><img src="/api/preview/${file}/1" class="img-fluid" /></a>
                         <a href="/api/preview/${file}/2"><img src="/api/preview/${file}/2" class="img-fluid" /></a>
                         <a href="/api/preview/${file}/3"><img src="/api/preview/${file}/3" class="img-fluid" /></a>
                     </div>
-                    <div class="col-6 col-md-4 col-lg-3">
+                    <div class="col-6 col-md-4 col-lg-3 img-padding">
                         <a href="/api/preview/${file}/4"><img src="/api/preview/${file}/4" class="img-fluid" /></a>
                         <a href="/api/preview/${file}/5"><img src="/api/preview/${file}/5" class="img-fluid" /></a>
                     </div>
+                </div>
+                <!-- Inserção do player de vídeo -->
+                <div class="video-container">
+                    <video controls class="video-player">
+                        <source src="/path/to/your/video/${file}" type="video/mp4">
+                        Seu navegador não suporta o elemento de vídeo.
+                    </video>
                 </div>
                 <a href="/" class="btn btn-primary">Voltar</a>
             </div>

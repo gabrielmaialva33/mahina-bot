@@ -7,18 +7,6 @@ const dirname = path.dirname(fileURLToPath(import.meta.url))
 
 export class Premium extends ObjectionModel {
   static tableName = 'premiums'
-
-  /**
-   * ------------------------------------------------------
-   * Columns
-   * ------------------------------------------------------
-   */
-  id: number
-  user_id: string
-  guild_id: string
-  created_at: string
-  updated_at: string
-
   /**
    * ------------------------------------------------------
    * Relations
@@ -34,4 +22,14 @@ export class Premium extends ObjectionModel {
       },
     },
   }
+  /**
+   * ------------------------------------------------------
+   * Columns
+   * ------------------------------------------------------
+   */
+  id: number
+  user_id: string
+  guild_id: string
+  created_at: string
+  updated_at: string
 }

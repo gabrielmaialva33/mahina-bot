@@ -1,4 +1,4 @@
-import { Client, CustomStatus, StageChannel, ActivityOptions } from 'discord.js-selfbot-v13'
+import { ActivityOptions, Client, CustomStatus, StageChannel } from 'discord.js-selfbot-v13'
 import {
   command,
   getInputMetadata,
@@ -32,15 +32,16 @@ export class SelfClient extends Client {
   streamer: Streamer
   baseClient: BaseClient
 
-  status_idle = () => new CustomStatus().setState(`𝘼𝙨𝙨𝙞𝙨𝙩𝙞𝙣𝙙𝙤 𝙖𝙡𝙜𝙤`).setEmoji('🎥')
-  status_watch = (name: string) => new CustomStatus().setState(`𝙑𝙞𝙚𝙣𝙙𝙤 𝙖 ${name}`).setEmoji('🎥')
-
   constructor(baseClient: BaseClient) {
     super()
 
     this.streamer = new Streamer(this)
     this.baseClient = baseClient
   }
+
+  status_idle = () => new CustomStatus().setState(`𝘼𝙨𝙨𝙞𝙨𝙩𝙞𝙣𝙙𝙤 𝙖𝙡𝙜𝙤`).setEmoji('🎥')
+
+  status_watch = (name: string) => new CustomStatus().setState(`𝙑𝙞𝙚𝙣𝙙𝙤 𝙖 ${name}`).setEmoji('🎥')
 
   async start(token: string): Promise<void> {
     await this.streamer.client.login(token)
