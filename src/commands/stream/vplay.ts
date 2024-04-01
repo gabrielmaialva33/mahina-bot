@@ -46,8 +46,6 @@ export default class VPlay extends Command {
     if (!ctx.guild) return
     if (!ctx.member) return
 
-    console.log({ query })
-
     // check query if it's a valid url
     const validUrl = ytdl.validateURL(query)
     if (!validUrl) return ctx.sendMessage('𝙊 𝙡𝙞𝙣𝙠 𝙣𝙖̃𝙤 𝙚́ 𝙫𝙖́𝙡𝙞𝙙𝙤.')

@@ -1,6 +1,7 @@
 import path from 'node:path'
 
 import { BaseClient, Command, Context } from '#common/index'
+import fs from 'node:fs'
 
 export default class MPlay extends Command {
   constructor(client: BaseClient) {
@@ -8,7 +9,7 @@ export default class MPlay extends Command {
       name: 'mplay',
       description: {
         content: 'Stream de filme no canal de voz.',
-        examples: ['mplay'],
+        examples: ['mplay <nome do filme>', 'mplay Frozen'],
         usage: 'mplay',
       },
       category: 'stream',
@@ -27,19 +28,45 @@ export default class MPlay extends Command {
         user: [],
       },
       slashCommand: true,
-      options: [],
+      options: [
+        {
+          name: 'movie',
+          description: 'O nome do filme que você quer assistir',
+          type: 3,
+          required: true,
+          autocomplete: true,
+        },
+      ],
     })
   }
 
-  async run(_client: BaseClient, ctx: Context, _args: string[]): Promise<any> {
+  async run(client: BaseClient, ctx: Context, args: string[]): Promise<any> {
     if (!ctx.guild) return
     if (!ctx.member) return
 
-    const tmpFolder = process.cwd() + '/tmp'
-    const movieFile = path.join(tmpFolder, 'movie.mp4')
+    const movieFiles = fs.readdirSync(client.movieFolder)
+    if (movieFiles.length === 0) return ctx.sendMessage('𝙉𝙖̃𝙤 𝙝𝙖́ 𝙛𝙞𝙡𝙢𝙚𝙨 𝙥𝙖𝙧𝙖 𝙖𝙨𝙨𝙞𝙨𝙩𝙞𝙧.')
+    let movies = movieFiles
+      .map((file) => {
+        if (file.endsWith('.mp4') || file.endsWith('.mkv')) {
+          const fileName = path.parse(file).name
+          return {
+            name: fileName,
+            path: path.join(client.movieFolder, file),
+          }
+        }
+      })
+      .filter((movie) => movie !== undefined)
+
+    let movieName = args.shift()
+    let movie = movies.find((m) => m!.name === movieName)
+
+    // const tmpFolder = process.cwd() + '/tmp'
+    // const movieFile = path.join(tmpFolder, 'movie.mp4')
 
     // message.member && message.member.voice.channelId && message.guildId
-    await this.client.selfClient.moviePlay(ctx.member, ctx.guild.id, movieFile)
-    await ctx.sendMessage('𝙊 𝙛𝙞𝙡𝙢 𝙚𝙨𝙩𝙖́ 𝙥𝙧𝙤𝙣𝙩𝙤.')
+    await this.client.selfClient.moviePlay(ctx.member, ctx.guild.id, movie!.path)
+
+    await ctx.sendMessage(`𝙊 𝙛𝙞𝙡𝙢 𝙚𝙨𝙩𝙖́ 𝙥𝙧𝙤𝙣𝙩𝙤. 𝙋𝙤𝙙𝙚 𝙖𝙥𝙚𝙧𝙩𝙖 𝙥𝙖𝙧𝙖 𝙖𝙨𝙨𝙞𝙨𝙩𝙞𝙧 𝙖 𝙛𝙞𝙡𝙢𝙚: ${movieName}`)
   }
 }
