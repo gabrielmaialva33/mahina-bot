@@ -442,18 +442,31 @@ app.get('/preview/:file', (req, res) => {
                         <a href="/api/preview/${file}/5"><img src="/api/preview/${file}/5" class="img-fluid" /></a>
                     </div>
                 </div>
-                <!-- Inserção do player de vídeo -->
+                <br/>
+                <h1>Vídeo</h1>
                 <div class="video-container">
                     <video controls class="video-player">
-                        <source src="/path/to/your/video/${file}" type="video/mp4">
+                        <source src="/api/video/${file}" type="video/mp4">
                         Seu navegador não suporta o elemento de vídeo.
                     </video>
                 </div>
+                <br/>
                 <a href="/" class="btn btn-primary">Voltar</a>
             </div>
         `
     res.send(template)
   })
+})
+
+app.get('/api/video/:file', (req, res) => {
+  const file = req.params.file
+  const videoPath = path.join(movieFolder, file)
+  if (!fs.existsSync(videoPath)) {
+    res.status(404).send('Not Found')
+    return
+  }
+
+  return res.sendFile(videoPath)
 })
 
 // page to delete file
