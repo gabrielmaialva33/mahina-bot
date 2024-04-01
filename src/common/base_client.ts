@@ -42,6 +42,7 @@ export class BaseClient extends Client {
   ai = new AI()
 
   selfClient: SelfClient
+  movieFolder = path.join(process.cwd(), 'movies')
 
   readonly color = {
     red: 0xd78799,
