@@ -42,8 +42,8 @@ app.post('/api/upload', upload.single('file'), (_req, res) => {
   const template = `
         ${TemplateStyle}
         <div class="container">
-            <h1>File Uploaded</h1>
-            <a href="/" class="btn btn-primary">Return</a>
+            <h1>Arquivo enviado com sucesso</h1>
+            <a href="/" class="btn btn-primary">Voltar</a>
         </div>
     `
   res.send(template)
@@ -65,8 +65,8 @@ app.post('/api/remote_upload', upload.single('link'), async (req, res) => {
       const template = `
           ${TemplateStyle}
           <div class="container">
-            <h1>File Uploaded successfully: ${filename}</h1>
-            <a href="/" class="btn btn-primary">Return</a>
+            <h1>Aquivo enviado com sucesso: ${filename}</h1>
+            <a href="/" class="btn btn-primary">Voltar</a>
           </div>
         `
       res.send(template)
@@ -77,8 +77,8 @@ app.post('/api/remote_upload', upload.single('link'), async (req, res) => {
       const template = `
           ${TemplateStyle}
           <div class="container">
-            <h1>Error uploading file</h1>
-            <a href="/" class="btn btn-primary">Return</a>
+            <h1>Erro ao fazer upload do arquivo</h1>
+            <a href="/" class="btn btn-primary">Voltar</a>
           </div>
         `
       res.send(template)
@@ -88,7 +88,7 @@ app.post('/api/remote_upload', upload.single('link'), async (req, res) => {
     const template = `
         ${TemplateStyle}
         <div class="container">
-          <h1>Error uploading file</h1>
+          <h1>Erro ao fazer upload do arquivo</h1>
           <a href="/" class="btn btn-primary">Return</a>
         </div>
       `
@@ -107,7 +107,7 @@ const TemplateStyle = `
         font-family: "Arial", sans-serif;
         }
 
-        h1 {
+        h1,h2,h3 {
         color: #555;
         margin-bottom: 20px;
         }
@@ -153,13 +153,13 @@ const TemplateStyle = `
         }
 
         .btn-primary {
-        background-color: #007bff;
+        background-color: #4f5aa1;
         color: #fff;
         border: none;
         }
 
         .btn-primary:hover {
-        background-color: #0069d9;
+        background-color: #36408f;
         }
 
         .btn-success {
@@ -195,16 +195,26 @@ app.get('/', (_req, res) => {
       const template = `
             ${TemplateStyle}
             <div class="container">
-              <h1>File List</h1>
+
+              <!-- add app logo and name (img encima e nome embaixo) -->
+              <div class="row">
+                <div class="col-3">
+                  <img src="https://telegra.ph/file/642085e294c889b91cccb.png" class="img-fluid" alt="Mahina Logo">
+                </div>
+                <div class="col-9" style="display: flex; align-items: center;">
+                  <h1>Mahina: Gerenciador de Arquivos</h1>
+                </div>
+
+              <h2>Lista de Arquivos</h2>
               <div class="table-responsive">
                 <table class="table table-striped table-sm">
                   <thead>
                     <tr>
-                      <th>Name</th>
-                      <th>Size</th>
-                      <th>Preview</th>
-                      <th>Copy</th>
-                      <th>Delete</th>
+                      <th>Nome</th>
+                      <th>Tamanho</th>
+                      <th>Prévia</th>
+                      <th>Copiar</th>
+                      <th>Deletar</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -218,10 +228,10 @@ app.get('/', (_req, res) => {
                           <td><a href="/preview/${file}">Preview</a></td>
                           <td>
                             <button class="btn btn-sm btn-primary copy-button" data-clipboard-text="${path.parse(file).name.replace(/\s/g, '')}">
-                              Copy
+                              Copiar
                             </button>
                           </td>
-                          <td><a href="/delete/${file}">Delete</a></td>
+                          <td><a href="/delete/${file}">Deletar</a></td>
                         </tr>
                       `
                       })
@@ -230,10 +240,10 @@ app.get('/', (_req, res) => {
                 </table>
               </div>
 
-              <h1>Upload File</h1>
+              <h2>Enviar Arquivo</h2>
               <form action="/api/upload" method="post" enctype="multipart/form-data">
                 <div class="form-group">
-                  <label for="fileInput">Select File:</label>
+                  <label for="fileInput">Selecione um arquivo:</label>
                   <input type="file" id="fileInput" name="file" required />
                 </div>
                 <div class="form-group">
@@ -243,7 +253,7 @@ app.get('/', (_req, res) => {
 
               <form action="/api/remote_upload" method="post" enctype="multipart/form-data">
                 <div class="form-group">
-                  <label for="linkInput">Remote Upload:</label>
+                  <label for="linkInput">Upload remoto:</label>
                   <input type="text" class="form-control" id="linkInput" name="link" placeholder="Link" required />
                 </div>
                 <div class="form-group">
@@ -414,7 +424,7 @@ app.get('/preview/:file', (req, res) => {
                         </tbody>
                     </table>
                 </div>
-                <h1>Preview</h1>
+                <h1>Prévia</h1>
                 <!-- waterfall layout the preview images -->
                 <div class="row">
                     <div class="col-6 col-md-4 col-lg-3">
@@ -427,7 +437,7 @@ app.get('/preview/:file', (req, res) => {
                         <a href="/api/preview/${file}/5"><img src="/api/preview/${file}/5" class="img-fluid" /></a>
                     </div>
                 </div>
-                <a href="/" class="btn btn-primary">Return</a>
+                <a href="/" class="btn btn-primary">Voltar</a>
             </div>
         `
     res.send(template)
@@ -449,8 +459,8 @@ app.get('/delete/:file', (req, res) => {
     const template = `
             ${TemplateStyle}
             <div class="container">
-                <h1>file deleted successfully</h1>
-                <a href="/" class="btn btn-primary">Return</a>
+                <h1>Aquivo deletado com sucesso: ${file}</h1>
+                <a href="/" class="btn btn-primary">Voltar</a>
             </div>
         `
     res.send(template)
