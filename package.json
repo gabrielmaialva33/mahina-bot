@@ -90,7 +90,7 @@
     "luxon": "^3.4.4",
     "multer": "1.4.5-lts.1",
     "objection": "^3.1.4",
-    "openai": "^4.31.0",
+    "openai": "^4.32.1",
     "opusscript": "^0.1.1",
     "play-dl": "^1.9.7",
     "shoukaku": "^4.0.1",
