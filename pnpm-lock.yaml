@@ -12,8 +12,8 @@ dependencies:
     specifier: ^1.0.2
     version: 1.0.2
   '@gabrielmaialva33/discord-video-stream':
-    specifier: ^1.0.4
-    version: 1.0.4(discord.js-selfbot-v13@3.1.4)(ffmpeg-static@5.2.0)(opusscript@0.1.1)
+    specifier: ^0.0.0
+    version: 0.0.0(discord.js-selfbot-v13@3.1.4)(ffmpeg-static@5.2.0)(opusscript@0.1.1)
   '@swc/core':
     specifier: ^1.4.11
     version: 1.4.11
@@ -67,7 +67,7 @@ dependencies:
     version: 1.9.7
   prism-media:
     specifier: ^1.3.5
-    version: 1.3.5(@discordjs/opus@0.9.0)(ffmpeg-static@5.2.0)(opusscript@0.1.1)
+    version: 1.3.5(@discordjs/opus@0.8.0)(ffmpeg-static@5.2.0)(opusscript@0.1.1)
   shoukaku:
     specifier: ^4.0.1
     version: 4.0.1
@@ -597,8 +597,8 @@ packages:
     engines: {node: '>=14'}
     dev: false
 
-  /@gabrielmaialva33/discord-video-stream@1.0.4(discord.js-selfbot-v13@3.1.4)(ffmpeg-static@5.2.0)(opusscript@0.1.1):
-    resolution: {integrity: sha512-vUE+4s+EZpmzoYoNR2ammDtJeNzyqwXO9rWZOq1iRL2W+2FBUyZgMP1L+TiNMZBfrMd/NyAsk4L3HumqUBlnQQ==}
+  /@gabrielmaialva33/discord-video-stream@0.0.0(discord.js-selfbot-v13@3.1.4)(ffmpeg-static@5.2.0)(opusscript@0.1.1):
+    resolution: {integrity: sha512-TltOLyUUCy8/MxLgCDPCyKYUosfjgXUBqZqQM8pCFZC9PS0PrBDkSykp5+JDfASmgzHV6cWpwKT2ny6Kj5ZirQ==}
     peerDependencies:
       discord.js-selfbot-v13: 3.x
     dependencies:
