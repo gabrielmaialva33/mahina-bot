@@ -2,6 +2,7 @@ import * as readline from 'node:readline'
 import cp from 'node:child_process'
 
 import { ActivityOptions, Client, CustomStatus, StageChannel } from 'discord.js-selfbot-v13'
+
 import {
   command,
   getInputMetadata,
@@ -10,7 +11,7 @@ import {
   setStreamOpts,
   Streamer,
   streamLivestreamVideo,
-} from '@dank074/discord-video-stream'
+} from '@gabrielmaialva33/discord-video-stream'
 
 import ytdl from 'ytdl-core'
 import ffmpeg from 'ffmpeg-static'
