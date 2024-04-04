@@ -11,7 +11,7 @@ import {
   setStreamOpts,
   Streamer,
   streamLivestreamVideo,
-} from '@gabrielmaialva33/discord-video-stream'
+} from '@dank074/discord-video-stream'
 
 import ytdl from 'ytdl-core'
 import ffmpeg from 'ffmpeg-static'
