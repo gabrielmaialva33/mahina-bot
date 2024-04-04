@@ -1,6 +1,6 @@
 {
   "name": "mahina-bot",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A simple discord bot to play videos on voice channels",
   "keywords": [
     "typescript",
