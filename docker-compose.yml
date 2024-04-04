@@ -2,7 +2,7 @@ version: '3.8'
 services:
   lavalink:
     container_name: lavamusic-lavalink
-    image: ghcr.io/lavalink-devs/lavalink:master
+    image: ghcr.io/lavalink-devs/lavalink:v4-update-lp
     restart: on-failure
     environment:
       _JAVA_OPTIONS: -Xmx6G
