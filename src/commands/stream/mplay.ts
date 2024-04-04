@@ -44,6 +44,9 @@ export default class MPlay extends Command {
     if (!ctx.guild) return
     if (!ctx.member) return
 
+    if (this.client.selfClient.streamStatus.joined)
+      return ctx.sendMessage('𝙊 𝙗𝙤𝙩 𝙟𝙖́ 𝙚𝙨𝙩𝙖́ 𝙚𝙢 𝙪𝙢 𝙘𝙖𝙣𝙖𝙡 𝙙𝙚 𝙫𝙤𝙯.')
+
     const movieFiles = fs.readdirSync(client.movieFolder)
     if (movieFiles.length === 0) return ctx.sendMessage('𝙉𝙖̃𝙤 𝙝𝙖́ 𝙛𝙞𝙡𝙢𝙚𝙨 𝙥𝙖𝙧𝙖 𝙖𝙨𝙨𝙞𝙨𝙩𝙞𝙧.')
     let movies = movieFiles
@@ -61,7 +64,7 @@ export default class MPlay extends Command {
     let movieName = args.shift()
     let movie = movies.find((m) => m!.name === movieName)
 
-    await this.client.selfClient.moviePlay(ctx.member, ctx.guild.id, movie!.path)
+    await this.client.selfClient.moviePlay(ctx.member, ctx.guild.id, movie!.path, movieName)
 
     await ctx.sendMessage(`𝙊 𝙛𝙞𝙡𝙢 𝙚𝙨𝙩𝙖́ 𝙥𝙧𝙤𝙣𝙩𝙤. 𝙋𝙤𝙙𝙚 𝙖𝙥𝙚𝙧𝙩𝙖 𝙥𝙖𝙧𝙖 𝙖𝙨𝙨𝙞𝙨𝙩𝙞𝙧 𝙖 𝙛𝙞𝙡𝙢𝙚: ${movieName}`)
   }

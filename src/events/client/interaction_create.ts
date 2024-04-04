@@ -110,20 +110,26 @@ export default class InteractionCreate extends Event {
           }
         }
         if (command.player.active) {
-          if (!this.client.queue.get(interaction.guildId))
+          if (!this.client.queue.get(interaction.guildId)) {
+            this.client.logger.warn(`Guild não encontrada para o servidor ${interaction.guildId}`)
             return await interaction.reply({
               content: '𝙉𝙖̃𝙤 𝙩𝙖 𝙩𝙤𝙘𝙖𝙣𝙙𝙤 𝙣𝙖𝙙𝙚 𝙢𝙖𝙣𝙖̃..',
             })
+          }
 
-          if (!this.client.queue.get(interaction.guildId).queue)
+          if (!this.client.queue.get(interaction.guildId).queue) {
+            this.client.logger.warn(`Queue não encontrada para o servidor ${interaction.guildId}`)
             return await interaction.reply({
               content: '𝙉𝙖̃𝙤 𝙩𝙖 𝙩𝙤𝙘𝙖𝙣𝙙𝙤 𝙣𝙖𝙙𝙚 𝙢𝙖𝙣𝙖̃..',
             })
+          }
 
-          if (!this.client.queue.get(interaction.guildId).current)
+          if (!this.client.queue.get(interaction.guildId).current) {
+            this.client.logger.warn(`Música não encontrada para o servidor ${interaction.guildId}`)
             return await interaction.reply({
               content: '𝙉𝙖̃𝙤 𝙩𝙖 𝙩𝙤𝙘𝙖𝙣𝙙𝙤 𝙣𝙖𝙙𝙚 𝙢𝙖𝙣𝙖̃..',
             })
+          }
         }
         if (command.player.dj) {
           const dj = await this.client.db.getDj(interaction.guildId)

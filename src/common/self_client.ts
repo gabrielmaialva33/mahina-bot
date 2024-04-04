@@ -17,18 +17,6 @@ import ffmpeg from 'ffmpeg-static'
 
 import { BaseClient } from '#common/base_client'
 
-// setStreamOpts({
-//   // width: 1920,
-//   // height: 1080,
-//   width: 1280,
-//   height: 720,
-//   fps: 30,
-//   bitrateKbps: 4000,
-//   maxBitrateKbps: 2500,
-//   hardware_acceleration: false,
-//   video_codec: 'H264',
-// })
-
 setStreamOpts({
   width: 1920,
   height: 1080,
@@ -41,64 +29,83 @@ setStreamOpts({
 export class SelfClient extends Client {
   streamer: Streamer
   baseClient: BaseClient
+  command: any
+
+  streamStatus = {
+    joined: false,
+    joinsucc: false,
+    playing: false,
+    channelInfo: { guildId: '', channelId: '', cmdChannelId: '' },
+    starttime: '00:00:00',
+    timemark: '',
+  }
 
   constructor(baseClient: BaseClient) {
     super()
 
     this.streamer = new Streamer(this)
     this.baseClient = baseClient
+
+    this.command = command
   }
 
-  status_idle = () => new CustomStatus().setState(`𝘼𝙨𝙨𝙞𝙨𝙩𝙞𝙣𝙙𝙤 𝙖𝙡𝙜𝙤`).setEmoji('🎥')
+  statusIdle = () => new CustomStatus().setState(`𝘾𝙡𝙪𝙗𝙚 𝘽𝙖𝙠𝙠𝙤 🍷`).setEmoji('🎥')
 
-  status_watch = (name: string) => new CustomStatus().setState(`𝙑𝙞𝙚𝙣𝙙𝙤 𝙖 ${name}`).setEmoji('🎥')
+  statusWatch = (name: string) => new CustomStatus().setState(`𝙑𝙚𝙣𝙙𝙤 ${name}`).setEmoji('🎥')
 
   async start(token: string): Promise<void> {
     await this.streamer.client.login(token)
-    this.streamer.client.user!.setActivity(this.status_idle() as unknown as ActivityOptions)
 
-    let streamStatus = {
-      joined: false,
-      joinsucc: false,
-      playing: false,
-      channelInfo: { guildId: '', channelId: '', cmdChannelId: '' },
-      starttime: '00:00:00',
-      timemark: '',
-    }
+    this.streamer.client.on('ready', () => {
+      this.baseClient.logger.info(`Self bot is ready`)
+
+      this.streamer.client.user!.setActivity(this.statusIdle() as unknown as ActivityOptions)
+    })
 
     this.streamer.client.on('voiceStateUpdate', (oldState, newState) => {
       // when exit channel
       if (oldState.member?.user.id === this.streamer.client.user?.id) {
         if (oldState.channelId && !newState.channelId) {
-          streamStatus.joined = false
-          streamStatus.joinsucc = false
-          streamStatus.playing = false
-          streamStatus.channelInfo = {
+          this.streamStatus.joined = false
+          this.streamStatus.joinsucc = false
+          this.streamStatus.playing = false
+          this.streamStatus.channelInfo = {
             guildId: '',
             channelId: '',
-            cmdChannelId: streamStatus.channelInfo.cmdChannelId,
+            cmdChannelId: this.streamStatus.channelInfo.cmdChannelId,
           }
-          this.streamer.client.user?.setActivity(this.status_idle() as unknown as ActivityOptions)
+
+          // set status to idle
+          this.streamer.client.user?.setActivity(this.statusIdle() as unknown as ActivityOptions)
         }
       }
 
       // when join channel success
       if (newState.member?.user.id === this.streamer.client.user?.id) {
         if (newState.channelId && !oldState.channelId) {
-          streamStatus.joined = true
+          this.streamStatus.joined = true
 
           if (
-            newState.guild.id === streamStatus.channelInfo.guildId &&
-            newState.channelId === streamStatus.channelInfo.channelId
+            newState.guild.id === this.streamStatus.channelInfo.guildId &&
+            newState.channelId === this.streamStatus.channelInfo.channelId
           )
-            streamStatus.joinsucc = true
+            this.streamStatus.joinsucc = true
         }
       }
     })
   }
 
-  async moviePlay(member: any, guildId: string, link: string) {
+  async moviePlay(member: any, guildId: string, link: string, name: string = '') {
     await this.streamer.joinVoice(guildId, member.voice.channelId)
+
+    this.streamStatus.joined = true
+    this.streamStatus.playing = false
+    this.streamStatus.channelInfo = {
+      guildId: guildId,
+      channelId: member.voice.channelId,
+      cmdChannelId: member.voice.channelId,
+    }
+
     const channel = member.voice.channel
 
     if (channel instanceof StageChannel)
@@ -107,7 +114,7 @@ export class SelfClient extends Client {
     const streamLinkUdpConn = await this.streamer.createStream()
 
     this.playVideo(link, streamLinkUdpConn)
-    this.streamer.client.user?.setActivity(this.status_watch('') as unknown as ActivityOptions)
+    this.streamer.client.user?.setActivity(this.statusWatch(name) as unknown as ActivityOptions)
   }
 
   async playVideo(video: string, udpConn: MediaUdp) {
@@ -260,7 +267,7 @@ export class SelfClient extends Client {
     audio.pipe(ffmpegProcess.stdio[4 as any] as any)
     video.pipe(ffmpegProcess.stdio[5 as any] as any)
 
-    return process.cwd() + '/tmp/out.mkv'
+    return process.cwd() + '/tmp/out.mp4'
 
     // const videoDetails = video.videoDetails
     // if (videoDetails.isLiveContent) {
@@ -293,10 +300,10 @@ export class SelfClient extends Client {
 
     const streamLinkUdpConn = await this.streamer.createStream()
 
-    let yturl = await this.getVideoUrl(link).catch((error) => console.error('Error:', error))
-    if (yturl) {
-      this.playVideo(yturl, streamLinkUdpConn)
-      this.streamer.client.user?.setActivity(this.status_watch('') as unknown as ActivityOptions)
+    let ytUrl = await this.getVideoUrl(link).catch((error) => console.error('Error:', error))
+    if (ytUrl) {
+      this.playVideo(ytUrl, streamLinkUdpConn)
+      this.streamer.client.user?.setActivity(this.statusWatch('') as unknown as ActivityOptions)
     }
   }
 }
