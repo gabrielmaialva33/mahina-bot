@@ -10,7 +10,7 @@ import {
   setStreamOpts,
   Streamer,
   streamLivestreamVideo,
-} from '@dank074/discord-video-stream'
+} from '@gabrielmaialva33/discord-video-stream'
 
 import ytdl from 'ytdl-core'
 import ffmpeg from 'ffmpeg-static'
@@ -68,7 +68,7 @@ export class SelfClient extends Client {
         if (oldState.channelId && !newState.channelId) {
           this.streamStatus.joined = false
           this.streamStatus.joinsucc = false
-          this.streamStatus.playing = false
+          this.streamStatus.playing = true
           this.streamStatus.channelInfo = {
             guildId: '',
             channelId: '',
