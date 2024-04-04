@@ -1,3 +1,6 @@
+import * as readline from 'node:readline'
+import cp from 'node:child_process'
+
 import { ActivityOptions, Client, CustomStatus, StageChannel } from 'discord.js-selfbot-v13'
 import {
   command,
@@ -10,21 +13,28 @@ import {
 } from '@dank074/discord-video-stream'
 
 import ytdl from 'ytdl-core'
-import * as readline from 'node:readline'
-import cp from 'node:child_process'
 import ffmpeg from 'ffmpeg-static'
 
 import { BaseClient } from '#common/base_client'
 
+// setStreamOpts({
+//   // width: 1920,
+//   // height: 1080,
+//   width: 1280,
+//   height: 720,
+//   fps: 30,
+//   bitrateKbps: 4000,
+//   maxBitrateKbps: 2500,
+//   hardware_acceleration: false,
+//   video_codec: 'H264',
+// })
+
 setStreamOpts({
-  // width: 1920,
-  // height: 1080,
-  width: 1280,
-  height: 720,
-  fps: 30,
-  bitrateKbps: 4000,
-  maxBitrateKbps: 2500,
-  hardware_acceleration: false,
+  width: 1920,
+  height: 1080,
+  fps: 60,
+  bitrateKbps: 5000,
+  maxBitrateKbps: 10000,
   video_codec: 'H264',
 })
 

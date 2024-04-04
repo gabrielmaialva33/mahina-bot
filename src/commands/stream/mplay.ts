@@ -61,10 +61,6 @@ export default class MPlay extends Command {
     let movieName = args.shift()
     let movie = movies.find((m) => m!.name === movieName)
 
-    // const tmpFolder = process.cwd() + '/tmp'
-    // const movieFile = path.join(tmpFolder, 'movie.mp4')
-
-    // message.member && message.member.voice.channelId && message.guildId
     await this.client.selfClient.moviePlay(ctx.member, ctx.guild.id, movie!.path)
 
     await ctx.sendMessage(`𝙊 𝙛𝙞𝙡𝙢 𝙚𝙨𝙩𝙖́ 𝙥𝙧𝙤𝙣𝙩𝙤. 𝙋𝙤𝙙𝙚 𝙖𝙥𝙚𝙧𝙩𝙖 𝙥𝙖𝙧𝙖 𝙖𝙨𝙨𝙞𝙨𝙩𝙞𝙧 𝙖 𝙛𝙞𝙡𝙢𝙚: ${movieName}`)
