@@ -20,10 +20,10 @@ import { BaseClient } from '#common/base_client'
 
 setStreamOpts({
   width: 1920,
-  height: 800,
+  height: 1080,
   fps: 30,
   bitrateKbps: 5000,
-  maxBitrateKbps: 10000,
+  maxBitrateKbps: 15000,
   video_codec: 'H264',
 })
 
