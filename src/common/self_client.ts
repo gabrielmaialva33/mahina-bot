@@ -23,7 +23,7 @@ setStreamOpts({
   height: 1080,
   // width: 1280,
   // height: 720,
-  fps: 30,
+  fps: 60,
   bitrateKbps: 5000,
   maxBitrateKbps: 10000,
   video_codec: 'H264',
