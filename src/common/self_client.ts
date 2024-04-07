@@ -18,9 +18,13 @@ import ffmpeg from 'ffmpeg-static'
 
 import { BaseClient } from '#common/base_client'
 
+// 3840x2160 (4k)
+// 2560x1440 (2k)
+// 1920x1080 (1080p)
+// 1280x720 (720p)
 setStreamOpts({
-  width: 2560,
-  height: 1440,
+  width: 1920,
+  height: 1080,
   fps: 60,
   bitrateKbps: 5000,
   maxBitrateKbps: 10000,
