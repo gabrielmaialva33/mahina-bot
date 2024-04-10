@@ -9,8 +9,8 @@ dependencies:
     specifier: ^1.0.2
     version: 1.0.2
   '@gabrielmaialva33/discord-video-stream':
-    specifier: ^0.7.9
-    version: 0.7.9(discord.js-selfbot-v13@3.1.4)(ffmpeg-static@5.2.0)(opusscript@0.1.1)
+    specifier: ^0.8.0
+    version: 0.8.0(discord.js-selfbot-v13@3.1.4)(ffmpeg-static@5.2.0)(opusscript@0.1.1)
   '@swc/core':
     specifier: ^1.4.12
     version: 1.4.12
@@ -305,7 +305,7 @@ packages:
       '@vladfrangu/async_event_emitter': 2.2.4
       discord-api-types: 0.37.61
       tslib: 2.6.2
-      ws: 8.14.2
+      ws: 8.16.0
     transitivePeerDependencies:
       - bufferutil
       - utf-8-validate
@@ -560,8 +560,8 @@ packages:
     engines: {node: '>=14'}
     dev: false
 
-  /@gabrielmaialva33/discord-video-stream@0.7.9(discord.js-selfbot-v13@3.1.4)(ffmpeg-static@5.2.0)(opusscript@0.1.1):
-    resolution: {integrity: sha512-VTYhp83LsUofFR4gRMaBnf7QQfjkrCDAHAAUuaL2MYeCwG+rF2oV5Hi0vppjLo+IX+Ex2V8Anqlko6NkXrz8zw==}
+  /@gabrielmaialva33/discord-video-stream@0.8.0(discord.js-selfbot-v13@3.1.4)(ffmpeg-static@5.2.0)(opusscript@0.1.1):
+    resolution: {integrity: sha512-ugxzPTPOCU4YQymWUaD2JuMZFifZfZAlbpLKDrr6bprVKq9ju+NPbN/d0wC/ugmea6qVEILgt+Fz6TtDDPGPDw==}
     engines: {node: '>=20.12.1'}
     peerDependencies:
       discord.js-selfbot-v13: 3.x
