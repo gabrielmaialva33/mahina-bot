@@ -29,6 +29,16 @@ export class AI extends OpenAI {
   }
 
   async complete(text: string, username: string) {
+    if (!fs.existsSync(process.cwd() + '/tmp')) {
+      fs.mkdirSync(process.cwd() + '/tmp')
+    }
+
+    if (!fs.existsSync(process.cwd() + '/tmp/main.gpt.txt')) {
+      fs.writeFileSync(
+        process.cwd() + '/tmp/main.gpt.txt',
+        `Como funciona a interação no grupo: Winx(Maia):||oii 🥺, Maia? tu ta bem?||\nWinx(Maia):||oii 🥺, Maia? tu ta bem?||\nMaia(Winx):||oto bem 🥺||`
+      )
+    }
     const tempMain = fs.readFileSync(process.cwd() + '/tmp/main.gpt.txt', 'utf8')
     const history = fs.readFileSync(process.cwd() + '/tmp/history.gpt.txt', 'utf8')
 
