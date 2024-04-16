@@ -21,6 +21,18 @@ const options: ClientOptions = {
 
 const client = new BaseClient(options)
 
-client.start(env.DISC_BOT_TOKEN).then(() => client.logger.info('Bot is ready'))
+try {
+  client.start(env.DISC_BOT_TOKEN).then(() => client.logger.info('Bot is ready'))
 
-client.selfClient.start(env.DISC_USER_TOKEN).then(() => client.logger.info('Self bot is ready'))
+  client.selfClient
+    .start(env.DISC_USER_1_TOKEN)
+    .then(() => client.logger.info('Self bot 1 is ready'))
+  client.selfClient
+    .start(env.DISC_USER_2_TOKEN)
+    .then(() => client.logger.info('Self bot 2 is ready'))
+  client.selfClient
+    .start(env.DISC_USER_3_TOKEN)
+    .then(() => client.logger.info('Self bot 3 is ready'))
+} catch (error) {
+  client.logger.error(error)
+}

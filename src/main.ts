@@ -13,6 +13,7 @@ const manager = new ShardingManager('./build/bot_client.js', {
   token: env.DISC_BOT_TOKEN,
   totalShards: 'auto',
   shardList: 'auto',
+  mode: 'worker',
 })
 
 manager
