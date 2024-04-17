@@ -27,12 +27,6 @@ try {
   client.selfClient
     .start(env.DISC_USER_1_TOKEN)
     .then(() => client.logger.info('Self bot 1 is ready'))
-  client.selfClient
-    .start(env.DISC_USER_2_TOKEN)
-    .then(() => client.logger.info('Self bot 2 is ready'))
-  client.selfClient
-    .start(env.DISC_USER_3_TOKEN)
-    .then(() => client.logger.info('Self bot 3 is ready'))
 } catch (error) {
   client.logger.error(error)
 }
