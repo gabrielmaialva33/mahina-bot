@@ -54,8 +54,8 @@ dependencies:
     specifier: ^3.1.4
     version: 3.1.4(knex@3.1.0)
   openai:
-    specifier: ^4.35.0
-    version: 4.35.0
+    specifier: ^4.36.0
+    version: 4.36.0
   opusscript:
     specifier: ^0.1.1
     version: 0.1.1
@@ -3236,8 +3236,8 @@ packages:
       mimic-fn: 2.1.0
     dev: true
 
-  /openai@4.35.0:
-    resolution: {integrity: sha512-K8GY7k4h+dT2GSmn3JGSjkwElpo8cPa4eQ6p++uK1HSrrIBp6NalD3A3DIamvX1AnIyrKqe8M//HoQWgjntUiA==}
+  /openai@4.36.0:
+    resolution: {integrity: sha512-AtYrhhWY64LhB9P6f3H0nV8nTSaQJ89mWPnfNU5CnYg81zlYaV8nkyO+aTNfprdqP/9xv10woNNUgefXINT4Dg==}
     hasBin: true
     dependencies:
       '@types/node': 18.19.31
