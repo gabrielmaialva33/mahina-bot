@@ -36,7 +36,7 @@ export class AI extends OpenAI {
     if (!fs.existsSync(process.cwd() + '/tmp/main.gpt.txt')) {
       fs.writeFileSync(
         process.cwd() + '/tmp/main.gpt.txt',
-        `Como funciona a interação no grupo: Winx(Maia):||oii 🥺, Maia? tu ta bem?||\nWinx(Maia):||oii 🥺, Maia? tu ta bem?||\nMaia(Winx):||oto bem 🥺||`
+        `Como funciona a interação no grupo: Maggie(Maia):||oii 🥺, Maia? tu ta bem?||\nMaggie(Maia):||oii 🥺, Maia? tu ta bem?||\nMaia(Maggie):||oto bem 🥺||`
       )
     }
     const tempMain = fs.readFileSync(process.cwd() + '/tmp/main.gpt.txt', 'utf8')
@@ -57,7 +57,7 @@ export class AI extends OpenAI {
       'ai.complete'
     )
 
-    const prompt = StringUtils.RemoveBreakLines(main + history + text + `Winx(${username}):||`)
+    const prompt = StringUtils.RemoveBreakLines(main + history + text + `Maggie(${username}):||`)
 
     if (StringUtils.CountTokens(prompt) > 4096) {
       this.logger.error('tokens limit exceeded!', 'ai.complete')

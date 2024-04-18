@@ -25,7 +25,7 @@ export default class HistoryCache extends Event {
     if (message.author.system) return
     if (message.author.bot) return
 
-    if (message.content.match(/winx/gi)) return
+    if (message.content.match(/maggie/gi)) return
 
     const replyMessageId = message.reference?.messageId
     if (replyMessageId) {

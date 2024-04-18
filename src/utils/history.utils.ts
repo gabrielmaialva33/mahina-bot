@@ -5,17 +5,17 @@ import { StringUtils } from '#utils/string.utils'
 
 export const HistoryUtils = {
   build_gpt_history: (input: string, output: string, reply_username: string): string => {
-    const io = input.replace(`\nWinx(${reply_username}):||`, '')
-    return `${io}Winx(${reply_username}):||${output}||\n`
+    const io = input.replace(`\nMaggie(${reply_username}):||`, '')
+    return `${io}Maggie(${reply_username}):||${output}||\n`
   },
 
   build_reply_gpt_history: (input: string, output: string, reply_username: string): string => {
-    const io = input.replace(`\nWinx(${reply_username}):||`, '')
-    return `${io}Winx(${reply_username}):||${output}||\n`
+    const io = input.replace(`\nMaggie(${reply_username}):||`, '')
+    return `${io}Maggie(${reply_username}):||${output}||\n`
   },
 
   build_gpt: (output: string): string => {
-    return `Winx:||${output}||\n`
+    return `Maggie:||${output}||\n`
   },
 
   build_chat_history: ({ text, username, reply_to_username }: ContextArgs): string => {

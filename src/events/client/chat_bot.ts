@@ -16,8 +16,8 @@ export default class ChatBot extends Event {
     if (!message.guildId) return
     if (!this.client.env.BOT_AI_GUILD_IDS.includes(message.guildId)) return
 
-    // if user mention winx and not reply to a message
-    const regex = /winx/gi
+    // if user mention maggie and not reply to a message
+    const regex = /maggie/gi
     if (regex.test(message.content) && !message.reference) {
       const textMessage = ContextUtils.get_text(message)
       if (!textMessage) return
