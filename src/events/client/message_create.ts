@@ -27,7 +27,8 @@ export default class MessageCreate extends Event {
     }
     const escapeRegex = (str: string): string => {
       if (str && str.trim() === null) return '!'
-      return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+      if (str) return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+      return '!'
     }
     const prefixRegex = new RegExp(
       `^(<@!?${this.client.user!.id}>|${escapeRegex(prefix.prefix)})\\s*`
