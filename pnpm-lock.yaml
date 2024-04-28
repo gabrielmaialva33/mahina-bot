@@ -15,8 +15,8 @@ importers:
         specifier: ^1.0.2
         version: 1.0.2
       '@gabrielmaialva33/discord-video-stream':
-        specifier: ^0.8.2
-        version: 0.8.2(discord.js-selfbot-v13@3.1.4)(ffmpeg-static@5.2.0)
+        specifier: ^0.8.3
+        version: 0.8.3(discord.js-selfbot-v13@3.1.4)(ffmpeg-static@5.2.0)
       '@swc/core':
         specifier: ^1.4.17
         version: 1.4.17
@@ -370,8 +370,8 @@ packages:
     resolution: {integrity: sha512-vBZP4NlzfOlerQTnba4aqZoMhE/a9HY7HRqoOPaETQcSQuWEIyZMHGfVu6w9wGtGK5fED5qRs2DteVCjOH60sA==}
     engines: {node: '>=14'}
 
-  '@gabrielmaialva33/discord-video-stream@0.8.2':
-    resolution: {integrity: sha512-WneQzbF9rNgeHvBAytfthCzM8pxjCvgHIbmCqamFMXsHB/JGC5PGLviNlrqlkWmE7QDY9pwcT+VPtMwm2Sh7YA==}
+  '@gabrielmaialva33/discord-video-stream@0.8.3':
+    resolution: {integrity: sha512-xZ0po6bpFspEDYny/Ktd0vFn55/f1S5F98rjTcaVyQRSykz+yXL5MhAbU6dGJ2Z7FZZTlHhCKrL5C1Ocr2HwhA==}
     engines: {node: '>=20.12.1'}
     peerDependencies:
       discord.js-selfbot-v13: 3.x
@@ -2850,7 +2850,7 @@ snapshots:
 
   '@fastify/busboy@2.1.1': {}
 
-  '@gabrielmaialva33/discord-video-stream@0.8.2(discord.js-selfbot-v13@3.1.4)(ffmpeg-static@5.2.0)':
+  '@gabrielmaialva33/discord-video-stream@0.8.3(discord.js-selfbot-v13@3.1.4)(ffmpeg-static@5.2.0)':
     dependencies:
       '@dank074/fluent-ffmpeg-multistream-ts': 1.0.2
       discord.js-selfbot-v13: 3.1.4
