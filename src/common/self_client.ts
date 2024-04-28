@@ -16,19 +16,20 @@ import ytdl from 'ytdl-core'
 import ffmpeg from 'ffmpeg-static'
 
 import { BaseClient } from '#common/base_client'
+import { setStreamOpts } from '@gabrielmaialva33/discord-video-stream'
 
 // 3840x2160 (4k)
 // 2560x1440 (2k)
 // 1920x1080 (1080p)
 // 1280x720 (720p)
-// setStreamOpts({
-//   width: 1920,
-//   height: 1080,
-//   fps: 60,
-//   bitrateKbps: 5000,
-//   maxBitrateKbps: 10000,
-//   video_codec: 'H264',
-// })
+setStreamOpts({
+  width: 1920,
+  height: 1080,
+  fps: 60,
+  bitrateKbps: 5000,
+  maxBitrateKbps: 10000,
+  video_codec: 'H264',
+})
 
 export class SelfClient extends Client {
   streamer: Streamer
