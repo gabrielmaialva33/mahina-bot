@@ -303,7 +303,14 @@ export class SelfClient extends Client {
   }
 
   async playYtVideo(member: any, guildId: string, link: string) {
-    await this.streamer.joinVoice(guildId, member.voice.channelId)
+    await this.streamer.joinVoice(guildId, member.voice.channelId, {
+      width: 1920,
+      height: 1080,
+      fps: 60,
+      bitrateKbps: 5000,
+      maxBitrateKbps: 10000,
+      videoCodec: 'H264',
+    })
     const channel = member.voice.channel
 
     if (channel instanceof StageChannel)
