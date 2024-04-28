@@ -8,10 +8,9 @@ import {
   getInputMetadata,
   inputHasAudio,
   MediaUdp,
-  setStreamOpts,
   Streamer,
   streamLivestreamVideo,
-} from '@gabrielmaialva33/discord-video-stream'
+} from '@dank074/discord-video-stream'
 
 import ytdl from 'ytdl-core'
 import ffmpeg from 'ffmpeg-static'
@@ -22,14 +21,14 @@ import { BaseClient } from '#common/base_client'
 // 2560x1440 (2k)
 // 1920x1080 (1080p)
 // 1280x720 (720p)
-setStreamOpts({
-  width: 1920,
-  height: 1080,
-  fps: 60,
-  bitrateKbps: 5000,
-  maxBitrateKbps: 10000,
-  video_codec: 'H264',
-})
+// setStreamOpts({
+//   width: 1920,
+//   height: 1080,
+//   fps: 60,
+//   bitrateKbps: 5000,
+//   maxBitrateKbps: 10000,
+//   video_codec: 'H264',
+// })
 
 export class SelfClient extends Client {
   streamer: Streamer
