@@ -16,7 +16,6 @@ import ytdl from 'ytdl-core'
 import ffmpeg from 'ffmpeg-static'
 
 import { BaseClient } from '#common/base_client'
-import { setStreamOpts } from '@gabrielmaialva33/discord-video-stream'
 
 // 3840x2160 (4k)
 // 2560x1440 (2k)
