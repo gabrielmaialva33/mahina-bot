@@ -315,7 +315,14 @@ export class SelfClient extends Client {
     if (channel instanceof StageChannel)
       await this.streamer.client.user!.voice!.setSuppressed(false)
 
-    const streamLinkUdpConn = await this.streamer.createStream()
+    const streamLinkUdpConn = await this.streamer.createStream({
+      width: 1920,
+      height: 1080,
+      fps: 60,
+      bitrateKbps: 5000,
+      maxBitrateKbps: 10000,
+      videoCodec: 'H264',
+    })
 
     let ytUrl = await this.getVideoUrl(link).catch((error) => console.error('Error:', error))
     if (ytUrl) {
