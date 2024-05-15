@@ -80,7 +80,7 @@
     "@gabrielmaialva33/discord-video-stream": "^0.8.3",
     "@swc/core": "^1.4.17",
     "axios": "^1.6.8",
-    "better-sqlite3": "^9.6.0",
+    "better-sqlite3": "^10.0.0",
     "discord.js": "^14.14.1",
     "discord.js-selfbot-v13": "^3.1.4",
     "dotenv": "^16.4.5",
