@@ -25,7 +25,9 @@ plugins:
       accessToken: '' # the token used for accessing the yandex music api. See https://github.com/TopiSenpai/LavaSrc#yandex-music
   lavalink:
     plugins:
-      - dependency: 'com.github.topi314.lavasrc:lavasrc-plugin:4.0.1'
+      - dependency: "dev.lavalink.youtube:youtube-plugin:1.2.0"
+        snapshot: false # Set to true if you want to use a snapshot version.
+      - dependency: 'com.github.topi314.lavasrc:lavasrc-plugin:4.1.0'
         repository: 'https://maven.lavalink.dev/releases'
         snapshot: false
       - dependency: 'com.github.topi314.sponsorblock:sponsorblock-plugin:3.0.0'
@@ -49,12 +51,20 @@ plugins:
       tiktok: true # tiktok.com
       mixcloud: true # mixcloud.com
       soundgasm: true # soundgasm.net
+  youtube:
+    enabled: true # Whether this source can be used.
+    allowSearch: true # Whether "ytsearch:" and "ytmsearch:" can be used.
+    allowDirectVideoIds: true # Whether just video IDs can match. If false, only complete URLs will be loaded.
+    allowDirectPlaylistIds: true # Whether just playlist IDs can match. If false, only complete URLs will be loaded.
+    # The clients to use for track loading. See below for a list of valid clients.
+    # Clients are queried in the order they are given (left-to-right)
+    clients: [ "MUSIC", "ANDROID", "WEB" ]
 
   pluginsDir: './plugins'
   server:
     password: 'Mahina@551238'
     sources:
-      youtube: true
+      youtube: false
       bandcamp: true
       soundcloud: true
       twitch: true
