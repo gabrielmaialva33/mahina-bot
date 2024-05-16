@@ -2,7 +2,7 @@ version: '3.8'
 services:
   lavalink:
     container_name: lavamusic-lavalink
-    image: ghcr.io/lavalink-devs/lavalink:master
+    image: ghcr.io/lavalink-devs/lavalink
     restart: on-failure
     environment:
       _JAVA_OPTIONS: -Xmx6G
@@ -10,8 +10,10 @@ services:
       SERVER_ADDRESS: 0.0.0.0
       LAVALINK_SERVER_PASSWORD: 'Mahina@551238'
     volumes:
-      - ./application.yml:/opt/Lavalink/application.yml
-      - ./plugins/:/opt/Lavalink/plugins/
+      # mount application.yml from the same directory or use environment variables
+      - ./Lavalink/application.yml:/opt/Lavalink/application.yml
+      # persist plugins between restarts, make sure to set the correct permissions (user: 322, group: 322)
+      - ./Lavalink/plugins/:/opt/Lavalink/plugins/
     expose:
       - 2333
     ports:
