@@ -11,9 +11,9 @@ services:
       LAVALINK_SERVER_PASSWORD: 'Mahina@551238'
     volumes:
       # mount application.yml from the same directory or use environment variables
-      - ./Lavalink/application.yml:/opt/Lavalink/application.yml
+      - ./application.yml:/opt/Lavalink/application.yml
       # persist plugins between restarts, make sure to set the correct permissions (user: 322, group: 322)
-      - ./Lavalink/plugins/:/opt/Lavalink/plugins/
+      - ./plugins/:/opt/Lavalink/plugins/
     expose:
       - 2333
     ports:
