@@ -93,11 +93,12 @@ export class SelfClient extends Client {
 
   async moviePlay(member: any, guildId: string, link: string, name: string = '') {
     await this.streamer.joinVoice(guildId, member.voice.channelId, {
-      width: 1920,
-      height: 1080,
+      // use 720p
+      width: 1280,
+      height: 720,
       fps: 60,
       bitrateKbps: 5000,
-      maxBitrateKbps: 10000,
+      maxBitrateKbps: 8000,
       videoCodec: 'H264',
     })
 
@@ -115,11 +116,11 @@ export class SelfClient extends Client {
       await this.streamer.client.user!.voice!.setSuppressed(false)
 
     const streamLinkUdpConn = await this.streamer.createStream({
-      width: 1920,
-      height: 1080,
+      width: 1280,
+      height: 720,
       fps: 60,
       bitrateKbps: 5000,
-      maxBitrateKbps: 10000,
+      maxBitrateKbps: 8000,
       videoCodec: 'H264',
     })
 
@@ -303,11 +304,11 @@ export class SelfClient extends Client {
 
   async playYtVideo(member: any, guildId: string, link: string) {
     await this.streamer.joinVoice(guildId, member.voice.channelId, {
-      width: 1920,
-      height: 1080,
+      width: 1280,
+      height: 720,
       fps: 60,
       bitrateKbps: 5000,
-      maxBitrateKbps: 10000,
+      maxBitrateKbps: 8000,
       videoCodec: 'H264',
     })
     const channel = member.voice.channel
@@ -316,11 +317,11 @@ export class SelfClient extends Client {
       await this.streamer.client.user!.voice!.setSuppressed(false)
 
     const streamLinkUdpConn = await this.streamer.createStream({
-      width: 1920,
-      height: 1080,
+      width: 1280,
+      height: 720,
       fps: 60,
       bitrateKbps: 5000,
-      maxBitrateKbps: 10000,
+      maxBitrateKbps: 8000,
       videoCodec: 'H264',
     })
 
