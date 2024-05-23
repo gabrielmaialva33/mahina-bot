@@ -96,9 +96,9 @@ export class SelfClient extends Client {
       // use 720p
       width: 1280,
       height: 720,
-      fps: 60,
-      bitrateKbps: 5000,
-      maxBitrateKbps: 8000,
+      fps: 30,
+      bitrateKbps: 2000,
+      maxBitrateKbps: 4000,
       videoCodec: 'H264',
     })
 
@@ -118,9 +118,9 @@ export class SelfClient extends Client {
     const streamLinkUdpConn = await this.streamer.createStream({
       width: 1280,
       height: 720,
-      fps: 60,
-      bitrateKbps: 5000,
-      maxBitrateKbps: 8000,
+      fps: 30,
+      bitrateKbps: 2000,
+      maxBitrateKbps: 4000,
       videoCodec: 'H264',
     })
 
@@ -306,9 +306,9 @@ export class SelfClient extends Client {
     await this.streamer.joinVoice(guildId, member.voice.channelId, {
       width: 1280,
       height: 720,
-      fps: 60,
-      bitrateKbps: 5000,
-      maxBitrateKbps: 8000,
+      fps: 30,
+      bitrateKbps: 2000,
+      maxBitrateKbps: 4000,
       videoCodec: 'H264',
     })
     const channel = member.voice.channel
@@ -319,9 +319,9 @@ export class SelfClient extends Client {
     const streamLinkUdpConn = await this.streamer.createStream({
       width: 1280,
       height: 720,
-      fps: 60,
-      bitrateKbps: 5000,
-      maxBitrateKbps: 8000,
+      fps: 30,
+      bitrateKbps: 2000,
+      maxBitrateKbps: 4000,
       videoCodec: 'H264',
     })
 
