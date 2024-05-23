@@ -92,15 +92,7 @@ export class SelfClient extends Client {
   }
 
   async moviePlay(member: any, guildId: string, link: string, name: string = '') {
-    await this.streamer.joinVoice(guildId, member.voice.channelId, {
-      // use 720p
-      width: 1280,
-      height: 720,
-      fps: 30,
-      bitrateKbps: 2000,
-      maxBitrateKbps: 4000,
-      videoCodec: 'H264',
-    })
+    await this.streamer.joinVoice(guildId, member.voice.channelId)
 
     this.streamStatus.joined = true
     this.streamStatus.playing = false
@@ -115,14 +107,7 @@ export class SelfClient extends Client {
     if (channel instanceof StageChannel)
       await this.streamer.client.user!.voice!.setSuppressed(false)
 
-    const streamLinkUdpConn = await this.streamer.createStream({
-      width: 1280,
-      height: 720,
-      fps: 30,
-      bitrateKbps: 2000,
-      maxBitrateKbps: 4000,
-      videoCodec: 'H264',
-    })
+    const streamLinkUdpConn = await this.streamer.createStream()
 
     this.playVideo(link, streamLinkUdpConn)
     this.streamer.client.user?.setActivity(this.statusWatch(name) as unknown as ActivityOptions)
@@ -303,27 +288,13 @@ export class SelfClient extends Client {
   }
 
   async playYtVideo(member: any, guildId: string, link: string) {
-    await this.streamer.joinVoice(guildId, member.voice.channelId, {
-      width: 1280,
-      height: 720,
-      fps: 30,
-      bitrateKbps: 2000,
-      maxBitrateKbps: 4000,
-      videoCodec: 'H264',
-    })
+    await this.streamer.joinVoice(guildId, member.voice.channelId)
     const channel = member.voice.channel
 
     if (channel instanceof StageChannel)
       await this.streamer.client.user!.voice!.setSuppressed(false)
 
-    const streamLinkUdpConn = await this.streamer.createStream({
-      width: 1280,
-      height: 720,
-      fps: 30,
-      bitrateKbps: 2000,
-      maxBitrateKbps: 4000,
-      videoCodec: 'H264',
-    })
+    const streamLinkUdpConn = await this.streamer.createStream()
 
     let ytUrl = await this.getVideoUrl(link).catch((error) => console.error('Error:', error))
     if (ytUrl) {
