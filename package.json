@@ -15,7 +15,7 @@
     "url": "https://github.com/gabrielmaialva33/mahina-bot.git"
   },
   "engines": {
-    "node": ">=20.12.2"
+    "node": ">=20.13.1"
   },
   "private": true,
   "type": "module",
