@@ -31,33 +31,24 @@ export default class Llma extends Command {
           description: 'Texto opcional sobre o que deseja analisar',
           type: ApplicationCommandOptionType.String,
           required: true,
-          autocomplete: true,
+          autocomplete: false,
         },
       ],
     })
   }
 
   async run(client: BaseClient, ctx: Context, args: string[]): Promise<any> {
-    console.log(`ctx.guild: ${ctx.guild}`)
-    console.log(`ctx.member: ${ctx.member}`)
-    console.log(`ctx.message: ${ctx.message}`)
-    console.log(`ctx.interaction: ${ctx.interaction}`)
-    console.log(`args: ${args}`)
-
     if (!ctx.channel) return
     if (!ctx.guild) return
     if (!ctx.author) return
 
     const prompt = args.join(' ').trim()
 
-    client.logger.info(`Prompt: ${prompt}`)
-
     // get models from lexica
     const models = await client.lexica.getModels()
     if (!models) return ctx.sendMessage('Erro ao buscar modelos')
 
     const chatModels = models.models.chat
-    console.log(chatModels)
 
     const modelOptions = chatModels.map((model: { name: any; id: { toString: () => any } }) => {
       return {
@@ -80,7 +71,7 @@ export default class Llma extends Command {
       rows.push(new ActionRowBuilder<ButtonBuilder>().addComponents(buttons))
     }
 
-    await ctx.sendMessage({ content: 'Selecione o modelo', components: rows })
+    await ctx.sendMessage({ content: '**Selecione o modelo**', components: rows })
 
     // handler for button selection
     const filter = (interaction: any) =>
@@ -89,38 +80,48 @@ export default class Llma extends Command {
 
     collector.on('collect', async (interaction: any) => {
       const selectedModelId = interaction.customId.split('_')[2]
-      await interaction.deferUpdate()
+      await interaction.deferReply()
       const response = await client.lexica.chatCompletion(prompt, Number.parseInt(selectedModelId))
       if (!response) return ctx.sendMessage('Erro ao buscar resposta')
-
-      // {
-      //   message: 'ok',
-      //   content: "Hello! It sounds like you're testing me out.  I'm happy to help in any way I can.  Is there anything specific you'd like me to try?  I can answer your questions in an informative way,  complete your requests thoughtfully, or generate different creative text formats,  like poems, code, scripts, musical pieces, email, letters, etc.  Just let me know what's on your mind.",
-      //   images: [],
-      //   code: 2
-      // }
 
       const selectModelName = chatModels.find(
         (model: { id: any }) => model.id === Number.parseInt(selectedModelId)
       ).name
 
-      await ctx.editMessage({
-        //content: `\`\`\`yml\n${response.content}\n\`\`\``,
-        content: `**Modelo selecionado**: **${selectModelName}**\n\n${response.content}`.substring(
-          0,
-          2000
-        ),
-        components: [],
-      })
+      const fullResponse = `**Modelo selecionado**: **${selectModelName}**\n**Prompt**: ${prompt}\n\n${response.content}`
+      const messageParts = this.splitMessage(fullResponse, 2000)
+
+      for (const part of messageParts) await interaction.followUp(part)
     })
 
     collector.on('end', (collected) => {
       if (!collected.size) {
         ctx.editMessage({
-          content: 'Tempo esgotado para seleção do modelo.',
+          content: '**Tempo esgotado para seleção do modelo.**',
           components: [],
         })
       }
     })
+  }
+
+  splitMessage(message: string, maxLength: number): string[] {
+    const parts = []
+    let start = 0
+
+    while (start < message.length) {
+      let end = start + maxLength
+      if (end > message.length) end = message.length
+
+      // Certifique-se de não cortar no meio de uma palavra
+      if (end < message.length && message[end] !== ' ' && message[end - 1] !== ' ') {
+        end = message.lastIndexOf(' ', end)
+        if (end === -1) end = start + maxLength
+      }
+
+      parts.push(message.substring(start, end).trim())
+      start = end
+    }
+
+    return parts
   }
 }
