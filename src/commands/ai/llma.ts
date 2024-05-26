@@ -106,7 +106,10 @@ export default class Llma extends Command {
 
       await ctx.editMessage({
         //content: `\`\`\`yml\n${response.content}\n\`\`\``,
-        content: `**Modelo selecionado**: **${selectModelName}**\n\n${response.content}`,
+        content: `**Modelo selecionado**: **${selectModelName}**\n\n${response.content}`.substring(
+          0,
+          2000
+        ),
         components: [],
       })
     })
