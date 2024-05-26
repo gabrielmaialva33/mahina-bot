@@ -110,9 +110,16 @@ export default class Generate extends Command {
 
         if (statusResponse.message === 'finished') {
           const imageUrl = statusResponse.img_urls[0]
+
+          await interaction.message.edit({
+            content: `**imagem gerada com sucesso**`,
+            components: [],
+          })
+
           await interaction.editReply({
             content: `**Prompt**: ${prompt}\n**Modelo selecionado**: ${selectModelName}\n**Task ID**: ${taskId}`,
             files: [imageUrl],
+            components: [],
           })
         } else setTimeout(checkImageStatus, 5000)
       }

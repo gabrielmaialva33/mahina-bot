@@ -88,7 +88,12 @@ export default class Llma extends Command {
         (model: { id: any }) => model.id === Number.parseInt(selectedModelId)
       ).name
 
-      const fullResponse = `**Modelo selecionado**: **${selectModelName}**\n**Prompt**: ${prompt}\n\n${response.content}`
+      await interaction.message.edit({
+        content: `**Modelo selecionado**: **${selectModelName}**\n**Prompt**: ${prompt}`,
+        components: [],
+      })
+
+      const fullResponse = response.content
       const messageParts = this.splitMessage(fullResponse, 2000)
 
       for (const part of messageParts) await interaction.followUp(part)
