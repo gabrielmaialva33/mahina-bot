@@ -118,7 +118,6 @@ export class SelfClient extends Client {
 
     try {
       const metadata = await getInputMetadata(video)
-      console.log(JSON.stringify(metadata.streams))
       includeAudio = inputHasAudio(metadata)
     } catch (e) {
       this.baseClient.logger.error(e)
@@ -236,7 +235,6 @@ export class SelfClient extends Client {
     )
 
     ffmpegProcess.on('close', () => {
-      console.log('done')
       // Cleanup
       process.stdout.write('\n\n\n\n')
       // @ts-ignore

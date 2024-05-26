@@ -12,12 +12,6 @@ export class LexicaApi {
 
   async request(endpoint: string, method: string, data: any = null) {
     try {
-      console.log('Requesting', {
-        method: method,
-        url: this.BASE_URL + endpoint,
-        headers: this.SESSION_HEADERS,
-        data: data,
-      })
       const response = await axios({
         method: method,
         url: this.BASE_URL + endpoint,
