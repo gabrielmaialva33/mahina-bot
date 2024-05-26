@@ -6,17 +6,17 @@ import {
   ButtonStyle,
 } from 'discord.js'
 
-export default class Llma extends Command {
+export default class Generate extends Command {
   constructor(client: BaseClient) {
     super(client, {
-      name: 'llma',
+      name: 'generate',
       description: {
-        content: `Gera texto com base em um modelo`,
-        examples: ['llma'],
-        usage: 'llma',
+        content: `Gera imagem através de um modelo`,
+        examples: ['generate'],
+        usage: 'generate',
       },
       category: 'ai',
-      aliases: ['llma', 'llma'],
+      aliases: ['generate', 'generate'],
       cooldown: 3,
       args: true,
       permissions: {
@@ -33,6 +33,20 @@ export default class Llma extends Command {
           required: true,
           autocomplete: false,
         },
+        {
+          name: 'negative_prompt',
+          description: 'Texto opcional sobre o que deseja evitar',
+          type: ApplicationCommandOptionType.String,
+          required: false,
+          autocomplete: false,
+        },
+        {
+          name: 'num_images',
+          description: 'Número de imagens a serem geradas',
+          type: ApplicationCommandOptionType.Integer,
+          required: false,
+          autocomplete: false,
+        },
       ],
     })
   }
@@ -46,18 +60,16 @@ export default class Llma extends Command {
 
     // get models from lexica
     const models = await client.lexica.getModels()
-    if (!models) return ctx.sendMessage('Erro ao buscar modelos')
+    if (!models) return ctx.sendMessage('**Erro ao buscar modelos**')
 
-    const chatModels = models.models.chat
-
-    const modelOptions = chatModels.map((model: { name: any; id: { toString: () => any } }) => {
+    const imageModels = models.models.image
+    const modelOptions = imageModels.map((model: { name: any; id: { toString: () => any } }) => {
       return {
         label: model.name,
         value: model.id.toString(),
       }
     })
 
-    // split buttons into multiple rows
     const rows = []
     for (let i = 0; i < modelOptions.length; i += 5) {
       const slicedModels = modelOptions.slice(i, i + 5)
@@ -78,50 +90,41 @@ export default class Llma extends Command {
       interaction.customId.startsWith('select_model_') && interaction.user.id === ctx.author!.id
     const collector = ctx.channel.createMessageComponentCollector({ filter, time: 60000 })
 
-    collector.on('collect', async (interaction: any) => {
-      const selectedModelId = interaction.customId.split('_')[2]
+    collector.on('collect', async (interaction) => {
+      const modelId = +interaction.customId.split('_')[2]
       await interaction.deferReply()
-      const response = await client.lexica.chatCompletion(prompt, Number.parseInt(selectedModelId))
-      if (!response) return ctx.sendMessage('Erro ao buscar resposta')
 
-      const selectModelName = chatModels.find(
-        (model: { id: any }) => model.id === Number.parseInt(selectedModelId)
-      ).name
+      const selectModelName = imageModels.find((model: { id: any }) => model.id === modelId).name
 
-      const fullResponse = `**Modelo selecionado**: **${selectModelName}**\n**Prompt**: ${prompt}\n\n${response.content}`
-      const messageParts = this.splitMessage(fullResponse, 2000)
+      const response = await client.lexica.generateImage(modelId, prompt)
+      if (!response) return ctx.sendMessage('**Erro ao gerar imagem**')
 
-      for (const part of messageParts) await interaction.followUp(part)
+      const { task_id: taskId, request_id: requestId } = response as unknown as {
+        task_id: string
+        request_id: string
+      }
+
+      // create a loop to check if the image is ready
+      const checkImageStatus = async () => {
+        const statusResponse = await client.lexica.getImages(taskId, requestId)
+
+        if (statusResponse.message === 'finished') {
+          const imageUrl = statusResponse.img_urls[0]
+          await interaction.editReply({
+            content: `**Prompt**: ${prompt}\n**Modelo selecionado**: ${selectModelName}\n**Task ID**: ${taskId}`,
+            files: [imageUrl],
+          })
+        } else setTimeout(checkImageStatus, 5000)
+      }
+
+      // start the loop
+      checkImageStatus()
     })
 
     collector.on('end', (collected) => {
       if (!collected.size) {
-        ctx.editMessage({
-          content: '**Tempo esgotado para seleção do modelo.**',
-          components: [],
-        })
+        ctx.sendMessage('**Tempo esgotado para seleção do modelo.**')
       }
     })
-  }
-
-  splitMessage(message: string, maxLength: number): string[] {
-    const parts = []
-    let start = 0
-
-    while (start < message.length) {
-      let end = start + maxLength
-      if (end > message.length) end = message.length
-
-      // Certifique-se de não cortar no meio de uma palavra
-      if (end < message.length && message[end] !== ' ' && message[end - 1] !== ' ') {
-        end = message.lastIndexOf(' ', end)
-        if (end === -1) end = start + maxLength
-      }
-
-      parts.push(message.substring(start, end).trim())
-      start = end
-    }
-
-    return parts
   }
 }
