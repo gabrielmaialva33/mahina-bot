@@ -19,6 +19,10 @@ export default class InteractionCreate extends Event {
   }
 
   async run(interaction: CommandInteraction | AutocompleteInteraction): Promise<any> {
+    this.client.logger.info('InteractionCreate event triggered')
+
+    // get reply interaction message
+
     if (
       interaction instanceof CommandInteraction &&
       interaction.type === InteractionType.ApplicationCommand

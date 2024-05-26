@@ -43,6 +43,7 @@ export default class MessageCreate extends Event {
       this.client.commands.get(cmd) ||
       this.client.commands.get(this.client.aliases.get(cmd) as string)
     if (!command) return
+
     const ctx = new Context(message, args)
     ctx.setArgs(args)
 

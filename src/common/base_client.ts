@@ -24,6 +24,7 @@ import { Queue, ShoukakuClient } from '#common/index'
 import { DB } from '#src/database/models/db'
 import { AI } from '#src/plugins/gpt.plugin'
 import { SelfClient } from '#common/self_client'
+import { LexicaApi } from '#src/plugins/lexica-api.plugin'
 
 const dirname = path.dirname(fileURLToPath(import.meta.url))
 
@@ -40,6 +41,7 @@ export class BaseClient extends Client {
   logger: Logger = new Logger()
   queue = new Queue(this)
   ai = new AI()
+  lexica = new LexicaApi()
 
   selfClient: SelfClient
   movieFolder = path.join(process.cwd(), 'movies')

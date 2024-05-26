@@ -65,6 +65,10 @@ export class Context {
     }
   }
 
+  setMessage(message: Message): void {
+    this.message = message
+  }
+
   async sendMessage(content: any): Promise<Message | void> {
     if (this.isInteraction) {
       if (this.interaction) {
