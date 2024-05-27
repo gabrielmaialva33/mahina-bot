@@ -103,7 +103,6 @@ export class SelfClient extends Client {
 
     const streamLinkUdpConn = await this.streamer.createStream({
       readAtNativeFps: true,
-      h26xPreset: 'slower',
       maxBitrateKbps: 4000,
       bitrateKbps: 4000,
       width: 1920,
