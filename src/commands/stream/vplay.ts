@@ -35,7 +35,7 @@ export default class VPlay extends Command {
           description: 'O link do vídeo que você quer assistir',
           type: 3,
           required: true,
-          autocomplete: true,
+          autocomplete: false,
         },
       ],
     })
@@ -48,9 +48,12 @@ export default class VPlay extends Command {
 
     // check query if it's a valid url
     const validUrl = ytdl.validateURL(query)
+    console.log(`validUrl`, validUrl)
     if (!validUrl) return ctx.sendMessage('𝙊 𝙡𝙞𝙣𝙠 𝙣𝙖̃𝙤 𝙚́ 𝙫𝙖́𝙡𝙞𝙙𝙤.')
 
     // message.member && message.member.voice.channelId && message.guildId
     await this.client.selfClient.playYtVideo(ctx.member, ctx.guild.id, query)
+
+    return ctx.sendMessage('𝙑𝙞́𝙙𝙚𝙤 𝙚𝙣𝙘𝙤𝙣𝙩𝙧𝙖𝙙𝙤.')
   }
 }

@@ -99,6 +99,19 @@ export class BaseClient extends Client {
     return new EmbedBuilder()
   }
 
+  async createInvite(guildId: string) {
+    const guild = await this.guilds.fetch(guildId)
+
+    if (!guild) return ''
+
+    const invites = await guild.invites.fetch()
+    const invite = invites.first()
+
+    if (!invite) return ''
+
+    return invite.url
+  }
+
   /**
    * ------------------------------
    * Private methods

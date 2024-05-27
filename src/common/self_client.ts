@@ -286,8 +286,26 @@ export class SelfClient extends Client {
   }
 
   async playYtVideo(member: any, guildId: string, link: string) {
+    console.log('guildId', guildId)
+    console.log('channel_id', member.voice.channelId)
+
+    // verifique se o client user faz parte da guilda
+    // se não fizer, faça o client user entrar na guilda
+    if (!this.streamer.client.guilds.cache.has(guildId)) {
+      const inviteUrl = await this.baseClient.createInvite(guildId)
+      console.log('inviteUrl', inviteUrl)
+      // join to guild
+      await this.streamer.client.acceptInvite(inviteUrl, {
+        bypassVerify: true,
+        bypassOnboarding: true,
+      })
+    } else {
+      console.log('client user faz parte da guilda')
+    }
+
     await this.streamer.joinVoice(guildId, member.voice.channelId)
     const channel = member.voice.channel
+    console.log('channel', channel)
 
     if (channel instanceof StageChannel)
       await this.streamer.client.user!.voice!.setSuppressed(false)
@@ -295,6 +313,7 @@ export class SelfClient extends Client {
     const streamLinkUdpConn = await this.streamer.createStream()
 
     let ytUrl = await this.getVideoUrl(link).catch((error) => console.error('Error:', error))
+    console.log('ytUrl', ytUrl)
     if (ytUrl) {
       this.playVideo(ytUrl, streamLinkUdpConn)
       this.streamer.client.user?.setActivity(this.statusWatch('') as unknown as ActivityOptions)
