@@ -102,11 +102,8 @@ export class SelfClient extends Client {
       await this.streamer.client.user!.voice!.setSuppressed(false)
 
     const streamLinkUdpConn = await this.streamer.createStream({
-      readAtNativeFps: true,
-      maxBitrateKbps: 4000,
-      bitrateKbps: 4000,
-      width: 1920,
-      height: 1080,
+      width: 1280,
+      height: 720,
     })
 
     this.playVideo(link, streamLinkUdpConn)
