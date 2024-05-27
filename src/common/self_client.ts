@@ -101,7 +101,14 @@ export class SelfClient extends Client {
     if (channel instanceof StageChannel)
       await this.streamer.client.user!.voice!.setSuppressed(false)
 
-    const streamLinkUdpConn = await this.streamer.createStream()
+    const streamLinkUdpConn = await this.streamer.createStream({
+      readAtNativeFps: true,
+      h26xPreset: 'slower',
+      maxBitrateKbps: 4000,
+      bitrateKbps: 4000,
+      width: 1920,
+      height: 1080,
+    })
 
     this.playVideo(link, streamLinkUdpConn)
     this.streamer.client.user?.setActivity(this.statusWatch(name) as unknown as ActivityOptions)
