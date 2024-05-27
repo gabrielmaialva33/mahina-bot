@@ -3,14 +3,7 @@ import cp from 'node:child_process'
 
 import { ActivityOptions, Client, CustomStatus, StageChannel } from 'discord.js-selfbot-v13'
 
-import {
-  command,
-  getInputMetadata,
-  inputHasAudio,
-  MediaUdp,
-  Streamer,
-  streamLivestreamVideo,
-} from '@dank074/discord-video-stream'
+import { command, MediaUdp, Streamer, streamLivestreamVideo } from '@dank074/discord-video-stream'
 
 import ytdl from 'ytdl-core'
 import ffmpeg from 'ffmpeg-static'
@@ -115,18 +108,6 @@ export class SelfClient extends Client {
   }
 
   async playVideo(video: string, udpConn: MediaUdp) {
-    let includeAudio = true
-
-    console.log('video', video)
-
-    // try {
-    //   const metadata = await getInputMetadata(video)
-    //   includeAudio = inputHasAudio(metadata)
-    // } catch (e) {
-    //   this.baseClient.logger.error(`Error getting video metadata: ${e}`)
-    //   return
-    // }
-
     this.baseClient.logger.info(`Starting video stream`)
 
     udpConn.mediaConnection.setSpeaking(true)
@@ -291,8 +272,6 @@ export class SelfClient extends Client {
   }
 
   async playYtVideo(member: any, guildId: string, link: string) {
-    // verifique se o client user faz parte da guilda
-    // se não fizer, faça o client user entrar na guilda
     if (!this.streamer.client.guilds.cache.has(guildId)) {
       const inviteUrl = await this.baseClient.createInvite(guildId)
       console.log('inviteUrl', inviteUrl)
@@ -302,14 +281,14 @@ export class SelfClient extends Client {
       console.log('client user faz parte da guilda')
     }
 
-    await this.streamer.joinVoice(guildId, member.voice.channelId)
-
     let ytUrl = await this.getVideoUrl(link).catch((error) => console.error('Error:', error))
     console.log('ytUrl', ytUrl)
     if (ytUrl) {
       const channel = member.voice.channel
       if (channel instanceof StageChannel)
         await this.streamer.client.user!.voice!.setSuppressed(false)
+
+      await this.streamer.joinVoice(guildId, member.voice.channelId)
 
       const streamLinkUdpConn = await this.streamer.createStream()
 
