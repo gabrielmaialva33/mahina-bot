@@ -16,6 +16,7 @@ import ytdl from 'ytdl-core'
 import ffmpeg from 'ffmpeg-static'
 
 import { BaseClient } from '#common/base_client'
+import path from 'node:path'
 
 // 3840x2160 (4k)
 // 2560x1440 (2k)
@@ -116,13 +117,15 @@ export class SelfClient extends Client {
   async playVideo(video: string, udpConn: MediaUdp) {
     let includeAudio = true
 
-    try {
-      const metadata = await getInputMetadata(video)
-      includeAudio = inputHasAudio(metadata)
-    } catch (e) {
-      this.baseClient.logger.error(e)
-      return
-    }
+    console.log('video', video)
+
+    // try {
+    //   const metadata = await getInputMetadata(video)
+    //   includeAudio = inputHasAudio(metadata)
+    // } catch (e) {
+    //   this.baseClient.logger.error(`Error getting video metadata: ${e}`)
+    //   return
+    // }
 
     this.baseClient.logger.info(`Starting video stream`)
 
@@ -130,7 +133,7 @@ export class SelfClient extends Client {
     udpConn.mediaConnection.setVideoStatus(true)
 
     try {
-      const res = await streamLivestreamVideo(video, udpConn, includeAudio)
+      const res = await streamLivestreamVideo(video, udpConn, true)
       this.baseClient.logger.info(`Playing video: ${res}`)
     } catch (e) {
       this.baseClient.logger.error(`Error playing video: ${e}`)
@@ -193,6 +196,8 @@ export class SelfClient extends Client {
       // send progress to discord
     }
 
+    const hex = Math.random().toString(16).substring(2, 8)
+
     const ffmpegProcess = cp.spawn(
       ffmpeg as any,
       [
@@ -217,7 +222,7 @@ export class SelfClient extends Client {
         '-c:v',
         'copy',
         // Define output file
-        './tmp/out.mkv',
+        `./tmp/yt-${hex}.mkv`,
       ],
       {
         windowsHide: true,
@@ -261,7 +266,7 @@ export class SelfClient extends Client {
     audio.pipe(ffmpegProcess.stdio[4 as any] as any)
     video.pipe(ffmpegProcess.stdio[5 as any] as any)
 
-    return process.cwd() + '/tmp/out.mp4'
+    return path.resolve(process.cwd(), `./tmp/yt-${hex}.mkv`)
 
     // const videoDetails = video.videoDetails
     // if (videoDetails.isLiveContent) {
@@ -286,35 +291,28 @@ export class SelfClient extends Client {
   }
 
   async playYtVideo(member: any, guildId: string, link: string) {
-    console.log('guildId', guildId)
-    console.log('channel_id', member.voice.channelId)
-
     // verifique se o client user faz parte da guilda
     // se não fizer, faça o client user entrar na guilda
     if (!this.streamer.client.guilds.cache.has(guildId)) {
       const inviteUrl = await this.baseClient.createInvite(guildId)
       console.log('inviteUrl', inviteUrl)
       // join to guild
-      await this.streamer.client.acceptInvite(inviteUrl, {
-        bypassVerify: true,
-        bypassOnboarding: true,
-      })
+      await this.streamer.client.acceptInvite(inviteUrl)
     } else {
       console.log('client user faz parte da guilda')
     }
 
     await this.streamer.joinVoice(guildId, member.voice.channelId)
-    const channel = member.voice.channel
-    console.log('channel', channel)
-
-    if (channel instanceof StageChannel)
-      await this.streamer.client.user!.voice!.setSuppressed(false)
-
-    const streamLinkUdpConn = await this.streamer.createStream()
 
     let ytUrl = await this.getVideoUrl(link).catch((error) => console.error('Error:', error))
     console.log('ytUrl', ytUrl)
     if (ytUrl) {
+      const channel = member.voice.channel
+      if (channel instanceof StageChannel)
+        await this.streamer.client.user!.voice!.setSuppressed(false)
+
+      const streamLinkUdpConn = await this.streamer.createStream()
+
       this.playVideo(ytUrl, streamLinkUdpConn)
       this.streamer.client.user?.setActivity(this.statusWatch('') as unknown as ActivityOptions)
     }
