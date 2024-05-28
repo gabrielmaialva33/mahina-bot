@@ -67,7 +67,7 @@ plugins:
       soundgasm: true # soundgasm.net
 lavalink:
   plugins:
-    - dependency: 'com.github.topi314.lavasrc:lavasrc-plugin:4.1.0'
+    - dependency: 'com.github.topi314.lavasrc:lavasrc-plugin:4.1.1'
       repository: 'https://maven.lavalink.dev/releases'
       snapshot: false
     - dependency: 'com.github.topi314.lavasearch:lavasearch-plugin:1.0.0'
@@ -79,7 +79,7 @@ lavalink:
     - dependency: 'com.dunctebot:skybot-lavalink-plugin:1.7.0'
       repository: 'https://maven.lavalink.dev/releases'
       snapshot: false
-    - dependency: 'dev.lavalink.youtube:youtube-plugin:1.2.0'
+    - dependency: 'dev.lavalink.youtube:youtube-plugin:1.3.0'
       repository: 'https://maven.lavalink.dev/releases'
       snapshot: false
 
