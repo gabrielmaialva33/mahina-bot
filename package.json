@@ -1,6 +1,6 @@
 {
   "name": "mahina-bot",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "description": "A simple discord bot to play videos on voice channels",
   "keywords": [
     "typescript",
@@ -77,7 +77,7 @@
   "dependencies": {
     "@dank074/discord-video-stream": "^3.2.0",
     "@dank074/fluent-ffmpeg-multistream-ts": "^1.0.2",
-    "@gabrielmaialva33/discord-video-stream": "^0.8.7",
+    "@gabrielmaialva33/discord-video-stream": "^0.9.4",
     "@swc/core": "^1.5.7",
     "axios": "^1.7.2",
     "better-sqlite3": "^10.0.0",

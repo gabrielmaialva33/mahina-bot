@@ -3,7 +3,12 @@ import cp from 'node:child_process'
 
 import { ActivityOptions, Client, CustomStatus, StageChannel } from 'discord.js-selfbot-v13'
 
-import { command, MediaUdp, Streamer, streamLivestreamVideo } from '@dank074/discord-video-stream'
+import {
+  command,
+  MediaUdp,
+  Streamer,
+  streamLivestreamVideo,
+} from '@gabrielmaialva33/discord-video-stream'
 
 import ytdl from 'ytdl-core'
 import ffmpeg from 'ffmpeg-static'
