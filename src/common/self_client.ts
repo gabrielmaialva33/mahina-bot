@@ -1,5 +1,6 @@
 import * as readline from 'node:readline'
 import cp from 'node:child_process'
+import path from 'node:path'
 
 import { ActivityOptions, Client, CustomStatus, StageChannel } from 'discord.js-selfbot-v13'
 
@@ -14,7 +15,6 @@ import ytdl from 'ytdl-core'
 import ffmpeg from 'ffmpeg-static'
 
 import { BaseClient } from '#common/base_client'
-import path from 'node:path'
 
 // 3840x2160 (4k)
 // 2560x1440 (2k)
