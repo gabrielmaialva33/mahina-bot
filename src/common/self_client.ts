@@ -109,6 +109,7 @@ export class SelfClient extends Client {
     const streamLinkUdpConn = await this.streamer.createStream({
       width: 1280,
       height: 720,
+      h26xPreset: 'ultrafast',
     })
 
     this.playVideo(link, streamLinkUdpConn)
