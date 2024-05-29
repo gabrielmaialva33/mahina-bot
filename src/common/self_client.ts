@@ -111,6 +111,7 @@ export class SelfClient extends Client {
     const streamLinkUdpConn = await this.streamer.createStream({
       width: 1280,
       height: 720,
+      h26xPreset: 'ultrafast',
     })
 
     this.playVideo(link, streamLinkUdpConn)
@@ -120,13 +121,13 @@ export class SelfClient extends Client {
   async playVideo(video: string, udpConn: MediaUdp) {
     let includeAudio = true
 
-    try {
-      const metadata = await getInputMetadata(video)
-      includeAudio = inputHasAudio(metadata)
-    } catch (e) {
-      this.baseClient.logger.error(e)
-      return
-    }
+    // try {
+    //   const metadata = await getInputMetadata(video)
+    //   includeAudio = inputHasAudio(metadata)
+    // } catch (e) {
+    //   this.baseClient.logger.error(e)
+    //   return
+    // }
 
     this.baseClient.logger.info(`Starting video stream`)
 
