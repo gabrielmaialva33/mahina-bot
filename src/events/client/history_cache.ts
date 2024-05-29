@@ -34,14 +34,14 @@ export default class HistoryCache extends Event {
     }
 
     // save the message in the cache
-    const memberName = message.member?.nickname || message.author.username
+    const memberName = message.author.username ?? message.member?.nickname
     if (!memberName) return
 
     let historyMessage = ''
     if (replyMessageId) {
       try {
         const replyMessage = await message.channel.messages.fetch(replyMessageId)
-        const replyMemberName = replyMessage.member?.nickname || replyMessage.author.username
+        const replyMemberName = replyMessage.author.username ?? replyMessage.member?.nickname
 
         historyMessage = HistoryUtils.build_chat_history({
           text: message.content,
