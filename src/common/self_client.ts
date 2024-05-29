@@ -9,6 +9,8 @@ import {
   MediaUdp,
   Streamer,
   streamLivestreamVideo,
+  getInputMetadata,
+  inputHasAudio,
 } from '@gabrielmaialva33/discord-video-stream'
 
 import ytdl from 'ytdl-core'
@@ -116,13 +118,23 @@ export class SelfClient extends Client {
   }
 
   async playVideo(video: string, udpConn: MediaUdp) {
+    let includeAudio = true
+
+    try {
+      const metadata = await getInputMetadata(video)
+      includeAudio = inputHasAudio(metadata)
+    } catch (e) {
+      this.baseClient.logger.error(e)
+      return
+    }
+
     this.baseClient.logger.info(`Starting video stream`)
 
     udpConn.mediaConnection.setSpeaking(true)
     udpConn.mediaConnection.setVideoStatus(true)
 
     try {
-      const res = await streamLivestreamVideo(video, udpConn, true)
+      const res = await streamLivestreamVideo(video, udpConn, includeAudio)
       this.baseClient.logger.info(`Playing video: ${res}`)
     } catch (e) {
       this.baseClient.logger.error(`Error playing video: ${e}`)
