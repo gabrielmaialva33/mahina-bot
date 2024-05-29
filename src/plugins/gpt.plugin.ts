@@ -11,12 +11,12 @@ import { Logger } from '#src/lib/logger'
 
 export class AI extends OpenAI {
   private config = {
-    //model: 'gpt-3.5-turbo-instruct',
-    model: 'text-davinci-002',
-    temperature: 1,
-    max_tokens: 256,
-    frequency_penalty: 1.6,
-    presence_penalty: 1.7,
+    model: 'gpt-3.5-turbo-instruct',
+    //model: 'text-davinci-002',
+    temperature: 0.9,
+    max_tokens: 128,
+    frequency_penalty: 0.8,
+    presence_penalty: 1,
     n: 1,
     stop: ['||'],
   } as CompletionCreateParamsBase
