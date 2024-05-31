@@ -9,8 +9,8 @@ import {
   MediaUdp,
   Streamer,
   streamLivestreamVideo,
-  getInputMetadata,
-  inputHasAudio,
+  // getInputMetadata,
+  // inputHasAudio,
 } from '@gabrielmaialva33/discord-video-stream'
 
 import ytdl from 'ytdl-core'
