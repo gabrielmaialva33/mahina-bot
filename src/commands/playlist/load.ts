@@ -39,9 +39,12 @@ export default class Load extends Command {
   }
 
   async run(client: BaseClient, ctx: Context, args: string[]): Promise<any> {
-    let player = client.queue.get(ctx.guild!.id)
+    if (!ctx.guild) return
+    if (!ctx.author) return
+
+    let player = client.queue.get(ctx.guild.id)
     const playlist = args.join(' ').replace(/\s/g, '')
-    const playlistData = await client.db.getPlaylist(ctx.author!.id, playlist)
+    const playlistData = (await client.db.getPlaylist(ctx.author.id, playlist)) as any
     if (!playlistData)
       return await ctx.sendMessage({
         embeds: [

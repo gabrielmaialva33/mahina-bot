@@ -141,6 +141,7 @@ export default class ServerData {
   async getPlaylist(userId: string, name: string): Promise<Playlist | null> {
     return this.prisma.playlist.findUnique({
       where: { userId_name: { userId, name } },
+      include: { songs: true },
     })
   }
 

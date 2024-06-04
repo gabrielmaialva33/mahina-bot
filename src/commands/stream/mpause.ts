@@ -35,7 +35,7 @@ export default class MPause extends Command {
     if (this.client.selfClient.streamStatus.playing)
       return ctx.sendMessage('𝙊 𝙛𝙞𝙡𝙢𝙚 𝙟𝙖́ 𝙚𝙨𝙩𝙖́ 𝙥𝙖𝙪𝙨𝙖𝙙𝙤.')
 
-    this.client.selfClient.streamer.pauseStream()
+    //this.client.selfClient.streamer.pauseStream()
 
     this.client.selfClient.streamStatus.playing = false
 

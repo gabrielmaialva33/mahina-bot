@@ -89,7 +89,7 @@ export default class Dj extends Command {
           embeds: [embed.setDescription('𝙁𝙤𝙧𝙣𝙚𝙘̧𝙖 𝙪𝙢 𝙘𝙖𝙧𝙜𝙤 𝙥𝙖𝙧𝙖 𝙖𝙙𝙞𝙘𝙞𝙤𝙣𝙖𝙧')],
         })
       // eslint-disable-next-line unicorn/no-await-expression-member
-      const isExRole = (await client.db.getRoles(ctx.guild!.id)).find((r) => r.role_id === role.id)
+      const isExRole = (await client.db.getRoles(ctx.guild!.id)).find((r) => r.roleId === role.id)
       if (isExRole)
         return await ctx.sendMessage({
           embeds: [embed.setDescription(`𝙊 𝙙𝙟 𝙧𝙤𝙡𝙚 <@&${role.id}> 𝙟𝙖́ 𝙛𝙤𝙞 𝙖𝙙𝙞𝙘𝙞𝙤𝙣𝙖𝙙𝙤`)],
@@ -105,7 +105,7 @@ export default class Dj extends Command {
           embeds: [embed.setDescription('𝙁𝙤𝙧𝙣𝙚𝙘̧𝙖 𝙪𝙢𝙖 𝙛𝙪𝙣𝙘̧𝙖̃𝙤 𝙥𝙖𝙧𝙖 𝙧𝙚𝙢𝙤𝙫𝙚𝙧')],
         })
       // eslint-disable-next-line unicorn/no-await-expression-member
-      const isExRole = (await client.db.getRoles(ctx.guild!.id)).find((r) => r.role_id === role.id)
+      const isExRole = (await client.db.getRoles(ctx.guild!.id)).find((r) => r.roleId === role.id)
       if (!isExRole)
         return await ctx.sendMessage({
           embeds: [embed.setDescription(`𝙊 𝙙𝙟 𝙧𝙤𝙡𝙚 <@&${role.id}> 𝙣𝙖̃𝙤 𝙚́ 𝙖𝙙𝙞𝙘𝙞𝙤𝙣𝙖𝙙𝙤`)],
