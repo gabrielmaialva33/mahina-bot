@@ -149,7 +149,6 @@ export default class Setup extends Command {
         })
         break
       }
-
       case 'info': {
         const data3 = await client.db.getSetup(ctx.guild.id)
         if (!data3)
