@@ -1,5 +1,4 @@
 import { BaseClient, Command, Context } from '#common/index'
-import { Player } from 'shoukaku'
 import { GuildMember } from 'discord.js'
 
 // eslint-disable-next-line @typescript-eslint/naming-convention
