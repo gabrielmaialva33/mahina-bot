@@ -49,8 +49,11 @@ export default class Prefix extends Command {
   }
 
   async run(client: BaseClient, ctx: Context, args: string[]): Promise<any> {
+    if (!ctx.guild) return
+
+    const guildId = ctx.guild.id
+    const guildData = await client.db.get(guildId)
     const embed = client.embed().setColor(client.color.main)
-    let prefix = await client.db.getPrefix(ctx.guild!.id)
 
     let subCommand: string
     let pre: string
@@ -66,7 +69,7 @@ export default class Prefix extends Command {
       case 'set':
         if (!pre) {
           embed.setDescription(
-            `𝙊 𝙥𝙧𝙚𝙛𝙞𝙭𝙤 𝙥𝙖𝙧𝙖 𝙚𝙨𝙩𝙚 𝙨𝙚𝙧𝙫𝙞𝙙𝙤𝙧 𝙚́ \`${prefix ? prefix.prefix : client.env.DISC_BOT_PREFIX}\``
+            `𝙊 𝙥𝙧𝙚𝙛𝙞𝙭𝙤 𝙥𝙖𝙧𝙖 𝙚𝙨𝙩𝙚 𝙨𝙚𝙧𝙫𝙞𝙙𝙤𝙧 𝙚́ \`${guildData ? guildData.prefix : client.env.DISC_BOT_PREFIX}\``
           )
           return await ctx.sendMessage({ embeds: [embed] })
         }
@@ -75,7 +78,7 @@ export default class Prefix extends Command {
             embeds: [embed.setDescription(`𝙊 𝙥𝙧𝙚𝙛𝙞𝙭𝙤 𝙣𝙖̃𝙤 𝙥𝙤𝙙𝙚 𝙩𝙚𝙧 𝙢𝙖𝙞𝙨 𝙙𝙚 𝙩𝙧𝙚̂𝙨 𝙘𝙖𝙧𝙖𝙘𝙩𝙚𝙧𝙚𝙨.`)],
           })
 
-        if (!prefix) {
+        if (!guildData.prefix) {
           await client.db.setPrefix(ctx.guild!.id, pre)
           return await ctx.sendMessage({
             embeds: [embed.setDescription(`𝙊 𝙥𝙧𝙚𝙛𝙞𝙭𝙤 𝙥𝙖𝙧𝙖 𝙚𝙨𝙩𝙚 𝙨𝙚𝙧𝙫𝙞𝙙𝙤𝙧 𝙖𝙜𝙤𝙧𝙖 𝙚́ \`${pre}\``)],
@@ -87,7 +90,7 @@ export default class Prefix extends Command {
           })
         }
       case 'reset':
-        if (!prefix)
+        if (!guildData.prefix)
           return await ctx.sendMessage({
             embeds: [
               embed.setDescription(

@@ -27,7 +27,9 @@ export default class InteractionCreate extends Event {
       interaction instanceof CommandInteraction &&
       interaction.type === InteractionType.ApplicationCommand
     ) {
-      const { commandName } = interaction
+      const { commandName, guildId } = interaction
+      if (guildId) await this.client.db.get(guildId)
+
       const command = this.client.commands.get(interaction.commandName)
       if (!command) return
 

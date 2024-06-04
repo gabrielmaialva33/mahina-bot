@@ -17,11 +17,11 @@ export default class MessageCreate extends Event {
     if (setup && setup.textId)
       if (setup.textId === message.channelId) return this.client.emit('setupSystem', message)
 
-    let prefix = await this.client.db.getPrefix(message.guildId)
+    const guild = await this.client.db.get(message.guildId)
     const mention = new RegExp(`^<@!?${this.client.user!.id}>( |)$`)
     if (message.content.match(mention)) {
       await message.reply({
-        content: `𝙊𝙞𝙚 𝙢𝙖𝙣𝙖̃.. ✨, 𝙢𝙚𝙪 𝙥𝙧𝙚𝙛𝙞𝙭𝙤 𝙥𝙖𝙧𝙖 𝙚𝙨𝙩𝙚 𝙨𝙚𝙧𝙫𝙞𝙙𝙤𝙧 𝙚́  \`${prefix.prefix}\` 𝙌𝙪𝙚𝙧 𝙨𝙖𝙗𝙚𝙧 𝙢𝙖𝙞𝙨 𝙪𝙨𝙚 𝙤 𝙘𝙤𝙢𝙖𝙣𝙙𝙤 \`${prefix.prefix}help\`\n𝙎𝙚𝙟𝙖 𝙛𝙚𝙡𝙞𝙯 🍁 𝙘𝙤𝙢 𝙦𝙪𝙚𝙢 𝙨𝙚𝙧 𝙛𝙚𝙡𝙞𝙯 𝙘𝙤𝙢 𝙫𝙤𝙘𝙚̂ 🌺`,
+        content: `𝙊𝙞𝙚 𝙢𝙖𝙣𝙖̃.. ✨, 𝙢𝙚𝙪 𝙥𝙧𝙚𝙛𝙞𝙭𝙤 𝙥𝙖𝙧𝙖 𝙚𝙨𝙩𝙚 𝙨𝙚𝙧𝙫𝙞𝙙𝙤𝙧 𝙚́  \`${guild.prefix}\` 𝙌𝙪𝙚𝙧 𝙨𝙖𝙗𝙚𝙧 𝙢𝙖𝙞𝙨 𝙪𝙨𝙚 𝙤 𝙘𝙤𝙢𝙖𝙣𝙙𝙤 \`${guild.prefix}help\`\n𝙎𝙚𝙟𝙖 𝙛𝙚𝙡𝙞𝙯 🍁 𝙘𝙤𝙢 𝙦𝙪𝙚𝙢 𝙨𝙚𝙧 𝙛𝙚𝙡𝙞𝙯 𝙘𝙤𝙢 𝙫𝙤𝙘𝙚̂ 🌺`,
       })
       return
     }
@@ -31,7 +31,7 @@ export default class MessageCreate extends Event {
       return '!'
     }
     const prefixRegex = new RegExp(
-      `^(<@!?${this.client.user!.id}>|${escapeRegex(prefix.prefix)})\\s*`
+      `^(<@!?${this.client.user!.id}>|${escapeRegex(guild.prefix)})\\s*`
     )
     if (!prefixRegex.test(message.content)) return
     const [matchedPrefix] = message.content.match(prefixRegex)!
