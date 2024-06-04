@@ -14,8 +14,8 @@ export default class MessageCreate extends Event {
     if (!message.guildId) return
 
     const setup = await this.client.db.getSetup(message.guildId)
-    if (setup && setup.text_id)
-      if (setup.text_id === message.channelId) return this.client.emit('setupSystem', message)
+    if (setup && setup.textId)
+      if (setup.textId === message.channelId) return this.client.emit('setupSystem', message)
 
     let prefix = await this.client.db.getPrefix(message.guildId)
     const mention = new RegExp(`^<@!?${this.client.user!.id}>( |)$`)
@@ -149,7 +149,7 @@ export default class MessageCreate extends Event {
               content: '❌ 𝙘𝙖𝙧𝙜𝙤 𝘿𝙅 𝙣𝙖̃𝙤 𝙙𝙚𝙛𝙞𝙣𝙞𝙙𝙚',
             })
           const findDJRole = message.member!.roles.cache.find((x: any) =>
-            djRole.map((y) => y.role_id).includes(x.id)
+            djRole.map((y) => y.roleId).includes(x.id)
           )
           if (!findDJRole) {
             if (!message.member!.permissions.has(PermissionFlagsBits.ManageGuild)) {

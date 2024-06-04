@@ -15,6 +15,7 @@ export const env = cleanEnv(process.env, {
   // Database
   DB_CLIENT: str({ default: 'sqlite' }),
   DB_DEBUG: bool({ default: false }),
+  DATABASE_URL: str({ default: '' }),
 
   // Discord
   DISC_BOT_NAME: str({ default: 'Ｂｏｔ' }),

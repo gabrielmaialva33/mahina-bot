@@ -49,7 +49,7 @@ export default class SetupButtons extends Event {
     const { title, uri, length } = player.current.info
     let message
     try {
-      message = await interaction.channel.messages.fetch(data.message_id, { cache: true })
+      if (data) message = await interaction.channel.messages.fetch(data.messageId, { cache: true })
     } catch (e) {
       this.client.logger.error(e)
     }

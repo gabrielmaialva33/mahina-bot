@@ -21,10 +21,10 @@ import { env } from '#src/env'
 import { Utils } from '#src/utils/utils'
 import { Logger } from '#src/lib/logger'
 import { Queue, ShoukakuClient } from '#common/index'
-import { DB } from '#src/database/models/db'
 import { AI } from '#src/plugins/gpt.plugin'
 import { SelfClient } from '#common/self_client'
 import { LexicaApi } from '#src/plugins/lexica.plugin'
+import ServerData from '#src/database/server.data'
 
 const dirname = path.dirname(fileURLToPath(import.meta.url))
 
@@ -34,7 +34,7 @@ export class BaseClient extends Client {
   body: RESTPostAPIChatInputApplicationCommandsJSONBody[] = []
   shoukaku: ShoukakuClient
   cooldown: Collection<string, any> = new Collection()
-  db = new DB()
+  db = new ServerData()
 
   env: typeof env = env
   utils: typeof Utils = Utils
@@ -86,8 +86,8 @@ export class BaseClient extends Client {
         const setup = await this.db.getSetup(interaction.guildId)
         if (
           setup &&
-          interaction.channelId === setup.text_id &&
-          interaction.message.id === setup.message_id
+          interaction.channelId === setup.textId &&
+          interaction.message.id === setup.messageId
         ) {
           this.emit('setupButtons', interaction)
         }

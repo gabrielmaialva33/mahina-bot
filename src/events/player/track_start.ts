@@ -88,9 +88,9 @@ export default class TrackStart extends Event {
       )
       .setTimestamp()
     let setup = await this.client.db.getSetup(guild.id)
-    if (setup && setup.text_id) {
-      const textChannel = guild.channels.cache.get(setup.text_id) as TextChannel
-      const id = setup.message_id
+    if (setup && setup.textId) {
+      const textChannel = guild.channels.cache.get(setup.textId) as TextChannel
+      const id = setup.messageId
       if (!textChannel) return
       if (channel && textChannel && channel.id === textChannel.id) {
         await trackStart(id, textChannel, dispatcher, track, this.client)
@@ -266,7 +266,7 @@ export async function checkDj(
     if (!djRole) return false
 
     const findDJRole = interaction.member.roles.cache.find((x: any) =>
-      djRole.map((y) => y.role_id).includes(x.id)
+      djRole.map((y) => y.roleId).includes(x.id)
     )
     if (!findDJRole) return interaction.member.permissions.has(PermissionFlagsBits.ManageGuild)
   }
