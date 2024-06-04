@@ -54,6 +54,8 @@ export default class Setup extends Command {
   }
 
   async run(client: BaseClient, ctx: Context, args: string[]): Promise<any> {
+    if (!ctx.guild) return
+
     let subCommand: string
     if (ctx.isInteraction) subCommand = ctx.interaction!.options.data[0].name
     else subCommand = args[0]
@@ -61,9 +63,9 @@ export default class Setup extends Command {
     const embed = client.embed().setColor(client.color.main)
     switch (subCommand) {
       case 'create': {
-        const data = await client.db.getSetup(ctx.guild!.id)
+        const data = await client.db.getSetup(ctx.guild.id)
 
-        if (data && data.text_id && data.message_id)
+        if (data && data.textId && data.messageId)
           return await ctx.sendMessage({
             embeds: [
               {
@@ -72,7 +74,7 @@ export default class Setup extends Command {
               },
             ],
           })
-        const textChannel = await ctx.guild!.channels.create({
+        const textChannel = await ctx.guild.channels.create({
           name: `${this.client.user!.username}`,
           type: ChannelType.GuildText,
           topic: '𝙎𝙚𝙪 𝙘𝙖𝙣𝙖𝙡 𝙙𝙚 𝙨𝙤𝙡𝙞𝙘𝙞𝙩𝙖𝙘̧𝙖̃𝙤 𝙙𝙚 𝙢𝙪́𝙨𝙞𝙘𝙖',
@@ -98,7 +100,7 @@ export default class Setup extends Command {
             },
           ],
         })
-        const player = this.client.queue.get(ctx.guild!.id)
+        const player = this.client.queue.get(ctx.guild.id)
         const image = this.client.links.img
         const desc =
           player && player.queue && player.current
@@ -120,7 +122,7 @@ export default class Setup extends Command {
         break
       }
       case 'delete': {
-        const data2 = await client.db.getSetup(ctx.guild!.id)
+        const data2 = await client.db.getSetup(ctx.guild.id)
         if (!data2)
           return await ctx.sendMessage({
             embeds: [
@@ -130,9 +132,9 @@ export default class Setup extends Command {
               },
             ],
           })
-        await client.db.deleteSetup(ctx.guild!.id)
+        await client.db.deleteSetup(ctx.guild.id)
         await ctx
-          .guild!.channels.cache.get(data2.text_id)!
+          .guild!.channels.cache.get(data2.textId)!
           .delete()
           .catch(() => {
             client.logger.error('not possible to delete the channel')
@@ -149,7 +151,7 @@ export default class Setup extends Command {
       }
 
       case 'info': {
-        const data3 = await client.db.getSetup(ctx.guild!.id)
+        const data3 = await client.db.getSetup(ctx.guild.id)
         if (!data3)
           return await ctx.sendMessage({
             embeds: [
@@ -159,7 +161,7 @@ export default class Setup extends Command {
               },
             ],
           })
-        const channel = ctx.guild!.channels.cache.get(data3.text_id)!
+        const channel = ctx.guild.channels.cache.get(data3.textId)!
         embed
           .setDescription(`𝙊 𝙘𝙖𝙣𝙖𝙡 𝙙𝙚 𝙨𝙤𝙡𝙞𝙘𝙞𝙩𝙖𝙘̧𝙖̃𝙤 𝙙𝙚 𝙢𝙪́𝙨𝙞𝙘𝙖 𝙚́ <#${channel.id}>`)
           .setColor(client.color.main)
