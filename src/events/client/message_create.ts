@@ -17,7 +17,10 @@ export default class MessageCreate extends Event {
     if (setup && setup.textId)
       if (setup.textId === message.channelId) return this.client.emit('setupSystem', message)
 
-    const guild = await this.client.db.get(message.guildId)
+    let guildName
+    if (message.guild) guildName = message.guild.name
+
+    const guild = await this.client.db.get(message.guildId, guildName)
     const mention = new RegExp(`^<@!?${this.client.user!.id}>( |)$`)
     if (message.content.match(mention)) {
       await message.reply({

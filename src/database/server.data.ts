@@ -18,17 +18,17 @@ export default class ServerData {
     this.prisma = new PrismaClient()
   }
 
-  async get(guildId: string): Promise<Guild> {
+  async get(guildId: string, name?: string): Promise<Guild> {
     return (
       (await this.prisma.guild.findUnique({
         where: { guildId },
-      })) ?? (await this.createGuild(guildId))
+      })) ?? (await this.createGuild(guildId, name))
     )
   }
 
-  private async createGuild(guildId: string): Promise<Guild> {
+  private async createGuild(guildId: string, name?: string): Promise<Guild> {
     return this.prisma.guild.create({
-      data: { guildId, prefix: env.DISC_BOT_PREFIX },
+      data: { guildId, prefix: env.DISC_BOT_PREFIX, name },
     })
   }
 
