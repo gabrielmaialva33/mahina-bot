@@ -8,6 +8,34 @@ import {
 } from 'discord.js'
 import { SearchResponse } from '#src/plugins/animezey.plugin'
 
+// export interface SearchResponse {
+//   nextPageToken: string
+//   curPageIndex: number
+//   data: SearchDataResponse
+// }
+//
+// export interface SearchDataResponse {
+//   nextPageToken: string
+//   files: Array<{
+//     mimeType: string
+//     name: string
+//     modifiedTime: string
+//     id: string
+//     driveId: string
+//     link: string
+//   }>
+// }
+
+//             {
+//                 "mimeType": "video/x-matroska",
+//                 "size": "711464830",
+//                 "name": "[Otakus_Fans]Haikyuu!!_03[3C334DC6].mkv",
+//                 "modifiedTime": "2021-12-24T04:38:41.000Z",
+//                 "id": "8lEoNzAbjzV7Bmb/8lyhRgaOI1lUIElKpgUw/P3kKWhNntJcg+GNTkBJK2g31T8l",
+//                 "driveId": "poKjyDB9hGWK1XI/s5117t3GroosGwv2AuZijZU2Pqw=",
+//                 "link": "/download.aspx?file=8lEoNzAbjzV7Bmb%2F8lyhRgaOI1lUIElKpgUw%2FP3kKWhNntJcg%2BGNTkBJK2g31T8l&expiry=wmR8abWsb0Zpt%2BDvtQGFSA%3D%3D&mac=e14fbc3fceaae8c67b3c5db8029437e3362f2de09aa5e052ed12db7c7906bce1"
+//             },
+
 export default class MSearch extends Command {
   constructor(client: BaseClient) {
     super(client, {
@@ -91,13 +119,29 @@ export default class MSearch extends Command {
       const paginatedData = pageData.slice(startIndex, endIndex)
 
       const embed = new EmbedBuilder()
-        .setTitle(`Resultados da Pesquisa: ${search}`)
+        .setTitle(`**__Resultados da Pesquisa__**: ${search}`)
         .setDescription(
-          paginatedData.map((anime) => `**${anime.name}**\n[Link](${anime.link})`).join('\n\n')
+          paginatedData
+            .map(
+              (anime) => `**Nome**: ${anime.name}
+              **Tamanho**: ${(Number.parseInt(anime.size) / 1024 / 1024 / 1024).toFixed(2)} GB
+              **Data de Modificação**: ${anime.modifiedTime}
+              **Link**: [Download](${this.client.animezey.BASE_URL + anime.link})
+              `
+            )
+            .join('\n\n')
         )
         .setFooter({
           text: `Página ${pageIndex + 1} | Itens ${startIndex + 1}-${endIndex} de ${totalItems}`,
+          iconURL: ctx.author!.avatarURL() || undefined,
         })
+        .setColor(client.color.violet)
+      // .setAuthor({
+      //   name: ctx.author!.username,
+      //   iconURL: ctx.author!.avatarURL() || undefined,
+      // })
+      //.setImage('https://telegra.ph/file/9577e7eb196ae70607758.png')
+
       return embed
     }
 
@@ -105,7 +149,7 @@ export default class MSearch extends Command {
     const handlePage = async (pageIndex: number, itemPageIndex: number, interaction: any) => {
       const pageData = await fetchPage(pageIndex)
       if (!pageData)
-        return interaction.update({ content: 'Erro ao buscar informações', components: [] })
+        return interaction.update({ content: 'erro ao buscar informações', components: [] })
 
       const totalItems = pageData.files.length
       const embed = createEmbed(pageData.files, pageIndex, itemPageIndex, totalItems)

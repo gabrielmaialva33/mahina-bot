@@ -19,9 +19,9 @@ export interface SearchDataResponse {
 }
 
 export class AnimezeyPlugin {
-  private BASE_URL = 'https://animezey16082023.animezey16082023.workers.dev'
+  BASE_URL = 'https://animezey16082023.animezey16082023.workers.dev'
 
-  private SESSION_HEADERS = {
+  SESSION_HEADERS = {
     'Host': 'animezey16082023.animezey16082023.workers.dev',
     'Connection': 'keep-alive',
     'sec-ch-ua': '"Chromium";v="124", "Microsoft Edge";v="124", "Not-A.Brand";v="99"',
