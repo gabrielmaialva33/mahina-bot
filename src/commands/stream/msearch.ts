@@ -9,6 +9,8 @@ import {
 import { SearchResponse } from '#src/plugins/animezey.plugin'
 import moment from 'moment'
 
+import path from 'node:path'
+
 export default class MSearch extends Command {
   constructor(client: BaseClient) {
     super(client, {
@@ -227,8 +229,24 @@ export default class MSearch extends Command {
         const downloadIndex = Number.parseInt(interaction.customId.split('_')[1], 10) - 1
         const startIndex = currentItemPageIndex * 5
         const file = cache.pages[currentPageIndex].files[startIndex + downloadIndex]
-        // Trigger download logic here using file.link or other necessary info
-        await interaction.reply(`Iniciando download: ${file.name}`)
+
+        await interaction.reply(
+          `Iniciando download: ${file.name} o vídeo será reproduzido em 30 segundos`
+        )
+
+        this.client.animezey.download(file.name, file.link)
+
+        await new Promise((resolve) => setTimeout(resolve, 30000))
+
+        const sanitizedFileName = file.name.replace(/[\/\?<>\\:\*\|":]/g, '_')
+        const filePath = path.join(process.cwd(), 'movies', sanitizedFileName)
+
+        await this.client.selfClient.moviePlay(
+          ctx.member,
+          ctx.guild!.id,
+          filePath,
+          sanitizedFileName
+        )
       } else {
         if (interaction.customId === 'prevPage') {
           currentPageIndex--
