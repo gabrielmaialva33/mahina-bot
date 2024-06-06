@@ -76,8 +76,8 @@
     "uppercaseLabel": false
   },
   "dependencies": {
-    "@gabrielmaialva33/discord-video-stream": "^0.9.9",
-    "@gabrielmaialva33/fluent-ffmpeg-multistream-ts": "^0.0.2",
+    "@gabrielmaialva33/discord-video-stream": "^0.9.8",
+    "@gabrielmaialva33/fluent-ffmpeg-multistream-ts": "^0.0.1",
     "@prisma/client": "^5.15.0",
     "@swc/core": "^1.5.25",
     "axios": "^1.7.2",
