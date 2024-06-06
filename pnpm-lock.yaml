@@ -9,8 +9,8 @@ importers:
   .:
     dependencies:
       '@gabrielmaialva33/discord-video-stream':
-        specifier: ^1.1.2
-        version: 1.1.2(@typescript-eslint/parser@6.21.0(eslint@8.57.0)(typescript@5.4.5))(discord.js-selfbot-v13@3.1.4)(ffmpeg-static@5.2.0)
+        specifier: 0.9.8
+        version: 0.9.8(@typescript-eslint/parser@6.21.0(eslint@8.57.0)(typescript@5.4.5))(discord.js-selfbot-v13@3.1.4)(ffmpeg-static@5.2.0)
       '@gabrielmaialva33/fluent-ffmpeg-multistream-ts':
         specifier: ^0.0.2
         version: 0.0.2(@typescript-eslint/parser@6.21.0(eslint@8.57.0)(typescript@5.4.5))
@@ -370,8 +370,8 @@ packages:
     resolution: {integrity: sha512-Ys+3g2TaW7gADOJzPt83SJtCDhMjndcDMFVQ/Tj9iA1BfJzFKD9mAUXT3OenpuPHbI6P/myECxRJrofUsDx/5g==}
     engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
 
-  '@gabrielmaialva33/discord-video-stream@1.1.2':
-    resolution: {integrity: sha512-O71b6OEWoITLaEMj2l5jp5OzltkLmvA0ZufSWMhBcNgpaEGtfavxbFJ44hn0lcJlMyJQaoMt0OPvYZzoU2ZTmA==}
+  '@gabrielmaialva33/discord-video-stream@0.9.8':
+    resolution: {integrity: sha512-9MuYrLggIXOXebwy11MjAy5mf2RR6X947/Pp5nmfvmVLsw/10kqrPKfiaRhkbJYDfrxsw4ioWr++NWl1dty98g==}
     engines: {node: '>=20.13.1'}
     peerDependencies:
       discord.js-selfbot-v13: 3.x
@@ -3706,7 +3706,7 @@ snapshots:
 
   '@eslint/js@8.57.0': {}
 
-  '@gabrielmaialva33/discord-video-stream@1.1.2(@typescript-eslint/parser@6.21.0(eslint@8.57.0)(typescript@5.4.5))(discord.js-selfbot-v13@3.1.4)(ffmpeg-static@5.2.0)':
+  '@gabrielmaialva33/discord-video-stream@0.9.8(@typescript-eslint/parser@6.21.0(eslint@8.57.0)(typescript@5.4.5))(discord.js-selfbot-v13@3.1.4)(ffmpeg-static@5.2.0)':
     dependencies:
       '@gabrielmaialva33/fluent-ffmpeg-multistream-ts': 0.0.2(@typescript-eslint/parser@6.21.0(eslint@8.57.0)(typescript@5.4.5))
       discord.js-selfbot-v13: 3.1.4
