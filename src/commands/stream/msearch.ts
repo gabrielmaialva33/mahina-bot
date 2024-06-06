@@ -7,34 +7,7 @@ import {
   EmbedBuilder,
 } from 'discord.js'
 import { SearchResponse } from '#src/plugins/animezey.plugin'
-
-// export interface SearchResponse {
-//   nextPageToken: string
-//   curPageIndex: number
-//   data: SearchDataResponse
-// }
-//
-// export interface SearchDataResponse {
-//   nextPageToken: string
-//   files: Array<{
-//     mimeType: string
-//     name: string
-//     modifiedTime: string
-//     id: string
-//     driveId: string
-//     link: string
-//   }>
-// }
-
-//             {
-//                 "mimeType": "video/x-matroska",
-//                 "size": "711464830",
-//                 "name": "[Otakus_Fans]Haikyuu!!_03[3C334DC6].mkv",
-//                 "modifiedTime": "2021-12-24T04:38:41.000Z",
-//                 "id": "8lEoNzAbjzV7Bmb/8lyhRgaOI1lUIElKpgUw/P3kKWhNntJcg+GNTkBJK2g31T8l",
-//                 "driveId": "poKjyDB9hGWK1XI/s5117t3GroosGwv2AuZijZU2Pqw=",
-//                 "link": "/download.aspx?file=8lEoNzAbjzV7Bmb%2F8lyhRgaOI1lUIElKpgUw%2FP3kKWhNntJcg%2BGNTkBJK2g31T8l&expiry=wmR8abWsb0Zpt%2BDvtQGFSA%3D%3D&mac=e14fbc3fceaae8c67b3c5db8029437e3362f2de09aa5e052ed12db7c7906bce1"
-//             },
+import moment from 'moment'
 
 export default class MSearch extends Command {
   constructor(client: BaseClient) {
@@ -84,6 +57,8 @@ export default class MSearch extends Command {
       nextPageTokens: [] as string[],
     }
 
+    const numbersEmojis = ['1️⃣', '2️⃣', '3️⃣', '4️⃣', '5️⃣']
+
     const fetchPage = async (pageIndex: number) => {
       if (cache.pages[pageIndex]) {
         return cache.pages[pageIndex]
@@ -115,44 +90,43 @@ export default class MSearch extends Command {
     ) => {
       const itemsPerPage = 5
       const startIndex = itemPageIndex * itemsPerPage
-      const endIndex = Math.min(startIndex + itemsPerPage, totalItems)
-      const paginatedData = pageData.slice(startIndex, endIndex)
+      const paginatedData = pageData.slice(startIndex, startIndex + itemsPerPage)
 
       const embed = new EmbedBuilder()
         .setTitle(`**__Resultados da Pesquisa__**: ${search}`)
         .setDescription(
           paginatedData
             .map(
-              (anime) => `**Nome**: ${anime.name}
+              (anime, index) => `
+              **Número**: ${numbersEmojis[index]}
+              **Nome**: ${anime.name}
               **Tamanho**: ${(Number.parseInt(anime.size) / 1024 / 1024 / 1024).toFixed(2)} GB
-              **Data de Modificação**: ${anime.modifiedTime}
-              **Link**: [Download](${this.client.animezey.BASE_URL + anime.link})
+              **Data de Modificação**: ${moment(anime.modifiedTime).format('DD/MM/YYYY HH:mm:ss')}
+              **Link**: [Download](${client.animezey.BASE_URL + anime.link})
               `
             )
             .join('\n\n')
         )
         .setFooter({
-          text: `Página ${pageIndex + 1} | Itens ${startIndex + 1}-${endIndex} de ${totalItems}`,
+          text: `Página ${pageIndex + 1} | Itens ${startIndex + 1}-${startIndex + paginatedData.length} de ${totalItems}`,
           iconURL: ctx.author!.avatarURL() || undefined,
         })
         .setColor(client.color.violet)
-      // .setAuthor({
-      //   name: ctx.author!.username,
-      //   iconURL: ctx.author!.avatarURL() || undefined,
-      // })
-      //.setImage('https://telegra.ph/file/9577e7eb196ae70607758.png')
 
       return embed
     }
 
-    // Function to handle pagination
+    // Function to handle pagination with download buttons
     const handlePage = async (pageIndex: number, itemPageIndex: number, interaction: any) => {
       const pageData = await fetchPage(pageIndex)
       if (!pageData)
-        return interaction.update({ content: 'erro ao buscar informações', components: [] })
+        return interaction.update({ content: 'Erro ao buscar informações', components: [] })
 
       const totalItems = pageData.files.length
       const embed = createEmbed(pageData.files, pageIndex, itemPageIndex, totalItems)
+
+      const itemsPerPage = 5
+      const startIndex = itemPageIndex * itemsPerPage
 
       const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
         new ButtonBuilder()
@@ -174,10 +148,20 @@ export default class MSearch extends Command {
           .setCustomId('nextItemPage')
           .setLabel('Próximos Itens')
           .setStyle(ButtonStyle.Secondary)
-          .setDisabled((itemPageIndex + 1) * 5 >= totalItems)
+          .setDisabled((itemPageIndex + 1) * itemsPerPage >= totalItems)
       )
 
-      await interaction.update({ embeds: [embed], components: [row] })
+      const downloadRow = new ActionRowBuilder<ButtonBuilder>()
+      for (let i = 0; i < Math.min(itemsPerPage, totalItems - startIndex); i++) {
+        downloadRow.addComponents(
+          new ButtonBuilder()
+            .setCustomId(`download_${i + 1}`)
+            .setLabel(`Assistir ${numbersEmojis[i]}`)
+            .setStyle(ButtonStyle.Success)
+        )
+      }
+
+      await interaction.update({ embeds: [embed], components: [row, downloadRow] })
     }
 
     const initialPageIndex = 0
@@ -216,7 +200,20 @@ export default class MSearch extends Command {
         .setDisabled(totalItems <= 5)
     )
 
-    const message = await ctx.sendMessage({ embeds: [initialEmbed], components: [initialRow] })
+    const initialDownloadRow = new ActionRowBuilder<ButtonBuilder>()
+    for (let i = 0; i < Math.min(5, totalItems); i++) {
+      initialDownloadRow.addComponents(
+        new ButtonBuilder()
+          .setCustomId(`download_${i + 1}`)
+          .setLabel(`Assistir ${numbersEmojis[i]}`)
+          .setStyle(ButtonStyle.Success)
+      )
+    }
+
+    const message = await ctx.sendMessage({
+      embeds: [initialEmbed],
+      components: [initialRow, initialDownloadRow],
+    })
     if (!message) return
 
     const filter = (i: any) => i.user.id === ctx.author!.id
@@ -226,19 +223,26 @@ export default class MSearch extends Command {
     let currentItemPageIndex = initialItemPageIndex
 
     collector.on('collect', async (interaction: any) => {
-      if (interaction.customId === 'prevPage') {
-        currentPageIndex--
-        currentItemPageIndex = 0
-      } else if (interaction.customId === 'nextPage') {
-        currentPageIndex++
-        currentItemPageIndex = 0
-      } else if (interaction.customId === 'prevItemPage') {
-        currentItemPageIndex--
-      } else if (interaction.customId === 'nextItemPage') {
-        currentItemPageIndex++
+      if (interaction.customId.startsWith('download_')) {
+        const downloadIndex = Number.parseInt(interaction.customId.split('_')[1], 10) - 1
+        const startIndex = currentItemPageIndex * 5
+        const file = cache.pages[currentPageIndex].files[startIndex + downloadIndex]
+        // Trigger download logic here using file.link or other necessary info
+        await interaction.reply(`Iniciando download: ${file.name}`)
+      } else {
+        if (interaction.customId === 'prevPage') {
+          currentPageIndex--
+          currentItemPageIndex = 0
+        } else if (interaction.customId === 'nextPage') {
+          currentPageIndex++
+          currentItemPageIndex = 0
+        } else if (interaction.customId === 'prevItemPage') {
+          currentItemPageIndex--
+        } else if (interaction.customId === 'nextItemPage') {
+          currentItemPageIndex++
+        }
+        await handlePage(currentPageIndex, currentItemPageIndex, interaction)
       }
-
-      await handlePage(currentPageIndex, currentItemPageIndex, interaction)
     })
 
     collector.on('end', async () => {
