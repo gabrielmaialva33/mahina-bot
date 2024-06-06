@@ -69,9 +69,13 @@ export default class MSearch extends Command {
       if (!response) return null
 
       const { data } = response
-      cache.pages[pageIndex] = data
+      const filteredData = {
+        ...data,
+        files: data.files.filter((file) => file.mimeType === 'video/x-matroska'),
+      }
+      cache.pages[pageIndex] = filteredData
       cache.nextPageTokens[pageIndex] = data.nextPageToken
-      return data
+      return filteredData
     }
 
     // Function to create embed for a page
