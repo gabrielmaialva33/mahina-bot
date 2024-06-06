@@ -25,6 +25,7 @@ import { AI } from '#src/plugins/gpt.plugin'
 import { SelfClient } from '#common/self_client'
 import { LexicaApi } from '#src/plugins/lexica.plugin'
 import ServerData from '#src/database/server.data'
+import { AnimezeyPlugin } from '#src/plugins/animezey.plugin'
 
 const dirname = path.dirname(fileURLToPath(import.meta.url))
 
@@ -42,6 +43,7 @@ export class BaseClient extends Client {
   queue = new Queue(this)
   ai = new AI()
   lexica = new LexicaApi()
+  animezey = new AnimezeyPlugin()
 
   selfClient: SelfClient
   movieFolder = path.join(process.cwd(), 'movies')
