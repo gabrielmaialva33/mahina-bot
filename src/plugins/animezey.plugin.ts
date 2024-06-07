@@ -82,7 +82,6 @@ export class AnimezeyPlugin {
   }
 
   async searchAnime(query: string, pageToken?: string | null): Promise<SearchResponse | null> {
-    console.log('search api', query)
     return this.request('/0:search', 'POST', {
       q: query,
       page_token: pageToken || null,
@@ -91,13 +90,8 @@ export class AnimezeyPlugin {
   }
 
   async download(fileName: string, link: string) {
-    console.log(`Iniciando download de: ${fileName}`)
-    console.log(`Link: ${link}`)
-
     const sanitizedFileName = fileName.replace(/[\/\?<>\\:\*\|":]/g, '_') // Remover caracteres inválidos
     const filePath = path.join(process.cwd(), 'movies', sanitizedFileName)
-
-    console.log(`Iniciando o download para: ${filePath}`)
 
     const writer = fs.createWriteStream(filePath)
     const dUrl = `${this.BASE_URL}${link}`

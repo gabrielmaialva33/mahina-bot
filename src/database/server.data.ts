@@ -26,12 +26,6 @@ export default class ServerData {
     )
   }
 
-  private async createGuild(guildId: string, name?: string): Promise<Guild> {
-    return this.prisma.guild.create({
-      data: { guildId, prefix: env.DISC_BOT_PREFIX, name },
-    })
-  }
-
   async getPrefix(guildId: string): Promise<Guild> {
     const p = await this.prisma.guild.findUnique({ where: { guildId } })
     if (!p) {
@@ -211,5 +205,11 @@ export default class ServerData {
 
   async clearAllSongs(): Promise<void> {
     await this.prisma.song.deleteMany()
+  }
+
+  private async createGuild(guildId: string, name?: string): Promise<Guild> {
+    return this.prisma.guild.create({
+      data: { guildId, prefix: env.DISC_BOT_PREFIX, name },
+    })
   }
 }
