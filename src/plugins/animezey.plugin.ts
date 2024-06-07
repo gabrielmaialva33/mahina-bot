@@ -82,6 +82,7 @@ export class AnimezeyPlugin {
   }
 
   async searchAnime(query: string, pageToken?: string | null): Promise<SearchResponse | null> {
+    console.log('search api', query)
     return this.request('/0:search', 'POST', {
       q: query,
       page_token: pageToken || null,

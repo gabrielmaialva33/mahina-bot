@@ -72,6 +72,7 @@ export default class MSearch extends Command {
         search,
         nextPageToken
       )
+
       if (!response) return null
 
       const { data } = response
@@ -223,7 +224,7 @@ export default class MSearch extends Command {
         .setColor(client.color.red)
 
       return ctx.sendMessage({ embeds: [embed] })
-    } else if (totalItems <= 5) {
+    } else if (totalItems >= 5) {
       const message = await ctx.sendMessage({
         embeds: [initialEmbed],
         components: [initialRow, initialDownloadRow],
