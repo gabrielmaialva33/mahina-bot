@@ -67,6 +67,7 @@ export class BaseClient extends Client {
 
   readonly links = {
     img: 'https://telegra.ph/file/3d54575cc6b0bdc16095e.png',
+    live: 'https://telegra.ph/file/8733b86c68e3a169ad4e5.png',
   }
 
   constructor(options: ClientOptions) {

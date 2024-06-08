@@ -266,16 +266,11 @@ export default class MSearch extends Command {
             sanitizedFileName
           )
 
-          embed.setImage()
-          embed.setTitle(`**__Streaming Iniciado__**: ${file.name}`)
+          embed.setAuthor({ name: 'Live Stream', iconURL: this.client.links.live })
+          embed.setTitle(`${file.name}`)
           embed.setDescription(`O vídeo está sendo reproduzido`)
-          embed.setColor(client.color.green)
-          embed.setURL(client.animezey.BASE_URL + file.link)
-          embed.addFields({ name: 'Nome', value: file.name })
-          embed.addFields({
-            name: 'Link',
-            value: `[Download](${client.animezey.BASE_URL + file.link})`,
-          })
+          embed.setColor(client.color.red)
+
           embed.addFields({
             name: 'Tamanho',
             value: `${(Number.parseInt(file.size) / 1024 / 1024 / 1024).toFixed(2)} GB`,
@@ -283,6 +278,10 @@ export default class MSearch extends Command {
           embed.addFields({
             name: 'Data de Modificação',
             value: `${moment(file.modifiedTime).format('DD/MM/YYYY HH:mm:ss')}`,
+          })
+          embed.addFields({
+            name: 'Link',
+            value: `[Download](${client.animezey.BASE_URL + file.link})`,
           })
 
           await interaction.editReply({ embeds: [embed] })
