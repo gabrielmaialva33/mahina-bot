@@ -27,6 +27,7 @@ import { LexicaApi } from '#src/plugins/lexica.plugin'
 import ServerData from '#src/database/server.data'
 import { AnimezeyPlugin } from '#src/plugins/animezey.plugin'
 
+import loadPlugins from '#src/extensions/index'
 const dirname = path.dirname(fileURLToPath(import.meta.url))
 
 export class BaseClient extends Client {
@@ -47,6 +48,8 @@ export class BaseClient extends Client {
 
   selfClient: SelfClient
   movieFolder = path.join(process.cwd(), 'movies')
+
+  keepAlive = true
 
   readonly color = {
     red: 0xd78799,
@@ -79,7 +82,11 @@ export class BaseClient extends Client {
 
   async start(token: string): Promise<void> {
     this.loadCommands()
+    this.logger.info('Successfully loaded commands!')
     this.loadEvents()
+    this.logger.info('Successfully loaded events!')
+    await loadPlugins(this)
+    this.logger.info('Successfully loaded plugins!')
 
     await this.login(token)
 
