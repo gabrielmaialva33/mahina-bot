@@ -5921,10 +5921,10 @@ packages:
         integrity: sha512-3wdGidZyq5PB084XLES5TpOSRA3wjXAlIWMhum2kRcv/41Sn2emQ0dycQW4uZXLejwKvg6EsvbdlVL+FYEct7A==,
       }
 
-  yaml@2.4.3:
+  yaml@2.4.4:
     resolution:
       {
-        integrity: sha512-sntgmxj8o7DE7g/Qi60cqpLBA3HG3STcDA0kO+WfB05jEKhZMbY7umNm2rBpQvsmZ16/lPXCJGW2672dgOUkrg==,
+        integrity: sha512-wle6DEiBMLgJAdEPZ+E8BPFauoWbwPujfuGJJFErxYiU4txXItppe8YqeFPAaWnW5CxduQ995X6b5e1NqrmxtA==,
       }
     engines: { node: '>= 14' }
     hasBin: true
@@ -8781,7 +8781,7 @@ snapshots:
   postcss-load-config@4.0.2:
     dependencies:
       lilconfig: 3.1.1
-      yaml: 2.4.3
+      yaml: 2.4.4
 
   prebuild-install@7.1.2:
     dependencies:
@@ -9655,7 +9655,7 @@ snapshots:
   yallist@4.0.0:
     optional: true
 
-  yaml@2.4.3: {}
+  yaml@2.4.4: {}
 
   yauzl@2.10.0:
     dependencies:

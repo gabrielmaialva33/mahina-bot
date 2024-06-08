@@ -235,7 +235,10 @@ export default class MSearch extends Command {
       if (!message) return
 
       const filter = (i: any) => i.user.id === ctx.author!.id
-      const collector = message.createMessageComponentCollector({ filter, time: 60000 })
+      const collector = message.createMessageComponentCollector({
+        filter,
+        time: 100_000,
+      })
 
       let currentPageIndex = initialPageIndex
       let currentItemPageIndex = initialItemPageIndex
