@@ -6,10 +6,15 @@ import {
   ButtonStyle,
   EmbedBuilder,
 } from 'discord.js'
-import { SearchResponse } from '#src/plugins/animezey.plugin'
+import { FileResponse, SearchDataResponse, SearchResponse } from '#src/plugins/animezey.plugin'
 import moment from 'moment'
 
 import path from 'node:path'
+
+interface Cache {
+  pages: Array<SearchDataResponse>
+  nextPageTokens: string[]
+}
 
 export default class MSearch extends Command {
   constructor(client: BaseClient) {
@@ -54,18 +59,13 @@ export default class MSearch extends Command {
 
     const search = args.join(' ').trim()
 
-    const cache = {
-      pages: [] as Array<{ files: any[] }>,
-      nextPageTokens: [] as string[],
-    }
+    const cache: Cache = { pages: [], nextPageTokens: [] }
 
-    const numbersEmojis = ['1️⃣', '2️⃣', '3️⃣', '4️⃣', '5️⃣']
+    const emojiNumbers = ['1️⃣', '2️⃣', '3️⃣', '4️⃣', '5️⃣']
 
-    // try {
+    // function to fetch a page of search results
     const fetchPage = async (pageIndex: number) => {
-      if (cache.pages[pageIndex]) {
-        return cache.pages[pageIndex]
-      }
+      if (cache.pages[pageIndex]) return cache.pages[pageIndex]
 
       const nextPageToken = cache.nextPageTokens[pageIndex - 1] || null
       const response: SearchResponse | null = await client.animezey.searchAnime(
@@ -80,14 +80,16 @@ export default class MSearch extends Command {
         ...data,
         files: data.files.filter((file) => file.mimeType === 'video/x-matroska'),
       }
+
       cache.pages[pageIndex] = filteredData
       cache.nextPageTokens[pageIndex] = data.nextPageToken
+
       return filteredData
     }
 
-    // Function to create embed for a page
+    // function to create embed for a page
     const createEmbed = (
-      pageData: any[],
+      pageData: Array<FileResponse>,
       pageIndex: number,
       itemPageIndex: number,
       totalItems: number
@@ -104,12 +106,12 @@ export default class MSearch extends Command {
         .setDescription(
           paginatedData
             .map(
-              (anime, index) => `
-              **Número**: ${numbersEmojis[index]}
-              **Nome**: ${anime.name}
-              **Tamanho**: ${(Number.parseInt(anime.size) / 1024 / 1024 / 1024).toFixed(2)} GB
-              **Data de Modificação**: ${moment(anime.modifiedTime).format('DD/MM/YYYY HH:mm:ss')}
-              **Link**: [Download](${client.animezey.BASE_URL + anime.link})
+              (video, index) => `
+              **Número**: ${emojiNumbers[index]}
+              **Nome**: ${video.name}
+              **Tamanho**: ${(Number.parseInt(video.size) / 1024 / 1024 / 1024).toFixed(2)} GB
+              **Data de Modificação**: ${moment(video.modifiedTime).format('DD/MM/YYYY HH:mm:ss')}
+              **Link**: [Download](${client.animezey.BASE_URL + video.link})
               `
             )
             .join('\n\n')
@@ -123,7 +125,7 @@ export default class MSearch extends Command {
       return embed
     }
 
-    // Function to handle pagination with download buttons
+    // function to handle pagination with download buttons
     const handlePage = async (pageIndex: number, itemPageIndex: number, interaction: any) => {
       const pageData = await fetchPage(pageIndex)
       if (!pageData)
@@ -163,7 +165,7 @@ export default class MSearch extends Command {
         downloadRow.addComponents(
           new ButtonBuilder()
             .setCustomId(`download_${i + 1}`)
-            .setLabel(`Assistir ${numbersEmojis[i]}`)
+            .setLabel(`Assistir ${emojiNumbers[i]}`)
             .setStyle(ButtonStyle.Success)
         )
       }
@@ -212,7 +214,7 @@ export default class MSearch extends Command {
       initialDownloadRow.addComponents(
         new ButtonBuilder()
           .setCustomId(`download_${i + 1}`)
-          .setLabel(`Assistir ${numbersEmojis[i]}`)
+          .setLabel(`Assistir ${emojiNumbers[i]}`)
           .setStyle(ButtonStyle.Success)
       )
     }
@@ -243,9 +245,12 @@ export default class MSearch extends Command {
           const startIndex = currentItemPageIndex * 5
           const file = cache.pages[currentPageIndex].files[startIndex + downloadIndex]
 
-          await interaction.reply(
-            `Iniciando download: ${file.name} o vídeo será reproduzido em 30 segundos`
-          )
+          const embed = new EmbedBuilder()
+            .setTitle(`**__Download Iniciado__**: ${file.name}`)
+            .setDescription(`O vídeo será reproduzido em 30 segundos`)
+            .setColor(client.color.yellow)
+
+          await interaction.reply({ embeds: [embed] })
 
           this.client.animezey.download(file.name, file.link)
 
@@ -260,6 +265,27 @@ export default class MSearch extends Command {
             filePath,
             sanitizedFileName
           )
+
+          embed.setImage()
+          embed.setTitle(`**__Streaming Iniciado__**: ${file.name}`)
+          embed.setDescription(`O vídeo está sendo reproduzido`)
+          embed.setColor(client.color.green)
+          embed.setURL(client.animezey.BASE_URL + file.link)
+          embed.addFields({ name: 'Nome', value: file.name })
+          embed.addFields({
+            name: 'Link',
+            value: `[Download](${client.animezey.BASE_URL + file.link})`,
+          })
+          embed.addFields({
+            name: 'Tamanho',
+            value: `${(Number.parseInt(file.size) / 1024 / 1024 / 1024).toFixed(2)} GB`,
+          })
+          embed.addFields({
+            name: 'Data de Modificação',
+            value: `${moment(file.modifiedTime).format('DD/MM/YYYY HH:mm:ss')}`,
+          })
+
+          await interaction.editReply({ embeds: [embed] })
         } else {
           if (interaction.customId === 'prevPage') {
             currentPageIndex--
@@ -272,12 +298,18 @@ export default class MSearch extends Command {
           } else if (interaction.customId === 'nextItemPage') {
             currentItemPageIndex++
           }
+
           await handlePage(currentPageIndex, currentItemPageIndex, interaction)
         }
       })
 
       collector.on('end', async () => {
-        await message.edit({ components: [] })
+        const embed = new EmbedBuilder()
+          .setTitle('**__Pesquisa Encerrada__**')
+          .setDescription('A pesquisa foi encerrada')
+          .setColor(client.color.red)
+
+        await message.edit({ components: [], embeds: [embed] })
       })
     }
   }

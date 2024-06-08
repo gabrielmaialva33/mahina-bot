@@ -10,14 +10,19 @@ export interface SearchResponse {
 
 export interface SearchDataResponse {
   nextPageToken: string
-  files: Array<{
-    mimeType: string
-    name: string
-    modifiedTime: string
-    id: string
-    driveId: string
-    link: string
-  }>
+  files: Array<FileResponse>
+}
+
+export interface FileResponse {
+  kind: string
+  fileExtension: string
+  size: string
+  name: string
+  modifiedTime: string
+  id: string
+  driveId: string
+  mimeType: string
+  link: string
 }
 
 export class AnimezeyPlugin {
@@ -83,6 +88,14 @@ export class AnimezeyPlugin {
 
   async searchAnime(query: string, pageToken?: string | null): Promise<SearchResponse | null> {
     return this.request('/0:search', 'POST', {
+      q: query,
+      page_token: pageToken || null,
+      page_index: 0,
+    })
+  }
+
+  async searchMovie(query: string, pageToken?: string | null): Promise<SearchResponse | null> {
+    return this.request('/1:search', 'POST', {
       q: query,
       page_token: pageToken || null,
       page_index: 0,
