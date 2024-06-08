@@ -65,8 +65,8 @@ importers:
         specifier: ^3.1.4
         version: 3.1.4(knex@3.1.0(better-sqlite3@11.0.0))
       openai:
-        specifier: ^4.49.0
-        version: 4.49.0
+        specifier: ^4.49.1
+        version: 4.49.1
       opusscript:
         specifier: ^0.1.1
         version: 0.1.1
@@ -4255,10 +4255,10 @@ packages:
       }
     engines: { node: '>=6' }
 
-  openai@4.49.0:
+  openai@4.49.1:
     resolution:
       {
-        integrity: sha512-/UkrBSej5ejZ4vnOFoeFefX7erjp4k3+xoLKkswjLEvgBU9QtCnOUgsfpvHkzTzgDXpqPMCzyQHQXWsgiq2xPw==,
+        integrity: sha512-bsFSNhhTNon+g6r4UYPKGLi+PlfP1G9TJGSkZS5nZx+PTwW2YUTlfxXxpOKrPab5auIXJdlYpC/g/wkHGR1xug==,
       }
     hasBin: true
 
@@ -8623,7 +8623,7 @@ snapshots:
     dependencies:
       mimic-fn: 2.1.0
 
-  openai@4.49.0:
+  openai@4.49.1:
     dependencies:
       '@types/node': 18.19.34
       '@types/node-fetch': 2.6.11

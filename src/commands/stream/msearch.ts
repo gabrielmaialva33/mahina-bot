@@ -260,7 +260,7 @@ export default class MSearch extends Command {
           const sanitizedFileName = file.name.replace(/[\/\?<>\\:\*\|":]/g, '_')
           const filePath = path.join(process.cwd(), 'movies', sanitizedFileName)
 
-          await this.client.selfClient.moviePlay(
+          await this.client.selfClient.playVideo(
             ctx.member,
             ctx.guild!.id,
             filePath,
