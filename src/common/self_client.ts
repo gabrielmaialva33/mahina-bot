@@ -6,6 +6,8 @@ import { ActivityOptions, Client, CustomStatus, StageChannel } from 'discord.js-
 
 import {
   command,
+  getInputMetadata,
+  inputHasAudio,
   MediaUdp,
   Streamer,
   streamLivestreamVideo,
@@ -54,7 +56,8 @@ export class SelfClient extends Client {
     this.streamer.client.on('ready', () => {
       this.baseClient.logger.info(`Self bot is ready`)
 
-      this.streamer.client.user!.setActivity(this.statusIdle() as unknown as ActivityOptions)
+      if (this.streamer.client.user)
+        this.streamer.client.user.setActivity(this.statusIdle() as unknown as ActivityOptions)
     })
 
     this.streamer.client.on('voiceStateUpdate', (oldState, newState) => {
@@ -90,7 +93,7 @@ export class SelfClient extends Client {
     })
   }
 
-  async moviePlay(member: any, guildId: string, link: string, name: string = '') {
+  async playVideo(member: any, guildId: string, link: string, name: string = '') {
     await this.streamer.joinVoice(guildId, member.voice.channelId)
 
     this.streamStatus.joined = true
@@ -109,23 +112,24 @@ export class SelfClient extends Client {
     const streamLinkUdpConn = await this.streamer.createStream({
       width: 1280,
       height: 720,
+      //hardwareAcceleratedDecoding: true,
       //h26xPreset: 'faster',
     })
 
-    this.playVideo(link, streamLinkUdpConn)
+    this.playStream(link, streamLinkUdpConn)
     this.streamer.client.user?.setActivity(this.statusWatch(name) as unknown as ActivityOptions)
   }
 
-  async playVideo(video: string, udpConn: MediaUdp) {
+  async playStream(video: string, udpConn: MediaUdp) {
     let includeAudio = true
 
-    // try {
-    //   const metadata = await getInputMetadata(video)
-    //   includeAudio = inputHasAudio(metadata)
-    // } catch (e) {
-    //   this.baseClient.logger.error(e)
-    //   return
-    // }
+    try {
+      const metadata = await getInputMetadata(video)
+      includeAudio = inputHasAudio(metadata)
+    } catch (e) {
+      this.baseClient.logger.error(e)
+      return
+    }
 
     this.baseClient.logger.info(`Starting video stream`)
 
@@ -134,9 +138,9 @@ export class SelfClient extends Client {
 
     try {
       const res = await streamLivestreamVideo(video, udpConn, includeAudio)
-      this.baseClient.logger.info(`Playing video: ${res}`)
+      this.baseClient.logger.info(`playing video: ${res}`)
     } catch (e) {
-      this.baseClient.logger.error(`Error playing video: ${e}`)
+      this.baseClient.logger.error(`error playing video: ${e}`)
     } finally {
       udpConn.mediaConnection.setSpeaking(false)
       udpConn.mediaConnection.setVideoStatus(false)
@@ -311,7 +315,7 @@ export class SelfClient extends Client {
 
       const streamLinkUdpConn = await this.streamer.createStream()
 
-      this.playVideo(ytUrl, streamLinkUdpConn)
+      this.playStream(ytUrl, streamLinkUdpConn)
       this.streamer.client.user?.setActivity(this.statusWatch('') as unknown as ActivityOptions)
     }
   }
