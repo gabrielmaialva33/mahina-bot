@@ -35,7 +35,7 @@ export default class MResume extends Command {
     if (this.client.selfClient.streamStatus.playing)
       return ctx.sendMessage('𝙊 𝙛𝙞𝙡𝙢𝙚 𝙟𝙖́ 𝙚𝙨𝙩𝙖́ 𝙖𝙘𝙩𝙞𝙫𝙤.')
 
-    this.client.selfClient.streamer.resumeStream()
+    //this.client.selfClient.streamer.resumeStream()
 
     this.client.selfClient.streamStatus.playing = true
 
