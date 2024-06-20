@@ -83,6 +83,20 @@ export class Context {
     }
   }
 
+  async sendReply(content: any): Promise<Message | void> {
+    if (this.isInteraction) {
+      if (this.interaction) {
+        this.msg = await this.interaction.reply(content)
+        return this.msg
+      }
+    } else {
+      if (this.message) {
+        this.msg = await this.message.reply(content)
+        return this.msg
+      }
+    }
+  }
+
   async editMessage(content: any) {
     if (this.isInteraction) {
       if (this.msg) {
