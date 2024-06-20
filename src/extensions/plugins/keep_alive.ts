@@ -14,8 +14,11 @@ const KeepAlive: BotPlugin = {
         res.end(`I'm alive! Currently serving ${client.guilds.cache.size} guilds.`)
       })
 
-      server.listen(3333, () => {
-        client.logger.info('Keep-Alive server is running on port 3333')
+      // generate a random port to avoid conflicts
+      const randomPort = Math.floor(Math.random() * (65535 - 49152 + 1)) + 49152
+
+      server.listen(randomPort, () => {
+        client.logger.info(`KeepAlive server is running on port ${randomPort}`)
       })
     }
   },
