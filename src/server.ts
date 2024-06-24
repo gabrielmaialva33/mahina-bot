@@ -318,11 +318,13 @@ async function ffmpegScreenshot(video: string) {
         return
       }
       console.log(`Taking screenshot ${i + 1} of ${video} at ${ts[i]}`)
+
       ffmpeg(`${movieFolder}/${video}`)
+        // @ts-ignore
         .on('end', () => {
           takeOne(i + 1)
         })
-        .on('error', (err) => {
+        .on('error', (err: any) => {
           ffmpegRunning[video] = false
           reject(err)
         })

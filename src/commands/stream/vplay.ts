@@ -48,7 +48,6 @@ export default class VPlay extends Command {
 
     // check query if it's a valid url
     const validUrl = ytdl.validateURL(query)
-    console.log(`validUrl`, validUrl)
     if (!validUrl) return ctx.sendMessage('𝙊 𝙡𝙞𝙣𝙠 𝙣𝙖̃𝙤 𝙚́ 𝙫𝙖́𝙡𝙞𝙙𝙤.')
 
     // message.member && message.member.voice.channelId && message.guildId
