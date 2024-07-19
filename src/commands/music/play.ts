@@ -46,6 +46,7 @@ export default class Play extends Command {
     const query = args.join(' ')
     if (!ctx.guild) return
 
+    await ctx.sendDeferMessage('🔍 𝘽𝙪𝙨𝙘𝙖𝙣𝙙𝙤 𝙢𝙪́𝙨𝙞𝙘𝙖...')
     let player = client.queue.get(ctx.guild.id)
     const vc = ctx.member as any
     if (!player) player = await client.queue.create(ctx.guild, vc.voice.channel, ctx.channel)
