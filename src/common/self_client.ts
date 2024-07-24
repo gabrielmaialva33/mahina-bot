@@ -123,13 +123,13 @@ export class SelfClient extends Client {
   async playStream(video: string, udpConn: MediaUdp) {
     let includeAudio = true
 
-    try {
-      const metadata = await getInputMetadata(video)
-      includeAudio = inputHasAudio(metadata)
-    } catch (e) {
-      this.baseClient.logger.error(e)
-      return
-    }
+    // try {
+    //   const metadata = await getInputMetadata(video)
+    //   includeAudio = inputHasAudio(metadata)
+    // } catch (e) {
+    //   this.baseClient.logger.error(e)
+    //   return
+    // }
 
     this.baseClient.logger.info(`Starting video stream`)
 
@@ -137,6 +137,7 @@ export class SelfClient extends Client {
     udpConn.mediaConnection.setVideoStatus(true)
 
     try {
+      console.log('streamLivestreamVideo', video, udpConn, includeAudio)
       const res = await streamLivestreamVideo(video, udpConn, includeAudio)
       this.baseClient.logger.info(`playing video: ${res}`)
     } catch (e) {
