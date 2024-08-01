@@ -1,23 +1,25 @@
 server: # REST and WS server
   port: 2333 # The port that the server listens on
   address: 0.0.0.0
+  http2:
+    enabled: false # Whether to enable HTTP/2 support
 plugins:
   youtube:
     enabled: true # Whether this source can be used.
     allowSearch: true # Whether "ytsearch:" and "ytmsearch:" can be used.
     allowDirectVideoIds: true # Whether just video IDs can match. If false, only complete URLs will be loaded.
     allowDirectPlaylistIds: true # Whether just playlist IDs can match. If false, only complete URLs will be loaded.
-    countryCode: 'US' # the country code you want to use for searching lyrics via ISRC. See https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2
     # The clients to use for track loading. See below for a list of valid clients.
-    # Clients are queried in the order they are given (left-to-right)
-    clients: ['MUSIC', 'ANDROID', 'WEB', 'TVHTML5EMBEDDED']
-    WEB:
-      playback: false
-    TVHTML5EMBEDDED:
-      # The below config disables everything except playback for this client.
-      playlistLoading: false # Disables loading of playlists and mixes for this client.
-      videoLoading: false # Disables loading of videos for this client (playback is still allowed).
-      searching: false # Disables the ability to search for videos for this client.
+    # Clients are queried in the order they are given (so the first client is queried first and so on...)
+    clients:
+      - MUSIC
+      - WEB
+      - ANDROID_TESTSUITE
+      - ANDROID_MUSIC
+      - TVHTML5EMBEDDED
+      - ANDROID_LITE
+      - MEDIA_CONNECT
+      - IOS
   lavasrc:
     providers: # Custom providers for track loading. This is the default
       - 'ytsearch:"%ISRC%"'
@@ -37,6 +39,12 @@ plugins:
       deezer: false # Enable Deezer source
       yandexmusic: false # Enable Yandex Music source
       flowerytts: true # Enable Flowery TTs source
+      youtube: true # Enable YouTube search source (https://github.com/topi314/LavaSearch)
+    lyrics-sources:
+      spotify: false # Enable Spotify lyrics source
+      deezer: false # Enable Deezer lyrics source
+      youtube: false # Enable YouTube lyrics source
+      yandexmusic: false # Enable Yandex Music lyrics source
     spotify:
       clientId: '530a978df3084f8b916e3f512a8c8bb1'
       clientSecret: '8a82bc47253a43beac406e0618297132'
@@ -44,23 +52,29 @@ plugins:
       countryCode: 'US' # the country code you want to use for filtering the artists top tracks. See https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2
       playlistLoadLimit: 6 # The number of pages at 100 tracks each
       albumLoadLimit: 6 # The number of pages at 50 tracks each
+      localFiles: false # Enable local files support with Spotify playlists. Please note `uri` & `iscr` will be `null` & `identifier` will be `"local"`
     applemusic:
       countryCode: 'US' # the country code you want to use for filtering the artists top tracks and language. See https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2
-      mediaAPIToken: 'eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6IldlYlBsYXlLaWQifQ.eyJpc3MiOiJBTVBXZWJQbGF5IiwiaWF0IjoxNzEwNzg0MTQxLCJleHAiOjE3MTgwNDE3NDEsInJvb3RfaHR0cHNfb3JpZ2luIjpbImFwcGxlLmNvbSJdfQ.7VbsddF5LyEdvyjVK92TUZ4f9_UyM2He0jvL28YkgpKZIbyHhIJWkkKtd44g5mJwwt63cBoboDZ7kFGGhabb1Q' # apple music api token
+      mediaAPIToken: 'eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6IldlYlBsYXlLaWQifQ.eyJpc3MiOiJBTVBXZWJQbGF5IiwiaWF0IjoxNzIxNzczNjI0LCJleHAiOjE3MjkwMzEyMjQsInJvb3RfaHR0cHNfb3JpZ2luIjpbImFwcGxlLmNvbSJdfQ.cMMhHLLazlxgiIbwBSSP1YuHCgqAVxiF7UQrwBc5xZepWt-vjqth_o4BidXFrmsEJvwzZKJ-GAMbqJpIeGcl7w' # apple music api token
       playlistLoadLimit: 6 # The number of pages at 300 tracks each
       albumLoadLimit: 6 # The number of pages at 300 tracks each
     deezer:
       masterDecryptionKey: '' # the master key used for decrypting the deezer tracks. (yes this is not here you need to get it from somewhere else)
     yandexmusic:
       accessToken: '' # the token used for accessing the yandex music api. See https://github.com/TopiSenpai/LavaSrc#yandex-music
+      playlistLoadLimit: 1 # The number of pages at 100 tracks each
+      albumLoadLimit: 1 # The number of pages at 50 tracks each
+      artistLoadLimit: 1 # The number of pages at 10 tracks each
     flowerytts:
       voice: 'default voice' # (case-sensitive) get default voice here https://flowery.pw/docs/flowery/tts-voices-v-1-tts-voices-get
       translate: false # whether to translate the text to the native language of voice
       silence: 0 # the silence parameter is in milliseconds. Range is 0 to 10000. The default is 0.
       speed: 1.0 # the speed parameter is a float between 0.5 and 10. The default is 1.0. (0.5 is half speed, 2.0 is double speed, etc.)
       audioFormat: 'mp3' # supported formats are: mp3, ogg_opus, ogg_vorbis, aac, wav, and flac. Default format is mp3
+    youtube:
+      countryCode: "US" # the country code you want to use for searching lyrics via ISRC. See https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2
   dunctebot:
-    ttsLanguage: 'en-AU' # language of the TTS engine
+    ttsLanguage: 'en-US' # language of the TTS engine
     sources:
       # true = source enabled, false = source disabled
       getyarn: true # www.getyarn.io
@@ -72,19 +86,22 @@ plugins:
       tiktok: true # tiktok.com
       mixcloud: true # mixcloud.com
       soundgasm: true # soundgasm.net
+  jiosaavn:
+    apiURL: "https://saavn.dev/api" # The API URL for JioSaavn
 lavalink:
   plugins:
-    - dependency: 'com.github.topi314.lavasrc:lavasrc-plugin:4.1.1'
+    - dependency: "com.github.appujet:jiosaavn-plugin:v0.1.6"
+      repository: "https://jitpack.io"
+    - dependency: "com.dunctebot:skybot-lavalink-plugin:1.7.0"
       snapshot: false # set to true if you want to use snapshot builds.
-    - dependency: 'com.github.topi314.lavasearch:lavasearch-plugin:1.0.0'
+    - dependency: "com.github.topi314.lavasearch:lavasearch-plugin:1.0.0"
+      snapshot: false # set to true if you want to use snapshot builds (see below)
+    - dependency: "com.github.topi314.lavasrc:lavasrc-plugin:4.2.0"
       snapshot: false # set to true if you want to use snapshot builds.
-    - dependency: 'com.github.topi314.sponsorblock:sponsorblock-plugin:3.0.0'
+    - dependency: "com.github.topi314.sponsorblock:sponsorblock-plugin:3.0.1"
       snapshot: false # set to true if you want to use snapshot builds.
-    - dependency: 'com.dunctebot:skybot-lavalink-plugin:1.7.0'
+    - dependency: "dev.lavalink.youtube:youtube-plugin:1.5.0"
       snapshot: false # set to true if you want to use snapshot builds.
-    - dependency: 'dev.lavalink.youtube:youtube-plugin:f22d382b7caed0068cbb79eb4cd87ff92e9b3486'
-      snapshot: true # set to true if you want to use snapshot builds.
-
   pluginsDir: './plugins'
   server:
     password: 'Mahina@551238'
@@ -95,6 +112,8 @@ lavalink:
       soundcloud: true
       twitch: true
       vimeo: true
+      mixer: true
+      nico: true
       http: true
       local: false
     filters: # All filters are enabled by default
