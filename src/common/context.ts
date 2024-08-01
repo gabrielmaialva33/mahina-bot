@@ -7,7 +7,9 @@ import {
   GuildMember,
   GuildMemberResolvable,
   GuildTextBasedChannel,
+  InteractionReplyOptions,
   Message,
+  MessagePayload,
   PartialDMChannel,
   TextChannel,
   User,
@@ -72,8 +74,12 @@ export class Context {
   async sendMessage(content: any): Promise<Message | void> {
     if (this.isInteraction) {
       if (this.interaction) {
-        this.msg = this.interaction.reply(content)
-        return this.msg
+        if (this.interaction.deferred) {
+          this.msg = await this.interaction.editReply(content)
+        } else {
+          this.msg = this.interaction.reply(content)
+          return this.msg
+        }
       }
     } else {
       if (this.message) {
@@ -130,4 +136,12 @@ export class Context {
       if (this.interaction) await this.interaction.followUp(content)
       else if (this.message) this.msg = await (this.message.channel as TextChannel).send(content)
   }
+}
+
+function isInteractionReplyOptions(content: any): content is InteractionReplyOptions {
+  return content instanceof Object
+}
+
+function isMessagePayload(content: any): content is MessagePayload {
+  return content instanceof Object
 }

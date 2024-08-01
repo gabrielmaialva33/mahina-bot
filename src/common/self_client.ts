@@ -46,8 +46,10 @@ export class SelfClient extends Client {
     this.command = command
   }
 
+  // @ts-ignore
   statusIdle = () => new CustomStatus().setState(`𝘾𝙡𝙪𝙗𝙚 𝘽𝙖𝙠𝙠𝙤 🍷`).setEmoji('🎥')
 
+  // @ts-ignore
   statusWatch = (name: string) => new CustomStatus().setState(`𝙑𝙚𝙣𝙙𝙤 ${name}`).setEmoji('🎥')
 
   async start(token: string): Promise<void> {
@@ -171,6 +173,7 @@ export class SelfClient extends Client {
     let progressbarHandle: string | number | NodeJS.Timeout | null | undefined = null
     const progressbarInterval = 1000
     const showProgress = () => {
+      // @ts-ignore
       readline.cursorTo(process.stdout, 0)
       const toMB = (i: number) => (i / 1024 / 1024).toFixed(2)
 
@@ -196,6 +199,7 @@ export class SelfClient extends Client {
       process.stdout.write(
         `running for: ${((Date.now() - tracker.start) / 1000 / 60).toFixed(2)} Minutes.`
       )
+      // @ts-ignore
       readline.moveCursor(process.stdout, 0, -3)
 
       // send progress to discord

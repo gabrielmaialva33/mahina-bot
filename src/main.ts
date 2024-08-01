@@ -1,3 +1,4 @@
+import 'source-map-support/register.js'
 import { ShardingManager } from 'discord.js'
 
 import { env } from '#src/env'

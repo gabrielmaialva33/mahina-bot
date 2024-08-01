@@ -1,7 +1,8 @@
-import { Node, Player, Track } from 'shoukaku'
+import { LoadType, Node, Player, Track } from 'shoukaku'
 import { Message, User } from 'discord.js'
 
 import { BaseClient } from '#common/base_client'
+import { SearchEngine } from '#src/types'
 
 export class Song implements Track {
   encoded: string
@@ -32,14 +33,22 @@ export class Song implements Track {
   }
 }
 
+export interface DispatcherOptions {
+  client: BaseClient
+  guildId: string
+  channelId: string
+  player: Player
+  node: Node
+}
+
 export class Dispatcher {
   guildId: string
   channelId: string
   player: Player
   queue: Song[]
   stopped: boolean
-  previous: Song | null
-  current: Song | null
+  previous: Song | null | undefined
+  current: Song | null | undefined
   loop: 'off' | 'repeat' | 'queue'
   requestedBy: User
   repeat: number
@@ -60,7 +69,7 @@ export class Dispatcher {
     this.queue = []
     this.stopped = false
     this.previous = null
-    this.current = null
+    this.current = undefined
     this.loop = 'off'
     this.repeat = 0
     this.node = options.node
@@ -91,103 +100,80 @@ export class Dispatcher {
     return this.player.volume
   }
 
-  async play(): Promise<void> {
-    if (!this.exists || (!this.queue.length && !this.current)) return
-
-    // @ts-ignore
-    this.current = this.queue.length !== 0 ? this.queue.shift() : this.queue[0]
-    if (!this.current) return
-
-    this.player.playTrack({ track: this.current?.encoded })
+  play() {
+    if (!(this.exists && (this.queue.length || this.current))) return
+    this.current = this.queue.length ? this.queue.shift() : this.queue[0]
     if (this.current) {
+      this.player.playTrack({ track: { encoded: this.current.encoded } })
       this.history.push(this.current)
-      if (this.history.length > 100) {
-        this.history.shift()
-      }
+      if (this.history.length > 100) this.history.shift()
     }
   }
 
   pause(): void {
-    if (!this.player) return
-    if (!this.paused) {
-      this.player.setPaused(true)
-      this.paused = true
-    } else {
-      this.player.setPaused(false)
-      this.paused = false
+    if (this.player) {
+      this.paused = !this.paused
+      this.player.setPaused(this.paused)
     }
   }
 
   remove(index: number): void {
-    if (!this.player) return
-    if (index > this.queue.length) return
-    this.queue.splice(index, 1)
+    if (this.player && index <= this.queue.length) this.queue.splice(index, 1)
   }
 
   previousTrack(): void {
-    if (!this.player) return
-    if (!this.previous) return
-    this.queue.unshift(this.previous)
-    this.player.stopTrack()
+    if (this.player && this.previous) {
+      this.queue.unshift(this.previous)
+      this.player.stopTrack()
+    }
   }
 
   destroy(): void {
     this.queue.length = 0
     this.history = []
     this.client.shoukaku.leaveVoiceChannel(this.guildId)
+    this.player.destroy()
     this.client.queue.delete(this.guildId)
-    if (this.stopped) return
-    this.client.shoukaku.emit('playerDestroy', this.player)
-  }
-
-  setShuffle(shuffle: boolean): void {
-    if (!this.player) return
-    this.shuffle = shuffle
-    if (shuffle) {
-      const current = this.queue.shift()
-      if (!current) return
-
-      this.queue = this.queue.sort(() => Math.random() - 0.5)
-      this.queue.unshift(current)
-    } else {
-      const current = this.queue.shift()
-      if (!current) return
-
-      this.queue = this.queue.sort((a: any, b: any) => a - b)
-      this.queue.unshift(current)
+    if (!this.stopped) {
+      this.client.shoukaku.emit('playerDestroy', this.player)
     }
   }
 
-  async skip(skipTo = 1): Promise<void> {
-    if (!this.player) return
-    if (skipTo > 1) {
-      if (skipTo > this.queue.length) {
-        this.queue.length = 0
-      } else {
-        this.queue.splice(0, skipTo - 1)
+  setShuffle(): void {
+    if (this.player) {
+      for (let i = this.queue.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1))
+        ;[this.queue[i], this.queue[j]] = [this.queue[j], this.queue[i]]
       }
     }
-    this.repeat = this.repeat === 1 ? 0 : this.repeat
-    this.player.stopTrack()
+  }
+
+  skip(skipTo = 1): void {
+    if (this.player) {
+      if (skipTo > this.queue.length) this.queue.length = 0
+      else this.queue.splice(0, skipTo - 1)
+      this.repeat = this.repeat === 1 ? 0 : this.repeat
+      this.player.stopTrack()
+    }
   }
 
   seek(time: number): void {
-    if (!this.player) return
-    this.player.seekTo(time)
+    if (this.player) this.player.seekTo(time)
   }
 
   stop(): void {
-    if (!this.player) return
-    this.queue.length = 0
-    this.history = []
-    this.loop = 'off'
-    this.autoplay = false
-    this.repeat = 0
-    this.stopped = true
-    this.player.stopTrack()
+    if (this.player) {
+      this.queue.length = 0
+      this.history = []
+      this.loop = 'off'
+      this.autoplay = false
+      this.repeat = 0
+      this.stopped = true
+      this.player.stopTrack()
+    }
   }
 
-  setLoop(loop: any): void {
+  setLoop(loop: 'off' | 'repeat' | 'queue'): void {
     this.loop = loop
   }
 
@@ -196,57 +182,122 @@ export class Dispatcher {
   }
 
   async isPlaying(): Promise<void> {
-    if (this.queue.length && !this.current && !this.player.paused) {
-      this.play()
-    }
+    if (this.queue.length && !this.current && !this.player.paused) await this.play()
   }
 
   async Autoplay(song: Song): Promise<void> {
-    const resolve = await this.node.rest.resolve(
-      `${this.client.env.SEARCH_ENGINE}:${song.info.author}`
-    )
-    if (!resolve || !resolve?.data || !Array.isArray(resolve.data)) return this.destroy()
+    if (!song?.info) return
 
-    const metadata = resolve.data as Array<any> as any
+    try {
+      const node = this.client.shoukaku.options.nodeResolver(this.client.shoukaku.nodes)
+      if (!node) return
+      switch (song.info.sourceName) {
+        case 'youtube': {
+          const resolve = await node.rest.resolve(
+            `${SearchEngine.YouTubeMusic}:${song.info.author}`
+          )
+          this.addAutoplayTrack(resolve)
+          break
+        }
+        case 'soundcloud':
+          await node.rest.resolve(`${SearchEngine.SoundCloud}:${song.info.author}`)
+          break
+        case 'spotify': {
+          // need lavaSrc plugin in lavalink
+          const data = await node.rest.resolve(`sprec:seed_tracks=${song.info.identifier}`)
+          if (!data) return
+          if (data.loadType === LoadType.PLAYLIST) {
+            const tracks = data.data.tracks
+            const trackUrl = tracks[Math.floor(Math.random() * tracks.length)]?.info?.uri
+            if (!trackUrl) return
+            const resolve = await node.rest.resolve(trackUrl)
+            if (!resolve) return
+            if (resolve.loadType === LoadType.TRACK) {
+              const s = new Song(resolve.data, this.client.user!)
+              this.queue.push(s)
+              return this.isPlaying()
+            }
+          }
+          break
+        }
+        // need jiosaavn plugin in lavalink (https://github.com/appujet/jiosaavn-plugin)
+        case 'jiosaavn': {
+          const data = await node.rest.resolve(`jsrec:${song.info.identifier}`)
+          if (!data) return
+          if (data.loadType === LoadType.PLAYLIST) {
+            const tracks = data.data.tracks
+            const trackUrl = tracks[Math.floor(Math.random() * tracks.length)]?.info?.uri
+            if (!trackUrl) return
+            const resolve = await node.rest.resolve(trackUrl)
+            if (!resolve) return
+            if (resolve.loadType === LoadType.TRACK) {
+              const s = new Song(resolve.data, this.client.user!)
+              this.queue.push(s)
+              return this.isPlaying()
+            }
+          }
+          break
+        }
+        case 'deezer': {
+          const resolve = await node.rest.resolve(`${SearchEngine.Deezer}:${song.info.author}`)
+          this.addAutoplayTrack(resolve)
+          break
+        }
+        case 'applemusic': {
+          const resolve = await node.rest.resolve(`${SearchEngine.Apple}:${song.info.author}`)
+          this.addAutoplayTrack(resolve)
+          break
+        }
+        default: {
+          const resolve = await node.rest.resolve(
+            `${SearchEngine.YouTubeMusic}:${song.info.author}`
+          )
+          this.addAutoplayTrack(resolve)
+          break
+        }
+      }
+    } catch (_error) {
+      return this.destroy()
+    }
+  }
+  private addAutoplayTrack(resolve: any) {
+    if (!(resolve?.data && Array.isArray(resolve.data))) {
+      console.error('Failed to fetch node resolve data.')
+      return this.destroy()
+    }
+
     let choosed: Song | null = null
-    const maxAttempts = 10 // Maximum number of attempts to find a unique song
+    const maxAttempts = 10
     let attempts = 0
-    while (attempts < maxAttempts) {
-      if (!this.client.user)
-        throw new Error('The bot user is not available, cannot play the next song')
 
-      const potentialChoice = this.buildTrack(
+    const metadata = resolve.data as any[] as any
+
+    while (attempts < maxAttempts) {
+      const potentialChoice = new Song(
         metadata[Math.floor(Math.random() * metadata.length)],
-        this.client.user
+        this.client.user!
       )
       if (
-        !this.queue.some((s) => s.encoded === potentialChoice.encoded) &&
-        !this.history.some((s) => s.encoded === potentialChoice.encoded)
+        !(
+          this.queue.some((s) => s.encoded === potentialChoice.encoded) ||
+          this.history.some((s) => s.encoded === potentialChoice.encoded)
+        )
       ) {
         choosed = potentialChoice
         break
       }
       attempts++
     }
+
     if (choosed) {
       this.queue.push(choosed)
-      return await this.isPlaying()
+      return this.isPlaying()
     }
-    return this.destroy()
   }
-
   async setAutoplay(autoplay: boolean): Promise<void> {
     this.autoplay = autoplay
     if (autoplay) {
-      this.Autoplay(this.current ? this.current : this.queue[0])
+      await this.Autoplay(this.current || this.queue[0])
     }
   }
-}
-
-export interface DispatcherOptions {
-  client: BaseClient
-  guildId: string
-  channelId: string
-  player: Player
-  node: Node
 }
