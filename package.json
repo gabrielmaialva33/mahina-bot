@@ -1,6 +1,6 @@
 {
   "name": "mahina-bot",
-  "version": "2.0.4",
+  "version": "2.0.5",
   "description": "A simple discord bot to play videos on voice channels",
   "keywords": [
     "typescript",
@@ -15,7 +15,7 @@
     "url": "https://github.com/gabrielmaialva33/mahina-bot.git"
   },
   "engines": {
-    "node": ">=20.14.0"
+    "node": ">=20.16.0"
   },
   "private": true,
   "type": "module",
@@ -78,9 +78,9 @@
   "dependencies": {
     "@gabrielmaialva33/discord-video-stream": "1.1.5",
     "@gabrielmaialva33/fluent-ffmpeg-multistream-ts": "^0.0.4",
-    "@prisma/client": "^5.17.0",
-    "@swc/core": "^1.7.1",
-    "axios": "^1.7.2",
+    "@prisma/client": "^5.18.0",
+    "@swc/core": "^1.7.6",
+    "axios": "^1.7.3",
     "better-sqlite3": "^11.1.2",
     "discord.js": "^14.15.3",
     "discord.js-selfbot-v13": "^3.3.0",
@@ -91,11 +91,11 @@
     "ffmpeg-static": "^5.2.0",
     "fluent-ffmpeg": "^2.1.3",
     "knex": "^3.1.0",
-    "luxon": "^3.4.4",
+    "luxon": "^3.5.0",
     "moment": "^2.30.1",
     "multer": "1.4.5-lts.1",
     "objection": "^3.1.4",
-    "openai": "^4.53.0",
+    "openai": "^4.55.1",
     "opusscript": "^0.1.1",
     "play-dl": "^1.9.7",
     "prism-media": "^1.3.5",
@@ -109,18 +109,18 @@
     "@adonisjs/tsconfig": "^1.3.0",
     "@types/download": "^8.0.5",
     "@types/express": "^4.17.21",
-    "@types/fluent-ffmpeg": "^2.1.24",
+    "@types/fluent-ffmpeg": "^2.1.25",
     "@types/luxon": "^3.4.2",
     "@types/multer": "^1.4.11",
-    "@types/node": "^20.14.12",
+    "@types/node": "^22.1.0",
     "@types/signale": "^1.4.7",
     "eslint": "^8.57.0",
     "nodemon": "^3.1.4",
     "openapi-types": "^12.1.3",
     "prettier": "^3.3.3",
-    "prisma": "^5.17.0",
+    "prisma": "^5.18.0",
     "rimraf": "^6.0.1",
-    "tsup": "^8.2.2",
+    "tsup": "^8.2.4",
     "typescript": "^5.5.4"
   }
 }
