@@ -157,7 +157,10 @@ export default class SetupButtons extends Event {
           break
         case 'LOOP_BUT': {
           const random = ['off', 'queue', 'repeat']
-          const loop = random[Math.floor(Math.random() * random.length)]
+          const loop = random[Math.floor(Math.random() * random.length)] as
+            | 'off'
+            | 'queue'
+            | 'repeat'
           if (player.loop === loop)
             return await buttonReply(
               interaction,
@@ -181,7 +184,7 @@ export default class SetupButtons extends Event {
           break
         }
         case 'SHUFFLE_BUT':
-          player.setShuffle(!player.shuffle)
+          player.setShuffle()
           await buttonReply(
             interaction,
             `𝘼𝙡𝙚𝙖𝙩𝙤́𝙧𝙞𝙤 𝙙𝙚𝙛𝙞𝙣𝙞𝙙𝙤 𝙘𝙤𝙢𝙤 ${player.shuffle ? `𝙖𝙩𝙞𝙫𝙚` : `𝙙𝙚𝙨𝙖𝙩𝙞𝙫𝙖𝙙𝙚`}.`,
