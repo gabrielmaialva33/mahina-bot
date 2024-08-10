@@ -99,7 +99,7 @@
     "opusscript": "^0.1.1",
     "play-dl": "^1.9.7",
     "prism-media": "^1.3.5",
-    "shoukaku": "github:shipgirlproject/Shoukaku",
+    "shoukaku": "^4.0.1",
     "signale": "^1.4.0",
     "source-map-support": "^0.5.21",
     "ytdl-core": "^4.11.5"
