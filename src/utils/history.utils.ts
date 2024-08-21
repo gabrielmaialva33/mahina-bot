@@ -46,13 +46,14 @@ export const HistoryUtils = {
   },
 
   slice_lines: (n: number): void => {
-    const historyFilePath = process.cwd() + '/tmp/history.gpt.txt'
+    const historyFilePath = process.cwd() + '/tmp/ history.gpt.txt'
     if (!fs.existsSync(historyFilePath)) return
     const lines = fs.readFileSync(historyFilePath, 'utf8').split('\n')
     fs.writeFileSync(historyFilePath, lines.slice(n).join('\n'))
   },
 
   reset_history: (): void => {
+    if (!fs.existsSync(process.cwd() + '/tmp/history.gpt.txt')) return
     const historyFilePath = process.cwd() + '/tmp/history.gpt.txt'
     const isExists = fs.existsSync(historyFilePath)
     if (isExists) fs.unlinkSync(historyFilePath)

@@ -22,8 +22,9 @@ FROM dependencies AS build
 
 # Prisma
 RUN npx prisma generate
-RUN npx npx prisma db push
+RUN npx prisma db push
 
+# Copy the rest of the files
 COPY --chown=node:node . .
 
 # Build the app
@@ -40,10 +41,11 @@ COPY --from=build /home/node/app/build ./build
 COPY --from=build /home/node/app/package.json ./package.json
 COPY --from=build /home/node/app/pnpm-lock.yaml ./pnpm-lock.yaml
 COPY --from=build /home/node/app/prisma ./prisma
+COPY --from=build /home/node/app/.env ./.env
 
 # Prisma
 RUN npx prisma generate
-RUN npx npx prisma db push
+RUN npx prisma db push
 
 USER node
 

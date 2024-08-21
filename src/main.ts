@@ -24,7 +24,7 @@ manager
 manager.on('shardCreate', (shard) => {
   shard.on('ready', () => {
     startObjection().then(() => {})
-    HistoryUtils.reset_history()
+    // HistoryUtils.reset_history()
 
     new Logger().info(`Shard ${shard.id} is ready`)
   })
