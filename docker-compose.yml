@@ -9,16 +9,12 @@ services:
       SERVER_ADDRESS: 0.0.0.0
       LAVALINK_SERVER_PASSWORD: 'Mahina@551238'
     volumes:
-      # mount application.yml from the same directory or use environment variables
       - ./application.yml:/opt/Lavalink/application.yml
-      # persist plugins between restarts, make sure to set the correct permissions (user: 322, group: 322)
       - ./plugins/:/opt/Lavalink/plugins/
     expose:
       - 2333
     ports:
       - '2333:2333'
-    networks:
-      - lavalink
     healthcheck:
       test: 'curl -H "Authorization: Mahina@551238" -s http://localhost:2333/version'
       interval: 10s
@@ -27,6 +23,8 @@ services:
       start_period: 10s
     depends_on:
       - warp
+    networks:
+      - custom_network
 
   warp:
     image: caomingjun/warp
@@ -35,7 +33,6 @@ services:
       - '1080:1080'
     environment:
       - WARP_SLEEP=2
-      # - WARP_LICENSE_KEY= # optional
     cap_add:
       - NET_ADMIN
     sysctls:
@@ -43,6 +40,69 @@ services:
       - net.ipv4.conf.all.src_valid_mark=1
     volumes:
       - ./data:/var/lib/cloudflare-warp
+    networks:
+      - custom_network
+
+  mahina:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: mahina
+    restart: always
+    ports:
+      - '3000:3000'
+    depends_on:
+      - lavalink
+      - warp
+    env_file:
+      - .env
+    environment:
+      TZ: ${TZ}
+      HOST: ${HOST}
+      PORT: ${PORT}
+      NODE_ENV: ${NODE_ENV}
+
+      DB_CLIENT: ${DB_CLIENT}
+      DB_DEBUG: ${DB_DEBUG}
+      DATABASE_URL: ${DATABASE_URL}
+
+      DISC_BOT_NAME: ${DISC_BOT_NAME}
+      DISC_BOT_PROFILE: ${DISC_BOT_PROFILE}
+      DISC_BOT_THUMBNAIL: ${DISC_BOT_THUMBNAIL}
+      DISC_BOT_COLOR: ${DISC_BOT_COLOR}
+      DISC_BOT_LANGUAGE: ${DISC_BOT_LANGUAGE}
+
+      DISC_BOT_TOKEN: ${DISC_BOT_TOKEN}
+      DISC_USER_1_TOKEN: ${DISC_USER_1_TOKEN}
+      DISC_USER_2_TOKEN: ${DISC_USER_2_TOKEN}
+      DISC_USER_3_TOKEN: ${DISC_USER_3_TOKEN}
+
+      DISC_GUILD_ID: ${DISC_GUILD_ID}
+      DISC_CHANNEL_ID: ${DISC_CHANNEL_ID}
+      DISC_VOICE_ID: ${DISC_VOICE_ID}
+
+      DISC_CLIENT_ID: ${DISC_CLIENT_ID}
+      DISC_LOG_CHANNEL_ID: ${DISC_LOG_CHANNEL_ID}
+      DISC_OWNER_IDS: ${DISC_OWNER_IDS}
+      DISC_BOT_PREFIX: ${DISC_BOT_PREFIX}
+
+      BOT_STATUS: ${BOT_STATUS}
+      BOT_ACTIVITY: ${BOT_ACTIVITY}
+      BOT_ACTIVITY_TYPE: ${BOT_ACTIVITY_TYPE}
+
+      SEARCH_ENGINE: ${SEARCH_ENGINE}
+
+      MAX_QUEUE_SIZE: ${MAX_QUEUE_SIZE}
+      MAX_PLAYLIST_SIZE: ${MAX_PLAYLIST_SIZE}
+
+      LAVALINK_URL: ${LAVALINK_URL}
+      LAVALINK_AUTH: ${LAVALINK_AUTH}
+      LAVALINK_NAME: ${LAVALINK_NAME}
+      LAVALINK_SECURE: ${LAVALINK_SECURE}
+
+    networks:
+      - custom_network
 
 networks:
-  lavalink:
+  custom_network:
+    driver: bridge

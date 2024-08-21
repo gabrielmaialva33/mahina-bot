@@ -1,4 +1,4 @@
-import ytdl from 'ytdl-core'
+import ytdl from "ytdl-core";
 
 /**
  * Get video url from YouTube

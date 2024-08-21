@@ -2,7 +2,6 @@
 .github
 node_modules
 npm-debug.log
-.env
 .git
 .gitignore
 .node-version

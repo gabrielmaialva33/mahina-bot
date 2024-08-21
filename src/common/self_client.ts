@@ -6,8 +6,6 @@ import { ActivityOptions, Client, CustomStatus, StageChannel } from 'discord.js-
 
 import {
   command,
-  getInputMetadata,
-  inputHasAudio,
   MediaUdp,
   Streamer,
   streamLivestreamVideo,

@@ -260,6 +260,14 @@ export class Dispatcher {
       return this.destroy()
     }
   }
+
+  async setAutoplay(autoplay: boolean): Promise<void> {
+    this.autoplay = autoplay
+    if (autoplay) {
+      await this.Autoplay(this.current || this.queue[0])
+    }
+  }
+
   private addAutoplayTrack(resolve: any) {
     if (!(resolve?.data && Array.isArray(resolve.data))) {
       console.error('Failed to fetch node resolve data.')
@@ -292,12 +300,6 @@ export class Dispatcher {
     if (choosed) {
       this.queue.push(choosed)
       return this.isPlaying()
-    }
-  }
-  async setAutoplay(autoplay: boolean): Promise<void> {
-    this.autoplay = autoplay
-    if (autoplay) {
-      await this.Autoplay(this.current || this.queue[0])
     }
   }
 }

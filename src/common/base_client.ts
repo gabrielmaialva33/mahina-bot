@@ -28,6 +28,7 @@ import ServerData from '#src/database/server.data'
 import { AnimezeyPlugin } from '#src/plugins/animezey.plugin'
 
 import loadPlugins from '#src/extensions/index'
+
 const dirname = path.dirname(fileURLToPath(import.meta.url))
 
 export class BaseClient extends Client {
