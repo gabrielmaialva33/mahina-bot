@@ -13,13 +13,10 @@ plugins:
     # Clients are queried in the order they are given (so the first client is queried first and so on...)
     clients:
       - MUSIC
-      - WEB
       - ANDROID_TESTSUITE
       - ANDROID_MUSIC
+      - WEB
       - TVHTML5EMBEDDED
-      - ANDROID_LITE
-      - MEDIA_CONNECT
-      - IOS
   lavasrc:
     providers: # Custom providers for track loading. This is the default
       - 'ytsearch:"%ISRC%"'
