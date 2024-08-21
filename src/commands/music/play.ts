@@ -57,7 +57,7 @@ export default class Play extends Command {
     const embed = this.client.embed()
     switch (res.loadType) {
       case LoadType.ERROR:
-        ctx.sendMessage({
+        await ctx.sendMessage({
           embeds: [
             embed
               .setColor(this.client.color.red)
@@ -66,7 +66,7 @@ export default class Play extends Command {
         })
         break
       case LoadType.EMPTY:
-        ctx.sendMessage({
+        await ctx.sendMessage({
           embeds: [
             embed.setColor(this.client.color.red).setDescription('😓 𝙈𝙖𝙣𝙖̃.. 𝙣𝙖̃𝙤 𝙖𝙘𝙝𝙚𝙞 𝙣𝙖𝙙𝙚'),
           ],
@@ -88,7 +88,7 @@ export default class Play extends Command {
           })
         player.queue.push(track)
         await player.isPlaying()
-        ctx.sendMessage({
+        await ctx.sendMessage({
           embeds: [
             embed
               .setColor(this.client.color.main)

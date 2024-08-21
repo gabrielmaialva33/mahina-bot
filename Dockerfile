@@ -15,6 +15,11 @@ FROM dependencies as build
 RUN pnpm build
 
 FROM base as release
+
+# install ffmpeg
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends ffmpeg
+
 COPY --from=dependencies /home/node/app/node_modules ./node_modules
 COPY --from=build /home/node/app/build ./build
 COPY --from=build /home/node/app/package.json ./package.json
