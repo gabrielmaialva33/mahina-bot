@@ -9,7 +9,9 @@ services:
       SERVER_ADDRESS: 0.0.0.0
       LAVALINK_SERVER_PASSWORD: 'Mahina@551238'
     volumes:
+      # mount application.yml from the same directory or use environment variables
       - ./application.yml:/opt/Lavalink/application.yml
+      # persist plugins between restarts, make sure to set the correct permissions (user: 322, group: 322)
       - ./plugins/:/opt/Lavalink/plugins/
     expose:
       - 2333
@@ -33,6 +35,7 @@ services:
       - '1080:1080'
     environment:
       - WARP_SLEEP=2
+      # - WARP_LICENSE_KEY= # optional
     cap_add:
       - NET_ADMIN
     sysctls:
@@ -40,9 +43,6 @@ services:
       - net.ipv4.conf.all.src_valid_mark=1
     volumes:
       - ./data:/var/lib/cloudflare-warp
-    networks:
-      - lavalink
 
 networks:
   lavalink:
-    driver: bridge
