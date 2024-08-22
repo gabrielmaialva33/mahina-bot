@@ -93,57 +93,6 @@ services:
     networks:
       - lavalink-net
 
-  winx:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    container_name: winx
-    restart: always
-    expose:
-      - 3001
-    ports:
-        - '3001:3001'
-    depends_on:
-        - lavalink
-        - warp
-    env_file:
-        - .env.winx
-    environment:
-        TZ: ${TZ}
-        HOST: ${HOST}
-        PORT: ${PORT}
-        NODE_ENV: ${NODE_ENV}
-        DB_CLIENT: ${DB_CLIENT}
-        DB_DEBUG: ${DB_DEBUG}
-        DATABASE_URL: ${DATABASE_URL}
-        DISC_BOT_NAME: ${DISC_BOT_NAME}
-        DISC_BOT_PROFILE: ${DISC_BOT_PROFILE}
-        DISC_BOT_THUMBNAIL: ${DISC_BOT_THUMBNAIL}
-        DISC_BOT_COLOR: ${DISC_BOT_COLOR}
-        DISC_BOT_TOKEN: ${DISC_BOT_TOKEN}
-        DISC_USER_1_TOKEN: ${DISC_USER_1_TOKEN}
-        DISC_USER_2_TOKEN: ${DISC_USER_2_TOKEN}
-        DISC_USER_3_TOKEN: ${DISC_USER_3_TOKEN}
-        DISC_GUILD_ID: ${DISC_GUILD_ID}
-        DISC_CHANNEL_ID: ${DISC_CHANNEL_ID}
-        DISC_VOICE_ID: ${DISC_VOICE_ID}
-        DISC_CLIENT_ID: ${DISC_CLIENT_ID}
-        DISC_LOG_CHANNEL_ID: ${DISC_LOG_CHANNEL_ID}
-        DISC_OWNER_IDS: ${DISC_OWNER_IDS}
-        DISC_BOT_PREFIX: ${DISC_BOT_PREFIX}
-        BOT_STATUS: ${BOT_STATUS}
-        BOT_ACTIVITY: ${BOT_ACTIVITY}
-        BOT_ACTIVITY_TYPE: ${BOT_ACTIVITY_TYPE}
-        SEARCH_ENGINE: ${SEARCH_ENGINE}
-        MAX_QUEUE_SIZE: ${MAX_QUEUE_SIZE}
-        MAX_PLAYLIST_SIZE: ${MAX_PLAYLIST_SIZE}
-        LAVALINK_URL: lavalink:2333
-        LAVALINK_AUTH: ${LAVALINK_AUTH}
-        LAVALINK_NAME: ${LAVALINK_NAME}
-        LAVALINK_SECURE: false
-    networks:
-      - lavalink-net
-
 networks:
   lavalink-net:
     driver: bridge
