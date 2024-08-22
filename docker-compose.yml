@@ -1,6 +1,6 @@
 services:
   lavalink:
-    container_name: lavamusic-lavalink
+    container_name: lavalink
     image: ghcr.io/lavalink-devs/lavalink
     restart: on-failure
     environment:
@@ -9,9 +9,9 @@ services:
       SERVER_ADDRESS: 0.0.0.0
       LAVALINK_SERVER_PASSWORD: 'Mahina@551238'
     expose:
-      - "2333"
+      - 2333
     ports:
-      - "2333:2333"
+      - '2333:2333'
     volumes:
       - ./application.yml:/opt/Lavalink/application.yml
       - ./plugins/:/opt/Lavalink/plugins/
@@ -29,6 +29,7 @@ services:
   warp:
     image: caomingjun/warp
     restart: unless-stopped
+    container_name: warp
     ports:
       - '1080:1080'
     environment:
@@ -50,7 +51,7 @@ services:
     container_name: mahina
     restart: always
     expose:
-      - '3000'
+      - 3000
     ports:
       - '3000:3000'
     depends_on:
@@ -70,7 +71,6 @@ services:
       DISC_BOT_PROFILE: ${DISC_BOT_PROFILE}
       DISC_BOT_THUMBNAIL: ${DISC_BOT_THUMBNAIL}
       DISC_BOT_COLOR: ${DISC_BOT_COLOR}
-      DISC_BOT_LANGUAGE: ${DISC_BOT_LANGUAGE}
       DISC_BOT_TOKEN: ${DISC_BOT_TOKEN}
       DISC_USER_1_TOKEN: ${DISC_USER_1_TOKEN}
       DISC_USER_2_TOKEN: ${DISC_USER_2_TOKEN}
@@ -88,10 +88,10 @@ services:
       SEARCH_ENGINE: ${SEARCH_ENGINE}
       MAX_QUEUE_SIZE: ${MAX_QUEUE_SIZE}
       MAX_PLAYLIST_SIZE: ${MAX_PLAYLIST_SIZE}
-      LAVALINK_URL: ${LAVALINK_URL}
+      LAVALINK_URL: lavalink:2333
       LAVALINK_AUTH: ${LAVALINK_AUTH}
       LAVALINK_NAME: ${LAVALINK_NAME}
-      LAVALINK_SECURE: ${LAVALINK_SECURE}
+      LAVALINK_SECURE: false
     networks:
       - lavalink-net
 
