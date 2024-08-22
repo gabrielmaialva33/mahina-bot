@@ -8,6 +8,8 @@ services:
       SERVER_PORT: 2333
       SERVER_ADDRESS: 0.0.0.0
       LAVALINK_SERVER_PASSWORD: 'Mahina@551238'
+    expose:
+      - "2333"
     ports:
       - "2333:2333"
     volumes:
@@ -47,6 +49,8 @@ services:
       dockerfile: Dockerfile
     container_name: mahina
     restart: always
+    expose:
+      - '3000'
     ports:
       - '3000:3000'
     depends_on:

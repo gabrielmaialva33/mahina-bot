@@ -44,6 +44,7 @@ COPY --from=build /home/node/app/package.json ./package.json
 COPY --from=build /home/node/app/pnpm-lock.yaml ./pnpm-lock.yaml
 COPY --from=build /home/node/app/prisma ./prisma
 COPY --from=build /home/node/app/.env ./.env
+COPY --from=build /home/node/app/movies ./movies
 
 USER node
 
