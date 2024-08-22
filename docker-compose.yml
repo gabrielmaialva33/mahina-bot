@@ -19,7 +19,7 @@ services:
       start_period: 10s
     depends_on:
       - warp
-    network_mode: "service:warp"
+    network_mode: "container:warp"
 
   warp:
     image: caomingjun/warp
@@ -36,23 +36,11 @@ services:
       - net.ipv4.conf.all.src_valid_mark=1
     volumes:
       - ./data:/var/lib/cloudflare-warp
-    networks:
-      - lavalink-net
-
-  nginx:
-    image: nginx:alpine
-    container_name: nginx
-    restart: always
-    ports:
-      - '2333:2333'
-    volumes:
       - ./nginx.conf:/etc/nginx/nginx.conf
-      - ./wait-for-it.sh:/wait-for-it.sh
-    command: ["/wait-for-it.sh", "lavalink:2333", "--", "nginx", "-g", "daemon off;"]
-    depends_on:
-      - lavalink
     networks:
-      - lavalink-net
+      lavalink-net:
+        aliases:
+          - lavalink
 
   mahina:
     build:
