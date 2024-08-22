@@ -47,6 +47,8 @@ services:
       - '2333:2333'
     volumes:
       - ./nginx.conf:/etc/nginx/nginx.conf
+      - ./wait-for-it.sh:/wait-for-it.sh
+    command: ["/wait-for-it.sh", "lavalink:2333", "--", "nginx", "-g", "daemon off;"]
     depends_on:
       - lavalink
     networks:
