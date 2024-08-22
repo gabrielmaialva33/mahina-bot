@@ -46,6 +46,11 @@ COPY --from=build /home/node/app/prisma ./prisma
 COPY --from=build /home/node/app/.env ./.env
 COPY --from=build /home/node/app/movies ./movies
 
+# Ensure proper permissions for the app directory
+USER root
+RUN chown -R node:node /home/node/app/*
+
+# Switch back to the node user
 USER node
 
 # Final Prisma setup and start the application
