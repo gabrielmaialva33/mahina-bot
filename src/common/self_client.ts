@@ -45,10 +45,10 @@ export class SelfClient extends Client {
   }
 
   // @ts-ignore
-  statusIdle = () => new CustomStatus().setState(`𝘾𝙡𝙪𝙗𝙚 𝘽𝙖𝙠𝙠𝙤 🍷`).setEmoji('🎥')
+  statusIdle = () => new CustomStatus(this).setState(`𝘾𝙡𝙪𝙗𝙚 𝘽𝙖𝙠𝙠𝙤 🍷`).setEmoji('🎥')
 
   // @ts-ignore
-  statusWatch = (name: string) => new CustomStatus().setState(`𝙑𝙚𝙣𝙙𝙤 ${name}`).setEmoji('🎥')
+  statusWatch = (name: string) => new CustomStatus(this).setState(`𝙑𝙚𝙣𝙙𝙤 ${name}`).setEmoji('🎥')
 
   async start(token: string): Promise<void> {
     await this.streamer.client.login(token)

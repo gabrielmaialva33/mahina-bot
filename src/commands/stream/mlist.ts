@@ -56,7 +56,7 @@ export default class MList extends Command {
     const embed = new EmbedBuilder()
       .setColor(client.color.main)
       .setTitle('Lista de Filmes Disponíveis')
-      .setDescription(`***${movies.map((movie) => `- ${movie!.name}`).join('\n')}***`)
+      .setDescription(`${movies.map((movie) => `- ${movie!.name}`).join('\n')}`)
 
     return ctx.sendMessage({ embeds: [embed] })
   }
