@@ -1,6 +1,6 @@
 services:
   lavalink:
-    container_name: lavalink
+    container_name: lavalink-public
     image: ghcr.io/lavalink-devs/lavalink
     restart: on-failure
     environment:

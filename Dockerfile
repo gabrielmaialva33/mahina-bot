@@ -8,7 +8,7 @@ WORKDIR /home/node/app
 
 # Install dumb-init and other dependencies
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends dumb-init ffmpeg \
+    && apt-get install -y dumb-init ffmpeg \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
