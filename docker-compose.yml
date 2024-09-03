@@ -1,6 +1,6 @@
 services:
-  lavalink-warp:
-    container_name: lavalink-warp
+  lavalink:
+    container_name: lavalink
     image: ghcr.io/lavalink-devs/lavalink
     restart: on-failure
     environment:
@@ -53,7 +53,7 @@ services:
     ports:
       - '3000:3000'
     depends_on:
-      - lavalink-warp
+      - lavalink
       - warp
     env_file:
       - .env
@@ -86,7 +86,7 @@ services:
       SEARCH_ENGINE: ${SEARCH_ENGINE}
       MAX_QUEUE_SIZE: ${MAX_QUEUE_SIZE}
       MAX_PLAYLIST_SIZE: ${MAX_PLAYLIST_SIZE}
-      LAVALINK_URL: lavalink-warp:2333
+      LAVALINK_URL: lavalink:2333
       LAVALINK_AUTH: ${LAVALINK_AUTH}
       LAVALINK_NAME: ${LAVALINK_NAME}
       LAVALINK_SECURE: false

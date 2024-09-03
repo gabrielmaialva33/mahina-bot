@@ -1,6 +1,6 @@
 services:
-  lavalink-public:
-    container_name: lavalink-public
+  lava:
+    container_name: lava
     image: ghcr.io/lavalink-devs/lavalink
     restart: on-failure
     environment:
@@ -18,12 +18,12 @@ services:
       retries: 5
       start_period: 10s
     networks:
-      - lavalink
+      - lava
     expose:
       - 2333
     ports:
       - "2333:2333"
 
 networks:
-  lavalink:
-    name: lavalink
+  lava:
+    name: lava
