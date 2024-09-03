@@ -1,6 +1,6 @@
 services:
-  lavalink:
-    container_name: lavalink
+  lavalink-warp:
+    container_name: lavalink-warp
     image: ghcr.io/lavalink-devs/lavalink
     restart: on-failure
     environment:
@@ -53,7 +53,7 @@ services:
     ports:
       - '3000:3000'
     depends_on:
-      - lavalink
+      - lavalink-warp
       - warp
     env_file:
       - .env
