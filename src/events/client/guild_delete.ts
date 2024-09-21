@@ -12,7 +12,7 @@ export default class GuildDelete extends Event {
     try {
       owner = guild.members.cache.get(guild?.ownerId)
     } catch (e) {
-      owner = await guild.fetchOwner()
+      this.client.logger.error(`Error fetching owner for guild ${guild.id}: ${e}`)
     }
     if (!owner) owner = { user: { tag: 'Unknown#0000' } } as GuildMember
 

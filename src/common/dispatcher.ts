@@ -26,10 +26,7 @@ export class Song implements Track {
     if (!track) throw new Error('Song must be a valid track')
 
     this.encoded = track.encoded
-    this.info = {
-      ...track.info,
-      requestedBy: user,
-    }
+    this.info = { ...track.info, requestedBy: user }
   }
 }
 

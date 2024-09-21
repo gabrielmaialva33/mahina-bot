@@ -22,7 +22,7 @@ services:
     expose:
       - 2333
     ports:
-      - "2333:2333"
+      - '2333:2333'
 
 networks:
   lava:

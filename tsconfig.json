@@ -14,28 +14,13 @@
     "inlineSources": true,
     "inlineSourceMap": false,
     "paths": {
-      "#src/*": [
-        "./src/*.js"
-      ],
-      "#common/*": [
-        "./src/common/*.js"
-      ],
-      "#commands/*": [
-        "./src/commands/*.js"
-      ],
-      "#interfaces/*": [
-        "./src/interfaces/*.js"
-      ],
-      "#utils/*": [
-        "./src/utils/*.js"
-      ]
+      "#src/*": ["./src/*.js"],
+      "#common/*": ["./src/common/*.js"],
+      "#commands/*": ["./src/commands/*.js"],
+      "#interfaces/*": ["./src/interfaces/*.js"],
+      "#utils/*": ["./src/utils/*.js"]
     }
   },
-  "include": [
-    "src/**/*.ts"
-  ],
-  "exclude": [
-    "build",
-    "node_modules"
-  ]
+  "include": ["src/**/*.ts"],
+  "exclude": ["build", "node_modules"]
 }

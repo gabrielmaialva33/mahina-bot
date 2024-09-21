@@ -1,6 +1,7 @@
 import 'dotenv/config'
 
 import { bool, cleanEnv, num, str } from 'envalid'
+import { Language } from '#src/types'
 
 export const env = cleanEnv(process.env, {
   TZ: str({ default: 'America/Sao_Paulo' }),
@@ -47,6 +48,9 @@ export const env = cleanEnv(process.env, {
   MAX_QUEUE_SIZE: num({ default: 30 }),
   MAX_PLAYLIST_SIZE: num({ default: 50 }),
 
+  DEFAULT_LANGUAGE: str({ default: Language.EnglishUS }),
+  AUTO_NODE: bool({ default: false }),
+
   // LavaLink
   LAVALINK_URL: str({ default: 'http://localhost:2333' }),
   LAVALINK_AUTH: str({ default: '' }),
@@ -56,4 +60,5 @@ export const env = cleanEnv(process.env, {
 
   // OpenAI
   OPENAI_API_KEY: str({ default: '' }),
+  LYRICS_API_KEY: str({ default: '' }),
 })

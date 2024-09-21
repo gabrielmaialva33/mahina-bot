@@ -8,7 +8,7 @@ import {
   PermissionFlagsBits,
 } from 'discord.js'
 
-import { BaseClient } from '#common/base_client'
+import { type BaseClient } from '#common/base_client'
 import { Event } from '#common/event'
 import { Context } from '#common/context'
 import { LoadType } from 'shoukaku'
@@ -23,10 +23,7 @@ export default class InteractionCreate extends Event {
 
     // get reply interaction message
 
-    if (
-      interaction instanceof CommandInteraction &&
-      interaction.type === InteractionType.ApplicationCommand
-    ) {
+    if (interaction instanceof CommandInteraction && interaction.isCommand()) {
       const { commandName, guildId } = interaction
 
       let guildName

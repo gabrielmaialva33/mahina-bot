@@ -1,6 +1,6 @@
 import { EmbedBuilder, Guild, GuildMember, TextChannel } from 'discord.js'
 
-import { BaseClient, Event } from '#common/index'
+import { type BaseClient, Event } from '#common/index'
 
 export default class GuildCreate extends Event {
   constructor(client: BaseClient, file: string) {
@@ -10,9 +10,9 @@ export default class GuildCreate extends Event {
   async run(guild: Guild): Promise<any> {
     let owner: GuildMember | undefined
     try {
-      owner = guild.members.cache.get(guild?.ownerId)
+      owner = await guild.members.fetch(guild.ownerId)
     } catch (e) {
-      owner = await guild.fetchOwner()
+      this.client.logger.error(`Error fetching owner for guild ${guild.id}: ${e}`)
     }
 
     if (!owner) owner = { user: { tag: 'Unknown#0000' } } as GuildMember
@@ -38,9 +38,11 @@ export default class GuildCreate extends Event {
         { name: '𝐈𝐃', value: guild.id, inline: true }
       )
       .setTimestamp()
+
     const channel = (await this.client.channels.fetch(
       this.client.env.DISC_LOG_CHANNEL_ID
     )) as TextChannel
+
     if (!channel) return
 
     return await channel.send({ embeds: [embed] })

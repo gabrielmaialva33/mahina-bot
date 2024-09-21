@@ -212,4 +212,16 @@ export default class ServerData {
       data: { guildId, prefix: env.DISC_BOT_PREFIX, name },
     })
   }
+
+  async updateLanguage(guildId: string, language: string): Promise<void> {
+    await this.prisma.guild.update({
+      where: { guildId },
+      data: { language },
+    })
+  }
+
+  async getLanguage(guildId: string): Promise<string> {
+    const guild = await this.get(guildId)
+    return guild?.language ?? env.DEFAULT_LANGUAGE
+  }
 }

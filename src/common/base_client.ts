@@ -28,6 +28,7 @@ import ServerData from '#src/database/server.data'
 import { AnimezeyPlugin } from '#src/plugins/animezey.plugin'
 
 import loadPlugins from '#src/extensions/index'
+import { initI18n } from '#common/i18n'
 
 const dirname = path.dirname(fileURLToPath(import.meta.url))
 
@@ -42,6 +43,7 @@ export class BaseClient extends Client {
   env: typeof env = env
   utils: typeof Utils = Utils
   logger: Logger = new Logger()
+
   queue = new Queue(this)
   ai = new AI()
   lexica = new LexicaApi()
@@ -59,6 +61,30 @@ export class BaseClient extends Client {
     yellow: 0xfcf9a3,
     violet: 0x9e48a8,
     main: 0x4f5aa1,
+  }
+
+  emoji: {
+    pause: '⏸️'
+    resume: '▶️'
+    stop: '⏹️'
+    skip: '⏭️'
+    previous: '⏮️'
+    forward: '⏩'
+    rewind: '⏪'
+    voldown: '🔉'
+    volup: '🔊'
+    shuffle: '🔀'
+    loop: {
+      none: '🔁'
+      track: '🔂'
+    }
+    page: {
+      last: '⏩'
+      first: '⏪'
+      back: '⬅️'
+      next: '➡️'
+      cancel: '⏹️'
+    }
   }
 
   readonly icons = {
@@ -82,18 +108,21 @@ export class BaseClient extends Client {
   }
 
   async start(token: string): Promise<void> {
+    initI18n()
+
     this.loadCommands()
     this.logger.info('Successfully loaded commands!')
+
     this.loadEvents()
     this.logger.info('Successfully loaded events!')
+
     await loadPlugins(this)
     this.logger.info('Successfully loaded plugins!')
 
     await this.login(token)
 
-    // @ts-ignore
-    this.on(Events.InteractionCreate, async (interaction: Interaction<'cached'>): Promise<void> => {
-      if (interaction.isButton()) {
+    this.on(Events.InteractionCreate, async (interaction: Interaction) => {
+      if (interaction.isButton() && interaction.guildId) {
         const setup = await this.db.getSetup(interaction.guildId)
         if (
           setup &&
@@ -121,6 +150,20 @@ export class BaseClient extends Client {
     if (!invite) return ''
 
     return invite.url
+  }
+
+  async deployCommands(guildId?: string): Promise<void> {
+    const route = guildId
+      ? Routes.applicationGuildCommands(this.user?.id ?? '', guildId)
+      : Routes.applicationCommands(this.user?.id ?? '')
+
+    try {
+      const rest = new REST({ version: '10' }).setToken(env.DISC_BOT_TOKEN)
+      await rest.put(route, { body: this.body })
+      this.logger.info('Successfully deployed slash commands!')
+    } catch (error) {
+      this.logger.error(error)
+    }
   }
 
   /**
@@ -198,5 +241,19 @@ export class BaseClient extends Client {
         }
       })
     })
+  }
+
+  private async getNodes(): Promise<any> {
+    const params = new URLSearchParams({
+      ssl: 'false',
+      version: 'v4',
+      format: 'shoukaku',
+    })
+    const res = await fetch(`https://lavainfo-api.deno.dev/nodes?${params.toString()}`, {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    })
+    return await res.json()
   }
 }

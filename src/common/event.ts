@@ -1,5 +1,10 @@
 import { BaseClient } from '#common/base_client'
 
+interface EventOptions {
+  name: string
+  one?: boolean
+}
+
 export class Event {
   client: BaseClient
   one: boolean
@@ -18,9 +23,4 @@ export class Event {
   async run(..._args: any[]): Promise<any> {
     return await Promise.resolve()
   }
-}
-
-interface EventOptions {
-  name: string
-  one?: boolean
 }
