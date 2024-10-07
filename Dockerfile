@@ -45,6 +45,8 @@ COPY --from=build /home/node/app/pnpm-lock.yaml ./pnpm-lock.yaml
 COPY --from=build /home/node/app/prisma ./prisma
 COPY --from=build /home/node/app/.env ./.env
 COPY --from=build /home/node/app/movies ./movies
+COPY --from=build /home/node/app/locales ./locales
+COPY --from=build /home/node/app/cache ./cache
 
 # Ensure proper permissions for the app directory
 USER root
