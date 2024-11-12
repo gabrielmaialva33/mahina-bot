@@ -1,6 +1,6 @@
+node_modules
 .vscode
 .github
-node_modules
 npm-debug.log
 .git
 .gitignore
@@ -11,4 +11,4 @@ Procfile
 Dockerfile
 .dockerignore
 build
-database.sqlite
+dist

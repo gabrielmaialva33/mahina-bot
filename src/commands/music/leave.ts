@@ -1,27 +1,30 @@
-import { BaseClient, Command, Context } from '#common/index'
+import Command from '#common/command'
+import type MahinaBot from '#common/mahina_bot'
+import type Context from '#common/context'
 
 export default class Leave extends Command {
-  constructor(client: BaseClient) {
+  constructor(client: MahinaBot) {
     super(client, {
       name: 'leave',
       description: {
-        content: 'Sai do canal de voz',
+        content: 'cmd.leave.description',
         examples: ['leave'],
         usage: 'leave',
       },
       category: 'music',
-      aliases: ['dc'],
+      aliases: ['l'],
       cooldown: 3,
       args: false,
+      vote: false,
       player: {
         voice: true,
         dj: true,
         active: false,
-        dj_perm: null,
+        djPerm: null,
       },
       permissions: {
         dev: false,
-        client: ['SendMessages', 'ViewChannel', 'EmbedLinks'],
+        client: ['SendMessages', 'ReadMessageHistory', 'ViewChannel', 'EmbedLinks'],
         user: [],
       },
       slashCommand: true,
@@ -29,26 +32,27 @@ export default class Leave extends Command {
     })
   }
 
-  async run(client: BaseClient, ctx: Context): Promise<any> {
-    const player = client.queue.get(ctx.guild!.id)
+  async run(client: MahinaBot, ctx: Context): Promise<any> {
+    const player = client.manager.getPlayer(ctx.guild!.id)
     const embed = this.client.embed()
+
     if (player) {
-      ctx.sendMessage({
+      const channelId = player.voiceChannelId
+      player.destroy()
+      return await ctx.sendMessage({
         embeds: [
           embed
             .setColor(this.client.color.main)
-            .setDescription(
-              `𝙎𝙖𝙞𝙪 𝙙𝙚 <#${player.node.manager.connections.get(ctx.guild!.id)!.channelId}>`
-            ),
-        ],
-      })
-      player.destroy()
-    } else {
-      ctx.sendMessage({
-        embeds: [
-          embed.setColor(this.client.color.red).setDescription(`𝙉𝙖̃𝙤 𝙚𝙨𝙩𝙤𝙪 𝙣𝙤 𝙘𝙖𝙣𝙖𝙡 𝙙𝙚 𝙫𝙤𝙯!`),
+            .setDescription(ctx.locale('cmd.leave.left', { channelId })),
         ],
       })
     }
+    return await ctx.sendMessage({
+      embeds: [
+        embed
+          .setColor(this.client.color.red)
+          .setDescription(ctx.locale('cmd.leave.not_in_channel')),
+      ],
+    })
   }
 }

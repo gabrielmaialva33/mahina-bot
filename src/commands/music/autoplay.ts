@@ -1,11 +1,13 @@
-import { BaseClient, Command, Context } from '#common/index'
+import Command from '#common/command'
+import type MahinaBot from '#common/mahina_bot'
+import type Context from '#common/context'
 
-export default class AutoPlay extends Command {
-  constructor(client: BaseClient) {
+export default class Autoplay extends Command {
+  constructor(client: MahinaBot) {
     super(client, {
       name: 'autoplay',
       description: {
-        content: 'Alterna a reprodução automática',
+        content: 'cmd.autoplay.description',
         examples: ['autoplay'],
         usage: 'autoplay',
       },
@@ -13,15 +15,16 @@ export default class AutoPlay extends Command {
       aliases: ['ap'],
       cooldown: 3,
       args: false,
+      vote: true,
       player: {
         voice: true,
         dj: true,
         active: true,
-        dj_perm: null,
+        djPerm: null,
       },
       permissions: {
         dev: false,
-        client: ['SendMessages', 'ViewChannel', 'EmbedLinks'],
+        client: ['SendMessages', 'ReadMessageHistory', 'ViewChannel', 'EmbedLinks'],
         user: [],
       },
       slashCommand: true,
@@ -29,18 +32,34 @@ export default class AutoPlay extends Command {
     })
   }
 
-  async run(client: BaseClient, ctx: Context): Promise<any> {
-    const player = client.queue.get(ctx.guild!.id)
-    const embed = this.client.embed()
-
-    const autoplay = player.autoplay
-    if (!autoplay) {
-      embed.setDescription(`𝘼𝙪𝙩𝙤𝙥𝙡𝙖𝙮 𝙛𝙤𝙞 𝙖𝙩𝙞𝙫𝙖𝙙𝙤`).setColor(client.color.main)
-      player.setAutoplay(true)
-    } else {
-      embed.setDescription(`𝘼𝙪𝙩𝙤𝙥𝙡𝙖𝙮 𝙛𝙤𝙞 𝙙𝙚𝙨𝙖𝙩𝙞𝙫𝙖𝙙𝙤`).setColor(client.color.main)
-      player.setAutoplay(false)
+  async run(client: MahinaBot, ctx: Context): Promise<any> {
+    const player = client.manager.getPlayer(ctx.guild!.id)
+    if (!player) {
+      return await ctx.sendMessage({
+        embeds: [
+          {
+            description: ctx.locale('player.errors.no_player'),
+            color: this.client.color.red,
+          },
+        ],
+      })
     }
-    ctx.sendMessage({ embeds: [embed] })
+
+    const embed = this.client.embed()
+    const autoplay = player.get<boolean>('autoplay')
+
+    player.set('autoplay', !autoplay)
+
+    if (autoplay) {
+      embed
+        .setDescription(ctx.locale('cmd.autoplay.messages.disabled'))
+        .setColor(this.client.color.main)
+    } else {
+      embed
+        .setDescription(ctx.locale('cmd.autoplay.messages.enabled'))
+        .setColor(this.client.color.main)
+    }
+
+    await ctx.sendMessage({ embeds: [embed] })
   }
 }

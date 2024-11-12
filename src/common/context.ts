@@ -1,86 +1,87 @@
 import {
-  APIInteractionGuildMember,
-  ChannelType,
+  type APIInteractionGuildMember,
   ChatInputCommandInteraction,
-  CommandInteraction,
-  DMChannel,
-  Guild,
-  GuildMember,
-  GuildMemberResolvable,
-  GuildTextBasedChannel,
-  InteractionEditReplyOptions,
-  InteractionReplyOptions,
+  type CommandInteraction,
+  type Guild,
+  type GuildMember,
+  type GuildMemberResolvable,
+  type InteractionEditReplyOptions,
+  type InteractionReplyOptions,
   Message,
-  MessageCreateOptions,
-  MessageEditOptions,
-  MessagePayload,
-  PartialDMChannel,
-  TextChannel,
-  User,
+  type MessageCreateOptions,
+  type MessageEditOptions,
+  type MessagePayload,
+  type TextBasedChannel,
+  type TextChannel,
+  type User,
 } from 'discord.js'
 
-import { BaseClient } from '#common/base_client'
+import type MahinaBot from '#common/mahina_bot'
 import { T } from '#common/i18n'
-import { Language } from '#src/types'
+import { env } from '#src/env'
 
-export class Context {
+export default class Context {
   ctx: CommandInteraction | Message
   interaction: CommandInteraction | null
   message: Message | null
   id: string
   channelId: string
-  client: BaseClient
+  client: MahinaBot
   author: User | null
-  channel: PartialDMChannel | GuildTextBasedChannel | TextChannel | DMChannel | null = null
-  guild: Guild | null
+  channel: TextBasedChannel
+  guild: Guild
   createdAt: Date
   createdTimestamp: number
   member: GuildMemberResolvable | GuildMember | APIInteractionGuildMember | null
-  args: any[] | undefined
+  args: any[]
   msg: any
-  guildLocale: string
+  guildLocale: string | undefined
+  options = {
+    getRole: (name: string, required = true) => {
+      return this.interaction?.options.get(name, required)?.role
+    },
+    getMember: (name: string, required = true) => {
+      return this.interaction?.options.get(name, required)?.member
+    },
+    get: (name: string, required = true) => {
+      return this.interaction?.options.get(name, required)
+    },
+    getChannel: (name: string, required = true) => {
+      return this.interaction?.options.get(name, required)?.channel
+    },
+    getSubCommand: () => {
+      return this.interaction?.options.data[0].name
+    },
+  }
 
   constructor(ctx: ChatInputCommandInteraction | Message, args: any[]) {
     this.ctx = ctx
     this.interaction = ctx instanceof ChatInputCommandInteraction ? ctx : null
     this.message = ctx instanceof Message ? ctx : null
-
-    if (ctx.channel && ctx.channel.type !== ChannelType.GroupDM) this.channel = ctx.channel
-    else this.channel = null
-
+    this.channel = ctx.channel!
     this.id = ctx.id
     this.channelId = ctx.channelId
-    this.client = ctx.client as BaseClient
+    this.client = ctx.client as MahinaBot
     this.author = ctx instanceof Message ? ctx.author : ctx.user
-    this.guild = ctx.guild
+    this.guild = ctx.guild!
     this.createdAt = ctx.createdAt
     this.createdTimestamp = ctx.createdTimestamp
     this.member = ctx.member
+    this.args = args
     this.setArgs(args)
     this.setUpLocale()
-  }
-
-  private async setUpLocale(): Promise<void> {
-    this.guildLocale = this.guild
-      ? await this.client.db.getLanguage(this.guild.id)
-      : Language.EnglishUS
   }
 
   get isInteraction(): boolean {
     return this.ctx instanceof ChatInputCommandInteraction
   }
 
-  get deferred(): boolean | Promise<any> {
-    if (this.isInteraction) if (this.interaction) return this.interaction.deferred
-    return !!this.msg
+  get deferred(): boolean | undefined {
+    return this.isInteraction ? this.interaction?.deferred : !!this.msg
   }
 
   setArgs(args: any[]): void {
     this.args = this.isInteraction ? args.map((arg: { value: any }) => arg.value) : args
-  }
-
-  setMessage(message: Message): void {
-    this.message = message
   }
 
   async sendMessage(
@@ -88,16 +89,12 @@ export class Context {
   ): Promise<Message> {
     if (this.isInteraction) {
       if (typeof content === 'string' || isInteractionReplyOptions(content)) {
-        if (this.interaction) {
-          this.msg = await this.interaction.reply(content)
-          return this.msg
-        }
-      }
-    } else if (typeof content === 'string' || isMessagePayload(content)) {
-      if (this.message) {
-        this.msg = await (this.message.channel as TextChannel).send(content)
+        this.msg = await this.interaction?.reply(content)
         return this.msg
       }
+    } else if (typeof content === 'string' || isMessagePayload(content)) {
+      this.msg = await (this.message?.channel as TextChannel).send(content)
+      return this.msg
     }
     return this.msg
   }
@@ -106,10 +103,8 @@ export class Context {
     content: string | MessagePayload | InteractionEditReplyOptions | MessageEditOptions
   ): Promise<Message> {
     if (this.isInteraction && this.msg) {
-      if (this.interaction) {
-        this.msg = await this.interaction.editReply(content)
-        return this.msg
-      }
+      this.msg = await this.interaction?.editReply(content)
+      return this.msg
     }
     if (this.msg) {
       this.msg = await this.msg.edit(content)
@@ -122,21 +117,16 @@ export class Context {
     content: string | MessagePayload | MessageCreateOptions
   ): Promise<Message> {
     if (this.isInteraction) {
-      if (this.interaction) {
-        this.msg = await this.interaction.deferReply({ fetchReply: true })
-        return this.msg
-      }
-    }
-
-    if (this.message) {
-      this.msg = await (this.message.channel as TextChannel).send(content)
+      this.msg = await this.interaction?.deferReply({ fetchReply: true })
       return this.msg
     }
 
+    this.msg = await (this.message?.channel as TextChannel).send(content)
     return this.msg
   }
 
   locale(key: string, ...args: any) {
+    if (!this.guildLocale) this.guildLocale = env.DEFAULT_LANGUAGE || 'EnglishUS'
     return T(this.guildLocale, key, ...args)
   }
 
@@ -145,25 +135,18 @@ export class Context {
   ): Promise<void> {
     if (this.isInteraction) {
       if (typeof content === 'string' || isInteractionReplyOptions(content)) {
-        if (this.interaction) await this.interaction.followUp(content)
+        await this.interaction?.followUp(content)
       }
     } else if (typeof content === 'string' || isMessagePayload(content)) {
-      if (this.message) this.msg = await (this.message.channel as TextChannel).send(content)
+      this.msg = await (this.message?.channel as TextChannel).send(content)
     }
   }
 
-  async sendReply(content: any): Promise<Message | void> {
-    if (this.isInteraction) {
-      if (this.interaction) {
-        this.msg = await this.interaction.reply(content)
-        return this.msg
-      }
-    } else {
-      if (this.message) {
-        this.msg = await this.message.reply(content)
-        return this.msg
-      }
-    }
+  private async setUpLocale(): Promise<void> {
+    const defaultLanguage = env.DEFAULT_LANGUAGE || 'EnglishUS'
+    this.guildLocale = this.guild
+      ? await this.client.db.getLanguage(this.guild.id)
+      : defaultLanguage
   }
 }
 

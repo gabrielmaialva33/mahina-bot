@@ -1,47 +1,59 @@
-import { ChannelType, Collection, Message, PermissionFlagsBits } from 'discord.js'
+import {
+  ActionRowBuilder,
+  ButtonBuilder,
+  ButtonStyle,
+  ChannelType,
+  Collection,
+  EmbedBuilder,
+  type GuildMember,
+  type Message,
+  PermissionFlagsBits,
+  type TextChannel,
+} from 'discord.js'
 
-import { BaseClient, Context, Event } from '#common/index'
+import { T } from '#common/i18n'
+import Event from '#common/event'
+import Context from '#common/context'
+import type MahinaBot from '#common/mahina_bot'
 
 export default class MessageCreate extends Event {
-  constructor(client: BaseClient, file: string) {
-    super(client, file, { name: 'messageCreate' })
+  constructor(client: MahinaBot, file: string) {
+    super(client, file, {
+      name: 'messageCreate',
+    })
   }
 
   async run(message: Message): Promise<any> {
-    this.client.logger.info('MessageCreate event triggered')
-
     if (message.author.bot) return
-    if (!message.guildId) return
-
+    if (!(message.guild && message.guildId)) return
     const setup = await this.client.db.getSetup(message.guildId)
-    if (setup && setup.textId)
-      if (setup.textId === message.channelId) return this.client.emit('setupSystem', message)
+    if (setup && setup.textId === message.channelId) {
+      return this.client.emit('setupSystem', message)
+    }
+    const locale = await this.client.db.getLanguage(message.guildId)
 
-    let guildName
-    if (message.guild) guildName = message.guild.name
-
-    const guild = await this.client.db.get(message.guildId, guildName)
-    const mention = new RegExp(`^<@!?${this.client.user!.id}>( |)$`)
-    if (message.content.match(mention)) {
+    const guild = await this.client.db.get(message.guildId)
+    const mention = new RegExp(`^<@!?${this.client.user?.id}>( |)$`)
+    if (mention.test(message.content)) {
       await message.reply({
-        content: `𝙊𝙞𝙚 𝙢𝙖𝙣𝙖̃.. ✨, 𝙢𝙚𝙪 𝙥𝙧𝙚𝙛𝙞𝙭𝙤 𝙥𝙖𝙧𝙖 𝙚𝙨𝙩𝙚 𝙨𝙚𝙧𝙫𝙞𝙙𝙤𝙧 𝙚́  \`${guild.prefix}\` 𝙌𝙪𝙚𝙧 𝙨𝙖𝙗𝙚𝙧 𝙢𝙖𝙞𝙨 𝙪𝙨𝙚 𝙤 𝙘𝙤𝙢𝙖𝙣𝙙𝙤 \`${guild.prefix}help\`\n𝙎𝙚𝙟𝙖 𝙛𝙚𝙡𝙞𝙯 🍁 𝙘𝙤𝙢 𝙦𝙪𝙚𝙢 𝙨𝙚𝙧 𝙛𝙚𝙡𝙞𝙯 𝙘𝙤𝙢 𝙫𝙤𝙘𝙚̂ 🌺`,
+        content: T(locale, 'event.message.prefix_mention', {
+          prefix: guild?.prefix,
+        }),
       })
       return
     }
-    const escapeRegex = (str: string): string => {
-      if (str && str.trim() === null) return '!'
-      if (str) return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
-      return '!'
-    }
+
+    const escapeRegex = (str: string): string => str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
     const prefixRegex = new RegExp(
-      `^(<@!?${this.client.user!.id}>|${escapeRegex(guild.prefix)})\\s*`
+      `^(<@!?${this.client.user?.id}>|${escapeRegex(guild.prefix)})\\s*`
     )
     if (!prefixRegex.test(message.content)) return
-    const [matchedPrefix] = message.content.match(prefixRegex)!
-
+    const match = message.content.match(prefixRegex)
+    if (!match) return
+    const [matchedPrefix] = match
     const args = message.content.slice(matchedPrefix.length).trim().split(/ +/g)
-
-    const cmd = args.shift()!.toLowerCase()
+    const cmd = args.shift()?.toLowerCase()
+    if (!cmd) return
     const command =
       this.client.commands.get(cmd) ||
       this.client.commands.get(this.client.aliases.get(cmd) as string)
@@ -49,175 +61,239 @@ export default class MessageCreate extends Event {
 
     const ctx = new Context(message, args)
     ctx.setArgs(args)
+    ctx.guildLocale = locale
 
-    let dm = message.author.dmChannel
-    if (typeof dm === 'undefined') dm = await message.author.createDM()
+    const clientMember = message.guild.members.resolve(this.client.user!)!
+    const isDev = this.client.env.OWNER_IDS?.includes(message.author.id)
 
     if (
-      !message.inGuild() ||
-      !message.channel
-        .permissionsFor(message.guild!.members.me!)
-        .has(PermissionFlagsBits.ViewChannel)
+      !(
+        message.inGuild() &&
+        message.channel.permissionsFor(clientMember)?.has(PermissionFlagsBits.ViewChannel)
+      )
     )
       return
 
-    if (!message.guild!.members.me!.permissions.has(PermissionFlagsBits.SendMessages))
+    if (
+      !(
+        clientMember.permissions.has(PermissionFlagsBits.ViewChannel) &&
+        clientMember.permissions.has(PermissionFlagsBits.SendMessages) &&
+        clientMember.permissions.has(PermissionFlagsBits.EmbedLinks) &&
+        clientMember.permissions.has(PermissionFlagsBits.ReadMessageHistory)
+      )
+    ) {
       return await message.author
         .send({
-          content: `⛔ 𝙉𝙖̃𝙤 𝙩𝙚𝙣𝙝𝙤 𝙥𝙚𝙧𝙢𝙞𝙨𝙨𝙖̃𝙤 𝙙𝙚 **\`SendMessage\`** 𝙚𝙣𝙫𝙞𝙖𝙧 𝙢𝙚𝙣𝙨𝙖𝙜𝙚𝙣𝙨 𝙣𝙚𝙨𝙨𝙚 𝙘𝙖𝙣𝙖𝙡 \`${message.guild.name}\`\n𝘾𝙖𝙣𝙖𝙡: <#${message.channelId}>`,
+          content: T(locale, 'event.message.no_send_message'),
         })
-        .catch(() => {})
-
-    if (!message.guild!.members.me!.permissions.has(PermissionFlagsBits.EmbedLinks))
-      return await message.reply({
-        content: '⛔ 𝙉𝙖̃𝙤 𝙩𝙚𝙣𝙝𝙤 𝙥𝙚𝙧𝙢𝙞𝙨𝙨𝙖̃𝙤 𝙙𝙚 **`EmbedLinks`** .',
-      })
+        .catch(() => {
+          null
+        })
+    }
 
     if (command.permissions) {
-      if (command.permissions.client) {
-        if (!message.guild!.members.me!.permissions.has(command.permissions.client))
+      if (command.permissions?.client) {
+        const missingClientPermissions = command.permissions.client.filter(
+          (perm: any) => !clientMember.permissions.has(perm)
+        )
+
+        if (missingClientPermissions.length > 0) {
           return await message.reply({
-            content: '⛔ 𝙈𝙖𝙣𝙖̃.. 𝙩𝙚𝙣𝙝𝙤 𝙥𝙚𝙧𝙢𝙞𝙨𝙨𝙤̃𝙚𝙨 𝙨𝙪𝙛𝙞𝙘𝙞𝙚𝙣𝙩𝙚𝙨 𝙥𝙖𝙧𝙖 𝙚𝙭𝙚𝙘𝙪𝙩𝙖𝙧 𝙚𝙨𝙩𝙚 𝙘𝙤𝙢𝙖𝙣𝙙𝙚.',
+            content: T(locale, 'event.message.no_permission', {
+              permissions: missingClientPermissions.map((perm: string) => `\`${perm}\``).join(', '),
+            }),
           })
+        }
       }
 
-      if (command.permissions.user) {
-        if (!message.member!.permissions.has(command.permissions.user))
+      if (command.permissions?.user) {
+        if (!(isDev || (message.member as GuildMember).permissions.has(command.permissions.user))) {
           return await message.reply({
-            content:
-              '⛔ 𝙈𝙖𝙣𝙖̃..  𝙤𝙘𝙚̂ 𝙣𝙖̃𝙤 𝙩𝙚𝙢 𝙥𝙚𝙧𝙢𝙞𝙨𝙨𝙤̃𝙚𝙨 𝙨𝙪𝙛𝙞𝙘𝙞𝙚𝙣𝙩𝙚𝙨 𝙥𝙖𝙧𝙖 𝙪𝙨𝙖𝙧 𝙚𝙨𝙩𝙚 𝙘𝙤𝙢𝙖𝙣𝙙𝙚.. 𝙘𝙖𝙨𝙩𝙖 𝙗𝙖𝙞𝙭𝙖 𝙠𝙠',
+            content: T(locale, 'event.message.no_user_permission'),
           })
-      }
-      if (command.permissions.dev) {
-        if (this.client.env.DISC_OWNER_IDS) {
-          const findDev = this.client.env.DISC_OWNER_IDS.split(',').find(
-            (x) => x === message.author.id
-          )
-          if (!findDev) return
         }
+      }
+
+      if (command.permissions?.dev && this.client.env.OWNER_IDS) {
+        if (!isDev) return
       }
     }
+
+    if (command.vote && this.client.env.TOPGG) {
+      const voted = await this.client.topGG.hasVoted(message.author.id)
+      if (!(isDev || voted)) {
+        const voteBtn = new ActionRowBuilder<ButtonBuilder>().addComponents(
+          new ButtonBuilder()
+            .setLabel(T(locale, 'event.message.vote_button'))
+            .setURL(`https://top.gg/bot/${this.client.user?.id}/vote`)
+            .setStyle(ButtonStyle.Link)
+        )
+
+        return await message.reply({
+          content: T(locale, 'event.message.vote_message'),
+          components: [voteBtn],
+        })
+      }
+    }
+
     if (command.player) {
       if (command.player.voice) {
-        if (!message.member!.voice.channel)
+        if (!(message.member as GuildMember).voice.channel) {
           return await message.reply({
-            content: `𝙈𝙖𝙣𝙖̃..  𝙤𝙘𝙚̂ 𝙩𝙚𝙢 𝙦𝙪𝙚 𝙩𝙖 𝙘𝙤𝙣𝙚𝙘𝙩𝙖𝙙𝙚 𝙖 𝙪𝙢𝙚 𝙘𝙖𝙣𝙖𝙡 𝙙𝙚 𝙫𝙤𝙭 𝙥𝙧𝙖 𝙪𝙨𝙖𝙧 𝙚𝙨𝙩𝙚 \`${command.name}\` 𝙘𝙤𝙢𝙢𝙖𝙣𝙙𝙚.`,
+            content: T(locale, 'event.message.no_voice_channel', { command: command.name }),
           })
+        }
 
-        if (!message.guild!.members.me!.permissions.has(PermissionFlagsBits.Speak))
+        if (!clientMember.permissions.has(PermissionFlagsBits.Connect)) {
           return await message.reply({
-            content: `⛔ 𝙈𝙖𝙣𝙖̃.. 𝙩𝙚𝙣𝙝𝙤 𝙖 𝙥𝙚𝙧𝙢𝙞𝙨𝙨𝙖̃𝙤 \`CONNECT\`  𝙥𝙖𝙧𝙖 𝙚𝙭𝙚𝙘𝙪𝙩𝙖𝙧 𝙚𝙨𝙩𝙚 \`${command.name}\` 𝙘𝙤𝙢𝙖𝙣𝙙𝙚.`,
+            content: T(locale, 'event.message.no_connect_permission', { command: command.name }),
           })
+        }
 
-        if (!message.guild!.members.me!.permissions.has(PermissionFlagsBits.Speak))
+        if (!clientMember.permissions.has(PermissionFlagsBits.Speak)) {
           return await message.reply({
-            content: `𝙈𝙖𝙣𝙖̃.. 𝙩𝙚𝙣𝙝𝙤 𝙖 𝙥𝙚𝙧𝙢𝙞𝙨𝙨𝙖̃𝙤 \`SPEAK\` 𝙥𝙖𝙧𝙖 𝙚𝙭𝙚𝙘𝙪𝙩𝙖𝙧 𝙚𝙨𝙩𝙚 \`${command.name}\` 𝙘𝙤𝙢𝙖𝙣𝙙𝙚.`,
+            content: T(locale, 'event.message.no_speak_permission', { command: command.name }),
           })
+        }
 
         if (
-          message.member!.voice.channel.type === ChannelType.GuildStageVoice &&
-          !message.guild!.members.me!.permissions.has(PermissionFlagsBits.RequestToSpeak)
-        )
+          (message.member as GuildMember).voice.channel?.type === ChannelType.GuildStageVoice &&
+          !clientMember.permissions.has(PermissionFlagsBits.RequestToSpeak)
+        ) {
           return await message.reply({
-            content: `𝙈𝙖𝙣𝙖̃.. 𝙩𝙚𝙣𝙝𝙤 𝙖 𝙥𝙚𝙧𝙢𝙞𝙨𝙨𝙖̃ \`REQUEST TO SPEAK\` 𝙥𝙖𝙧𝙖 𝙚𝙭𝙚𝙘𝙪𝙩𝙖𝙧 𝙚𝙨𝙩𝙚 \`${command.name}\` 𝙘𝙤𝙢𝙖𝙣𝙙𝙚.`,
+            content: T(locale, 'event.message.no_request_to_speak', { command: command.name }),
           })
+        }
 
-        if (message.guild!.members.me!.voice.channel) {
-          if (message.guild!.members.me!.voice.channelId !== message.member!.voice.channelId)
-            return await message.reply({
-              content: `𝙈𝙖𝙣𝙖̃..  𝙤𝙘𝙚̂ 𝙩𝙚𝙢 𝙦𝙪𝙚 𝙩𝙖 𝙘𝙤𝙣𝙚𝙘𝙩𝙖𝙙𝙚 𝙖 <#${message.guild!.members.me!.voice.channel.id}> 𝙙𝙚 𝙫𝙤𝙭 𝙥𝙧𝙖 𝙪𝙨𝙖𝙧 𝙚𝙨𝙩𝙚 \`${command.name}\` 𝙘𝙤𝙢𝙢𝙖𝙣𝙙𝙚.`,
-            })
+        if (
+          clientMember.voice.channel &&
+          clientMember.voice.channelId !== (message.member as GuildMember).voice.channelId
+        ) {
+          return await message.reply({
+            content: T(locale, 'event.message.different_voice_channel', {
+              channel: `<#${clientMember.voice.channelId}>`,
+              command: command.name,
+            }),
+          })
         }
       }
+
       if (command.player.active) {
-        if (!this.client.queue.get(message.guildId))
+        const queue = this.client.manager.getPlayer(message.guildId)
+        if (!queue?.queue.current) {
           return await message.reply({
-            content: '🔇 𝙉𝙖𝙙𝙚 𝙚𝙨𝙩𝙖́ 𝙩𝙤𝙘𝙖𝙣𝙙𝙤 𝙖𝙜𝙤𝙧𝙖.',
+            content: T(locale, 'event.message.no_music_playing'),
           })
-        if (!this.client.queue.get(message.guildId).queue)
-          return await message.reply({
-            content: '🔇 𝙉𝙖𝙙𝙚 𝙚𝙨𝙩𝙖́ 𝙩𝙤𝙘𝙖𝙣𝙙𝙤 𝙖𝙜𝙤𝙧𝙖.',
-          })
-        if (!this.client.queue.get(message.guildId).current)
-          return await message.reply({
-            content: '🔇 𝙉𝙖𝙙𝙚 𝙚𝙨𝙩𝙖́ 𝙩𝙤𝙘𝙖𝙣𝙙𝙤 𝙖𝙜𝙤𝙧𝙖.',
-          })
+        }
       }
+
       if (command.player.dj) {
         const dj = await this.client.db.getDj(message.guildId)
-        if (dj && dj.mode) {
+        if (dj?.mode) {
           const djRole = await this.client.db.getRoles(message.guildId)
-          if (!djRole)
+          if (!djRole) {
             return await message.reply({
-              content: '❌ 𝙘𝙖𝙧𝙜𝙤 𝘿𝙅 𝙣𝙖̃𝙤 𝙙𝙚𝙛𝙞𝙣𝙞𝙙𝙚',
+              content: T(locale, 'event.message.no_dj_role'),
             })
-          const findDJRole = message.member!.roles.cache.find((x: any) =>
-            djRole.map((y) => y.roleId).includes(x.id)
+          }
+
+          const hasDJRole = (message.member as GuildMember).roles.cache.some((role) =>
+            djRole.map((r) => r.roleId).includes(role.id)
           )
-          if (!findDJRole) {
-            if (!message.member!.permissions.has(PermissionFlagsBits.ManageGuild)) {
-              return await message
-                .reply({
-                  content: '❌ 𝙢𝙖𝙣𝙖̃.. 𝙫𝙘 𝙥𝙧𝙚𝙘𝙞𝙨𝙖 𝙨𝙚𝙧 𝘿𝙅 𝙥𝙧𝙖 𝙧𝙤𝙙𝙖𝙧 𝙚𝙘̧𝙚 𝙘𝙤𝙢𝙖𝙣𝙙𝙚.',
-                })
-                .then((msg) => setTimeout(() => msg.delete(), 5000))
-            }
+          if (
+            !(
+              isDev ||
+              (hasDJRole &&
+                !(message.member as GuildMember).permissions.has(PermissionFlagsBits.ManageGuild))
+            )
+          ) {
+            return await message.reply({
+              content: T(locale, 'event.message.no_dj_permission'),
+            })
           }
         }
       }
     }
-    if (command.args) {
-      if (!args.length) {
-        const embed = this.client
-          .embed()
-          .setColor(this.client.color.red)
-          .setTitle('𝐀𝐫𝐠𝐮𝐦𝐞𝐧𝐭𝐨𝐬 𝐚𝐮𝐬𝐞𝐧𝐭𝐞𝐬')
-          .setDescription(
-            `𝙈𝙖𝙣𝙖.. 𝙗𝙪𝙧𝙧𝙚 🤭 𝙥𝙖𝙨𝙨𝙚 𝙤𝙨 𝙖𝙧𝙜𝙪𝙢𝙚𝙣𝙩𝙤𝙨 𝙣𝙚𝙘𝙚𝙨𝙨𝙖́𝙧𝙞𝙤𝙨 𝙥𝙖𝙧𝙖 𝙖 \`${
-              command.name
-            }\` 𝙘𝙤𝙢𝙖𝙣𝙙𝙚.\n\n𝙀𝙭𝙚𝙢𝙥𝙡𝙤𝙨:\n${
-              command.description.examples ? command.description.examples.join('\n') : '𝐍𝐨𝐧𝐞'
-            }`
-          )
-          .setFooter({ text: '𝙎𝙞𝙣𝙩𝙖𝙭𝙚: [] = 𝙤𝙥𝙘𝙞𝙤𝙣𝙖𝙡, <> = 𝙤𝙗𝙧𝙞𝙜𝙖𝙩𝙤́𝙧𝙞𝙤' })
-        return await message.reply({ embeds: [embed] })
-      }
+
+    if (command.args && args.length === 0) {
+      const embed = this.client
+        .embed()
+        .setColor(this.client.color.red)
+        .setTitle(T(locale, 'event.message.missing_arguments'))
+        .setDescription(
+          T(locale, 'event.message.missing_arguments_description', {
+            command: command.name,
+            examples: command.description.examples
+              ? command.description.examples.join('\n')
+              : 'None',
+          })
+        )
+        .setFooter({ text: T(locale, 'event.message.syntax_footer') })
+      await message.reply({ embeds: [embed] })
+      return
     }
 
     if (!this.client.cooldown.has(cmd)) {
       this.client.cooldown.set(cmd, new Collection())
     }
     const now = Date.now()
-    const timestamps = this.client.cooldown.get(cmd)
+    const timestamps = this.client.cooldown.get(cmd)!
+    const cooldownAmount = (command.cooldown || 5) * 1000
 
-    const cooldownAmount = Math.floor(command.cooldown || 5) * 1000
-    if (!timestamps.has(message.author.id)) {
-      timestamps.set(message.author.id, now)
-      setTimeout(() => timestamps.delete(message.author.id), cooldownAmount)
-    } else {
-      const expirationTime = timestamps.get(message.author.id) + cooldownAmount
+    if (timestamps.has(message.author.id)) {
+      const expirationTime = timestamps.get(message.author.id)! + cooldownAmount
       const timeLeft = (expirationTime - now) / 1000
       if (now < expirationTime && timeLeft > 0.9) {
         return await message.reply({
-          content: `𝙈𝙖𝙣𝙖̃..🥺 𝙚𝙨𝙥𝙚𝙧𝙖 ${timeLeft.toFixed(
-            1
-          )} 𝙪𝙣𝙨 𝙨𝙚𝙜𝙪𝙣𝙙𝙚𝙨 𝙥𝙧𝙖 𝙪𝙨𝙖𝙧 𝙤 𝙘𝙤𝙢𝙖𝙣𝙙𝙚 \`${cmd}\` .`,
+          content: T(locale, 'event.message.cooldown', { time: timeLeft.toFixed(1), command: cmd }),
         })
       }
       timestamps.set(message.author.id, now)
       setTimeout(() => timestamps.delete(message.author.id), cooldownAmount)
+    } else {
+      timestamps.set(message.author.id, now)
+      setTimeout(() => timestamps.delete(message.author.id), cooldownAmount)
     }
-    if (args.includes('@everyone') || args.includes('@here'))
+
+    if (args.includes('@everyone') || args.includes('@here')) {
       return await message.reply({
-        content: '𝙈𝙖𝙣𝙖̃.. 𝙣𝙖̃𝙤 𝙥𝙤𝙙𝙚 𝙪𝙨𝙖𝙧 𝙚𝙨𝙩𝙚 𝙘𝙤𝙢𝙖𝙣𝙙𝙤 𝙘𝙤𝙢 𝙩𝙤𝙙𝙤𝙨 𝙤𝙪 𝙖𝙦𝙪𝙞.',
+        content: T(locale, 'event.message.no_mention_everyone'),
       })
+    }
 
     try {
       return command.run(this.client, ctx, ctx.args)
-    } catch (error) {
+    } catch (error: any) {
       this.client.logger.error(error)
-      await message.reply({ content: `𝘿𝙚𝙨𝙘𝙪𝙡𝙥𝙖 𝙢𝙖𝙣𝙖.. 𝙚𝙧𝙧𝙚𝙞 🤭: \`${error}\`` })
-      return
+      await message.reply({
+        content: T(locale, 'event.message.error', { error: error.message || 'Unknown error' }),
+      })
+    } finally {
+      const logs = this.client.channels.cache.get(this.client.env.LOG_COMMANDS_ID!)
+      if (logs) {
+        const embed = new EmbedBuilder()
+          .setAuthor({
+            name: 'Prefix - Command Logs',
+            iconURL: this.client.user?.avatarURL({ size: 2048 })!,
+          })
+          .setColor(this.client.config.color.green)
+          .addFields(
+            { name: 'Command', value: `\`${command.name}\``, inline: true },
+            {
+              name: 'User',
+              value: `${message.author.tag} (\`${message.author.id}\`)`,
+              inline: true,
+            },
+            {
+              name: 'Guild',
+              value: `${message.guild.name} (\`${message.guild.id}\`)`,
+              inline: true,
+            }
+          )
+          .setTimestamp()
+
+        await (logs as TextChannel).send({ embeds: [embed] })
+      }
     }
   }
 }

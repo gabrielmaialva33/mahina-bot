@@ -1,64 +1,93 @@
-import { ApplicationCommandOptionType } from 'discord.js'
+import type { AutocompleteInteraction } from 'discord.js'
+import Command from '#common/command'
+import type MahinaBot from '#common/mahina_bot'
+import type Context from '#common/context'
 
-import { BaseClient, Command, Context } from '#common/index'
-
-export default class Delete extends Command {
-  constructor(client: BaseClient) {
+export default class DeletePlaylist extends Command {
+  constructor(client: MahinaBot) {
     super(client, {
       name: 'delete',
       description: {
-        content: 'Deleta uma playlist',
+        content: 'cmd.delete.description',
         examples: ['delete <playlist name>'],
         usage: 'delete <playlist name>',
       },
       category: 'playlist',
-      aliases: ['delete'],
+      aliases: ['del'],
       cooldown: 3,
       args: true,
+      vote: true,
       player: {
         voice: false,
         dj: false,
         active: false,
-        dj_perm: null,
+        djPerm: null,
       },
       permissions: {
         dev: false,
-        client: ['SendMessages', 'ViewChannel', 'EmbedLinks'],
+        client: ['SendMessages', 'ReadMessageHistory', 'ViewChannel', 'EmbedLinks'],
         user: [],
       },
       slashCommand: true,
       options: [
         {
           name: 'playlist',
-          description: 'O nome da playlist',
-          type: ApplicationCommandOptionType.String,
+          description: 'cmd.delete.options.playlist',
+          type: 3,
           required: true,
+          autocomplete: true,
         },
       ],
     })
   }
 
-  async run(client: BaseClient, ctx: Context, args: string[]): Promise<any> {
-    const playlist = args.join(' ').replace(/\s/g, '')
+  async run(client: MahinaBot, ctx: Context, args: string[]): Promise<any> {
+    const playlistName = args.join(' ').trim()
+    const embed = this.client.embed()
 
-    const playlistExists = client.db.getPlaylist(ctx.author!.id, playlist)
-    if (!playlistExists)
+    const playlistExists = await client.db.getPlaylist(ctx.author?.id!, playlistName)
+    if (!playlistExists) {
       return await ctx.sendMessage({
         embeds: [
-          {
-            description: '𝘼 𝙥𝙡𝙖𝙮𝙡𝙞𝙨𝙩 𝙣𝙖̃𝙤 𝙚𝙭𝙞𝙨𝙩𝙚',
-            color: client.color.red,
-          },
+          embed
+            .setDescription(ctx.locale('cmd.delete.messages.playlist_not_found'))
+            .setColor(this.client.color.red),
         ],
       })
-    await client.db.deletePlaylist(ctx.author!.id, playlist)
+    }
+
+    // First, delete all songs from the playlist
+    await client.db.deleteSongsFromPlaylist(ctx.author?.id!, playlistName)
+
+    await client.db.deletePlaylist(ctx.author?.id!, playlistName)
     return await ctx.sendMessage({
       embeds: [
-        {
-          description: `𝙋𝙡𝙖𝙮𝙡𝙞𝙨𝙩 \`${playlist}\` 𝙙𝙚𝙡𝙚𝙩𝙖𝙙𝙖`,
-          color: client.color.main,
-        },
+        embed
+          .setDescription(
+            ctx.locale('cmd.delete.messages.playlist_deleted', {
+              playlistName,
+            })
+          )
+          .setColor(this.client.color.green),
       ],
     })
+  }
+
+  async autocomplete(interaction: AutocompleteInteraction): Promise<void> {
+    const focusedValue = interaction.options.getFocused()
+    const userId = interaction.user.id
+
+    const playlists = await this.client.db.getUserPlaylists(userId)
+
+    const filtered = playlists.filter((playlist: { name: string }) =>
+      playlist.name.toLowerCase().startsWith(focusedValue.toLowerCase())
+    )
+
+    await interaction.respond(
+      filtered.map((playlist: { name: any }) => ({
+        name: playlist.name,
+        value: playlist.name,
+      }))
+    )
   }
 }

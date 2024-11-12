@@ -1,55 +1,74 @@
-import { EmbedBuilder, Guild, GuildMember, TextChannel } from 'discord.js'
+import { EmbedBuilder, type Guild, type GuildMember, type TextChannel } from 'discord.js'
 
-import { BaseClient, Event } from '#common/index'
+import Event from '#common/event'
+import type MahinaBot from '#common/mahina_bot'
 
 export default class GuildDelete extends Event {
-  constructor(client: BaseClient, file: string) {
-    super(client, file, { name: 'guildDelete' })
+  constructor(client: MahinaBot, file: string) {
+    super(client, file, {
+      name: 'guildDelete',
+    })
   }
 
-  async run(guild: Guild): Promise<any> {
+  async run(guild: Guild): Promise<void> {
+    if (!guild) return
     let owner: GuildMember | undefined
     try {
-      owner = guild.members.cache.get(guild?.ownerId)
-    } catch (e) {
-      this.client.logger.error(`Error fetching owner for guild ${guild.id}: ${e}`)
+      owner = await guild.members.fetch(guild.ownerId)
+    } catch (error) {
+      this.client.logger.error(`Error fetching owner for guild ${guild.id}: ${error}`)
     }
-    if (!owner) owner = { user: { tag: 'Unknown#0000' } } as GuildMember
 
     const embed = new EmbedBuilder()
-      .setColor(this.client.color.red)
+      .setColor(this.client.config.color.red)
       .setAuthor({
-        name: guild.name || '𝐆𝐮𝐢𝐥𝐝 𝐃𝐞𝐬𝐜𝐨𝐧𝐡𝐞𝐜𝐢𝐝𝐚',
+        name: guild.name || 'Unknown Guild',
         iconURL: guild.iconURL({ extension: 'jpeg' })!,
       })
-
-      .setDescription(`**${guild.name}** 𝙛𝙤𝙞 𝙧𝙚𝙢𝙤𝙫𝙞𝙙𝙖 𝙙𝙖𝙨 𝙢𝙞𝙣𝙝𝙖𝙨 𝙜𝙪𝙞𝙡𝙙𝙖𝙨!`)
+      .setDescription(`**${guild.name}** has been removed from my guilds!`)
       .setThumbnail(guild.iconURL({ extension: 'jpeg' }))
       .addFields(
-        { name: '𝐃𝐨𝐧𝐨', value: owner.user.tag, inline: true },
         {
-          name: '𝐌𝐞𝐦𝐛𝐫𝐨𝐬',
-          value: guild.memberCount ? guild.memberCount.toString() : '𝐧𝐨𝐧𝐞',
+          name: 'Owner',
+          value: owner ? owner.user.tag : 'Unknown#0000',
           inline: true,
         },
         {
-          name: '𝐂𝐫𝐢𝐚𝐝𝐚 𝐞𝐦',
+          name: 'Members',
+          value: guild.memberCount?.toString() || 'Unknown',
+          inline: true,
+        },
+        {
+          name: 'Created At',
           value: `<t:${Math.floor(guild.createdTimestamp / 1000)}:F>`,
           inline: true,
         },
         {
-          name: '𝐑𝐞𝐦𝐨𝐯𝐢𝐝𝐚 𝐞𝐦',
+          name: 'Removed At',
           value: `<t:${Math.floor(Date.now() / 1000)}:F>`,
           inline: true,
         },
-        { name: '𝐈𝐃', value: guild.id, inline: true }
+        { name: 'ID', value: guild.id, inline: true }
       )
       .setTimestamp()
-    const channel = (await this.client.channels.fetch(
-      this.client.env.DISC_LOG_CHANNEL_ID
-    )) as TextChannel
-    if (!channel) return
 
-    return await channel.send({ embeds: [embed] })
+    const logChannelId = this.client.env.LOG_CHANNEL_ID
+    if (!logChannelId) {
+      this.client.logger.error('Log channel ID not found in configuration.')
+      return
+    }
+
+    try {
+      const channel = (await this.client.channels.fetch(logChannelId)) as TextChannel
+      if (!channel) {
+        this.client.logger.error(
+          `Log channel not found with ID ${logChannelId}. Please change the settings in .env or, if you have a channel, invite me to that guild.`
+        )
+        return
+      }
+      await channel.send({ embeds: [embed] })
+    } catch (error) {
+      this.client.logger.error(`Error sending message to log channel ${logChannelId}: ${error}`)
+    }
   }
 }

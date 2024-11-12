@@ -1,74 +1,71 @@
-import { ApplicationCommandOptionType } from 'discord.js'
-
-import { BaseClient, Command, Context } from '#common/index'
+import Command from '#common/command'
+import type MahinaBot from '#common/mahina_bot'
+import type Context from '#common/context'
 
 export default class Speed extends Command {
-  constructor(client: BaseClient) {
+  constructor(client: MahinaBot) {
     super(client, {
       name: 'speed',
       description: {
-        content: 'Define a velocidade da música',
-        examples: ['speed 1.5'],
+        content: 'cmd.speed.description',
+        examples: ['speed 1.5', 'speed 1,5'],
         usage: 'speed <number>',
       },
       category: 'filters',
-      aliases: ['speed'],
+      aliases: ['spd'],
       cooldown: 3,
       args: true,
+      vote: false,
       player: {
         voice: true,
         dj: true,
         active: true,
-        dj_perm: null,
+        djPerm: null,
       },
       permissions: {
         dev: false,
-        client: ['SendMessages', 'ViewChannel', 'EmbedLinks'],
-        user: ['ManageGuild'],
+        client: ['SendMessages', 'ReadMessageHistory', 'ViewChannel', 'EmbedLinks'],
+        user: [],
       },
       slashCommand: true,
       options: [
         {
           name: 'speed',
-          description: 'A velocidade da música',
-          type: ApplicationCommandOptionType.Integer,
+          description: 'cmd.speed.options.speed',
+          type: 3,
           required: true,
         },
       ],
     })
   }
 
-  async run(client: BaseClient, ctx: Context, args: string[]): Promise<any> {
-    const player = client.queue.get(ctx.guild!.id)
-    const speed = Number(args[0])
+  async run(client: MahinaBot, ctx: Context, args: string[]): Promise<any> {
+    const player = client.manager.getPlayer(ctx.guild!.id)
+    if (!player) return await ctx.sendMessage(ctx.locale('event.message.no_music_playing'))
+    const speedString = args[0].replace(',', '.')
+    const isValidNumber = /^[0-9]*\.?[0-9]+$/.test(speedString)
+    const speed = Number.parseFloat(speedString)
 
-    if (Number.isNaN(speed))
-      return await ctx.sendMessage({
+    if (!isValidNumber || Number.isNaN(speed) || speed < 0.5 || speed > 5) {
+      await ctx.sendMessage({
         embeds: [
           {
-            description: '𝙈𝙚 𝙙𝙚̂ 𝙪𝙢 𝙣𝙪́𝙢𝙚𝙧𝙤 𝙫𝙖́𝙡𝙞𝙙𝙤',
-            color: client.color.red,
+            description: ctx.locale('cmd.speed.messages.invalid_number'),
+            color: this.client.color.red,
           },
         ],
       })
+      return
+    }
 
-    if (speed < 0.5 || speed > 5)
-      return await ctx.sendMessage({
-        embeds: [
-          {
-            description: '𝙋𝙤𝙧 𝙛𝙖𝙫𝙤𝙧, 𝙘𝙤𝙡𝙤𝙦𝙪𝙚 𝙪𝙢 𝙣𝙪́𝙢𝙚𝙧𝙤 𝙚𝙣𝙩𝙧𝙚 0.5 𝙚 5',
-            color: client.color.red,
-          },
-        ],
-      })
-
-    player.player.setTimescale({ speed: speed })
-
-    return await ctx.sendMessage({
+    player.filterManager.setSpeed(speed)
+    await ctx.sendMessage({
       embeds: [
         {
-          description: `𝙊 𝙛𝙞𝙡𝙩𝙧𝙤 𝙙𝙚 𝙫𝙚𝙡𝙤𝙘𝙞𝙙𝙖𝙙𝙚 𝙚́ 𝙙𝙚 ${speed}`,
-          color: client.color.main,
+          description: ctx.locale('cmd.speed.messages.set_speed', {
+            speed,
+          }),
+          color: this.client.color.main,
         },
       ],
     })

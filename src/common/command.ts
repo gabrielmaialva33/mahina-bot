@@ -1,9 +1,5 @@
-import { BaseClient } from '#common/base_client'
-import {
-  ApplicationCommandOption,
-  APIApplicationCommandOption,
-  PermissionResolvable,
-} from 'discord.js'
+import type { APIApplicationCommandOption, PermissionResolvable } from 'discord.js'
+import type MahinaBot from '#common/mahina_bot'
 
 interface CommandDescription {
   content: string
@@ -15,7 +11,7 @@ interface CommandPlayer {
   voice: boolean
   dj: boolean
   active: boolean
-  dj_perm: string | null
+  djPerm: string | null
 }
 
 interface CommandPermissions {
@@ -30,7 +26,7 @@ interface CommandOptions {
   description?: Partial<CommandDescription>
   description_localizations?: Record<string, string>
   aliases?: string[]
-  cooldown: number
+  cooldown?: number
   args?: boolean
   vote?: boolean
   player?: Partial<CommandPlayer>
@@ -40,14 +36,14 @@ interface CommandOptions {
   category?: string
 }
 
-export class Command {
-  client: BaseClient
+export default class Command {
+  client: MahinaBot
   name: string
   name_localizations?: Record<string, string>
   description: CommandDescription
   description_localizations?: Record<string, string>
   aliases: string[]
-  cooldown: number = 3
+  cooldown: number
   args: boolean
   vote: boolean
   player: CommandPlayer
@@ -56,7 +52,7 @@ export class Command {
   options: APIApplicationCommandOption[]
   category: string
 
-  constructor(client: BaseClient, options: CommandOptions) {
+  constructor(client: MahinaBot, options: CommandOptions) {
     this.client = client
     this.name = options.name
     this.name_localizations = options.name_localizations ?? {}
@@ -70,26 +66,23 @@ export class Command {
     this.cooldown = options.cooldown ?? 3
     this.args = options.args ?? false
     this.vote = options.vote ?? false
-
     this.player = {
       voice: options.player?.voice ?? false,
       dj: options.player?.dj ?? false,
       active: options.player?.active ?? false,
-      dj_perm: options.player?.dj_perm ?? null,
+      djPerm: options.player?.djPerm ?? null,
     }
-
     this.permissions = {
       dev: options.permissions?.dev ?? false,
       client: options.permissions?.client ?? ['SendMessages', 'ViewChannel', 'EmbedLinks'],
       user: options.permissions?.user ?? [],
     }
-
     this.slashCommand = options.slashCommand ?? false
     this.options = options.options ?? []
     this.category = options.category ?? 'general'
   }
 
-  async run(_client: BaseClient, _message: any, _args: string[]): Promise<any> {
+  async run(_client: MahinaBot, _message: any, _args: string[]): Promise<any> {
     return await Promise.resolve()
   }
 }

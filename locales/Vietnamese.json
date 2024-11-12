@@ -32,7 +32,7 @@
       "options": {
         "command": "Lệnh bạn muốn xem thông tin"
       },
-      "content": "Chào bạn! Tôi là {bot}, một bot phát nhạc được tạo bởi [Lavamusic](https://github.com/appujet/lavamusic) và Discord. Bạn có thể sử dụng `{prefix}help <command>` để biết thêm thông tin về lệnh.",
+      "content": "Chào bạn! Tôi là {bot}, một bot phát nhạc được tạo bởi [MahinaBot](https://github.com/gabrielmaialva33/mahina-bot) và Discord. Bạn có thể sử dụng `{prefix}help <command>` để biết thêm thông tin về lệnh.",
       "title": "Menu trợ giúp",
       "not_found": "Lệnh `{cmdName}` này không tồn tại.",
       "help_cmd": "**Mô tả:** {description}\n**Cách sử dụng:** {usage}\n**Ví dụ:** {examples}\n**Biệt danh:** {aliases}\n**Danh mục:** {category}\n**Thời gian chờ:** {cooldown} giây\n**Quyền:** {premUser}\n**Quyền của bot:** {premBot}\n**Chỉ dành cho nhà phát triển:** {dev}\n**Lệnh Slash:** {slash}\n**Tham số:** {args}\n**Trình phát:** {player}\n**DJ:** {dj}\n**Quyền của DJ:** {djPerm}\n**Giọng nói:** {voice}",
@@ -48,7 +48,7 @@
         "creator": "Người tạo",
         "repository": "Kho lưu trữ",
         "support": "Hỗ trợ",
-        "description": "Anh ấy thực sự muốn tạo dự án mã nguồn mở đầu tiên của mình để có thêm kinh nghiệm lập trình. Trong dự án này, anh ấy đã thách thức bản thân để tạo ra một dự án với ít lỗi hơn. Hy vọng bạn thích sử dụng LavaMusic!"
+        "description": "Anh ấy thực sự muốn tạo dự án mã nguồn mở đầu tiên của mình để có thêm kinh nghiệm lập trình. Trong dự án này, anh ấy đã thách thức bản thân để tạo ra một dự án với ít lỗi hơn. Hy vọng bạn thích sử dụng MahinaBot!"
       }
     },
     "dj": {
@@ -134,9 +134,12 @@
       "messages": {
         "filter_enabled": "`✅` | Bộ lọc Bassboost đã được `BẬT`. \n**Cẩn thận, nghe quá to có thể gây hại cho thính giác của bạn!**",
         "filter_disabled": "`✅` | Bộ lọc Bassboost đã được `TẮT`."
+      },
+      "options": {
+        "level": "The bassboost level you want to set"
       }
     },
-    "distorsion": {
+    "distortion": {
       "description": "Bật/tắt bộ lọc distortion",
       "messages": {
         "filter_enabled": "`✅` | Bộ lọc Distortion đã được `BẬT`.",
@@ -494,6 +497,9 @@
         "playlist_stolen": "Đã đánh cắp danh sách phát `{playlist}` từ {user} thành công.",
         "error_occurred": "Đã xảy ra lỗi khi đánh cắp danh sách phát."
       }
+    },
+    "lyrics": {
+      "description": "Get's the lyrics of the currently playing track"
     }
   },
   "buttons": {
@@ -613,7 +619,6 @@
       "no_previous_track": "Không có bài hát trước.",
       "playing_previous": "Đang phát bài hát trước.",
       "previous_footer": "Đang phát bài hát trước bởi {displayName}",
-      "rewind_limit": "Bạn không thể quay lại nhạc nhiều hơn độ dài của bài hát.",
       "rewinded": "Đã quay lại nhạc.",
       "rewind_footer": "Quay lại bởi {displayName}",
       "forward_limit": "Bạn không thể tiến tới nhạc nhiều hơn độ dài của bài hát.",

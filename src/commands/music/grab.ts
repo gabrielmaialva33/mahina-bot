@@ -1,27 +1,31 @@
-import { BaseClient, Command, Context } from '#common/index'
+import Command from '#common/command'
+import type MahinaBot from '#common/mahina_bot'
+import type Context from '#common/context'
+import { Requester } from '#src/types'
 
 export default class Grab extends Command {
-  constructor(client: BaseClient) {
+  constructor(client: MahinaBot) {
     super(client, {
       name: 'grab',
       description: {
-        content: 'Pega a música que está tocando e envia no seu privado',
+        content: 'cmd.grab.description',
         examples: ['grab'],
         usage: 'grab',
       },
       category: 'music',
-      aliases: [],
+      aliases: ['gr'],
       cooldown: 3,
       args: false,
+      vote: false,
       player: {
         voice: false,
         dj: false,
         active: true,
-        dj_perm: null,
+        djPerm: null,
       },
       permissions: {
         dev: false,
-        client: ['SendMessages', 'ViewChannel', 'EmbedLinks'],
+        client: ['SendMessages', 'ReadMessageHistory', 'ViewChannel', 'EmbedLinks'],
         user: [],
       },
       slashCommand: true,
@@ -29,30 +33,61 @@ export default class Grab extends Command {
     })
   }
 
-  async run(client: BaseClient, ctx: Context): Promise<any> {
-    const embed = client.embed().setColor(client.color.main)
-    let player = client.queue.get(ctx.guild!.id)
-    let song = player.current
+  async run(client: MahinaBot, ctx: Context): Promise<any> {
+    const player = client.manager.getPlayer(ctx.guild!.id)
+
+    await ctx.sendDeferMessage(ctx.locale('cmd.grab.loading'))
+
+    if (!player?.queue.current) {
+      return await ctx.sendMessage({
+        embeds: [
+          this.client
+            .embed()
+            .setColor(this.client.color.red)
+            .setDescription(ctx.locale('player.errors.no_song')),
+        ],
+      })
+    }
+
+    const song = player.queue.current
+
+    const songInfo = ctx.locale('cmd.grab.content', {
+      title: song.info.title,
+      uri: song.info.uri,
+      artworkUrl: song.info.artworkUrl,
+      length: song.info.isStream ? 'LIVE' : client.utils.formatTime(song.info.duration),
+      requester: (song.requester as Requester).id,
+    })
 
     try {
-      const dm = client
-        .embed()
-        .setTitle(`**${song!.info.title}**`)
-        .setURL(song!.info.uri!)
-        .setThumbnail(song!.info.artworkUrl!)
-        .setDescription(
-          `**𝘿𝙪𝙧𝙖𝙘̧𝙖̃𝙤:** ${
-            song!.info.isStream ? '🔴 𝙇𝙄𝙑𝙀' : client.utils.formatTime(song!.info.length)
-          }\n**𝙋𝙚𝙙𝙞𝙙𝙖 𝙥𝙤𝙚:** ${song!.info.requestedBy}\n**𝙇𝙞𝙣𝙠:** [𝙘𝙡𝙞𝙦𝙪𝙚 𝙖𝙠𝙞](${song!.info.uri})`
-        )
-        .setColor(client.color.main)
-      await ctx.author!.send({ embeds: [dm] })
-      return await ctx.sendMessage({
-        embeds: [embed.setDescription(`**𝙏𝙚 𝙢𝙖𝙣𝙙𝙚𝙞 𝙪𝙢 𝙋𝙑.**`).setColor(client.color.green)],
+      await ctx.author?.send({
+        embeds: [
+          this.client
+            .embed()
+            .setTitle(`**${song.info.title}**`)
+            .setURL(song.info.uri!)
+            .setThumbnail(song.info.artworkUrl!)
+            .setDescription(songInfo)
+            .setColor(this.client.color.main),
+        ],
       })
-    } catch (e) {
-      return await ctx.sendMessage({
-        embeds: [embed.setDescription(`**𝙉𝙖̃𝙤 𝙘𝙤𝙣𝙨𝙚𝙜𝙪𝙞 𝙩𝙚 𝙚𝙣𝙫𝙞𝙖𝙧 𝙋𝙑.**`).setColor(client.color.red)],
+
+      return await ctx.editMessage({
+        embeds: [
+          this.client
+            .embed()
+            .setDescription(ctx.locale('cmd.grab.check_dm'))
+            .setColor(this.client.color.green),
+        ],
+      })
+    } catch (_e) {
+      return await ctx.editMessage({
+        embeds: [
+          this.client
+            .embed()
+            .setDescription(ctx.locale('cmd.grab.dm_failed'))
+            .setColor(this.client.color.red),
+        ],
       })
     }
   }

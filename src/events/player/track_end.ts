@@ -1,22 +1,33 @@
-import { Player } from 'shoukaku'
+import type { TextChannel } from 'discord.js'
+import type { Player, Track, TrackStartEvent } from 'lavalink-client'
 
-import { BaseClient, Dispatcher, Event, Song } from '#common/index'
+import Event from '#common/event'
+import type MahinaBot from '#common/mahina_bot'
 
 export default class TrackEnd extends Event {
-  constructor(client: BaseClient, file: string) {
-    super(client, file, { name: 'trackEnd' })
+  constructor(client: MahinaBot, file: string) {
+    super(client, file, {
+      name: 'trackEnd',
+    })
   }
 
-  async run(_player: Player, track: Song, dispatcher: Dispatcher): Promise<void> {
-    dispatcher.previous = dispatcher.current
-    dispatcher.current = null
-    const m = await dispatcher.nowPlayingMessage?.fetch().catch(() => {})
-    if (dispatcher.loop === 'repeat') dispatcher.queue.unshift(track)
-    if (dispatcher.loop === 'queue') dispatcher.queue.push(track)
-    await dispatcher.play()
-    if (dispatcher.autoplay) {
-      await dispatcher.Autoplay(track)
-    }
-    if (m && m.deletable) await m.delete().catch(() => {})
+  async run(player: Player, _track: Track | null, _payload: TrackStartEvent): Promise<void> {
+    const guild = this.client.guilds.cache.get(player.guildId)
+    if (!guild) return
+
+    const messageId = player.get<string | undefined>('messageId')
+    if (!messageId) return
+
+    const channel = guild.channels.cache.get(player.textChannelId!) as TextChannel
+    if (!channel) return
+
+    const message = await channel.messages.fetch(messageId).catch(() => {
+      null
+    })
+    if (!message) return
+
+    message.delete().catch(() => {
+      null
+    })
   }
 }

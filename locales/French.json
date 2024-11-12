@@ -32,7 +32,7 @@
       "options": {
         "command": "La commande sur laquelle vous souhaitez obtenir des informations"
       },
-      "content": "Salut ! Je suis {bot}, un bot de musique créé avec [Lavamusic](https://github.com/appujet/lavamusic) et Discord. Vous pouvez utiliser `{prefix}help <command>` pour obtenir plus d'informations sur une commande.",
+      "content": "Salut ! Je suis {bot}, un bot de musique créé avec [MahinaBot](https://github.com/gabrielmaialva33/mahina-bot) et Discord. Vous pouvez utiliser `{prefix}help <command>` pour obtenir plus d'informations sur une commande.",
       "title": "Menu d'aide",
       "not_found": "La commande `{cmdName}` n'existe pas.",
       "help_cmd": "**Description:** {description}\n**Utilisation:** {usage}\n**Exemples:** {examples}\n**Alias:** {aliases}\n**Catégorie:** {category}\n**Refroidissement:** {cooldown} secondes\n**Permissions de l'utilisateur:** {premUser}\n**Permissions du bot:** {premBot}\n**Développeur uniquement:** {dev}\n**Commande Slash:** {slash}\n**Args:** {args}\n**Lecteur:** {player}\n**DJ:** {dj}\n**Permissions DJ:** {djPerm}\n**Voix:** {voice}",
@@ -48,7 +48,7 @@
         "creator": "Créateur",
         "repository": "Dépôt",
         "support": "Assistance",
-        "description": "Il voulait vraiment faire son premier projet open source pour plus d'expérience en codage. Dans ce projet, il a été mis au défi de faire un projet avec moins de bugs. J'espère que vous apprécierez l'utilisation de LavaMusic !"
+        "description": "Il voulait vraiment faire son premier projet open source pour plus d'expérience en codage. Dans ce projet, il a été mis au défi de faire un projet avec moins de bugs. J'espère que vous apprécierez l'utilisation de MahinaBot !"
       }
     },
     "dj": {
@@ -121,9 +121,12 @@
       "messages": {
         "filter_enabled": "`✅` | Le filtre de basses a été `ACTIVÉ`. \n**Attention, écouter trop fort peut endommager votre audition !**",
         "filter_disabled": "`✅` | Le filtre de basses a été `DÉSACTIVÉ`."
+      },
+      "options": {
+        "level": "The bassboost level you want to set"
       }
     },
-    "distorsion": {
+    "distortion": {
       "description": "Active/désactive le filtre de distorsion",
       "messages": {
         "filter_enabled": "`✅` | Le filtre de distorsion a été `ACTIVÉ`.",
@@ -494,6 +497,9 @@
         "language": "La langue que vous souhaitez définir",
         "reset": "Change la langue par défaut"
       }
+    },
+    "lyrics": {
+      "description": "Get's the lyrics of the currently playing track"
     }
   },
   "buttons": {
@@ -613,7 +619,6 @@
       "no_previous_track": "Il n'y a pas de piste précédente.",
       "playing_previous": "Lecture de la piste précédente.",
       "previous_footer": "Lecture de la piste précédente par {displayName}",
-      "rewind_limit": "Vous ne pouvez pas rembobiner la musique plus que la longueur de la chanson.",
       "rewinded": "Rembobinage de la musique.",
       "rewind_footer": "Rembobiné par {displayName}",
       "forward_limit": "Vous ne pouvez pas avancer la musique plus que la longueur de la chanson.",

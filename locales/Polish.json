@@ -32,7 +32,7 @@
       "options": {
         "command": "Komenda, o której chcesz uzyskać więcej informacji"
       },
-      "content": "Cześć! Jestem {bot}, botem muzycznym stworzonym przy użyciu [Lavamusic](https://github.com/appujet/lavamusic) i Discord. Możesz użyć komendy `{prefix}help <command>`, aby uzyskać więcej informacji o danej komendzie.",
+      "content": "Cześć! Jestem {bot}, botem muzycznym stworzonym przy użyciu [MahinaBot](https://github.com/gabrielmaialva33/mahina-bot) i Discord. Możesz użyć komendy `{prefix}help <command>`, aby uzyskać więcej informacji o danej komendzie.",
       "title": "Menu Pomocy",
       "not_found": "Komenda`{cmdName}` nie istnieje.",
       "help_cmd": "**Opis:** {description}\n**Użycie:** {usage}\n**Przykłady:** {examples}\n**Alias:** {aliases}\n**Kategoria:** {category}\n**Odnowienie:** {cooldown} sekund\n**Uprawnienia:** {premUser}\n**Uprawnienia bota:** {premBot}\n**Tylko dla deweloperów:** {dev}\n**Komenda Slash:** {slash}\n**Argumenty:** {args}\n**Odtwarzacz:** {player}\n**DJ:** {dj}\n**Uprawnienia DJ:** {djPerm}\n**Głos:** {voice}",
@@ -48,7 +48,7 @@
         "creator": "Twórca",
         "repository": "Repozytorium",
         "support": "Pomoc",
-        "description": "Chciałem stworzyć swój pierwszy projekt open source, aby zdobyć więcej doświadczenia w programowaniu. W tym projekcie zostałem postawiony przed wyzwaniem stworzenia projektu z mniejszą liczbą błędów. Mam nadzieję, że korzystanie z LavaMusic sprawia Ci przyjemność!"
+        "description": "Chciałem stworzyć swój pierwszy projekt open source, aby zdobyć więcej doświadczenia w programowaniu. W tym projekcie zostałem postawiony przed wyzwaniem stworzenia projektu z mniejszą liczbą błędów. Mam nadzieję, że korzystanie z MahinaBot sprawia Ci przyjemność!"
       }
     },
     "dj": {
@@ -134,9 +134,12 @@
       "messages": {
         "filter_enabled": "`✅` | Filtr wzmocnienia basów został `WŁĄCZONY`. \n**Uwaga, zbyt głośne słuchanie może uszkodzić słuch!**",
         "filter_disabled": "`✅` | Filtr wzmocnienia basów został `WYŁĄCZONY`."
+      },
+      "options": {
+        "level": "The bassboost level you want to set"
       }
     },
-    "distorsion": {
+    "distortion": {
       "description": "Włącz/wyłącz filtr zniekształcenia",
       "messages": {
         "filter_enabled": "`✅` | Filtr zniekształcenia został `WŁĄCZONY`.",
@@ -494,6 +497,9 @@
         "playlist_stolen": "Pomyślnie skradziono playlistę `{playlist}` od {user}.",
         "error_occurred": "Wystąpił błąd podczas kradzieży playlisty."
       }
+    },
+    "lyrics": {
+      "description": "Get's the lyrics of the currently playing track"
     }
   },
   "buttons": {
@@ -613,7 +619,6 @@
       "no_previous_track": "Nie ma żadnego poprzedniego utworu.",
       "playing_previous": "Odtwarzanie poprzedniego utworu",
       "previous_footer": "Utwór ostatnio odtwarzany przez {displayName}",
-      "rewind_limit": "Nie można cofnąć muzyki o więcej niż długość utworu.",
       "rewinded": "Cofnięto muzykę.",
       "rewind_footer": "Cofnięty przez {displayName}",
       "forward_limit": "Nie można przesunąć muzyki do przodu o więcej niż długość utworu.",

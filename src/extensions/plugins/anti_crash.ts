@@ -1,11 +1,11 @@
-import { BaseClient } from '#common/index'
-import { BotPlugin } from '#src/extensions/index'
+import type MahinaBot from '#common/mahina_bot'
+import { type BotPlugin } from '#src/extensions/index'
 
 const AntiCrash: BotPlugin = {
   name: 'AntiCrash Plugin',
   version: '1.0.0',
   author: 'mrootx',
-  initialize: (client: BaseClient) => {
+  initialize: (client: MahinaBot) => {
     const handleExit = async (): Promise<void> => {
       if (client) {
         client.logger.star('Disconnecting from Discord...')
@@ -14,15 +14,12 @@ const AntiCrash: BotPlugin = {
         process.exit()
       }
     }
-
     process.on('unhandledRejection', (reason, promise) => {
       client.logger.error('Unhandled Rejection at:', promise, 'reason:', reason)
     })
-
     process.on('uncaughtException', (err) => {
       client.logger.error('Uncaught Exception thrown:', err)
     })
-
     process.on('SIGINT', handleExit)
     process.on('SIGTERM', handleExit)
     process.on('SIGQUIT', handleExit)

@@ -1,11 +1,13 @@
-import { BaseClient, Command, Context } from '#common/index'
+import Command from '#common/command'
+import type MahinaBot from '#common/mahina_bot'
+import type Context from '#common/context'
 
 export default class Karaoke extends Command {
-  constructor(client: BaseClient) {
+  constructor(client: MahinaBot) {
     super(client, {
       name: 'karaoke',
       description: {
-        content: 'on/off o filtro karaoke',
+        content: 'cmd.karaoke.description',
         examples: ['karaoke'],
         usage: 'karaoke',
       },
@@ -13,49 +15,45 @@ export default class Karaoke extends Command {
       aliases: ['kk'],
       cooldown: 3,
       args: false,
+      vote: false,
       player: {
         voice: true,
         dj: true,
         active: true,
-        dj_perm: null,
+        djPerm: null,
       },
       permissions: {
         dev: false,
-        client: ['SendMessages', 'ViewChannel', 'EmbedLinks'],
-        user: ['ManageGuild'],
+        client: ['SendMessages', 'ReadMessageHistory', 'ViewChannel', 'EmbedLinks'],
+        user: [],
       },
       slashCommand: true,
       options: [],
     })
   }
 
-  async run(client: BaseClient, ctx: Context): Promise<any> {
-    const player = client.queue.get(ctx.guild!.id)
+  async run(client: MahinaBot, ctx: Context): Promise<any> {
+    const player = client.manager.getPlayer(ctx.guild!.id)
+    if (!player) return await ctx.sendMessage(ctx.locale('event.message.no_music_playing'))
+    const filterEnabled = player.filterManager.filters.karaoke
 
-    if (player.filters.includes('karaoke')) {
-      player.player.setKaraoke()
-      player.filters.splice(player.filters.indexOf('karaoke'), 1)
-      ctx.sendMessage({
+    if (filterEnabled) {
+      await player.filterManager.toggleKaraoke()
+      await ctx.sendMessage({
         embeds: [
           {
-            description: '𝙊 𝙛𝙞𝙡𝙩𝙧𝙤 𝙠𝙖𝙧𝙖𝙤𝙠𝙚 𝙛𝙤𝙞 𝙙𝙚𝙨𝙖𝙩𝙞𝙫𝙙𝙤.',
-            color: client.color.main,
+            description: ctx.locale('cmd.karaoke.messages.filter_disabled'),
+            color: this.client.color.main,
           },
         ],
       })
     } else {
-      player.player.setKaraoke({
-        level: 1,
-        monoLevel: 1,
-        filterBand: 220,
-        filterWidth: 100,
-      })
-      player.filters.push('karaoke')
-      ctx.sendMessage({
+      await player.filterManager.toggleKaraoke()
+      await ctx.sendMessage({
         embeds: [
           {
-            description: '𝙁𝙞𝙡𝙩𝙧𝙤 𝙠𝙖𝙧𝙖𝙤𝙠𝙚 𝙖𝙩𝙞𝙫𝙖𝙙𝙤',
-            color: client.color.main,
+            description: ctx.locale('cmd.karaoke.messages.filter_enabled'),
+            color: this.client.color.main,
           },
         ],
       })

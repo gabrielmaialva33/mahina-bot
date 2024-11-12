@@ -1,11 +1,13 @@
-import { BaseClient, Command, Context } from '#common/index'
+import Command from '#common/command'
+import type MahinaBot from '#common/mahina_bot'
+import type Context from '#common/context'
 
 export default class Resume extends Command {
-  constructor(client: BaseClient) {
+  constructor(client: MahinaBot) {
     super(client, {
       name: 'resume',
       description: {
-        content: 'Continua a música que está pausada',
+        content: 'cmd.resume.description',
         examples: ['resume'],
         usage: 'resume',
       },
@@ -13,15 +15,16 @@ export default class Resume extends Command {
       aliases: ['r'],
       cooldown: 3,
       args: false,
+      vote: false,
       player: {
         voice: true,
         dj: false,
         active: true,
-        dj_perm: null,
+        djPerm: null,
       },
       permissions: {
         dev: false,
-        client: ['SendMessages', 'ViewChannel', 'EmbedLinks'],
+        client: ['SendMessages', 'ReadMessageHistory', 'ViewChannel', 'EmbedLinks'],
         user: [],
       },
       slashCommand: true,
@@ -29,19 +32,27 @@ export default class Resume extends Command {
     })
   }
 
-  async run(client: BaseClient, ctx: Context): Promise<any> {
-    const player = client.queue.get(ctx.guild!.id)
+  async run(client: MahinaBot, ctx: Context): Promise<any> {
+    const player = client.manager.getPlayer(ctx.guild!.id)
     const embed = this.client.embed()
-    if (!player.paused)
+    if (!player) return await ctx.sendMessage(ctx.locale('event.message.no_music_playing'))
+    if (!player.paused) {
       return await ctx.sendMessage({
         embeds: [
-          embed.setColor(this.client.color.red).setDescription('𝙊 𝙥𝙡𝙖𝙮𝙚𝙧 𝙣𝙖̃𝙤 𝙚𝙨𝙩𝙖́ 𝙥𝙖𝙪𝙨𝙖𝙙𝙤.'),
+          embed
+            .setColor(this.client.color.red)
+            .setDescription(ctx.locale('cmd.resume.errors.not_paused')),
         ],
       })
-    player.pause()
+    }
 
+    player.resume()
     return await ctx.sendMessage({
-      embeds: [embed.setColor(this.client.color.main).setDescription(`𝙍𝙚𝙩𝙤𝙢𝙖𝙣𝙙𝙤 𝙖 𝙢𝙪́𝙨𝙞𝙘𝙖.. 🎶`)],
+      embeds: [
+        embed
+          .setColor(this.client.color.main)
+          .setDescription(ctx.locale('cmd.resume.messages.resumed')),
+      ],
     })
   }
 }

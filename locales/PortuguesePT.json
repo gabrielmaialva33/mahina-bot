@@ -21,7 +21,7 @@
       "options": {
         "command": "O comando sobre o qual queres obter informações"
       },
-      "content": "Olá! Sou {bot}, um bot de música feito com [Lavamusic](https://github.com/appujet/lavamusic) e Discord. Podes usar `{prefix}help <command>` para obter mais informações sobre um comando.",
+      "content": "Olá! Sou {bot}, um bot de música feito com [MahinaBot](https://github.com/gabrielmaialva33/mahina-bot) e Discord. Podes usar `{prefix}help <command>` para obter mais informações sobre um comando.",
       "title": "Menu de Ajuda",
       "not_found": "Este comando `{cmdName}` não existe.",
       "help_cmd": "**Descrição:** {description}\n**Utilização:** {usage}\n**Exemplos:** {examples}\n**Alias:** {aliases}\n**Categoria:** {category}\n**Arrefecimento:** {cooldown} segundos\n**Permissões:** {premUser}\n**Permissões do Bot:** {premBot}\n**Apenas para desenvolvedores:** {dev}\n**Comando Slash:** {slash}\n**Args:** {args}\n**Reprodutor:** {player}\n**DJ:** {dj}\n**Permissões de DJ:** {djPerm}\n**Voz:** {voice}",
@@ -37,7 +37,7 @@
         "creator": "Criador",
         "repository": "Repositório",
         "support": "Suporte",
-        "description": "Ele realmente queria fazer seu primeiro projeto de código aberto para obter mais experiência em programação. Neste projeto, ele foi desafiado a fazer um projeto com menos bugs. Espero que você goste de usar LavaMusic!"
+        "description": "Ele realmente queria fazer seu primeiro projeto de código aberto para obter mais experiência em programação. Neste projeto, ele foi desafiado a fazer um projeto com menos bugs. Espero que você goste de usar MahinaBot!"
       }
     },
     "247": {
@@ -123,7 +123,7 @@
         "filter_disabled": "`✅` | O filtro de reforço de graves foi `DESATIVADO`."
       }
     },
-    "distorsion": {
+    "distortion": {
       "description": "Ativar/desativar filtro de distorção",
       "messages": {
         "filter_enabled": "`✅` | O filtro de distorção foi `ATIVADO`.",
@@ -613,7 +613,6 @@
       "no_previous_track": "Não há nenhuma faixa anterior.",
       "playing_previous": "A tocar a faixa anterior.",
       "previous_footer": "A tocar a faixa anterior por {displayName}",
-      "rewind_limit": "Não pode retroceder a música mais do que o comprimento da música.",
       "rewinded": "A música foi retrocedida.",
       "rewind_footer": "Retrocedido por {displayName}",
       "forward_limit": "Não pode avançar a música mais do que o comprimento da música.",

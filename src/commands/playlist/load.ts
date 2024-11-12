@@ -1,80 +1,131 @@
-import { ApplicationCommandOptionType } from 'discord.js'
+import type { AutocompleteInteraction, GuildMember } from 'discord.js'
+import Command from '#common/command'
+import type MahinaBot from '#common/mahina_bot'
+import type Context from '#common/context'
 
-import { BaseClient, Command, Context } from '#common/index'
-
-export default class Load extends Command {
-  constructor(client: BaseClient) {
+export default class LoadPlaylist extends Command {
+  constructor(client: MahinaBot) {
     super(client, {
       name: 'load',
       description: {
-        content: 'Carrega uma playlist',
+        content: 'cmd.load.description',
         examples: ['load <playlist>'],
         usage: 'load <playlist>',
       },
       category: 'playlist',
-      aliases: [],
+      aliases: ['lo'],
       cooldown: 3,
       args: true,
+      vote: true,
       player: {
         voice: true,
         dj: false,
         active: false,
-        dj_perm: null,
+        djPerm: null,
       },
       permissions: {
         dev: false,
-        client: ['SendMessages', 'ViewChannel', 'EmbedLinks'],
+        client: ['SendMessages', 'ReadMessageHistory', 'ViewChannel', 'EmbedLinks'],
         user: [],
       },
       slashCommand: true,
       options: [
         {
           name: 'playlist',
-          description: 'O nome da playlist que você quer carregar',
-          type: ApplicationCommandOptionType.String,
+          description: 'cmd.load.options.playlist',
+          type: 3,
           required: true,
+          autocomplete: true,
         },
       ],
     })
   }
 
-  async run(client: BaseClient, ctx: Context, args: string[]): Promise<any> {
-    if (!ctx.guild) return
-    if (!ctx.author) return
-
-    let player = client.queue.get(ctx.guild.id)
-    const playlist = args.join(' ').replace(/\s/g, '')
-    const playlistData = (await client.db.getPlaylist(ctx.author.id, playlist)) as any
-    if (!playlistData)
+  async run(client: MahinaBot, ctx: Context, args: string[]): Promise<any> {
+    let player = client.manager.getPlayer(ctx.guild!.id)
+    const playlistName = args.join(' ').trim()
+    const playlistData = await client.db.getPlaylist(ctx.author?.id!, playlistName)
+    if (!playlistData) {
       return await ctx.sendMessage({
         embeds: [
           {
-            description: '𝘼 𝙥𝙡𝙖𝙮𝙡𝙞𝙨𝙩 𝙣𝙖̃𝙤 𝙚𝙭𝙞𝙨𝙩𝙚',
+            description: ctx.locale('cmd.load.messages.playlist_not_exist'),
+            color: this.client.color.red,
+          },
+        ],
+      })
+    }
+
+    const songs = await client.db.getTracksFromPlaylist(ctx.author?.id!, playlistName)
+    if (songs.length === 0) {
+      return await ctx.sendMessage({
+        embeds: [
+          {
+            description: ctx.locale('cmd.load.messages.playlist_empty'),
             color: client.color.red,
           },
         ],
       })
-    for await (const song of JSON.parse(playlistData.songs).map((s: any) => s)) {
-      const vc = ctx.member as any
-      if (!player)
-        player = await client.queue.create(
-          ctx.guild!,
-          vc.voice.channel,
-          ctx.channel,
-          client.shoukaku.options.nodeResolver(client.shoukaku.nodes)
-        )
-
-      const track = player.buildTrack(song, ctx.author!)
-      player.queue.push(track)
-      player.isPlaying()
     }
+
+    const member = ctx.member as GuildMember
+    if (!player) {
+      player = client.manager.createPlayer({
+        guildId: ctx.guild!.id,
+        voiceChannelId: member.voice.channelId!,
+        textChannelId: ctx.channel.id,
+        selfMute: false,
+        selfDeaf: true,
+        vcRegion: member.voice.channel?.rtcRegion!,
+      })
+      if (!player.connected) await player.connect()
+    }
+
+    const nodes = client.manager.nodeManager.leastUsedNodes()
+    const node = nodes[Math.floor(Math.random() * nodes.length)]
+    const tracks = await node.decode.multipleTracks(songs as any, ctx.author)
+    if (tracks.length === 0) {
+      return await ctx.sendMessage({
+        embeds: [
+          {
+            description: ctx.locale('cmd.load.messages.playlist_empty'),
+            color: client.color.red,
+          },
+        ],
+      })
+    }
+    player.queue.add(tracks)
+
+    if (!player.playing && player.queue.tracks.length > 0) await player.play({ paused: false })
+
     return await ctx.sendMessage({
       embeds: [
         {
-          description: `𝘾𝙖𝙧𝙧𝙚𝙜𝙤𝙪 \`${playlistData.name}\` 𝙘𝙤𝙢 \`${JSON.parse(playlistData.songs).length}\` 𝙢𝙪́𝙨𝙞𝙘𝙖𝙨`,
-          color: client.color.main,
+          description: ctx.locale('cmd.load.messages.playlist_loaded', {
+            name: playlistData.name,
+            count: songs.length,
+          }),
+          color: this.client.color.main,
         },
       ],
     })
+  }
+
+  async autocomplete(interaction: AutocompleteInteraction): Promise<void> {
+    const focusedValue = interaction.options.getFocused()
+    const userId = interaction.user.id
+
+    const playlists = await this.client.db.getUserPlaylists(userId)
+
+    const filtered = playlists.filter((playlist: { name: string }) =>
+      playlist.name.toLowerCase().startsWith(focusedValue.toLowerCase())
+    )
+
+    await interaction.respond(
+      filtered.map((playlist: { name: any }) => ({
+        name: playlist.name,
+        value: playlist.name,
+      }))
+    )
   }
 }

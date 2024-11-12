@@ -1,13 +1,13 @@
-import { Command } from '#common/command'
-import { BaseClient } from '#common/base_client'
-import { Context } from '#common/context'
+import Command from '#common/command'
+import type MahinaBot from '#common/mahina_bot'
+import type Context from '#common/context'
 
 export default class Ping extends Command {
-  constructor(client: BaseClient) {
+  constructor(client: MahinaBot) {
     super(client, {
       name: 'ping',
       description: {
-        content: `Mostra o ping da ${client.env.DISC_BOT_NAME}`,
+        content: 'cmd.ping.description',
         examples: ['ping'],
         usage: 'ping',
       },
@@ -15,9 +15,16 @@ export default class Ping extends Command {
       aliases: ['pong'],
       cooldown: 3,
       args: false,
+      vote: false,
+      player: {
+        voice: false,
+        dj: false,
+        active: false,
+        djPerm: null,
+      },
       permissions: {
         dev: false,
-        client: ['SendMessages', 'ViewChannel', 'EmbedLinks'],
+        client: ['SendMessages', 'ReadMessageHistory', 'ViewChannel', 'EmbedLinks'],
         user: [],
       },
       slashCommand: true,
@@ -25,28 +32,39 @@ export default class Ping extends Command {
     })
   }
 
-  async run(client: BaseClient, ctx: Context): Promise<any> {
-    const msg = await ctx.sendDeferMessage('📡 𝙥𝙞𝙣𝙜𝙖𝙣𝙙𝙚..')
+  async run(client: MahinaBot, ctx: Context): Promise<any> {
+    const msg = await ctx.sendDeferMessage(ctx.locale('cmd.ping.content'))
 
-    const embed = client
+    const botLatency = msg.createdTimestamp - ctx.createdTimestamp
+    const apiLatency = Math.round(ctx.client.ws.ping)
+
+    const botLatencySign = botLatency < 600 ? '+' : '-'
+    const apiLatencySign = apiLatency < 500 ? '+' : '-'
+
+    const embed = this.client
       .embed()
-      .setAuthor({ name: '𝙋𝙤𝙣𝙜 🏓', iconURL: this.client.user!.displayAvatarURL() })
+      .setAuthor({
+        name: 'Pong',
+        iconURL: client.user?.displayAvatarURL(),
+      })
       .setColor(this.client.color.main)
       .addFields([
         {
-          name: '𝐁𝐨𝐭 𝐋𝐚𝐭𝐞𝐧𝐜𝐲',
-          value: `\`\`\`ini\n[ ${msg!.createdTimestamp - ctx.createdTimestamp}ms ]\n\`\`\``,
+          name: ctx.locale('cmd.ping.bot_latency'),
+          value: `\`\`\`diff\n${botLatencySign} ${botLatency}ms\n\`\`\``,
           inline: true,
         },
         {
-          name: '𝐀𝐏𝐈 𝐋𝐚𝐭𝐞𝐧𝐜𝐲',
-          value: `\`\`\`ini\n[ ${Math.round(ctx.client.ws.ping)}ms ]\n\`\`\``,
+          name: ctx.locale('cmd.ping.api_latency'),
+          value: `\`\`\`diff\n${apiLatencySign} ${apiLatency}ms\n\`\`\``,
           inline: true,
         },
       ])
       .setFooter({
-        text: `𝙥𝙚𝙙𝙞𝙙𝙤 𝙥𝙤𝙧 ${ctx.author!.tag}`,
-        iconURL: ctx.author!.avatarURL({})!,
+        text: ctx.locale('cmd.ping.requested_by', {
+          author: ctx.author?.tag,
+        }),
+        iconURL: ctx.author?.displayAvatarURL({}),
       })
       .setTimestamp()
 

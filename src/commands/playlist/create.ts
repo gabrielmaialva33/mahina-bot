@@ -1,71 +1,79 @@
-import { ApplicationCommandOptionType } from 'discord.js'
+import Command from '#common/command'
+import type MahinaBot from '#common/mahina_bot'
+import type Context from '#common/context'
 
-import { BaseClient, Command, Context } from '#common/index'
-
-export default class Create extends Command {
-  constructor(client: BaseClient) {
+export default class CreatePlaylist extends Command {
+  constructor(client: MahinaBot) {
     super(client, {
       name: 'create',
       description: {
-        content: 'Cria uma playlist',
+        content: 'cmd.create.description',
         examples: ['create <name>'],
         usage: 'create <name>',
       },
       category: 'playlist',
-      aliases: ['create'],
+      aliases: ['cre'],
       cooldown: 3,
       args: true,
+      vote: true,
       player: {
         voice: false,
         dj: false,
         active: false,
-        dj_perm: null,
+        djPerm: null,
       },
       permissions: {
         dev: false,
-        client: ['SendMessages', 'ViewChannel', 'EmbedLinks'],
+        client: ['SendMessages', 'ReadMessageHistory', 'ViewChannel', 'EmbedLinks'],
         user: [],
       },
       slashCommand: true,
       options: [
         {
           name: 'name',
-          description: 'O nome da playlist',
-          type: ApplicationCommandOptionType.String,
+          description: 'cmd.create.options.name',
+          type: 3,
           required: true,
         },
       ],
     })
   }
 
-  async run(client: BaseClient, ctx: Context, args: string[]): Promise<any> {
-    const name = args.join(' ').replace(/\s/g, '')
-    if (name.length > 50)
+  async run(client: MahinaBot, ctx: Context, args: string[]): Promise<any> {
+    const name = args.join(' ').trim()
+    const embed = this.client.embed()
+
+    if (name.length > 50) {
       return await ctx.sendMessage({
         embeds: [
-          {
-            description: '𝙊 𝙣𝙤𝙢𝙚 𝙙𝙖 𝙥𝙡𝙖𝙮𝙡𝙞𝙨𝙩 𝙣𝙖̃𝙤 𝙥𝙤𝙙𝙚 𝙩𝙚𝙧 𝙢𝙖𝙞𝙨 𝙙𝙚 50 𝙘𝙖𝙧𝙖𝙘𝙩𝙚𝙧𝙚𝙨',
-            color: client.color.red,
-          },
+          embed
+            .setDescription(ctx.locale('cmd.create.messages.name_too_long'))
+            .setColor(this.client.color.red),
         ],
       })
-    const playlist = await client.db.getPlaylist(ctx.author!.id, name)
-    if (playlist)
+    }
+
+    const playlistExists = await client.db.getPlaylist(ctx.author?.id!, name)
+    if (playlistExists) {
       return await ctx.sendMessage({
         embeds: [
-          {
-            description: '𝙅𝙖́ 𝙚𝙭𝙞𝙨𝙩𝙚 𝙪𝙢𝙖 𝙥𝙡𝙖𝙮𝙡𝙞𝙨𝙩 𝙘𝙤𝙢 𝙚𝙨𝙨𝙚 𝙣𝙤𝙢𝙚',
-            color: client.color.main,
-          },
+          embed
+            .setDescription(ctx.locale('cmd.create.messages.playlist_exists'))
+            .setColor(this.client.color.red),
         ],
       })
-    await client.db.createPlaylist(ctx.author!.id, name)
+    }
+
+    await client.db.createPlaylist(ctx.author?.id!, name)
     return await ctx.sendMessage({
       embeds: [
-        {
-          description: `𝙋𝙡𝙖𝙮𝙡𝙞𝙨𝙩 𝙘𝙤𝙢 𝙤 𝙣𝙤𝙢𝙚 ${name} 𝙘𝙧𝙞𝙖𝙙𝙖 𝙘𝙤𝙢 𝙨𝙪𝙘𝙚𝙨𝙨𝙤`,
-          color: client.color.main,
-        },
+        embed
+          .setDescription(
+            ctx.locale('cmd.create.messages.playlist_created', {
+              name,
+            })
+          )
+          .setColor(this.client.color.green),
       ],
     })
   }

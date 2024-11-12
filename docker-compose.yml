@@ -4,43 +4,22 @@ services:
     image: ghcr.io/lavalink-devs/lavalink
     restart: on-failure
     environment:
-      _JAVA_OPTIONS: -Xmx6G
-      SERVER_PORT: 2333
-      SERVER_ADDRESS: 0.0.0.0
-      LAVALINK_SERVER_PASSWORD: 'Mahina@551238'
+      - SERVER_PORT=2333
     volumes:
-      - ./application.yml:/opt/Lavalink/application.yml
-      - ./plugins/:/opt/Lavalink/plugins/
+      - ./lavalink/application.yml:/opt/lavalink/application.yml
+      - ./lavalink/plugins/:/opt/lavalink/plugins/
+    networks:
+      - lavalink-net
+    expose:
+      - 2333
+    ports:
+      - '2333:2333'
     healthcheck:
       test: 'curl -H "Authorization: Mahina@551238" -s http://localhost:2333/version'
       interval: 10s
       timeout: 10s
       retries: 5
       start_period: 10s
-    depends_on:
-      - warp
-    network_mode: 'container:warp'
-
-  warp:
-    image: caomingjun/warp
-    restart: unless-stopped
-    container_name: warp
-    ports:
-      - '1080:1080'
-    environment:
-      - WARP_SLEEP=2
-    cap_add:
-      - NET_ADMIN
-    sysctls:
-      - net.ipv6.conf.all.disable_ipv6=0
-      - net.ipv4.conf.all.src_valid_mark=1
-    volumes:
-      - ./data:/var/lib/cloudflare-warp
-      - ./nginx.conf:/etc/nginx/nginx.conf
-    networks:
-      lavalink-net:
-        aliases:
-          - lavalink
 
   mahina:
     build:
@@ -54,45 +33,29 @@ services:
       - '3000:3000'
     depends_on:
       - lavalink
-      - warp
     env_file:
       - .env
     environment:
-      TZ: ${TZ}
-      HOST: ${HOST}
-      PORT: ${PORT}
-      NODE_ENV: ${NODE_ENV}
-      DB_CLIENT: ${DB_CLIENT}
-      DB_DEBUG: ${DB_DEBUG}
-      DATABASE_URL: ${DATABASE_URL}
-      DISC_BOT_NAME: ${DISC_BOT_NAME}
-      DISC_BOT_PROFILE: ${DISC_BOT_PROFILE}
-      DISC_BOT_THUMBNAIL: ${DISC_BOT_THUMBNAIL}
-      DISC_BOT_COLOR: ${DISC_BOT_COLOR}
-      DISC_BOT_TOKEN: ${DISC_BOT_TOKEN}
-      DISC_USER_1_TOKEN: ${DISC_USER_1_TOKEN}
-      DISC_USER_2_TOKEN: ${DISC_USER_2_TOKEN}
-      DISC_USER_3_TOKEN: ${DISC_USER_3_TOKEN}
-      DISC_GUILD_ID: ${DISC_GUILD_ID}
-      DISC_CHANNEL_ID: ${DISC_CHANNEL_ID}
-      DISC_VOICE_ID: ${DISC_VOICE_ID}
-      DISC_CLIENT_ID: ${DISC_CLIENT_ID}
-      DISC_LOG_CHANNEL_ID: ${DISC_LOG_CHANNEL_ID}
-      DISC_OWNER_IDS: ${DISC_OWNER_IDS}
-      DISC_BOT_PREFIX: ${DISC_BOT_PREFIX}
+      TOKEN: ${TOKEN}
+      CLIENT_ID: ${CLIENT_ID}
+      DEFAULT_LANGUAGE: ${DEFAULT_LANGUAGE}
+      PREFIX: ${PREFIX}
+      OWNER_IDS: ${OWNER_ID}
+      GUILD_ID: ${GUILD_ID}
+      TOPGG: ${TOPGG}
+      KEEP_ALIVE: ${KEEP_ALIVE}
+      LOG_CHANNEL_ID: ${LOG_CHANNEL_ID}
+      LOG_COMMANDS_ID: ${LOG_COMMANDS_ID}
       BOT_STATUS: ${BOT_STATUS}
-      BOT_ACTIVITY: ${BOT_ACTIVITY}
       BOT_ACTIVITY_TYPE: ${BOT_ACTIVITY_TYPE}
+      BOT_ACTIVITY: ${BOT_ACTIVITY}
+      DATABASE_URL: ${DATABASE_URL}
+      AUTO_NODE: ${AUTO_NODE}
       SEARCH_ENGINE: ${SEARCH_ENGINE}
-      MAX_QUEUE_SIZE: ${MAX_QUEUE_SIZE}
-      MAX_PLAYLIST_SIZE: ${MAX_PLAYLIST_SIZE}
-      LAVALINK_URL: lavalink:2333
-      LAVALINK_AUTH: ${LAVALINK_AUTH}
-      LAVALINK_NAME: ${LAVALINK_NAME}
-      LAVALINK_SECURE: false
+      GENIUS_API: ${GENIUS_API}
+      NODES: ${NODES}
     networks:
       - lavalink-net
-
 networks:
-  lavalink-net:
-    driver: bridge
+  lavalink:
+    name: lavalink-net

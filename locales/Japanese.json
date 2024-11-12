@@ -32,7 +32,7 @@
       "options": {
         "command": "情報を取得したいコマンド"
       },
-      "content": "こんにちは！私は{bot}、[Lavamusic](https://github.com/appujet/lavamusic)とDiscordで作られた音楽ボットです。`{prefix}help <command>`を使用して、コマンドの詳細を取得できます。",
+      "content": "こんにちは！私は{bot}、[MahinaBot](https://github.com/gabrielmaialva33/mahina-bot)とDiscordで作られた音楽ボットです。`{prefix}help <command>`を使用して、コマンドの詳細を取得できます。",
       "title": "ヘルプメニュー",
       "not_found": "この`{cmdName}`コマンドは存在しません。",
       "help_cmd": "**説明:** {description}\n**使用法:** {usage}\n**例:** {examples}\n**別名:** {aliases}\n**カテゴリ:** {category}\n**クールダウン:** {cooldown}秒\n**権限:** {premUser}\n**ボットの権限:** {premBot}\n**開発者専用:** {dev}\n**スラッシュコマンド:** {slash}\n**引数:** {args}\n**プレイヤー:** {player}\n**DJ:** {dj}\n**DJの権限:** {djPerm}\n**ボイス:** {voice}",
@@ -48,7 +48,7 @@
         "creator": "作成者",
         "repository": "リポジトリ",
         "support": "サポート",
-        "description": "彼はより多くのコーディング経験を積むために、彼の最初のオープンソースプロジェクトを作りたいと思っていました。このプロジェクトでは、バグの少ないプロジェクトを作ることに挑戦しました。LavaMusicを楽しんでいただけると嬉しいです！"
+        "description": "彼はより多くのコーディング経験を積むために、彼の最初のオープンソースプロジェクトを作りたいと思っていました。このプロジェクトでは、バグの少ないプロジェクトを作ることに挑戦しました。MahinaBotを楽しんでいただけると嬉しいです！"
       }
     },
     "dj": {
@@ -134,9 +134,12 @@
       "messages": {
         "filter_enabled": "`✅` | ベースブーストフィルターが`有効`になりました。\n**音量を上げすぎると聴覚に悪影響を与える可能性があるので注意してください！**",
         "filter_disabled": "`✅` | ベースブーストフィルターが`無効`になりました。"
+      },
+      "options": {
+        "level": "The bassboost level you want to set"
       }
     },
-    "distorsion": {
+    "distortion": {
       "description": "ディストーションフィルターのオン/オフを切り替えます",
       "messages": {
         "filter_enabled": "`✅` | ディストーションフィルターが`有効`になりました。",
@@ -494,6 +497,9 @@
         "playlist_stolen": "{user} からプレイリスト `{playlist}` を正常に盗みました。",
         "error_occurred": "プレイリストの盗難中にエラーが発生しました。"
       }
+    },
+    "lyrics": {
+      "description": "Get's the lyrics of the currently playing track"
     }
   },
   "buttons": {
@@ -613,7 +619,6 @@
       "no_previous_track": "前のトラックがありません。",
       "playing_previous": "前のトラックを再生中です。",
       "previous_footer": "{displayName} によって前のトラックを再生中です",
-      "rewind_limit": "曲の長さ以上に巻き戻すことはできません。",
       "rewinded": "音楽を巻き戻しました。",
       "rewind_footer": "{displayName} によって巻き戻されました",
       "forward_limit": "曲の長さ以上に早送りすることはできません。",

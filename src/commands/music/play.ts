@@ -1,16 +1,24 @@
-import { LoadType } from 'shoukaku'
-
-import { BaseClient, Command, Context } from '#common/index'
+import type {
+  ApplicationCommandOptionChoiceData,
+  AutocompleteInteraction,
+  VoiceChannel,
+} from 'discord.js'
+import type { SearchResult } from 'lavalink-client'
+import Command from '#common/command'
+import type MahinaBot from '#common/mahina_bot'
+import type Context from '#common/context'
 
 export default class Play extends Command {
-  constructor(client: BaseClient) {
+  constructor(client: MahinaBot) {
     super(client, {
       name: 'play',
       description: {
-        content: 'Tocar música no canal de voz.',
+        content: 'cmd.play.description',
         examples: [
-          'play https://www.youtube.com/watch?v=A7blkCcowvk',
-          'play https://open.spotify.com/track/7H0ya83CMmgFcOhw0UB6ow',
+          'play example',
+          'play https://www.youtube.com/watch?v=example',
+          'play https://open.spotify.com/track/example',
+          'play http://www.example.com/example.mp3',
         ],
         usage: 'play <song>',
       },
@@ -18,22 +26,30 @@ export default class Play extends Command {
       aliases: ['p'],
       cooldown: 3,
       args: true,
+      vote: false,
       player: {
         voice: true,
         dj: false,
         active: false,
-        dj_perm: null,
+        djPerm: null,
       },
       permissions: {
         dev: false,
-        client: ['SendMessages', 'ViewChannel', 'EmbedLinks', 'Connect', 'Speak'],
+        client: [
+          'SendMessages',
+          'ReadMessageHistory',
+          'ViewChannel',
+          'EmbedLinks',
+          'Connect',
+          'Speak',
+        ],
         user: [],
       },
       slashCommand: true,
       options: [
         {
           name: 'song',
-          description: 'A música que você quer tocar',
+          description: 'cmd.play.options.song',
           type: 3,
           required: true,
           autocomplete: true,
@@ -42,126 +58,86 @@ export default class Play extends Command {
     })
   }
 
-  async run(client: BaseClient, ctx: Context, args: string[]): Promise<any> {
+  async run(client: MahinaBot, ctx: Context, args: string[]): Promise<any> {
     const query = args.join(' ')
-    if (!ctx.guild) return
+    await ctx.sendDeferMessage(ctx.locale('cmd.play.loading'))
+    let player = client.manager.getPlayer(ctx.guild!.id)
+    const memberVoiceChannel = (ctx.member as any).voice.channel as VoiceChannel
 
-    await ctx.sendDeferMessage('🔍 𝘽𝙪𝙨𝙘𝙖𝙣𝙙𝙤 𝙢𝙪́𝙨𝙞𝙘𝙖...')
-    let player = client.queue.get(ctx.guild.id)
-    const vc = ctx.member as any
-    if (!player) player = await client.queue.create(ctx.guild, vc.voice.channel, ctx.channel)
+    if (!player)
+      player = client.manager.createPlayer({
+        guildId: ctx.guild!.id,
+        voiceChannelId: memberVoiceChannel.id,
+        textChannelId: ctx.channel.id,
+        selfMute: false,
+        selfDeaf: true,
+        vcRegion: memberVoiceChannel.rtcRegion!,
+      })
+    if (!player.connected) await player.connect()
 
-    const res = await this.client.queue.search(query)
-    if (!res) return
-
+    const response = (await player.search({ query: query }, ctx.author)) as SearchResult
     const embed = this.client.embed()
-    switch (res.loadType) {
-      case LoadType.ERROR:
-        await ctx.sendMessage({
-          embeds: [
-            embed
-              .setColor(this.client.color.red)
-              .setDescription('🥺 𝙊𝙘𝙤𝙧𝙧𝙚𝙪 𝙪𝙢 𝙚𝙧𝙧𝙤 𝙙𝙪𝙧𝙖𝙣𝙩𝙚 𝙖 𝙥𝙚𝙨𝙦𝙪𝙞𝙨𝙖.'),
-          ],
-        })
-        break
-      case LoadType.EMPTY:
-        await ctx.sendMessage({
-          embeds: [
-            embed.setColor(this.client.color.red).setDescription('😓 𝙈𝙖𝙣𝙖̃.. 𝙣𝙖̃𝙤 𝙖𝙘𝙝𝙚𝙞 𝙣𝙖𝙙𝙚'),
-          ],
-        })
-        break
-      case LoadType.TRACK: {
-        if (!ctx.author) return
 
-        const track = player.buildTrack(res.data, ctx.author)
-        if (player.queue.length > client.env.MAX_QUEUE_SIZE)
-          return await ctx.sendMessage({
-            embeds: [
-              embed
-                .setColor(this.client.color.red)
-                .setDescription(
-                  `🚦 𝘼 𝙛𝙞𝙡𝙖 𝙚́ 𝙢𝙪𝙞𝙩𝙤 𝙡𝙤𝙣𝙜𝙖. 𝙊 𝙢𝙖́𝙭𝙞𝙢𝙤 𝙚́ ${client.env.MAX_QUEUE_SIZE}.`
-                ),
-            ],
-          })
-        player.queue.push(track)
-        await player.isPlaying()
-        await ctx.sendMessage({
-          embeds: [
-            embed
-              .setColor(this.client.color.main)
-              .setDescription(
-                `🔉 𝘼𝙙𝙞𝙘𝙞𝙤𝙣𝙖𝙙𝙖 [${res.data.info.title}](${res.data.info.uri}) 𝙣𝙖 𝙛𝙞𝙡𝙖.`
-              ),
-          ],
-        })
-        break
-      }
-      case LoadType.PLAYLIST: {
-        if (res.data.tracks.length > client.env.MAX_PLAYLIST_SIZE)
-          return await ctx.sendMessage({
-            embeds: [
-              embed
-                .setColor(this.client.color.red)
-                .setDescription(
-                  `💽 𝘼 𝙥𝙡𝙖𝙮𝙡𝙞𝙨𝙩 𝙚́ 𝙢𝙪𝙞𝙩𝙤 𝙡𝙤𝙣𝙜𝙖. 𝙊 𝙢𝙖́𝙭𝙞𝙢𝙤 𝙚́  ${client.env.MAX_PLAYLIST_SIZE}.`
-                ),
-            ],
-          })
-        for (const track of res.data.tracks) {
-          if (!ctx.author) return
-
-          const pl = player.buildTrack(track, ctx.author)
-          if (player.queue.length > client.env.MAX_QUEUE_SIZE)
-            return await ctx.sendMessage({
-              embeds: [
-                embed
-                  .setColor(this.client.color.red)
-                  .setDescription(
-                    `🚦 𝘼 𝙛𝙞𝙡𝙖 𝙚́ 𝙢𝙪𝙞𝙩𝙤 𝙡𝙤𝙣𝙜𝙖. 𝙊 𝙢𝙖́𝙭𝙞𝙢𝙤 𝙚́  ${client.env.MAX_QUEUE_SIZE}.`
-                  ),
-              ],
-            })
-          player.queue.push(pl)
-        }
-        await player.isPlaying()
-        ctx.sendMessage({
-          embeds: [
-            embed
-              .setColor(this.client.color.main)
-              .setDescription(`🔉 𝘼𝙙𝙞𝙘𝙞𝙤𝙣𝙖𝙙𝙖 ${res.data.tracks.length} 𝙖 𝙛𝙞𝙡𝙖.`),
-          ],
-        })
-        break
-      }
-      case LoadType.SEARCH: {
-        if (!ctx.author) return
-        const track1 = player.buildTrack(res.data[0], ctx.author)
-        if (player.queue.length > client.env.MAX_QUEUE_SIZE)
-          return await ctx.sendMessage({
-            embeds: [
-              embed
-                .setColor(this.client.color.red)
-                .setDescription(
-                  `🚦 𝘼 𝙛𝙞𝙡𝙖 𝙚́ 𝙢𝙪𝙞𝙩𝙤 𝙡𝙤𝙣𝙜𝙖. 𝙊 𝙢𝙖́𝙭𝙞𝙢𝙤 𝙚́  ${client.env.MAX_QUEUE_SIZE}.`
-                ),
-            ],
-          })
-        player.queue.push(track1)
-        await player.isPlaying()
-        ctx.sendMessage({
-          embeds: [
-            embed
-              .setColor(this.client.color.main)
-              .setDescription(
-                `🔉 𝘼𝙙𝙞𝙘𝙞𝙤𝙣𝙖𝙙𝙖 [${res.data[0].info.title}](${res.data[0].info.uri}) 𝙖 𝙛𝙞𝙡𝙖.`
-              ),
-          ],
-        })
-        break
-      }
+    if (!response || response.tracks?.length === 0) {
+      return await ctx.editMessage({
+        content: '',
+        embeds: [
+          embed
+            .setColor(this.client.color.red)
+            .setDescription(ctx.locale('cmd.play.errors.search_error')),
+        ],
+      })
     }
+
+    await player.queue.add(response.loadType === 'playlist' ? response.tracks : response.tracks[0])
+
+    if (response.loadType === 'playlist') {
+      await ctx.editMessage({
+        content: '',
+        embeds: [
+          embed
+            .setColor(this.client.color.main)
+            .setDescription(
+              ctx.locale('cmd.play.added_playlist_to_queue', { length: response.tracks.length })
+            ),
+        ],
+      })
+    } else {
+      await ctx.editMessage({
+        content: '',
+        embeds: [
+          embed.setColor(this.client.color.main).setDescription(
+            ctx.locale('cmd.play.added_to_queue', {
+              title: response.tracks[0].info.title,
+              uri: response.tracks[0].info.uri,
+            })
+          ),
+        ],
+      })
+    }
+    if (!player.playing && player.queue.tracks.length > 0) await player.play({ paused: false })
+  }
+
+  async autocomplete(interaction: AutocompleteInteraction): Promise<void> {
+    const focusedValue = interaction.options.getFocused(true)
+
+    if (!focusedValue?.value.trim()) {
+      return interaction.respond([])
+    }
+
+    const res = await this.client.manager.search(focusedValue.value.trim(), interaction.user)
+    const songs: ApplicationCommandOptionChoiceData[] = []
+
+    if (res.loadType === 'search') {
+      res.tracks.slice(0, 10).forEach((track: { info: { title: any; author: any; uri: any } }) => {
+        const name = `${track.info.title} by ${track.info.author}`
+        songs.push({
+          name: name.length > 100 ? `${name.substring(0, 97)}...` : name,
+          value: track.info.uri,
+        })
+      })
+    }
+
+    return await interaction.respond(songs)
   }
 }

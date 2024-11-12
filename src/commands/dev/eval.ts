@@ -1,11 +1,13 @@
 import util from 'node:util'
-import { ActionRowBuilder, ButtonBuilder, ButtonStyle } from 'discord.js'
 import { fetch } from 'undici'
+import { ActionRowBuilder, ButtonBuilder, ButtonStyle } from 'discord.js'
 
-import { type BaseClient, Command, Context } from '#common/index'
+import Command from '#common/command'
+import type MahinaBot from '#common/mahina_bot'
+import type Context from '#common/context'
 
 export default class Eval extends Command {
-  constructor(client: BaseClient) {
+  constructor(client: MahinaBot) {
     super(client, {
       name: 'eval',
       description: {
@@ -21,7 +23,7 @@ export default class Eval extends Command {
         voice: false,
         dj: false,
         active: false,
-        dj_perm: null,
+        djPerm: null,
       },
       permissions: {
         dev: true,
@@ -33,11 +35,12 @@ export default class Eval extends Command {
     })
   }
 
-  async run(client: BaseClient, ctx: Context, args: string[]): Promise<any> {
+  async run(client: MahinaBot, ctx: Context, args: string[]): Promise<any> {
     const code = args.join(' ')
     try {
       // eslint-disable-next-line no-eval
       let evaled = eval(code)
+      if (evaled === client.config) evaled = 'Nice try'
 
       if (typeof evaled !== 'string') evaled = util.inspect(evaled)
       if (evaled.length > 2000) {
@@ -66,7 +69,7 @@ export default class Eval extends Command {
         components: [row],
       })
 
-      const filter = (i: any) => i.customId === 'eval-delete' && i.user.id === ctx.author!.id
+      const filter = (i: any) => i.customId === 'eval-delete' && i.user.id === ctx.author?.id
       const collector = msg.createMessageComponentCollector({
         time: 60000,
         filter: filter,
@@ -77,7 +80,7 @@ export default class Eval extends Command {
         await msg.delete()
       })
     } catch (e) {
-      ctx.sendMessage(`\`\`\`js\n${e}\n\`\`\``)
+      await ctx.sendMessage(`\`\`\`js\n${e}\n\`\`\``)
     }
   }
 }

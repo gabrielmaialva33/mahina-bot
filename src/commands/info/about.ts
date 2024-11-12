@@ -1,29 +1,31 @@
 import { ActionRowBuilder, ButtonBuilder, ButtonStyle } from 'discord.js'
-
-import { BaseClient, Command, Context } from '#common/index'
+import Command from '#common/command'
+import type MahinaBot from '#common/mahina_bot'
+import type Context from '#common/context'
 
 export default class About extends Command {
-  constructor(client: BaseClient) {
+  constructor(client: MahinaBot) {
     super(client, {
       name: 'about',
       description: {
-        content: `Mostra informações sobre ${client.env.DISC_BOT_NAME}`,
+        content: 'cmd.about.description',
         examples: ['about'],
         usage: 'about',
       },
       category: 'info',
-      aliases: ['ab', 'sobre'],
+      aliases: ['ab'],
       cooldown: 3,
       args: false,
+      vote: false,
       player: {
         voice: false,
         dj: false,
         active: false,
-        dj_perm: null,
+        djPerm: null,
       },
       permissions: {
         dev: false,
-        client: ['SendMessages', 'ViewChannel', 'EmbedLinks'],
+        client: ['SendMessages', 'ReadMessageHistory', 'ViewChannel', 'EmbedLinks'],
         user: [],
       },
       slashCommand: true,
@@ -31,54 +33,52 @@ export default class About extends Command {
     })
   }
 
-  async run(client: BaseClient, ctx: Context): Promise<any> {
-    client.logger.info('about command used')
-
-    const row = new ActionRowBuilder().addComponents(
-      new ButtonBuilder()
-        .setLabel(' 𝙄𝙣𝙫𝙞𝙩𝙚-𝙢𝙚 𝙥𝙖𝙧𝙖 𝙤 𝙨𝙚𝙪 𝙨𝙚𝙧𝙫𝙞𝙙𝙤𝙧 🌺')
-        .setStyle(ButtonStyle.Link)
-        .setURL(
-          `https://discord.com/api/oauth2/authorize?client_id=${client.env.DISC_CLIENT_ID}&permissions=8&scope=bot%20applications.commands`
-        ),
-      new ButtonBuilder()
-        .setLabel('𝐂𝐥𝐮𝐛𝐞 𝐝𝐚𝐬 𝐖𝐢𝐧𝐱 🎡🔥')
-        .setStyle(ButtonStyle.Link)
-        .setURL('https://discord.gg/3PJ9CMgpBx')
-    )
-
+  async run(client: MahinaBot, ctx: Context): Promise<any> {
+    const inviteButton = new ButtonBuilder()
+      .setLabel(ctx.locale('buttons.invite'))
+      .setStyle(ButtonStyle.Link)
+      .setURL(
+        `https://discord.com/api/oauth2/authorize?client_id=${client.env.CLIENT_ID}&permissions=8&scope=bot%20applications.commands`
+      )
+    const supportButton = new ButtonBuilder()
+      .setLabel(ctx.locale('buttons.support'))
+      .setStyle(ButtonStyle.Link)
+      .setURL('https://discord.gg/ns8CTk9J3e')
+    const row = new ActionRowBuilder<ButtonBuilder>().addComponents(inviteButton, supportButton)
     const embed = this.client
       .embed()
       .setAuthor({
-        name: this.client.env.DISC_BOT_NAME,
-        iconURL: this.client.env.DISC_BOT_PROFILE,
+        name: 'MahinaBot',
+        iconURL:
+          'https://media.discordapp.net/attachments/876035356460462090/888434725235097610/20210820_124325.png',
       })
-      .setThumbnail(this.client.env.DISC_BOT_THUMBNAIL)
+      .setThumbnail(
+        'https://media.discordapp.net/attachments/876035356460462090/888434725235097610/20210820_124325.png'
+      )
       .setColor(this.client.color.main)
-      .addFields([
+      .addFields(
         {
-          name: '𝘿𝙤𝙣𝙤',
-          value: '[Maia 𓆏](https://github.com/gabrielmaialva33)',
+          name: ctx.locale('cmd.about.fields.creator'),
+          value: '[appujet](https://github.com/appujet)',
           inline: true,
         },
         {
-          name: '𝙋𝙧𝙤𝙟𝙚𝙩𝙤',
-          value: '[aqui](https://github.com/gabrielmaialva33/mahina-bot)',
+          name: ctx.locale('cmd.about.fields.repository'),
+          value: '[Here](https://github.com/gabrielmaialva33/mahina-bot)',
           inline: true,
         },
         {
-          name: '𝙎𝙪𝙥𝙤𝙧𝙩𝙚',
-          value: '[aqui](https://discord.gg/VpUEBnCZQW)',
+          name: ctx.locale('cmd.about.fields.support'),
+          value: '[Here](https://discord.gg/ns8CTk9J3e)',
           inline: true,
         },
         {
           name: '\u200b',
-          value: `𝙎𝙚𝙟𝙖 𝙛𝙚𝙡𝙞𝙯 🍁 𝙘𝙤𝙢 𝙦𝙪𝙚𝙢 𝙨𝙚𝙧 𝙛𝙚𝙡𝙞𝙯 𝙘𝙤𝙢 𝙫𝙤𝙘𝙚̂ 🌺`,
+          value: ctx.locale('cmd.about.fields.description'),
           inline: true,
-        },
-      ])
-
-    return await ctx.sendMessage({
+        }
+      )
+    await ctx.sendMessage({
       content: '',
       embeds: [embed],
       components: [row],

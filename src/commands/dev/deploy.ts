@@ -5,12 +5,14 @@ import {
   ButtonStyle,
   ComponentType,
   type Message,
+  type TextChannel,
 } from 'discord.js'
-
-import { type BaseClient, Command, Context } from '#common/index'
+import Command from '#common/command'
+import type MahinaBot from '#common/mahina_bot'
+import type Context from '#common/context'
 
 export default class Deploy extends Command {
-  constructor(client: BaseClient) {
+  constructor(client: MahinaBot) {
     super(client, {
       name: 'deploy',
       description: {
@@ -26,7 +28,7 @@ export default class Deploy extends Command {
         voice: false,
         dj: false,
         active: false,
-        dj_perm: null,
+        djPerm: null,
       },
       permissions: {
         dev: true,
@@ -38,7 +40,7 @@ export default class Deploy extends Command {
     })
   }
 
-  async run(client: BaseClient, ctx: Context, _args: string[]): Promise<any> {
+  async run(client: MahinaBot, ctx: Context, _args: string[]): Promise<any> {
     const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
       new ButtonBuilder()
         .setCustomId('deploy-global')
@@ -57,24 +59,24 @@ export default class Deploy extends Command {
         components: [row],
       })
     } catch (error) {
-      console.error('Failed to send the initial message:', error)
+      client.logger.error('Failed to send the initial message:', error)
       return
     }
 
     const filter = (interaction: ButtonInteraction<'cached'>) => {
-      if (interaction.user.id !== ctx.author!.id) {
+      if (interaction.user.id !== ctx.author?.id) {
         interaction
           .reply({
             content: "You can't interact with this message",
             ephemeral: true,
           })
-          .catch(console.error)
+          .catch(client.logger.error)
         return false
       }
       return true
     }
 
-    const collector = ctx.channel!.createMessageComponentCollector({
+    const collector = (ctx.channel as TextChannel).createMessageComponentCollector({
       filter,
       componentType: ComponentType.Button,
       time: 30000,
@@ -96,7 +98,7 @@ export default class Deploy extends Command {
           })
         }
       } catch (error) {
-        console.error('Failed to handle interaction:', error)
+        client.logger.error('Failed to handle interaction:', error)
       }
     })
 
@@ -105,7 +107,7 @@ export default class Deploy extends Command {
         try {
           await msg.delete()
         } catch (error) {
-          console.error('Failed to delete the message:', error)
+          client.logger.error('Failed to delete the message:', error)
         }
       }
     })

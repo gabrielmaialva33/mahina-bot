@@ -1,11 +1,13 @@
-import { BaseClient, Command, Context } from '#common/index'
+import Command from '#common/command'
+import type MahinaBot from '#common/mahina_bot'
+import type Context from '#common/context'
 
 export default class Remove extends Command {
-  constructor(client: BaseClient) {
+  constructor(client: MahinaBot) {
     super(client, {
       name: 'remove',
       description: {
-        content: 'Remove uma música da fila',
+        content: 'cmd.remove.description',
         examples: ['remove 1'],
         usage: 'remove <song number>',
       },
@@ -13,22 +15,23 @@ export default class Remove extends Command {
       aliases: ['rm'],
       cooldown: 3,
       args: true,
+      vote: false,
       player: {
         voice: true,
         dj: true,
         active: true,
-        dj_perm: null,
+        djPerm: null,
       },
       permissions: {
         dev: false,
-        client: ['SendMessages', 'ViewChannel', 'EmbedLinks'],
+        client: ['SendMessages', 'ReadMessageHistory', 'ViewChannel', 'EmbedLinks'],
         user: [],
       },
       slashCommand: true,
       options: [
         {
           name: 'song',
-          description: 'O número da música que você deseja remover',
+          description: 'cmd.remove.options.song',
           type: 4,
           required: true,
         },
@@ -36,37 +39,37 @@ export default class Remove extends Command {
     })
   }
 
-  async run(client: BaseClient, ctx: Context, args: string[]): Promise<any> {
-    const player = client.queue.get(ctx.guild!.id)
+  async run(client: MahinaBot, ctx: Context, args: string[]): Promise<any> {
+    const player = client.manager.getPlayer(ctx.guild!.id)
     const embed = this.client.embed()
-    if (!player.queue.length)
-      return await ctx.sendMessage({
-        embeds: [embed.setColor(this.client.color.red).setDescription('𝙉𝙖̃𝙤 𝙝𝙖́ 𝙢𝙪́𝙨𝙞𝙘𝙖𝙨 𝙣𝙖 𝙛𝙞𝙡𝙖.')],
-      })
-    if (Number.isNaN(Number(args[0])))
+    if (!player) return await ctx.sendMessage(ctx.locale('event.message.no_music_playing'))
+    if (player.queue.tracks.length === 0)
       return await ctx.sendMessage({
         embeds: [
-          embed.setColor(this.client.color.red).setDescription('𝙄𝙨𝙨𝙤 𝙣𝙖̃𝙤 𝙚́ 𝙪𝙢 𝙣𝙪́𝙢𝙚𝙧𝙤 𝙫𝙖́𝙡𝙞𝙙𝙤.'),
+          embed
+            .setColor(this.client.color.red)
+            .setDescription(ctx.locale('cmd.remove.errors.no_songs')),
         ],
       })
-    if (Number(args[0]) > player.queue.length)
+
+    const songNumber = Number(args[0])
+    if (Number.isNaN(songNumber) || songNumber <= 0 || songNumber > player.queue.tracks.length)
       return await ctx.sendMessage({
         embeds: [
-          embed.setColor(this.client.color.red).setDescription('𝙄𝙨𝙨𝙤 𝙣𝙖̃𝙤 𝙚́ 𝙪𝙢 𝙣𝙪́𝙢𝙚𝙧𝙤 𝙫𝙖́𝙡𝙞𝙙𝙤.'),
+          embed
+            .setColor(this.client.color.red)
+            .setDescription(ctx.locale('cmd.remove.errors.invalid_number')),
         ],
       })
-    if (Number(args[0]) < 1)
-      return await ctx.sendMessage({
-        embeds: [
-          embed.setColor(this.client.color.red).setDescription('𝙄𝙨𝙨𝙤 𝙣𝙖̃𝙤 𝙚́ 𝙪𝙢 𝙣𝙪́𝙢𝙚𝙧𝙤 𝙫𝙖́𝙡𝙞𝙙𝙤.'),
-        ],
-      })
-    player.remove(Number(args[0]) - 1)
+
+    player.queue.remove(songNumber - 1)
     return await ctx.sendMessage({
       embeds: [
-        embed
-          .setColor(this.client.color.main)
-          .setDescription(`𝙈𝙪́𝙨𝙞𝙘𝙖 ${Number(args[0])} 𝙧𝙚𝙢𝙤𝙫𝙞𝙙𝙖 𝙙𝙖 𝙛𝙞𝙡𝙖.`),
+        embed.setColor(this.client.color.main).setDescription(
+          ctx.locale('cmd.remove.messages.removed', {
+            songNumber,
+          })
+        ),
       ],
     })
   }

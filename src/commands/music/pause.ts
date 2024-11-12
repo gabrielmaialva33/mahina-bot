@@ -1,27 +1,30 @@
-import { BaseClient, Command, Context } from '#common/index'
+import Command from '#common/command'
+import type MahinaBot from '#common/mahina_bot'
+import type Context from '#common/context'
 
 export default class Pause extends Command {
-  constructor(client: BaseClient) {
+  constructor(client: MahinaBot) {
     super(client, {
       name: 'pause',
       description: {
-        content: 'Pausa a música que está tocando',
+        content: 'cmd.pause.description',
         examples: ['pause'],
         usage: 'pause',
       },
       category: 'music',
-      aliases: [],
+      aliases: ['pu'],
       cooldown: 3,
       args: false,
+      vote: false,
       player: {
         voice: true,
         dj: false,
         active: true,
-        dj_perm: null,
+        djPerm: null,
       },
       permissions: {
         dev: false,
-        client: ['SendMessages', 'ViewChannel', 'EmbedLinks'],
+        client: ['SendMessages', 'ReadMessageHistory', 'ViewChannel', 'EmbedLinks'],
         user: [],
       },
       slashCommand: true,
@@ -29,18 +32,28 @@ export default class Pause extends Command {
     })
   }
 
-  async run(client: BaseClient, ctx: Context): Promise<any> {
-    const player = client.queue.get(ctx.guild!.id)
+  async run(client: MahinaBot, ctx: Context): Promise<any> {
+    const player = client.manager.getPlayer(ctx.guild!.id)
     const embed = this.client.embed()
-    if (!player.paused) {
-      player.pause()
+
+    if (player?.paused) {
       return await ctx.sendMessage({
-        embeds: [embed.setColor(this.client.color.main).setDescription(`𝙋𝙖𝙪𝙨𝙤𝙪 𝙖 𝙢𝙪́𝙨𝙞𝙘𝙖`)],
-      })
-    } else {
-      return await ctx.sendMessage({
-        embeds: [embed.setColor(this.client.color.red).setDescription(`𝙈𝙪́𝙨𝙞𝙘𝙖 𝙟𝙖́ 𝙚𝙢 𝙥𝙖𝙪𝙨𝙖`)],
+        embeds: [
+          embed
+            .setColor(this.client.color.red)
+            .setDescription(ctx.locale('player.errors.already_paused')),
+        ],
       })
     }
+
+    player?.pause()
+
+    return await ctx.sendMessage({
+      embeds: [
+        embed
+          .setColor(this.client.color.main)
+          .setDescription(ctx.locale('cmd.pause.successfully_paused')),
+      ],
+    })
   }
 }

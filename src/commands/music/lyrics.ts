@@ -1,12 +1,18 @@
-import { ActionRowBuilder, ButtonBuilder, ButtonStyle, ComponentType } from 'discord.js'
-// @ts-ignore
+import {
+  ActionRowBuilder,
+  ButtonBuilder,
+  type ButtonInteraction,
+  ButtonStyle,
+  ComponentType,
+  type TextChannel,
+} from 'discord.js'
 import { getLyrics } from 'genius-lyrics-api'
-
-import { BaseClient, Command, Context } from '#common/index'
-import { env } from '#src/env'
+import Command from '#common/command'
+import type MahinaBot from '#common/mahina_bot'
+import type Context from '#common/context'
 
 export default class Lyrics extends Command {
-  constructor(client: BaseClient) {
+  constructor(client: MahinaBot) {
     super(client, {
       name: 'lyrics',
       description: {
@@ -23,7 +29,7 @@ export default class Lyrics extends Command {
         voice: true,
         dj: false,
         active: true,
-        dj_perm: null,
+        djPerm: null,
       },
       permissions: {
         dev: false,
@@ -35,20 +41,21 @@ export default class Lyrics extends Command {
     })
   }
 
-  async run(client: BaseClient, ctx: Context): Promise<any> {
-    const player = client.queue.get(ctx.guild!.id)
+  async run(client: MahinaBot, ctx: Context): Promise<any> {
+    const player = client.manager.getPlayer(ctx.guild!.id)
+    if (!player) return await ctx.sendMessage(ctx.locale('event.message.no_music_playing'))
     const embed = this.client.embed()
 
-    const currentTrack = player.current
-    const trackTitle = currentTrack.info.title.replace(/\[.*?\]/g, '').trim()
-    const artistName = currentTrack.info.author.replace(/\[.*?\]/g, '').trim()
-    const trackUrl = currentTrack.info.uri
-    const artworkUrl = currentTrack.info.artworkUrl
+    const track = player.queue.current!
+    const trackTitle = track.info.title.replace(/\[.*?\]/g, '').trim()
+    const artistName = track.info.author.replace(/\[.*?\]/g, '').trim()
+    const trackUrl = track.info.uri
+    const artworkUrl = track.info.artworkUrl
 
     await ctx.sendDeferMessage(ctx.locale('cmd.lyrics.searching', { trackTitle }))
 
     const options = {
-      apiKey: env.LYRICS_API_KEY,
+      apiKey: client.env.GENIUS_API,
       title: trackTitle,
       artist: artistName,
       optimizeQuery: true,
@@ -63,19 +70,16 @@ export default class Lyrics extends Command {
         const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
           new ButtonBuilder()
             .setCustomId('prev')
-            //.setEmoji(this.client.emoji.page.back)
-            .setEmoji('⬅️')
+            .setEmoji(this.client.emoji.page.back)
             .setStyle(ButtonStyle.Secondary)
             .setDisabled(true),
           new ButtonBuilder()
             .setCustomId('stop')
-            //.setEmoji(this.client.emoji.page.cancel)
-            .setEmoji('⏹️')
+            .setEmoji(this.client.emoji.page.cancel)
             .setStyle(ButtonStyle.Danger),
           new ButtonBuilder()
             .setCustomId('next')
-            //.setEmoji(this.client.emoji.page.next)
-            .setEmoji('➡️')
+            .setEmoji(this.client.emoji.page.next)
             .setStyle(ButtonStyle.Secondary)
             .setDisabled(lyricsPages.length <= 1)
         )
@@ -97,14 +101,15 @@ export default class Lyrics extends Command {
           components: [row],
         })
 
-        const filter = (interaction) => interaction.user.id === ctx.author.id
-        const collector = ctx.channel.createMessageComponentCollector({
+        const filter = (interaction: ButtonInteraction<'cached'>) =>
+          interaction.user.id === ctx.author?.id
+        const collector = (ctx.channel as TextChannel).createMessageComponentCollector({
           filter,
           componentType: ComponentType.Button,
           time: 60000,
         })
 
-        collector.on('collect', async (interaction) => {
+        collector.on('collect', async (interaction: ButtonInteraction) => {
           if (interaction.customId === 'prev') {
             currentPage--
           } else if (interaction.customId === 'next') {
@@ -131,24 +136,22 @@ export default class Lyrics extends Command {
               new ActionRowBuilder<ButtonBuilder>().addComponents(
                 new ButtonBuilder()
                   .setCustomId('prev')
-                  //.setEmoji(this.client.emoji.page.back)
-                  .setEmoji('⬅️')
+                  .setEmoji(this.client.emoji.page.back)
                   .setStyle(ButtonStyle.Secondary)
                   .setDisabled(currentPage === 0),
                 new ButtonBuilder()
                   .setCustomId('stop')
-                  //.setEmoji(this.client.emoji.page.cancel)
-                  .setEmoji('⏹️')
+                  .setEmoji(this.client.emoji.page.cancel)
                   .setStyle(ButtonStyle.Danger),
                 new ButtonBuilder()
                   .setCustomId('next')
-                  //.setEmoji(this.client.emoji.page.next)
-                  .setEmoji('➡️')
+                  .setEmoji(this.client.emoji.page.next)
                   .setStyle(ButtonStyle.Secondary)
                   .setDisabled(currentPage === lyricsPages.length - 1)
               ),
             ],
           })
+          return
         })
 
         collector.on('end', () => {
@@ -164,7 +167,7 @@ export default class Lyrics extends Command {
         })
       }
     } catch (error) {
-      console.error(error)
+      client.logger.error(error)
       await ctx.editMessage({
         embeds: [
           embed
@@ -177,7 +180,7 @@ export default class Lyrics extends Command {
 
   paginateLyrics(lyrics: string) {
     const lines = lyrics.split('\n')
-    const pages = []
+    const pages: any = []
     let page = ''
 
     for (const line of lines) {

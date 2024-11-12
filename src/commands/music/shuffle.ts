@@ -1,11 +1,13 @@
-import { BaseClient, Command, Context } from '#common/index'
+import Command from '#common/command'
+import type MahinaBot from '#common/mahina_bot'
+import type Context from '#common/context'
 
 export default class Shuffle extends Command {
-  constructor(client: BaseClient) {
+  constructor(client: MahinaBot) {
     super(client, {
       name: 'shuffle',
       description: {
-        content: 'Embaralha a fila de músicas.',
+        content: 'cmd.shuffle.description',
         examples: ['shuffle'],
         usage: 'shuffle',
       },
@@ -13,15 +15,16 @@ export default class Shuffle extends Command {
       aliases: ['sh'],
       cooldown: 3,
       args: false,
+      vote: false,
       player: {
         voice: true,
         dj: true,
         active: true,
-        dj_perm: null,
+        djPerm: null,
       },
       permissions: {
         dev: false,
-        client: ['SendMessages', 'ViewChannel', 'EmbedLinks'],
+        client: ['SendMessages', 'ReadMessageHistory', 'ViewChannel', 'EmbedLinks'],
         user: [],
       },
       slashCommand: true,
@@ -29,23 +32,24 @@ export default class Shuffle extends Command {
     })
   }
 
-  async run(client: BaseClient, ctx: Context): Promise<any> {
-    if (!ctx.guild) return
-
-    const player = client.queue.get(ctx.guild.id)
+  async run(client: MahinaBot, ctx: Context): Promise<any> {
+    const player = client.manager.getPlayer(ctx.guild!.id)
     const embed = this.client.embed()
-    if (!player.queue.length)
+    if (!player) return await ctx.sendMessage(ctx.locale('event.message.no_music_playing'))
+    if (player.queue.tracks.length === 0) {
       return await ctx.sendMessage({
         embeds: [
-          embed
-            .setColor(this.client.color.red)
-            .setDescription('𝙈𝙖𝙣𝙖̃..😑🤷‍♀️ 𝙢𝙖𝙨 𝙣𝙚𝙢 𝙩𝙚𝙢 𝙢𝙪𝙨𝙞𝙦𝙪𝙚 𝙣𝙖 𝙛𝙞𝙡𝙚.'),
+          embed.setColor(this.client.color.red).setDescription(ctx.locale('player.errors.no_song')),
         ],
       })
-    player.setShuffle()
-
+    }
+    player.queue.shuffle()
     return await ctx.sendMessage({
-      embeds: [embed.setColor(this.client.color.main).setDescription(`🔀 𝙀𝙢𝙗𝙖𝙧𝙖𝙡𝙝𝙖𝙙𝙤 𝙢𝙖𝙣𝙖̃..`)],
+      embeds: [
+        embed
+          .setColor(this.client.color.main)
+          .setDescription(ctx.locale('cmd.shuffle.messages.shuffled')),
+      ],
     })
   }
 }

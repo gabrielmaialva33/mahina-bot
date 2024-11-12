@@ -1,12 +1,13 @@
-import { BaseClient, Command, Context } from '#common/index'
+import Command from '#common/command'
+import type MahinaBot from '#common/mahina_bot'
+import type Context from '#common/context'
 
-// eslint-disable-next-line @typescript-eslint/naming-convention
 export default class _8d extends Command {
-  constructor(client: BaseClient) {
+  constructor(client: MahinaBot) {
     super(client, {
       name: '8d',
       description: {
-        content: 'on/off o filtro 8D',
+        content: 'cmd.8d.description',
         examples: ['8d'],
         usage: '8d',
       },
@@ -14,15 +15,16 @@ export default class _8d extends Command {
       aliases: ['3d'],
       cooldown: 3,
       args: false,
+      vote: false,
       player: {
         voice: true,
         dj: true,
         active: true,
-        dj_perm: null,
+        djPerm: null,
       },
       permissions: {
         dev: false,
-        client: ['SendMessages', 'ViewChannel', 'EmbedLinks'],
+        client: ['SendMessages', 'ReadMessageHistory', 'ViewChannel', 'EmbedLinks'],
         user: [],
       },
       slashCommand: true,
@@ -30,28 +32,28 @@ export default class _8d extends Command {
     })
   }
 
-  async run(client: BaseClient, ctx: Context): Promise<any> {
-    const player = client.queue.get(ctx.guild!.id)
-    if (!player) return
-    if (player.filters.includes('8D')) {
-      player.player.setRotation()
-      player.filters.splice(player.filters.indexOf('8D'), 1)
-      ctx.sendMessage({
+  async run(client: MahinaBot, ctx: Context): Promise<any> {
+    const player = client.manager.getPlayer(ctx.guild!.id)
+    if (!player) return await ctx.sendMessage(ctx.locale('event.message.no_music_playing'))
+    const filterEnabled = player.filterManager.filters.rotation
+
+    if (filterEnabled) {
+      await player.filterManager.toggleRotation()
+      await ctx.sendMessage({
         embeds: [
           {
-            description: '𝙊 𝙛𝙞𝙡𝙩𝙧𝙤 8𝘿 𝙛𝙤𝙞 𝙙𝙚𝙨𝙖𝙩𝙞𝙫𝙖𝙙𝙤.',
-            color: client.color.main,
+            description: ctx.locale('cmd.8d.messages.filter_disabled'),
+            color: this.client.color.main,
           },
         ],
       })
     } else {
-      player.player.setRotation({ rotationHz: 0.2 })
-      player.filters.push('8D')
-      ctx.sendMessage({
+      await player.filterManager.toggleRotation(0.2)
+      await ctx.sendMessage({
         embeds: [
           {
-            description: '𝙊 𝙛𝙞𝙡𝙩𝙧𝙤 8𝘿 𝙛𝙤𝙞 𝙖𝙩𝙞𝙫𝙖𝙙𝙤.',
-            color: client.color.main,
+            description: ctx.locale('cmd.8d.messages.filter_enabled'),
+            color: this.client.color.main,
           },
         ],
       })

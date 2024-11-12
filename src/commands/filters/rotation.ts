@@ -1,11 +1,13 @@
-import { BaseClient, Command, Context } from '#common/index'
+import Command from '#common/command'
+import type MahinaBot from '#common/mahina_bot'
+import type Context from '#common/context'
 
 export default class Rotation extends Command {
-  constructor(client: BaseClient) {
+  constructor(client: MahinaBot) {
     super(client, {
       name: 'rotation',
       description: {
-        content: 'on/off o filtro rotation',
+        content: 'cmd.rotation.description',
         examples: ['rotation'],
         usage: 'rotation',
       },
@@ -13,44 +15,43 @@ export default class Rotation extends Command {
       aliases: ['rt'],
       cooldown: 3,
       args: false,
+      vote: false,
       player: {
         voice: true,
         dj: true,
         active: true,
-        dj_perm: null,
+        djPerm: null,
       },
       permissions: {
         dev: false,
-        client: ['SendMessages', 'ViewChannel', 'EmbedLinks'],
-        user: ['ManageGuild'],
+        client: ['SendMessages', 'ReadMessageHistory', 'ViewChannel', 'EmbedLinks'],
+        user: [],
       },
       slashCommand: true,
       options: [],
     })
   }
 
-  async run(client: BaseClient, ctx: Context): Promise<any> {
-    const player = client.queue.get(ctx.guild!.id)
-
-    if (player.filters.includes('rotation')) {
-      player.player.setRotation()
-      player.filters.splice(player.filters.indexOf('rotation'), 1)
-      ctx.sendMessage({
+  async run(client: MahinaBot, ctx: Context): Promise<any> {
+    const player = client.manager.getPlayer(ctx.guild!.id)
+    if (!player) return await ctx.sendMessage(ctx.locale('event.message.no_music_playing'))
+    if (player.filterManager.filters.rotation) {
+      player.filterManager.toggleRotation()
+      await ctx.sendMessage({
         embeds: [
           {
-            description: '𝙊 𝙛𝙞𝙡𝙩𝙧𝙤 𝙙𝙚 𝙧𝙤𝙩𝙖𝙘̧𝙖̃𝙤 𝙛𝙤𝙞 𝙙𝙚𝙨𝙖𝙩𝙞𝙫𝙖𝙙𝙤',
-            color: client.color.main,
+            description: ctx.locale('cmd.rotation.messages.disabled'),
+            color: this.client.color.main,
           },
         ],
       })
     } else {
-      player.player.setRotation({ rotationHz: 0 })
-      player.filters.push('rotation')
-      ctx.sendMessage({
+      player.filterManager.toggleRotation()
+      await ctx.sendMessage({
         embeds: [
           {
-            description: '𝙊 𝙛𝙞𝙡𝙩𝙧𝙤 𝙙𝙚 𝙧𝙤𝙩𝙖𝙘̧𝙖̃𝙤 𝙛𝙤𝙞 𝙖𝙩𝙞𝙫𝙖𝙙𝙤',
-            color: client.color.main,
+            description: ctx.locale('cmd.rotation.messages.enabled'),
+            color: this.client.color.main,
           },
         ],
       })

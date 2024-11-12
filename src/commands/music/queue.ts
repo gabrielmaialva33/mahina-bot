@@ -1,11 +1,13 @@
-import { BaseClient, Command, Context } from '#common/index'
+import Command from '#common/command'
+import type MahinaBot from '#common/mahina_bot'
+import type Context from '#common/context'
 
 export default class Queue extends Command {
-  constructor(client: BaseClient) {
+  constructor(client: MahinaBot) {
     super(client, {
       name: 'queue',
       description: {
-        content: 'Mostra a fila de músicas.',
+        content: 'cmd.queue.description',
         examples: ['queue'],
         usage: 'queue',
       },
@@ -13,15 +15,16 @@ export default class Queue extends Command {
       aliases: ['q'],
       cooldown: 3,
       args: false,
+      vote: false,
       player: {
         voice: true,
         dj: false,
         active: true,
-        dj_perm: null,
+        djPerm: null,
       },
       permissions: {
         dev: false,
-        client: ['SendMessages', 'ViewChannel', 'EmbedLinks'],
+        client: ['SendMessages', 'ReadMessageHistory', 'ViewChannel', 'EmbedLinks'],
         user: [],
       },
       slashCommand: true,
@@ -29,49 +32,61 @@ export default class Queue extends Command {
     })
   }
 
-  async run(client: BaseClient, ctx: Context): Promise<any> {
-    if (!ctx.guild) return
-
-    const player = client.queue.get(ctx.guild.id)
-    if (!player.current) return await ctx.sendMessage('𝙈𝙖𝙣𝙖̃.. 🥺 𝙢𝙖𝙨 𝙣𝙚𝙢 𝙩𝙖 𝙩𝙤𝙘𝙖𝙣𝙙𝙚 𝙢𝙪𝙨𝙞𝙦𝙪𝙚..')
-    if (player.queue.length === 0)
+  async run(client: MahinaBot, ctx: Context): Promise<any> {
+    const player = client.manager.getPlayer(ctx.guild!.id)
+    if (!player) return await ctx.sendMessage(ctx.locale('event.message.no_music_playing'))
+    const embed = this.client.embed()
+    if (player.queue.current && player.queue.tracks.length === 0) {
       return await ctx.sendMessage({
         embeds: [
-          this.client
-            .embed()
-            .setColor(this.client.color.main)
-            .setDescription(
-              `📀 𝙉𝙤𝙬 𝙥𝙡𝙖𝙮𝙞𝙣𝙜: [${player.current.info.title}](${
-                player.current.info.uri
-              }) - 𝙥𝙚𝙙𝙞𝙙𝙖 𝙥𝙤𝙚: ${player.current?.info.requestedBy} - 𝘿𝙪𝙧𝙖𝙘̧𝙖̃𝙤: ${
-                player.current.info.isStream
-                  ? '🔴 𝙇𝙄𝙑𝙀'
-                  : this.client.utils.formatTime(player.current.info.length)
-              }`
-            ),
+          embed.setColor(this.client.color.main).setDescription(
+            ctx.locale('cmd.queue.now_playing', {
+              title: player.queue.current.info.title,
+              uri: player.queue.current.info.uri,
+              requester: (player.queue.current.requester as any).id,
+              duration: player.queue.current.info.isStream
+                ? ctx.locale('cmd.queue.live')
+                : client.utils.formatTime(player.queue.current.info.duration),
+            })
+          ),
         ],
       })
-    const queue = player.queue.map(
-      (track, index) =>
-        `${index + 1}. [${track.info.title}](${track.info.uri}) - 𝙥𝙚𝙙𝙞𝙙𝙖 𝙥𝙤𝙚: ${
-          track?.info.requestedBy
-        } - 𝘿𝙪𝙧𝙖𝙘̧𝙖̃𝙤: ${
-          track.info.isStream ? '🔴 𝙇𝙄𝙑𝙀' : this.client.utils.formatTime(track.info.length)
-        }`
-    )
-    let chunks = client.utils.chunk(queue, 10) as any
-    if (chunks.length === 0) chunks = 1
-    const pages = []
-    for (let i = 0; i < chunks.length; i++) {
-      const embed = this.client
+    }
+    const songStrings: string[] = []
+    for (let i = 0; i < player.queue.tracks.length; i++) {
+      const track = player.queue.tracks[i]
+      songStrings.push(
+        ctx.locale('cmd.queue.track_info', {
+          index: i + 1,
+          title: track.info.title,
+          uri: track.info.uri,
+          requester: (track.requester as any).id,
+          duration: track.info.isStream
+            ? ctx.locale('cmd.queue.live')
+            : client.utils.formatTime(track.info.duration!),
+        })
+      )
+    }
+    let chunks = client.utils.chunk(songStrings, 10)
+
+    if (chunks.length === 0) chunks = [songStrings]
+
+    const pages = chunks.map((chunk: any[], index: number) => {
+      return this.client
         .embed()
         .setColor(this.client.color.main)
-        .setAuthor({ name: '🚦 𝙁𝙞𝙡𝙖', iconURL: ctx.guild.iconURL({})! })
-        .setDescription(chunks[i].join('\n'))
-        .setFooter({ text: `𝙋𝙖𝙜𝙚 ${i + 1} 𝙙𝙚 ${chunks.length}` })
-      pages.push(embed)
-    }
-
-    return await client.utils.paginate(ctx, pages)
+        .setAuthor({
+          name: ctx.locale('cmd.queue.title'),
+          iconURL: ctx.guild.icon ? ctx.guild.iconURL()! : ctx.author?.displayAvatarURL(),
+        })
+        .setDescription(chunk.join('\n'))
+        .setFooter({
+          text: ctx.locale('cmd.queue.page_info', {
+            index: index + 1,
+            total: chunks.length,
+          }),
+        })
+    })
+    return await client.utils.paginate(client, ctx, pages)
   }
 }

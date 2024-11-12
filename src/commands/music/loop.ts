@@ -1,11 +1,13 @@
-import { BaseClient, Command, Context } from '#common/index'
+import Command from '#common/command'
+import type MahinaBot from '#common/mahina_bot'
+import type Context from '#common/context'
 
 export default class Loop extends Command {
-  constructor(client: BaseClient) {
+  constructor(client: MahinaBot) {
     super(client, {
       name: 'loop',
       description: {
-        content: 'Loopa a música ou a fila',
+        content: 'cmd.loop.description',
         examples: ['loop', 'loop queue', 'loop song'],
         usage: 'loop',
       },
@@ -13,15 +15,16 @@ export default class Loop extends Command {
       aliases: ['loop'],
       cooldown: 3,
       args: false,
+      vote: false,
       player: {
         voice: true,
         dj: false,
         active: true,
-        dj_perm: null,
+        djPerm: null,
       },
       permissions: {
         dev: false,
-        client: ['SendMessages', 'ViewChannel', 'EmbedLinks'],
+        client: ['SendMessages', 'ReadMessageHistory', 'ViewChannel', 'EmbedLinks'],
         user: [],
       },
       slashCommand: true,
@@ -29,26 +32,31 @@ export default class Loop extends Command {
     })
   }
 
-  async run(client: BaseClient, ctx: Context): Promise<any> {
-    const embed = client.embed().setColor(client.color.main)
-    const player = client.queue.get(ctx.guild!.id)
+  async run(client: MahinaBot, ctx: Context): Promise<any> {
+    const embed = this.client.embed().setColor(this.client.color.main)
+    const player = client.manager.getPlayer(ctx.guild!.id)
+    let loopMessage = ''
 
-    switch (player.loop) {
-      case 'off':
-        player.loop = 'repeat'
-        return await ctx.sendMessage({
-          embeds: [embed.setDescription(`**𝙇𝙤𝙤𝙥𝙖𝙣𝙙𝙤 𝙖 𝙢𝙪́𝙨𝙞𝙘𝙖**`).setColor(client.color.main)],
-        })
-      case 'repeat':
-        player.loop = 'queue'
-        return await ctx.sendMessage({
-          embeds: [embed.setDescription(`**𝙇𝙤𝙤𝙥𝙖𝙣𝙙𝙤 𝙖 𝙛𝙞𝙡𝙖**`).setColor(client.color.main)],
-        })
-      case 'queue':
-        player.loop = 'off'
-        return await ctx.sendMessage({
-          embeds: [embed.setDescription(`**𝙇𝙤𝙤𝙥 𝙙𝙚𝙨𝙖𝙩𝙞𝙫𝙖𝙙𝙤**`).setColor(client.color.main)],
-        })
+    switch (player?.repeatMode) {
+      case 'off': {
+        player.setRepeatMode('track')
+        loopMessage = ctx.locale('cmd.loop.looping_song')
+        break
+      }
+      case 'track': {
+        player.setRepeatMode('queue')
+        loopMessage = ctx.locale('cmd.loop.looping_queue')
+        break
+      }
+      case 'queue': {
+        player.setRepeatMode('off')
+        loopMessage = ctx.locale('cmd.loop.looping_off')
+        break
+      }
     }
+
+    return await ctx.sendMessage({
+      embeds: [embed.setDescription(loopMessage)],
+    })
   }
 }

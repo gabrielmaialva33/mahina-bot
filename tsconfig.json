@@ -2,7 +2,7 @@
   "extends": "@adonisjs/tsconfig/tsconfig.app.json",
   "compilerOptions": {
     "rootDir": "./",
-    "outDir": "./build",
+    "outDir": "./dist",
     "strictPropertyInitialization": false,
     "strict": true,
     "skipLibCheck": true,
@@ -17,10 +17,9 @@
       "#src/*": ["./src/*.js"],
       "#common/*": ["./src/common/*.js"],
       "#commands/*": ["./src/commands/*.js"],
-      "#interfaces/*": ["./src/interfaces/*.js"],
       "#utils/*": ["./src/utils/*.js"]
     }
   },
   "include": ["src/**/*.ts"],
-  "exclude": ["build", "node_modules"]
+  "exclude": ["dist", "node_modules"]
 }

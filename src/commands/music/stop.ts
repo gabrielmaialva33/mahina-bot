@@ -1,11 +1,13 @@
-import { BaseClient, Command, Context } from '#common/index'
+import Command from '#common/command'
+import type MahinaBot from '#common/mahina_bot'
+import type Context from '#common/context'
 
 export default class Stop extends Command {
-  constructor(client: BaseClient) {
+  constructor(client: MahinaBot) {
     super(client, {
       name: 'stop',
       description: {
-        content: 'Para a música que está tocando',
+        content: 'cmd.stop.description',
         examples: ['stop'],
         usage: 'stop',
       },
@@ -13,15 +15,16 @@ export default class Stop extends Command {
       aliases: ['sp'],
       cooldown: 3,
       args: false,
+      vote: false,
       player: {
         voice: true,
         dj: true,
         active: true,
-        dj_perm: null,
+        djPerm: null,
       },
       permissions: {
         dev: false,
-        client: ['SendMessages', 'ViewChannel', 'EmbedLinks'],
+        client: ['SendMessages', 'ReadMessageHistory', 'ViewChannel', 'EmbedLinks'],
         user: [],
       },
       slashCommand: true,
@@ -29,16 +32,17 @@ export default class Stop extends Command {
     })
   }
 
-  async run(client: BaseClient, ctx: Context): Promise<any> {
-    const player = client.queue.get(ctx.guild!.id)
+  async run(client: MahinaBot, ctx: Context): Promise<any> {
+    const player = client.manager.getPlayer(ctx.guild!.id)
     const embed = this.client.embed()
-
-    player.queue = []
-    player.stop()
+    if (!player) return await ctx.sendMessage(ctx.locale('event.message.no_music_playing'))
+    player.stopPlaying(true, false)
 
     return await ctx.sendMessage({
       embeds: [
-        embed.setColor(this.client.color.main).setDescription(`𝙋𝙖𝙧𝙤𝙪 𝙖 𝙢𝙪́𝙨𝙞𝙘𝙖 𝙚 𝙡𝙞𝙢𝙥𝙤𝙪 𝙖 𝙛𝙞𝙡𝙖`),
+        embed
+          .setColor(this.client.color.main)
+          .setDescription(ctx.locale('cmd.stop.messages.stopped')),
       ],
     })
   }

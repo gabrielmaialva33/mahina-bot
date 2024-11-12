@@ -1,72 +1,71 @@
-import { ApplicationCommandOptionType } from 'discord.js'
-
-import { BaseClient, Command, Context } from '#common/index'
+import Command from '#common/command'
+import type MahinaBot from '#common/mahina_bot'
+import type Context from '#common/context'
 
 export default class Pitch extends Command {
-  constructor(client: BaseClient) {
+  constructor(client: MahinaBot) {
     super(client, {
       name: 'pitch',
       description: {
-        content: 'on/off o filtro de pitch',
-        examples: ['pitch 1'],
+        content: 'cmd.pitch.description',
+        examples: ['pitch 1', 'pitch 1.5', 'pitch 1,5'],
         usage: 'pitch <number>',
       },
       category: 'filters',
       aliases: ['ph'],
       cooldown: 3,
       args: true,
+      vote: false,
       player: {
         voice: true,
         dj: true,
         active: true,
-        dj_perm: null,
+        djPerm: null,
       },
       permissions: {
         dev: false,
-        client: ['SendMessages', 'ViewChannel', 'EmbedLinks'],
-        user: ['ManageGuild'],
+        client: ['SendMessages', 'ReadMessageHistory', 'ViewChannel', 'EmbedLinks'],
+        user: [],
       },
       slashCommand: true,
       options: [
         {
-          name: 'number',
-          description: 'O número para o qual você deseja definir o tom',
-          type: ApplicationCommandOptionType.Integer,
+          name: 'pitch',
+          description: 'cmd.pitch.options.pitch',
+          type: 3,
           required: true,
         },
       ],
     })
   }
 
-  async run(client: BaseClient, ctx: Context, args: string[]): Promise<any> {
-    const player = client.queue.get(ctx.guild!.id)
+  async run(client: MahinaBot, ctx: Context, args: string[]): Promise<any> {
+    const player = client.manager.getPlayer(ctx.guild!.id)
+    if (!player) return await ctx.sendMessage(ctx.locale('event.message.no_music_playing'))
+    const pitchString = args[0].replace(',', '.')
+    const isValidNumber = /^[0-9]*\.?[0-9]+$/.test(pitchString)
+    const pitch = Number.parseFloat(pitchString)
 
-    const number = Number(args[0])
-    if (Number.isNaN(number))
-      return await ctx.sendMessage({
+    if (!isValidNumber || Number.isNaN(pitch) || pitch < 0.5 || pitch > 5) {
+      await ctx.sendMessage({
         embeds: [
           {
-            description: '𝘾𝙤𝙡𝙤𝙦𝙪𝙚 𝙪𝙢 𝙣𝙪́𝙢𝙚𝙧𝙤 𝙫𝙖́𝙡𝙞𝙙𝙤.',
-            color: client.color.red,
+            description: ctx.locale('cmd.pitch.errors.invalid_number'),
+            color: this.client.color.red,
           },
         ],
       })
-    if (number > 5 || number < 1)
-      return await ctx.sendMessage({
-        embeds: [
-          {
-            description: '𝘾𝙤𝙡𝙤𝙦𝙪𝙚 𝙪𝙢 𝙣𝙪́𝙢𝙚𝙧𝙤 𝙚𝙣𝙩𝙧𝙚 1 𝙚 5',
-            color: client.color.red,
-          },
-        ],
-      })
-    player.player.setTimescale({ pitch: number, rate: 1, speed: 1 })
+      return
+    }
 
+    await player.filterManager.setPitch(pitch)
     return await ctx.sendMessage({
       embeds: [
         {
-          description: `𝙋𝙞𝙩𝙘𝙝 𝙙𝙚𝙛𝙞𝙣𝙞𝙙𝙤 𝙥𝙖𝙧𝙖 ${number}`,
-          color: client.color.main,
+          description: ctx.locale('cmd.pitch.messages.pitch_set', {
+            pitch,
+          }),
+          color: this.client.color.main,
         },
       ],
     })

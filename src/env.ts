@@ -1,64 +1,98 @@
-import 'dotenv/config'
+import path from 'node:path'
+import { fileURLToPath } from 'node:url'
 
-import { bool, cleanEnv, num, str } from 'envalid'
-import { Language } from '#src/types'
+import { config } from 'dotenv'
+import { z } from 'zod'
 
-export const env = cleanEnv(process.env, {
-  TZ: str({ default: 'America/Sao_Paulo' }),
-  HOST: str({ default: '0.0.0.0' }),
-  PORT: num({ default: 3000 }),
-  LOG_LEVEL: str({ default: 'info' }),
-  NODE_ENV: str({ default: 'development' }),
+const dirname = path.dirname(fileURLToPath(import.meta.url))
 
-  USERNAME: str({ default: 'admin' }),
-  PASSWORD: str({ default: 'admin' }),
-
-  // Database
-  DB_CLIENT: str({ default: 'sqlite' }),
-  DB_DEBUG: bool({ default: false }),
-  DATABASE_URL: str({ default: '' }),
-
-  // Discord
-  DISC_BOT_NAME: str({ default: 'Ｂｏｔ' }),
-  DISC_BOT_PROFILE: str({ default: '' }),
-  DISC_BOT_THUMBNAIL: str({ default: '' }),
-  DISC_BOT_COLOR: str({ default: '0x4f5aa1' }),
-
-  DISC_BOT_ID: str({ default: '' }),
-  DISC_BOT_TOKEN: str({ default: '' }),
-  DISC_USER_1_TOKEN: str({ default: '' }),
-  DISC_USER_2_TOKEN: str({ default: '' }),
-  DISC_USER_3_TOKEN: str({ default: '' }),
-
-  DISC_GUILD_ID: str({ default: '' }),
-  DISC_CHANNEL_ID: str({ default: '' }),
-  DISC_CLIENT_ID: str({ default: '' }),
-  DISC_VOICE_ID: str({ default: '' }),
-  DISC_LOG_CHANNEL_ID: str({ default: '' }),
-  DISC_OWNER_IDS: str({ default: '[]' }),
-
-  DISC_BOT_PREFIX: str({ default: '!' }),
-
-  BOT_STATUS: str({ default: 'online' }),
-  BOT_ACTIVITY: str({ default: 'com oce manã..' }),
-  BOT_ACTIVITY_TYPE: num({ default: 2 }),
-  BOT_AI_GUILD_IDS: str({ default: '[]' }),
-
-  SEARCH_ENGINE: str({ default: 'ytsearch' }),
-  MAX_QUEUE_SIZE: num({ default: 30 }),
-  MAX_PLAYLIST_SIZE: num({ default: 50 }),
-
-  DEFAULT_LANGUAGE: str({ default: Language.EnglishUS }),
-  AUTO_NODE: bool({ default: false }),
-
-  // LavaLink
-  LAVALINK_URL: str({ default: 'http://localhost:2333' }),
-  LAVALINK_AUTH: str({ default: '' }),
-  LAVALINK_PORT: num({ default: 2333 }),
-  LAVALINK_NAME: str({ default: 'Bot' }),
-  LAVALINK_SECURE: bool({ default: false }),
-
-  // OpenAI
-  OPENAI_API_KEY: str({ default: '' }),
-  LYRICS_API_KEY: str({ default: '' }),
+config({
+  path: path.join(dirname, '../.env'),
 })
+
+const LavalinkNodeSchema = z.object({
+  id: z.string(),
+  host: z.string(),
+  port: z.number(),
+  authorization: z.string(),
+  secure: z.preprocess(
+    (val) => (val === 'true' || val === 'false' ? val === 'true' : val),
+    z.boolean().optional()
+  ),
+  sessionId: z.string().optional(),
+  regions: z.string().array().optional(),
+  retryAmount: z.number().optional(),
+  retryDelay: z.number().optional(),
+  requestSignalTimeoutMS: z.number().optional(),
+  closeOnError: z.boolean().optional(),
+  heartBeatInterval: z.number().optional(),
+  enablePingOnStatsCheck: z.boolean().optional(),
+})
+
+const envSchema = z.object({
+  TOKEN: z.string(),
+  CLIENT_ID: z.string(),
+  DEFAULT_LANGUAGE: z.string().default('EnglishUS'),
+  PREFIX: z.string().default('!'),
+  OWNER_IDS: z.preprocess(
+    (val) => (typeof val === 'string' ? JSON.parse(val) : val),
+    z.string().array().optional()
+  ),
+  GUILD_ID: z.string().optional(),
+  TOPGG: z.string().optional(),
+  KEEP_ALIVE: z.preprocess((val) => val === 'true', z.boolean().default(false)),
+  LOG_CHANNEL_ID: z.string().optional(),
+  LOG_COMMANDS_ID: z.string().optional(),
+  BOT_STATUS: z.preprocess(
+    (val) => {
+      if (typeof val === 'string') {
+        return val.toLowerCase()
+      }
+      return val
+    },
+    z.enum(['online', 'idle', 'dnd', 'invisible']).default('online')
+  ),
+  BOT_ACTIVITY: z.string().default('MahinaBot'),
+  BOT_ACTIVITY_TYPE: z.preprocess((val) => {
+    if (typeof val === 'string') {
+      return Number.parseInt(val, 10)
+    }
+    return val
+  }, z.number().default(0)),
+  DATABASE_URL: z.string().optional(),
+  SEARCH_ENGINE: z.preprocess(
+    (val) => {
+      if (typeof val === 'string') {
+        return val.toLowerCase()
+      }
+      return val
+    },
+    z
+      .enum([
+        'youtube',
+        'youtubemusic',
+        'soundcloud',
+        'spotify',
+        'apple',
+        'deezer',
+        'yandex',
+        'jiosaavn',
+      ])
+      .default('youtube')
+  ),
+  NODES: z.preprocess(
+    (val) => (typeof val === 'string' ? JSON.parse(val) : val),
+    z.array(LavalinkNodeSchema)
+  ),
+  GENIUS_API: z.string().optional(),
+})
+
+type Env = z.infer<typeof envSchema>
+
+export const env: Env = envSchema.parse(process.env)
+
+for (const key in env) {
+  if (!(key in env)) {
+    throw new Error(`Missing env variable: ${key}. Please check the .env file and try again.`)
+  }
+}

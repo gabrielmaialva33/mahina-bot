@@ -38,10 +38,11 @@ export enum Language {
   SpanishES = 'SpanishES',
   // Swedish = "Swedish",
   // Thai = "Thai",
-  // Turkish = "Turkish",
+  Turkish = 'Turkish',
   // Ukrainian = "Ukrainian",
   Vietnamese = 'Vietnamese',
 }
+
 export const LocaleFlags = {
   // [Language.Bulgarian]: "🇧🇬",
   [Language.ChineseCN]: '🇨🇳',
@@ -71,7 +72,14 @@ export const LocaleFlags = {
   [Language.SpanishES]: '🇪🇸',
   // [Language.Swedish]: "🇸🇪",
   // [Language.Thai]: "🇹🇭",
-  // [Language.Turkish]: "🇹🇷",
+  [Language.Turkish]: '🇹🇷',
   // [Language.Ukrainian]: "🇺🇦",
   [Language.Vietnamese]: '🇻🇳',
+}
+
+export interface Requester {
+  id: string
+  username: string
+  discriminator?: string
+  avatarURL?: string
 }

@@ -1,13 +1,16 @@
-import { EmbedBuilder, Guild, GuildMember, TextChannel } from 'discord.js'
+import { EmbedBuilder, type Guild, type GuildMember, type TextChannel } from 'discord.js'
 
-import { type BaseClient, Event } from '#common/index'
+import Event from '#common/event'
+import type MahinaBot from '#common/mahina_bot'
 
 export default class GuildCreate extends Event {
-  constructor(client: BaseClient, file: string) {
-    super(client, file, { name: 'guildCreate' })
+  constructor(client: MahinaBot, file: string) {
+    super(client, file, {
+      name: 'guildCreate',
+    })
   }
 
-  async run(guild: Guild): Promise<any> {
+  async run(guild: Guild): Promise<void> {
     let owner: GuildMember | undefined
     try {
       owner = await guild.members.fetch(guild.ownerId)
@@ -15,36 +18,57 @@ export default class GuildCreate extends Event {
       this.client.logger.error(`Error fetching owner for guild ${guild.id}: ${e}`)
     }
 
-    if (!owner) owner = { user: { tag: 'Unknown#0000' } } as GuildMember
-
     const embed = new EmbedBuilder()
-      .setColor(this.client.color.green)
-      .setAuthor({ name: guild.name, iconURL: guild.iconURL({ extension: 'jpeg' })! })
-      .setDescription(`**${guild.name}** 𝙛𝙤𝙞 𝙖𝙙𝙞𝙘𝙞𝙤𝙣𝙖𝙙𝙤 𝙖̀𝙨 𝙢𝙞𝙣𝙝𝙖𝙨 𝙜𝙪𝙞𝙡𝙙𝙖𝙨..`)
+      .setColor(this.client.config.color.green)
+      .setAuthor({
+        name: guild.name,
+        iconURL: guild.iconURL({ extension: 'jpeg' })!,
+      })
+      .setDescription(`**${guild.name}** has been added to my guilds!`)
       .setThumbnail(guild.iconURL({ extension: 'jpeg' }))
       .addFields(
-        { name: '𝐃𝐨𝐧𝐨', value: owner.user.tag, inline: true },
-        { name: '𝐌𝐞𝐦𝐛𝐫𝐨𝐬', value: guild.memberCount.toString(), inline: true },
         {
-          name: '𝐂𝐫𝐢𝐚𝐝𝐚 𝐞𝐦',
+          name: 'Owner',
+          value: owner ? owner.user.tag : 'Unknown#0000',
+          inline: true,
+        },
+        {
+          name: 'Members',
+          value: guild.memberCount.toString(),
+          inline: true,
+        },
+        {
+          name: 'Created At',
           value: `<t:${Math.floor(guild.createdTimestamp / 1000)}:F>`,
           inline: true,
         },
         {
-          name: '𝐄𝐧𝐭𝐫𝐨𝐮 𝐞𝐦',
+          name: 'Joined At',
           value: `<t:${Math.floor(guild.joinedTimestamp / 1000)}:F>`,
           inline: true,
         },
-        { name: '𝐈𝐃', value: guild.id, inline: true }
+        { name: 'ID', value: guild.id, inline: true }
       )
       .setTimestamp()
 
-    const channel = (await this.client.channels.fetch(
-      this.client.env.DISC_LOG_CHANNEL_ID
-    )) as TextChannel
+    const logChannelId = this.client.env.LOG_CHANNEL_ID
+    if (!logChannelId) {
+      this.client.logger.error('Log channel ID not found in configuration.')
+      return
+    }
 
-    if (!channel) return
+    try {
+      const channel = (await this.client.channels.fetch(logChannelId)) as TextChannel
+      if (!channel) {
+        this.client.logger.error(
+          `Log channel not found with ID ${logChannelId}. Please change the settings in .env or, if you have a channel, invite me to that guild.`
+        )
+        return
+      }
 
-    return await channel.send({ embeds: [embed] })
+      await channel.send({ embeds: [embed] })
+    } catch (error) {
+      this.client.logger.error(`Error sending message to log channel ${logChannelId}: ${error}`)
+    }
   }
 }

@@ -1,9 +1,13 @@
 import { exec } from 'node:child_process'
+
 import { ActionRowBuilder, ButtonBuilder, ButtonStyle } from 'discord.js'
-import { BaseClient, Command, Context } from '#common/index'
+
+import Command from '#common/command'
+import type MahinaBot from '#common/mahina_bot'
+import type Context from '#common/context'
 
 export default class Restart extends Command {
-  constructor(client: BaseClient) {
+  constructor(client: MahinaBot) {
     super(client, {
       name: 'restart',
       description: {
@@ -19,7 +23,7 @@ export default class Restart extends Command {
         voice: false,
         dj: false,
         active: false,
-        dj_perm: null,
+        djPerm: null,
       },
       permissions: {
         dev: true,
@@ -31,7 +35,7 @@ export default class Restart extends Command {
     })
   }
 
-  async run(client: BaseClient, ctx: Context): Promise<void> {
+  async run(client: MahinaBot, ctx: Context): Promise<void> {
     const embed = this.client.embed()
     const button = new ButtonBuilder()
       .setStyle(ButtonStyle.Danger)
@@ -40,9 +44,7 @@ export default class Restart extends Command {
     const row = new ActionRowBuilder<ButtonBuilder>().addComponents(button)
     const restartEmbed = embed
       .setColor(this.client.color.red)
-      .setDescription(
-        `**Are you sure you want to restart **\`${client.user ? client.user.username : 'mahina'}\`?`
-      )
+      .setDescription(`**Are you sure you want to restart **\`${client.user?.username}\`?`)
       .setTimestamp()
 
     const msg = await ctx.sendMessage({
@@ -50,7 +52,7 @@ export default class Restart extends Command {
       components: [row],
     })
 
-    const filter = (i: any) => i.customId === 'confirm-restart' && i.user.id === ctx.author!.id
+    const filter = (i: any) => i.customId === 'confirm-restart' && i.user.id === ctx.author?.id
     const collector = msg.createMessageComponentCollector({
       time: 30000,
       filter,
@@ -66,7 +68,7 @@ export default class Restart extends Command {
       })
 
       await client.destroy()
-      exec('node scripts/restart.ts')
+      exec('node scripts/restart.js')
       process.exit(0)
     })
 

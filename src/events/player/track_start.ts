@@ -1,257 +1,277 @@
 import {
   ActionRowBuilder,
   ButtonBuilder,
-  ButtonInteraction,
+  type ButtonInteraction,
   ButtonStyle,
-  ChannelSelectMenuInteraction,
-  MentionableSelectMenuInteraction,
+  type ChannelSelectMenuInteraction,
+  GuildMember,
+  type MentionableSelectMenuInteraction,
   PermissionFlagsBits,
-  RoleSelectMenuInteraction,
-  StringSelectMenuInteraction,
-  TextChannel,
-  UserSelectMenuInteraction,
+  type RoleSelectMenuInteraction,
+  type StringSelectMenuInteraction,
+  type TextChannel,
+  type UserSelectMenuInteraction,
 } from 'discord.js'
-import { Player } from 'shoukaku'
+import type { Player, Track, TrackStartEvent } from 'lavalink-client'
 
-import { BaseClient, Dispatcher, Event, Song } from '#common/index'
+import { T } from '#common/i18n'
+import Event from '#common/event'
+import type MahinaBot from '#common/mahina_bot'
+
+import { Requester } from '#src/types'
 import { trackStart } from '#utils/setup_system'
 
 export default class TrackStart extends Event {
-  constructor(client: BaseClient, file: string) {
-    super(client, file, { name: 'trackStart' })
+  constructor(client: MahinaBot, file: string) {
+    super(client, file, {
+      name: 'trackStart',
+    })
   }
 
-  async run(player: Player, track: Song, dispatcher: Dispatcher): Promise<void> {
+  async run(player: Player, track: Track | null, _payload: TrackStartEvent): Promise<void> {
     const guild = this.client.guilds.cache.get(player.guildId)
     if (!guild) return
-    const channel = guild.channels.cache.get(dispatcher.channelId) as TextChannel
+    if (!player.textChannelId) return
+    if (!track) return
+    const channel = guild.channels.cache.get(player.textChannelId) as TextChannel
     if (!channel) return
+
     this.client.utils.updateStatus(this.client, guild.id)
 
-    function buttonBuilder(): ActionRowBuilder<ButtonBuilder> {
-      const previousButton = new ButtonBuilder()
-        .setCustomId('previous')
-        .setEmoji('⏪')
-        .setStyle(ButtonStyle.Secondary)
-        .setDisabled(!dispatcher.previous)
-
-      const resumeButton = new ButtonBuilder()
-        .setCustomId('resume')
-        .setEmoji(player.paused ? '▶️' : '⏸️')
-        .setStyle(player.paused ? ButtonStyle.Success : ButtonStyle.Secondary)
-
-      const stopButton = new ButtonBuilder()
-        .setCustomId('stop')
-        .setEmoji('⏹️')
-        .setStyle(ButtonStyle.Danger)
-      const skipButton = new ButtonBuilder()
-        .setCustomId('skip')
-        .setEmoji('⏩')
-        .setStyle(ButtonStyle.Secondary)
-
-      const loopButton = new ButtonBuilder()
-        .setCustomId('loop')
-        .setEmoji(dispatcher.loop === 'repeat' ? '🔂' : '🔁')
-        .setStyle(dispatcher.loop !== 'off' ? ButtonStyle.Success : ButtonStyle.Secondary)
-
-      return new ActionRowBuilder<ButtonBuilder>().addComponents(
-        previousButton,
-        resumeButton,
-        stopButton,
-        skipButton,
-        loopButton
-      )
-    }
+    const locale = await this.client.db.getLanguage(guild.id)
 
     const embed = this.client
       .embed()
       .setAuthor({
-        name: '💿 𝙉𝙤𝙬 𝙋𝙡𝙖𝙮𝙞𝙣𝙜',
+        name: T(locale, 'player.trackStart.now_playing'),
         iconURL:
-          this.client.icons[track.info.sourceName as keyof typeof this.client.icons] ??
-          this.client.user!.displayAvatarURL({ extension: 'png' }),
+          this.client.config.icons[track.info.sourceName] ??
+          this.client.user?.displayAvatarURL({ extension: 'png' }),
       })
       .setColor(this.client.color.main)
       .setDescription(`**[${track.info.title}](${track.info.uri})**`)
       .setFooter({
-        text: `𝙥𝙚𝙙𝙞𝙙𝙖 𝙥𝙤𝙚 ${track.info.requestedBy.tag}`,
-        iconURL: track.info.requestedBy.avatarURL()!,
+        text: T(locale, 'player.trackStart.requested_by', {
+          user: (track.requester as Requester).username,
+        }),
+        iconURL: (track.requester as Requester).avatarURL,
       })
-      .setThumbnail(track.info.artworkUrl!)
+      .setThumbnail(track.info.artworkUrl)
       .addFields(
         {
-          name: '🕒 𝘿𝙪𝙧𝙖𝙘̧𝙖̃𝙤',
-          value: track.info.isStream ? '🔴 𝙇𝙄𝙑𝙀' : this.client.utils.formatTime(track.info.length),
+          name: T(locale, 'player.trackStart.duration'),
+          value: track.info.isStream ? 'LIVE' : this.client.utils.formatTime(track.info.duration),
           inline: true,
         },
-        { name: '✍️ 𝘼𝙪𝙩𝙝𝙤𝙧', value: track.info.author, inline: true }
+        {
+          name: T(locale, 'player.trackStart.author'),
+          value: track.info.author,
+          inline: true,
+        }
       )
       .setTimestamp()
-    let setup = await this.client.db.getSetup(guild.id)
-    if (setup && setup.textId) {
+
+    const setup = await this.client.db.getSetup(guild.id)
+
+    if (setup?.textId) {
       const textChannel = guild.channels.cache.get(setup.textId) as TextChannel
-      const id = setup.messageId
-      if (!textChannel) return
-      if (channel && textChannel && channel.id === textChannel.id) {
-        await trackStart(id, textChannel, dispatcher, track, this.client)
-      } else {
-        await trackStart(id, textChannel, dispatcher, track, this.client)
+      if (textChannel) {
+        await trackStart(setup.messageId, textChannel, player, track, this.client, locale)
       }
     } else {
       const message = await channel.send({
         embeds: [embed],
-        components: [buttonBuilder()],
-      })
-      dispatcher.nowPlayingMessage = message
-      const collector = message.createMessageComponentCollector({
-        filter: async (b) => {
-          if (
-            // @ts-ignore
-            b.guild.members.me.voice.channel &&
-            // @ts-ignore
-            b.guild.members.me.voice.channelId === b.member.voice.channelId
-          )
-            return true
-          else {
-            b.reply({
-              content: `𝙑𝙤𝙘𝙚̂ 𝙣𝙖̃𝙤 𝙚𝙨𝙩𝙖́ 𝙘𝙤𝙣𝙚𝙘𝙩𝙖𝙙𝙤 𝙖 <#${
-                // @ts-ignore
-                b.guild.members.me.voice?.channelId ?? '𝙉𝙤𝙣𝙚'
-              }> 𝙥𝙖𝙧𝙖 𝙪𝙨𝙖𝙧 𝙚𝙨𝙨𝙚𝙨 𝙗𝙤𝙩𝙤̃𝙚𝙨.`,
-              ephemeral: true,
-            })
-            return false
-          }
-        },
-        //time: track.info.isStream ? 86400000 : track.info.length,
+        components: [createButtonRow(player, this.client)],
       })
 
-      collector.on('collect', async (interaction) => {
-        if (!(await checkDj(this.client, interaction))) {
-          await interaction.reply({
-            content: `🎭 𝙑𝙤𝙘𝙚̂ 𝙥𝙧𝙚𝙘𝙞𝙨𝙖 𝙩𝙚𝙧 𝙖 𝙛𝙪𝙣𝙘̧𝙖̃𝙤 𝙙𝙚 𝘿𝙅 𝙥𝙖𝙧𝙖 𝙪𝙨𝙖𝙧 𝙚𝙨𝙩𝙚 𝙘𝙤𝙢𝙖𝙣𝙙𝙤.`,
-            ephemeral: true,
-          })
-          return
-        }
-        switch (interaction.customId) {
-          case 'previous':
-            if (!dispatcher.previous) {
-              await interaction.reply({
-                content: `𝙉𝙖̃𝙤 𝙝𝙖́ 𝙢𝙪́𝙨𝙞𝙘𝙖 𝙖𝙣𝙩𝙚𝙧𝙞𝙤𝙧.`,
-                ephemeral: true,
-              })
-              return
-            } else dispatcher.previousTrack()
-            if (message)
-              await message.edit({
-                embeds: [
-                  embed.setFooter({
-                    text: `𝙑𝙤𝙡𝙩𝙖𝙙𝙖 𝙥𝙤𝙧 ${interaction.user.tag}`,
-                    iconURL: interaction.user.avatarURL({})!,
-                  }),
-                ],
-                components: [buttonBuilder()],
-              })
-            break
-          case 'resume':
-            dispatcher.pause()
-            if (message)
-              await message.edit({
-                embeds: [
-                  embed.setFooter({
-                    text: `${player.paused ? '𝙥𝙖𝙪𝙨𝙖𝙙𝙤' : '𝙧𝙚𝙨𝙪𝙢𝙞𝙙𝙤'} 𝙥𝙤𝙧 ${interaction.user.tag}`,
-                    iconURL: interaction.user.avatarURL({})!,
-                  }),
-                ],
-                components: [buttonBuilder()],
-              })
-            break
-          case 'stop':
-            dispatcher.stop()
-            if (message)
-              await message.edit({
-                embeds: [
-                  embed.setFooter({
-                    text: `𝙋𝙖𝙧𝙖𝙙𝙖 𝙥𝙤𝙧 ${interaction.user.tag}`,
-                    iconURL: interaction.user.avatarURL({})!,
-                  }),
-                ],
-                components: [],
-              })
-            break
-          case 'skip':
-            if (!dispatcher.queue.length) {
-              await interaction.reply({
-                content: `𝙉𝙖̃𝙤 𝙝𝙖́ 𝙢𝙖𝙞𝙨 𝙢𝙪́𝙨𝙞𝙘𝙖 𝙣𝙖 𝙛𝙞𝙡𝙖.`,
-                ephemeral: true,
-              })
-              return
-            }
-            dispatcher.skip()
-            if (message)
-              await message.edit({
-                embeds: [
-                  embed.setFooter({
-                    text: `𝙄𝙜𝙣𝙤𝙧𝙖𝙙𝙖 𝙥𝙤𝙧 ${interaction.user.tag}`,
-                    iconURL: interaction.user.avatarURL({})!,
-                  }),
-                ],
-                components: [],
-              })
-            break
-          case 'loop':
-            switch (dispatcher.loop) {
-              case 'off':
-                dispatcher.loop = 'repeat'
-                if (message)
-                  await message.edit({
-                    embeds: [
-                      embed.setFooter({
-                        text: `𝙇𝙤𝙤𝙥 𝙥𝙤𝙧 ${interaction.user.tag}`,
-                        iconURL: interaction.user.avatarURL({})!,
-                      }),
-                    ],
-                    components: [buttonBuilder()],
-                  })
-                break
-              case 'repeat':
-                dispatcher.loop = 'queue'
-                if (message)
-                  await message.edit({
-                    embeds: [
-                      embed.setFooter({
-                        text: `𝙁𝙞𝙡𝙖 𝙚𝙢 𝙡𝙤𝙤𝙥 𝙥𝙤𝙧 ${interaction.user.tag}`,
-                        iconURL: interaction.user.avatarURL({})!,
-                      }),
-                    ],
-                    components: [buttonBuilder()],
-                  })
-                break
-              case 'queue':
-                dispatcher.loop = 'off'
-                if (message)
-                  await message.edit({
-                    embeds: [
-                      embed.setFooter({
-                        text: `𝙇𝙤𝙤𝙥 𝙩𝙚𝙧𝙢𝙞𝙣𝙖𝙙𝙤 𝙥𝙤𝙧 ${interaction.user.tag}`,
-                        iconURL: interaction.user.avatarURL({})!,
-                      }),
-                    ],
-                    components: [buttonBuilder()],
-                  })
-                break
-            }
-            break
-        }
-        await interaction.deferUpdate()
-      })
+      player.set('messageId', message.id)
+      createCollector(message, player, track, embed, this.client, locale)
     }
   }
 }
 
+function createButtonRow(player: Player, client: MahinaBot): ActionRowBuilder<ButtonBuilder> {
+  const previousButton = new ButtonBuilder()
+
+    .setCustomId('previous')
+    .setEmoji(client.emoji.previous)
+    .setStyle(ButtonStyle.Secondary)
+    .setDisabled(!player.queue.previous)
+
+  const resumeButton = new ButtonBuilder()
+    .setCustomId('resume')
+    .setEmoji(player.paused ? client.emoji.resume : client.emoji.pause)
+    .setStyle(player.paused ? ButtonStyle.Success : ButtonStyle.Secondary)
+
+  const stopButton = new ButtonBuilder()
+    .setCustomId('stop')
+    .setEmoji(client.emoji.stop)
+    .setStyle(ButtonStyle.Danger)
+
+  const skipButton = new ButtonBuilder()
+    .setCustomId('skip')
+    .setEmoji(client.emoji.skip)
+    .setStyle(ButtonStyle.Secondary)
+
+  const loopButton = new ButtonBuilder()
+    .setCustomId('loop')
+    .setEmoji(player.repeatMode === 'track' ? client.emoji.loop.track : client.emoji.loop.none)
+    .setStyle(player.repeatMode !== 'off' ? ButtonStyle.Success : ButtonStyle.Secondary)
+
+  return new ActionRowBuilder<ButtonBuilder>().addComponents(
+    resumeButton,
+    previousButton,
+    stopButton,
+    skipButton,
+    loopButton
+  )
+}
+
+function createCollector(
+  message: any,
+  player: Player,
+  _track: Track,
+  embed: any,
+  client: MahinaBot,
+  locale: string
+): void {
+  const collector = message.createMessageComponentCollector({
+    filter: async (b: ButtonInteraction) => {
+      if (b.member instanceof GuildMember) {
+        const isSameVoiceChannel = b.guild?.members.me?.voice.channelId === b.member.voice.channelId
+        if (isSameVoiceChannel) return true
+      }
+      await b.reply({
+        content: T(locale, 'player.trackStart.not_connected_to_voice_channel', {
+          channel: b.guild?.members.me?.voice.channelId ?? 'None',
+        }),
+        ephemeral: true,
+      })
+      return false
+    },
+  })
+
+  collector.on('collect', async (interaction: ButtonInteraction<'cached'>) => {
+    if (!(await checkDj(client, interaction))) {
+      await interaction.reply({
+        content: T(locale, 'player.trackStart.need_dj_role'),
+        ephemeral: true,
+      })
+      return
+    }
+
+    const editMessage = async (text: string): Promise<void> => {
+      if (message) {
+        await message.edit({
+          embeds: [
+            embed.setFooter({
+              text,
+              iconURL: interaction.user.avatarURL({}),
+            }),
+          ],
+          components: [createButtonRow(player, client)],
+        })
+      }
+    }
+    switch (interaction.customId) {
+      case 'previous':
+        if (player.queue.previous) {
+          await interaction.deferUpdate()
+          const previousTrack = player.queue.previous[0]
+          player.play({
+            track: previousTrack,
+          })
+          await editMessage(
+            T(locale, 'player.trackStart.previous_by', {
+              user: interaction.user.tag,
+            })
+          )
+        } else {
+          await interaction.reply({
+            content: T(locale, 'player.trackStart.no_previous_song'),
+            ephemeral: true,
+          })
+        }
+        break
+      case 'resume':
+        if (player.paused) {
+          player.resume()
+          await interaction.deferUpdate()
+          await editMessage(
+            T(locale, 'player.trackStart.resumed_by', {
+              user: interaction.user.tag,
+            })
+          )
+        } else {
+          player.pause()
+          await interaction.deferUpdate()
+          await editMessage(
+            T(locale, 'player.trackStart.paused_by', {
+              user: interaction.user.tag,
+            })
+          )
+        }
+        break
+      case 'stop': {
+        player.stopPlaying(true, false)
+        await interaction.deferUpdate()
+        break
+      }
+      case 'skip':
+        if (player.queue.tracks.length > 0) {
+          await interaction.deferUpdate()
+          player.skip()
+          await editMessage(
+            T(locale, 'player.trackStart.skipped_by', {
+              user: interaction.user.tag,
+            })
+          )
+        } else {
+          await interaction.reply({
+            content: T(locale, 'player.trackStart.no_more_songs_in_queue'),
+            ephemeral: true,
+          })
+        }
+        break
+      case 'loop': {
+        await interaction.deferUpdate()
+        switch (player.repeatMode) {
+          case 'off': {
+            player.setRepeatMode('track')
+            await editMessage(
+              T(locale, 'player.trackStart.looping_by', {
+                user: interaction.user.tag,
+              })
+            )
+            break
+          }
+          case 'track': {
+            player.setRepeatMode('queue')
+            await editMessage(
+              T(locale, 'player.trackStart.looping_queue_by', {
+                user: interaction.user.tag,
+              })
+            )
+            break
+          }
+          case 'queue': {
+            player.setRepeatMode('off')
+            await editMessage(
+              T(locale, 'player.trackStart.looping_off_by', {
+                user: interaction.user.tag,
+              })
+            )
+            break
+          }
+        }
+        break
+      }
+    }
+  })
+}
+
 export async function checkDj(
-  client: BaseClient,
+  client: MahinaBot,
   interaction:
     | ButtonInteraction<'cached'>
     | StringSelectMenuInteraction<'cached'>
@@ -261,14 +281,15 @@ export async function checkDj(
     | ChannelSelectMenuInteraction<'cached'>
 ): Promise<boolean> {
   const dj = await client.db.getDj(interaction.guildId)
-  if (dj && dj.mode) {
+  if (dj?.mode) {
     const djRole = await client.db.getRoles(interaction.guildId)
     if (!djRole) return false
-
-    const findDJRole = interaction.member.roles.cache.find((x: any) =>
-      djRole.map((y) => y.roleId).includes(x.id)
+    const hasDjRole = interaction.member.roles.cache.some((role) =>
+      djRole.map((r) => r.roleId).includes(role.id)
     )
-    if (!findDJRole) return interaction.member.permissions.has(PermissionFlagsBits.ManageGuild)
+    if (!(hasDjRole || interaction.member.permissions.has(PermissionFlagsBits.ManageGuild))) {
+      return false
+    }
   }
   return true
 }

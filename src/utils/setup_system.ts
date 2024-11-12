@@ -1,224 +1,140 @@
-import { ColorResolvable, EmbedBuilder, Message, TextChannel } from 'discord.js'
-import { LoadType } from 'shoukaku'
+import {
+  type ColorResolvable,
+  EmbedBuilder,
+  type Guild,
+  type Message,
+  type TextChannel,
+} from 'discord.js'
 
+import type { Player, Track } from 'lavalink-client'
+
+import type MahinaBot from '#common/mahina_bot'
+import { T } from '#common/i18n'
+
+import { Requester } from '#src/types'
 import { getButtons } from '#utils/buttons'
-import { BaseClient, Dispatcher, Song } from '#common/index'
-import { env } from '#src/env'
 
-function neb(embed: EmbedBuilder, player: Dispatcher, client: BaseClient): EmbedBuilder {
-  if (!player.current) return embed
-  if (!client.user) return embed
+/**
+ * A function that will generate an embed based on the player's current track.
+ * @param embed The embed that will be modified.
+ * @param player The player to get the current track from.
+ * @param client The client to get the config from.
+ * @param locale The locale to translate the strings.
+ * @returns The modified embed.
+ */
+function neb(embed: EmbedBuilder, player: Player, client: MahinaBot, locale: string): EmbedBuilder {
+  if (!player?.queue.current?.info) return embed
+  const iconUrl =
+    client.config.icons[player.queue.current.info.sourceName] ||
+    client.user!.displayAvatarURL({ extension: 'png' })
+  const icon = player.queue.current.info.artworkUrl || client.config.links.img
 
-  let iconUrl = client.icons[player.current.info.sourceName as keyof typeof client.icons]
-  if (!iconUrl) iconUrl = client.user.displayAvatarURL({ extension: 'png' })
-
-  let icon = player.current ? player.current.info.artworkUrl : client.links.img
-  if (!icon) icon = client.links.img
-
+  const description = T(locale, 'player.setupStart.description', {
+    title: player.queue.current.info.title,
+    uri: player.queue.current.info.uri,
+    author: player.queue.current.info.author,
+    length: client.utils.formatTime(player.queue.current.info.duration),
+    requester: (player.queue.current.requester as Requester).id,
+  })
   return embed
-    .setAuthor({ name: '💿 𝙉𝙤𝙬 𝙋𝙡𝙖𝙮𝙞𝙣𝙜', iconURL: iconUrl })
-    .setDescription(
-      `[${player.current.info.title}](${player.current.info.uri}) 𝙥𝙤𝙧 ${
-        player.current.info.author
-      } • \`[${client.utils.formatTime(player.current.info.length)}]\` - 𝙥𝙚𝙙𝙞𝙙𝙖 𝙥𝙤𝙚 ${
-        player.current.info.requestedBy
-      }`
-    )
+    .setAuthor({
+      name: T(locale, 'player.setupStart.now_playing'),
+      iconURL: iconUrl,
+    })
+    .setDescription(description)
     .setImage(icon)
     .setColor(client.color.main)
 }
 
+/**
+ * A function that will generate a setup message or edit an existing one
+ * with the current song playing.
+ * @param client The client to get the config from.
+ * @param query The query to search for.
+ * @param player The player to get the current track from.
+ * @param message The message to edit or send the setup message.
+ * @returns A promise that resolves when the function is done.
+ */
 async function setupStart(
-  client: BaseClient,
+  client: MahinaBot,
   query: string,
-  player: Dispatcher,
+  player: Player,
   message: Message
 ): Promise<void> {
-  let m: Message
+  let m: Message | undefined
   const embed = client.embed()
-  let n = client.embed().setColor(client.color.main)
-
+  const n = client.embed().setColor(client.color.main)
+  const data = await client.db.getSetup(message.guild!.id)
+  const locale = await client.db.getLanguage(message.guildId!)
   try {
-    m = await message.channel.messages.fetch({ message: message.id, cache: true })
+    if (data)
+      m = await message.channel.messages.fetch({
+        message: data.messageId,
+        cache: true,
+      })
   } catch (error) {
     client.logger.error(error)
   }
-  // @ts-ignore
   if (m) {
     try {
-      let res = await client.queue.search(query)
-      if (!res) return
+      if (message.inGuild()) {
+        const res = await player.search(query, message.author)
 
-      switch (res.loadType) {
-        case LoadType.ERROR:
-          await message.channel
-            .send({
-              embeds: [
-                embed
-                  .setColor(client.color.red)
-                  .setDescription('🥺 𝙊𝙘𝙤𝙧𝙧𝙚𝙪 𝙪𝙢 𝙚𝙧𝙧𝙤 𝙙𝙪𝙧𝙖𝙣𝙩𝙚 𝙖 𝙥𝙚𝙨𝙦𝙪𝙞𝙨𝙖.'),
-              ],
-            })
-            .then((msg) => {
-              setTimeout(() => {
-                msg.delete()
-              }, 5000)
-            })
-          break
-        case LoadType.EMPTY:
-          await message.channel
-            .send({
-              embeds: [embed.setColor(client.color.red).setDescription('😓 𝙈𝙖𝙣𝙖̃.. 𝙣𝙖̃𝙤 𝙖𝙘𝙝𝙚𝙞 𝙣𝙖𝙙𝙚')],
-            })
-            .then((msg) => {
-              setTimeout(() => {
-                msg.delete()
-              }, 5000)
-            })
-          break
-        case LoadType.TRACK:
-          const track = player.buildTrack(res.data, message.author)
-
-          if (player.queue.length > client.env.MAX_QUEUE_SIZE) {
+        switch (res.loadType) {
+          case 'empty':
+          case 'error':
             await message.channel
               .send({
                 embeds: [
                   embed
                     .setColor(client.color.red)
-                    .setDescription(
-                      `🚦 𝘼 𝙛𝙞𝙡𝙖 𝙚́ 𝙢𝙪𝙞𝙩𝙤 𝙡𝙤𝙣𝙜𝙖. 𝙊 𝙢𝙖́𝙭𝙞𝙢𝙤 𝙚́ ${client.env.MAX_QUEUE_SIZE}.`
-                    ),
+                    .setDescription(T(locale, 'player.setupStart.error_searching')),
                 ],
               })
-              .then((msg) => {
-                setTimeout(() => {
-                  msg.delete()
-                }, 5000)
-              })
-            return
-          }
-          player.queue.push(track)
-          await player.isPlaying()
-          await message.channel
-            .send({
-              embeds: [
-                embed
-                  .setColor(client.color.main)
-                  .setDescription(
-                    `🔉 𝘼𝙙𝙞𝙘𝙞𝙤𝙣𝙖𝙙𝙖 [${res.data.info.title}](${res.data.info.uri}) 𝙣𝙖 𝙛𝙞𝙡𝙖.`
-                  ),
-              ],
-            })
-            .then((msg) => {
-              setTimeout(() => {
-                msg.delete()
-              }, 5000)
-            })
-          neb(n, player, client)
-          if (m) await m.edit({ embeds: [n] }).catch(() => {})
-          break
-        case LoadType.PLAYLIST:
-          if (res.data.tracks.length > client.env.MAX_PLAYLIST_SIZE) {
+              .then((msg) => setTimeout(() => msg.delete(), 5000))
+            break
+          case 'search':
+          case 'track': {
+            player.queue.add(res.tracks[0])
             await message.channel
               .send({
                 embeds: [
-                  embed
-                    .setColor(client.color.red)
-                    .setDescription(
-                      `💽 𝘼 𝙥𝙡𝙖𝙮𝙡𝙞𝙨𝙩 𝙚́ 𝙢𝙪𝙞𝙩𝙤 𝙡𝙤𝙣𝙜𝙖. 𝙊 𝙢𝙖́𝙭𝙞𝙢𝙤 𝙚́  ${client.env.MAX_PLAYLIST_SIZE}.`
-                    ),
+                  embed.setColor(client.color.main).setDescription(
+                    T(locale, 'player.setupStart.added_to_queue', {
+                      title: res.tracks[0].info.title,
+                      uri: res.tracks[0].info.uri,
+                    })
+                  ),
                 ],
               })
-              .then((msg) => {
-                setTimeout(() => {
-                  msg.delete()
-                }, 5000)
-              })
-            return
-          }
-
-          // eslint-disable-next-line @typescript-eslint/no-shadow
-          for (const track of res.data.tracks) {
-            const pl = player.buildTrack(track, message.author)
-            if (player.queue.length > client.env.MAX_QUEUE_SIZE) {
-              await message.channel
-                .send({
-                  embeds: [
-                    embed
-                      .setColor(client.color.red)
-                      .setDescription(
-                        `🚦 𝘼 𝙛𝙞𝙡𝙖 𝙚́ 𝙢𝙪𝙞𝙩𝙤 𝙡𝙤𝙣𝙜𝙖. 𝙊 𝙢𝙖́𝙭𝙞𝙢𝙤 𝙚́ ${client.env.MAX_QUEUE_SIZE}.`
-                      ),
-                  ],
-                })
-                .then((msg) => {
-                  setTimeout(() => {
-                    msg.delete()
-                  }, 5000)
-                })
-              return
-            }
-            player.queue.push(pl)
-          }
-          await player.isPlaying()
-          await message.channel
-            .send({
-              embeds: [
-                embed
-                  .setColor(client.color.main)
-                  .setDescription(
-                    `💽 𝘼𝙙𝙞𝙘𝙞𝙤𝙣𝙖𝙙𝙖 [${res.data.tracks.length}](${res.data.tracks[0].info.uri}) 𝙣𝙖 𝙛𝙞𝙡𝙖.`
-                  ),
-              ],
+              .then((msg) => setTimeout(() => msg.delete(), 5000))
+            neb(n, player, client, locale)
+            await m.edit({ embeds: [n] }).catch(() => {
+              null
             })
-            .then((msg) => {
-              setTimeout(() => {
-                msg.delete()
-              }, 5000)
-            })
-          neb(n, player, client)
-          if (m) await m.edit({ embeds: [n] }).catch(() => {})
-          break
-        case LoadType.SEARCH:
-          const track2 = player.buildTrack(res.data[0], message.author)
-          if (player.queue.length > client.env.MAX_QUEUE_SIZE) {
+            break
+          }
+          case 'playlist': {
+            player.queue.add(res.tracks)
             await message.channel
               .send({
                 embeds: [
-                  embed
-                    .setColor(client.color.red)
-                    .setDescription(
-                      `🚦 𝘼 𝙛𝙞𝙡𝙖 𝙚́ 𝙢𝙪𝙞𝙩𝙤 𝙡𝙤𝙣𝙜𝙖. 𝙊 𝙢𝙖́𝙭𝙞𝙢𝙤 𝙚́ ${client.env.MAX_QUEUE_SIZE}.`
-                    ),
+                  embed.setColor(client.color.main).setDescription(
+                    T(locale, 'player.setupStart.added_playlist_to_queue', {
+                      length: res.tracks.length,
+                    })
+                  ),
                 ],
               })
-              .then((msg) => {
-                setTimeout(() => {
-                  msg.delete()
-                }, 5000)
-              })
-            return
+              .then((msg) => setTimeout(() => msg.delete(), 5000))
+            neb(n, player, client, locale)
+            await m.edit({ embeds: [n] }).catch(() => {
+              null
+            })
+            break
           }
-          player.queue.push(track2)
-          await player.isPlaying()
-          await message.channel
-            .send({
-              embeds: [
-                embed
-                  .setColor(client.color.main)
-                  .setDescription(
-                    `🔉 𝘼𝙙𝙞𝙘𝙞𝙤𝙣𝙖𝙙𝙖 [${res.data[0].info.title}](${res.data[0].info.uri}) 𝙣𝙖 𝙛𝙞𝙡𝙖.`
-                  ),
-              ],
-            })
-            .then((msg) => {
-              setTimeout(() => {
-                msg.delete()
-              }, 5000)
-            })
-          neb(n, player, client)
-          if (m) await m.edit({ embeds: [n] }).catch(() => {})
-          break
+        }
+        if (!player.playing && player.queue.tracks.length > 0) await player.play()
       }
     } catch (error) {
       client.logger.error(error)
@@ -226,126 +142,133 @@ async function setupStart(
   }
 }
 
+/**
+ * A function that will generate an embed based on the player's current track.
+ * @param msgId The message ID of the setup message.
+ * @param channel The channel to send the message in.
+ * @param player The player to get the current track from.
+ * @param track The track to generate the embed for.
+ * @param client The client to get the config from.
+ * @param locale The locale to translate the strings.
+ * @returns A promise that resolves when the function is done.
+ */
 async function trackStart(
   msgId: any,
   channel: TextChannel,
-  player: Dispatcher,
-  track: Song,
-  client: BaseClient
+  player: Player,
+  track: Track,
+  client: MahinaBot,
+  locale: string
 ): Promise<void> {
-  let icon = player.current ? player.current.info.artworkUrl : client.links.img
-  let m: Message
+  const icon = player.queue.current ? player.queue.current.info.artworkUrl : client.config.links.img
+  let m: Message | undefined
+
   try {
     m = await channel.messages.fetch({ message: msgId, cache: true })
   } catch (error) {
     client.logger.error(error)
   }
 
-  // @ts-ignore
-  if (m) {
-    if (!player.current) return
+  const iconUrl =
+    client.config.icons[player.queue.current!.info.sourceName] ||
+    client.user!.displayAvatarURL({ extension: 'png' })
+  const description = T(locale, 'player.setupStart.description', {
+    title: track.info.title,
+    uri: track.info.uri,
+    author: track.info.author,
+    length: client.utils.formatTime(track.info.duration),
+    requester: (player.queue.current!.requester as Requester).id,
+  })
 
-    let iconUrl = client.icons[player.current.info.sourceName as keyof typeof client.icons]
-    if (!iconUrl) iconUrl = client.user!.displayAvatarURL({ extension: 'png' })
-    const embed = client
-      .embed()
-      .setAuthor({ name: `💿 𝙉𝙤𝙬 𝙋𝙡𝙖𝙮𝙞𝙣𝙜`, iconURL: iconUrl })
-      .setColor(client.color.main)
-      .setDescription(
-        `[${track.info.title}](${track.info.uri}) - \`[${client.utils.formatTime(
-          track.info.length
-        )}]\` - 𝙥𝙚𝙙𝙞𝙙𝙖 𝙥𝙤𝙚 ${track.info.requestedBy}`
-      )
-      .setImage(icon!)
+  const embed = client
+    .embed()
+    .setAuthor({
+      name: T(locale, 'player.setupStart.now_playing'),
+      iconURL: iconUrl,
+    })
+    .setColor(client.color.main)
+    .setDescription(description)
+    .setImage(icon)
+
+  if (m) {
     await m
       .edit({
         embeds: [embed],
-        components: getButtons().map((b) => {
-          b.components.forEach((c) => {
-            c.setDisabled(!(player && player.current))
-          })
+        components: getButtons(player, client).map((b) => {
+          b.components.forEach((c) => c.setDisabled(!player?.queue.current))
           return b
         }),
       })
-      .catch(() => {})
+      .catch(() => {
+        null
+      })
   } else {
-    if (!player.current) return
-
-    let iconUrl = client.icons[player.current.info.sourceName as keyof typeof client.icons]
-    if (!iconUrl) iconUrl = client.user!.displayAvatarURL({ extension: 'png' })
-    const embed = client
-      .embed()
-      .setColor(client.color.main)
-      .setAuthor({ name: `💿 𝙉𝙤𝙬 𝙋𝙡𝙖𝙮𝙞𝙣𝙜`, iconURL: iconUrl })
-      .setDescription(
-        `[${track.info.title}](${track.info.uri}) - \`[${client.utils.formatTime(
-          track.info.length
-        )}]\` - 𝙥𝙚𝙙𝙞𝙙𝙖 𝙥𝙤𝙚 ${track.info.requestedBy}`
-      )
-      .setImage(icon!)
     await channel
       .send({
         embeds: [embed],
-        components: getButtons().map((b) => {
-          b.components.forEach((c) => {
-            c.setDisabled(!(player && player.current))
-          })
+        components: getButtons(player, client).map((b) => {
+          b.components.forEach((c) => c.setDisabled(!player?.queue.current))
           return b
         }),
       })
       .then((msg) => {
-        client.logger.info(`Playing message sent to ${channel.id} in ${msg.guildId}`)
+        client.db.setSetup(msg.guild.id, msg.id, msg.channel.id)
       })
       .catch(() => {
-        client.logger.error(
-          `Failed to send playing message to ${channel.id} in ${channel.guild.id}`
-        )
+        null
       })
   }
 }
 
-async function updateSetup(client: BaseClient, guild: any): Promise<void> {
-  let m: Message
-
-  const textChannel = guild.channels.cache.get(env.DISC_LOG_CHANNEL_ID) as TextChannel
-  if (!textChannel) return
-  try {
-    const channel = client.channels.cache.get(env.DISC_LOG_CHANNEL_ID) as TextChannel
-    const message = await channel.messages.fetch({ limit: 1 })
-    m = await textChannel.messages.fetch({ message: message.first()!.id, cache: true })
-  } catch (error) {
-    client.logger.error(error)
+async function updateSetup(client: MahinaBot, guild: Guild, locale: string): Promise<void> {
+  const setup = await client.db.getSetup(guild.id)
+  let m: Message | undefined
+  if (setup?.textId) {
+    const textChannel = guild.channels.cache.get(setup.textId) as TextChannel
+    if (!textChannel) return
+    try {
+      m = await textChannel.messages.fetch({
+        message: setup.messageId,
+        cache: true,
+      })
+    } catch (error) {
+      client.logger.error(error)
+    }
   }
-
-  // @ts-ignore
   if (m) {
-    const player = client.queue.get(guild.id)
-    if (player && player.current) {
-      let iconUrl = client.icons[player.current.info.sourceName as keyof typeof client.icons]
-      if (!iconUrl) iconUrl = client.user!.displayAvatarURL({ extension: 'png' })
+    const player = client.manager.getPlayer(guild.id)
+    if (player?.queue.current) {
+      const iconUrl =
+        client.config.icons[player.queue.current.info.sourceName] ||
+        client.user!.displayAvatarURL({ extension: 'png' })
+      const description = T(locale, 'player.setupStart.description', {
+        title: player.queue.current.info.title,
+        uri: player.queue.current.info.uri,
+        author: player.queue.current.info.author,
+        length: client.utils.formatTime(player.queue.current.info.duration),
+        requester: (player.queue.current.requester as Requester).id,
+      })
+
       const embed = client
         .embed()
-        .setAuthor({ name: `💿 𝙉𝙤𝙬 𝙋𝙡𝙖𝙮𝙞𝙣𝙜`, iconURL: iconUrl })
+        .setAuthor({
+          name: T(locale, 'player.setupStart.now_playing'),
+          iconURL: iconUrl,
+        })
         .setColor(client.color.main)
-        .setDescription(
-          `[${player.current.info.title}](${
-            player.current.info.uri
-          }) - \`[${client.utils.formatTime(
-            player.current.info.length
-          )}]\` - 𝙥𝙚𝙙𝙞𝙙𝙖 𝙥𝙤𝙚 ${player.current.info.requestedBy}`
-        )
-        .setImage(player.current.info.artworkUrl!)
+        .setDescription(description)
+        .setImage(player.queue.current.info.artworkUrl)
       await m
         .edit({
           embeds: [embed],
-          components: getButtons().map((b) => {
-            b.components.forEach((c) => {
-              c.setDisabled(!(player && player.current))
-            })
+          components: getButtons(player, client).map((b) => {
+            b.components.forEach((c) => c.setDisabled(!player?.queue.current))
             return b
           }),
         })
-        .catch(() => {})
+        .catch(() => {
+          null
+        })
     } else {
       const embed = client
         .embed()
@@ -354,19 +277,19 @@ async function updateSetup(client: BaseClient, guild: any): Promise<void> {
           name: client.user!.username,
           iconURL: client.user!.displayAvatarURL({ extension: 'png' }),
         })
-        .setDescription(`𝙉𝙖𝙙𝙖 𝙩𝙤𝙘𝙖𝙣𝙙𝙤 𝙖𝙜𝙤𝙧𝙖`)
-        .setImage(client.links.img)
+        .setDescription(T(locale, 'player.setupStart.nothing_playing'))
+        .setImage(client.config.links.img)
       await m
         .edit({
           embeds: [embed],
-          components: getButtons().map((b) => {
-            b.components.forEach((c) => {
-              c.setDisabled(true)
-            })
+          components: getButtons(player!, client).map((b) => {
+            b.components.forEach((c) => c.setDisabled(true))
             return b
           }),
         })
-        .catch(() => {})
+        .catch(() => {
+          null
+        })
     }
   }
 }
@@ -375,28 +298,36 @@ async function buttonReply(int: any, args: string, color: ColorResolvable): Prom
   const embed = new EmbedBuilder()
   let m: Message
   if (int.replied) {
-    m = await int
-      .editReply({ embeds: [embed.setColor(color).setDescription(args)] })
-      .catch(() => {})
+    m = await int.editReply({ embeds: [embed.setColor(color).setDescription(args)] }).catch(() => {
+      null
+    })
   } else {
-    m = await int.followUp({ embeds: [embed.setColor(color).setDescription(args)] }).catch(() => {})
+    m = await int.followUp({ embeds: [embed.setColor(color).setDescription(args)] }).catch(() => {
+      null
+    })
   }
   setTimeout(async () => {
     if (int && !int.ephemeral) {
-      await m.delete().catch(() => {})
+      await m.delete().catch(() => {
+        null
+      })
     }
   }, 2000)
 }
 
 async function oops(channel: TextChannel, args: string): Promise<void> {
   try {
-    let embed1 = new EmbedBuilder().setColor('Red').setDescription(`${args}`)
-
+    const embed1 = new EmbedBuilder().setColor('Red').setDescription(`${args}`)
     const m = await channel.send({
       embeds: [embed1],
     })
-
-    setTimeout(async () => await m.delete().catch(() => {}), 12000)
+    setTimeout(
+      async () =>
+        await m.delete().catch(() => {
+          null
+        }),
+      12000
+    )
   } catch (e) {
     return console.error(e)
   }

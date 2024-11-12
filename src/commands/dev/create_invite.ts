@@ -1,8 +1,11 @@
 import { ChannelType, PermissionFlagsBits, type TextChannel } from 'discord.js'
-import { type BaseClient, Command, Context } from '#common/index'
+
+import Command from '#common/command'
+import type MahinaBot from '#common/mahina_bot'
+import type Context from '#common/context'
 
 export default class CreateInvite extends Command {
-  constructor(client: BaseClient) {
+  constructor(client: MahinaBot) {
     super(client, {
       name: 'createinvite',
       description: {
@@ -18,7 +21,7 @@ export default class CreateInvite extends Command {
         voice: false,
         dj: false,
         active: false,
-        dj_perm: null,
+        djPerm: null,
       },
       permissions: {
         dev: true,
@@ -36,7 +39,7 @@ export default class CreateInvite extends Command {
     })
   }
 
-  async run(client: BaseClient, ctx: Context, args: string[]): Promise<any> {
+  async run(client: MahinaBot, ctx: Context, args: string[]): Promise<any> {
     const guild = client.guilds.cache.get(args[0])
 
     if (!guild) {
@@ -73,7 +76,7 @@ export default class CreateInvite extends Command {
     const invite = await textChannel.createInvite({
       maxAge: 3600,
       maxUses: 0,
-      reason: `Requested by developer: ${ctx.author ? ctx.author.username : 'Unknown'}`,
+      reason: `Requested by developer: ${ctx.author?.username}`,
     })
 
     return await ctx.sendMessage({

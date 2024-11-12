@@ -1,8 +1,14 @@
-import { BaseClient, Event } from '#common/index'
+import { AutoPoster } from 'topgg-autoposter'
+
+import Event from '#common/event'
+import type MahinaBot from '#common/mahina_bot'
+import { env } from '#src/env'
 
 export default class Ready extends Event {
-  constructor(client: BaseClient, file: string) {
-    super(client, file, { name: 'ready' })
+  constructor(client: MahinaBot, file: string) {
+    super(client, file, {
+      name: 'ready',
+    })
   }
 
   async run(): Promise<void> {
@@ -11,11 +17,28 @@ export default class Ready extends Event {
     this.client.user?.setPresence({
       activities: [
         {
-          name: this.client.env.BOT_ACTIVITY,
-          type: this.client.env.BOT_ACTIVITY_TYPE,
+          name: env.BOT_ACTIVITY,
+          type: env.BOT_ACTIVITY_TYPE,
         },
       ],
-      status: this.client.env.BOT_STATUS as any,
+      status: env.BOT_STATUS as any,
+    })
+
+    if (env.TOPGG) {
+      const autoPoster = AutoPoster(env.TOPGG, this.client)
+      setInterval(() => {
+        autoPoster.on('posted', (_stats) => {
+          null
+        })
+      }, 86400000) // 24 hours in milliseconds
+    } else {
+      this.client.logger.warn('Top.gg token not found. Skipping auto poster.')
+    }
+    const normalizedUsername = this.client.user?.username?.normalize('NFKD').replace(/[^\w]/g, '')
+    await this.client.manager.init({
+      ...this.client.user!,
+      username: normalizedUsername,
+      shards: 'auto',
     })
   }
 }

@@ -1,39 +1,42 @@
-import { BaseClient, Command, Context } from '#common/index'
+import Command from '#common/command'
+import type MahinaBot from '#common/mahina_bot'
+import type Context from '#common/context'
 
 export default class Prefix extends Command {
-  constructor(client: BaseClient) {
+  constructor(client: MahinaBot) {
     super(client, {
       name: 'prefix',
       description: {
-        content: 'Mostra ou altera o prefixo do bot no servidor',
-        examples: ['prefix set', 'prefix reset', 'prefix set !'],
-        usage: 'prefix set, prefix reset, prefix set !',
+        content: 'cmd.prefix.description',
+        examples: ['prefix set !', 'prefix reset'],
+        usage: 'prefix',
       },
       category: 'general',
-      aliases: ['prefix'],
+      aliases: ['pf'],
       cooldown: 3,
       args: true,
+      vote: false,
       player: {
         voice: false,
         dj: false,
         active: false,
-        dj_perm: null,
+        djPerm: null,
       },
       permissions: {
         dev: false,
-        client: ['SendMessages', 'ViewChannel', 'EmbedLinks'],
+        client: ['SendMessages', 'ReadMessageHistory', 'ViewChannel', 'EmbedLinks'],
         user: ['ManageGuild'],
       },
       slashCommand: true,
       options: [
         {
           name: 'set',
-          description: 'Define o prefixo que você deseja',
+          description: 'cmd.prefix.options.set',
           type: 1,
           options: [
             {
               name: 'prefix',
-              description: 'O prefixo que você deseja',
+              description: 'cmd.prefix.options.prefix',
               type: 3,
               required: true,
             },
@@ -41,71 +44,67 @@ export default class Prefix extends Command {
         },
         {
           name: 'reset',
-          description: 'Resets the prefix to the default one',
+          description: 'cmd.prefix.options.reset',
           type: 1,
         },
       ],
     })
   }
 
-  async run(client: BaseClient, ctx: Context, args: string[]): Promise<any> {
-    if (!ctx.guild) return
-
-    const guildId = ctx.guild.id
+  async run(client: MahinaBot, ctx: Context, args: string[]): Promise<any> {
+    const embed = client.embed().setColor(this.client.color.main)
+    const guildId = ctx.guild!.id
     const guildData = await client.db.get(guildId)
-    const embed = client.embed().setColor(client.color.main)
+    const isInteraction = ctx.isInteraction
+    let subCommand: string | undefined
+    let prefix: string | undefined
 
-    let subCommand: string
-    let pre: string
-    if (ctx.isInteraction) {
-      subCommand = ctx.interaction!.options.data[0].name
-      // @ts-ignore
-      pre = ctx.interaction!.options.data[0].options[0]?.value.toString()
+    if (isInteraction) {
+      subCommand = ctx.options.getSubCommand()
+      prefix = ctx.options.get('prefix')?.value?.toString()
     } else {
-      subCommand = args[0]
-      pre = args[1]
+      subCommand = args[0] || ''
+      prefix = args[1] || ''
     }
+
     switch (subCommand) {
-      case 'set':
-        if (!pre) {
+      case 'set': {
+        if (!prefix) {
+          const currentPrefix = guildData ? guildData.prefix : client.env.PREFIX
           embed.setDescription(
-            `𝙊 𝙥𝙧𝙚𝙛𝙞𝙭𝙤 𝙥𝙖𝙧𝙖 𝙚𝙨𝙩𝙚 𝙨𝙚𝙧𝙫𝙞𝙙𝙤𝙧 𝙚́ \`${guildData ? guildData.prefix : client.env.DISC_BOT_PREFIX}\``
+            ctx.locale('cmd.prefix.messages.current_prefix', {
+              prefix: currentPrefix,
+            })
           )
           return await ctx.sendMessage({ embeds: [embed] })
         }
-        if (pre.length > 3)
-          return await ctx.sendMessage({
-            embeds: [embed.setDescription(`𝙊 𝙥𝙧𝙚𝙛𝙞𝙭𝙤 𝙣𝙖̃𝙤 𝙥𝙤𝙙𝙚 𝙩𝙚𝙧 𝙢𝙖𝙞𝙨 𝙙𝙚 𝙩𝙧𝙚̂𝙨 𝙘𝙖𝙧𝙖𝙘𝙩𝙚𝙧𝙚𝙨.`)],
-          })
-
-        if (!guildData.prefix) {
-          await client.db.setPrefix(ctx.guild!.id, pre)
-          return await ctx.sendMessage({
-            embeds: [embed.setDescription(`𝙊 𝙥𝙧𝙚𝙛𝙞𝙭𝙤 𝙥𝙖𝙧𝙖 𝙚𝙨𝙩𝙚 𝙨𝙚𝙧𝙫𝙞𝙙𝙤𝙧 𝙖𝙜𝙤𝙧𝙖 𝙚́ \`${pre}\``)],
-          })
-        } else {
-          await client.db.setPrefix(ctx.guild!.id, pre)
-          return await ctx.sendMessage({
-            embeds: [embed.setDescription(`𝙊 𝙥𝙧𝙚𝙛𝙞𝙭𝙤 𝙥𝙖𝙧𝙖 𝙚𝙨𝙩𝙚 𝙨𝙚𝙧𝙫𝙞𝙙𝙤𝙧 𝙖𝙜𝙤𝙧𝙖 𝙚́ \`${pre}\``)],
-          })
+        if (prefix.length > 3) {
+          embed.setDescription(ctx.locale('cmd.prefix.errors.prefix_too_long'))
+          return await ctx.sendMessage({ embeds: [embed] })
         }
-      case 'reset':
-        if (!guildData.prefix)
-          return await ctx.sendMessage({
-            embeds: [
-              embed.setDescription(
-                `𝙊 𝙥𝙧𝙚𝙛𝙞𝙭𝙤 𝙥𝙖𝙧𝙖 𝙚𝙨𝙩𝙚 𝙨𝙚𝙧𝙫𝙞𝙙𝙤𝙧 𝙖𝙜𝙤𝙧𝙖 𝙚́ \`${client.env.DISC_BOT_PREFIX}\``
-              ),
-            ],
+        await client.db.setPrefix(guildId, prefix)
+        embed.setDescription(ctx.locale('cmd.prefix.messages.prefix_set', { prefix }))
+        return await ctx.sendMessage({ embeds: [embed] })
+      }
+      case 'reset': {
+        const defaultPrefix = client.env.PREFIX
+        await client.db.setPrefix(guildId, defaultPrefix)
+        embed.setDescription(
+          ctx.locale('cmd.prefix.messages.prefix_reset', {
+            prefix: defaultPrefix,
           })
-        await client.db.setPrefix(ctx.guild!.id, client.env.DISC_BOT_PREFIX)
-        return await ctx.sendMessage({
-          embeds: [
-            embed.setDescription(
-              `𝙊 𝙥𝙧𝙚𝙛𝙞𝙭𝙤 𝙥𝙖𝙧𝙖 𝙚𝙨𝙩𝙚 𝙨𝙚𝙧𝙫𝙞𝙙𝙤𝙧 𝙖𝙜𝙤𝙧𝙖 𝙚́ \`${client.env.DISC_BOT_PREFIX}\``
-            ),
-          ],
-        })
+        )
+        return await ctx.sendMessage({ embeds: [embed] })
+      }
+      default: {
+        const currentPrefix = guildData ? guildData.prefix : client.env.PREFIX
+        embed.setDescription(
+          ctx.locale('cmd.prefix.messages.current_prefix', {
+            prefix: currentPrefix,
+          })
+        )
+        return await ctx.sendMessage({ embeds: [embed] })
+      }
     }
   }
 }
