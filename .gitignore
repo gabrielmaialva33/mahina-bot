@@ -523,10 +523,10 @@ FodyWeavers.xsd
 .idea
 
 # MahinaBot
-Lavalink/logs
-Lavalink/plugins
-Lavalink/application.yml
-Lavalink/Lavalink.jar
+lavalink/logs
+lavalink/plugins
+lavalink/application.yml
+lavalink/Lavalink.jar
 prisma/migrations
 prisma/mahinabot.db
 package-lock.json
