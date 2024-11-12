@@ -9,8 +9,8 @@ services:
       SERVER_ADDRESS: 0.0.0.0
       LAVALINK_SERVER_PASSWORD: 'Mahina@551238'
     volumes:
-      - ./application.yml:/opt/application.yml
-      - ./lavalink/plugins/:/opt/lavalink/plugins/
+      - ./application.yml:/opt/Lavalink/application.yml
+      - ./lavalink/plugins/:/opt/Lavalink/plugins/
     healthcheck:
       test: 'curl -H "Authorization: Mahina@551238" -s http://localhost:2333/version'
       interval: 10s
