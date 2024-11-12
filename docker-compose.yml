@@ -6,7 +6,7 @@ services:
     environment:
       - SERVER_PORT=2333
     volumes:
-      - ./lavalink/application.yml:/opt/lavalink/application.yml
+      - ./application.yml:/opt/application.yml
       - ./lavalink/plugins/:/opt/lavalink/plugins/
     networks:
       - lavalink-net
