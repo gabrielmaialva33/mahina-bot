@@ -43,23 +43,20 @@ export default class About extends Command {
     const supportButton = new ButtonBuilder()
       .setLabel(ctx.locale('buttons.support'))
       .setStyle(ButtonStyle.Link)
-      .setURL('https://discord.gg/ns8CTk9J3e')
+      .setURL('https://discord.gg/AWGsEdWXun')
     const row = new ActionRowBuilder<ButtonBuilder>().addComponents(inviteButton, supportButton)
     const embed = this.client
       .embed()
       .setAuthor({
-        name: 'MahinaBot',
-        iconURL:
-          'https://media.discordapp.net/attachments/876035356460462090/888434725235097610/20210820_124325.png',
+        name: 'ＭａｈｉｎａＢｏｔ',
+        iconURL: 'https://telegra.ph/file/9577e7eb196ae70607758.png',
       })
-      .setThumbnail(
-        'https://media.discordapp.net/attachments/876035356460462090/888434725235097610/20210820_124325.png'
-      )
+      .setThumbnail('https://telegra.ph/file/9577e7eb196ae70607758.png')
       .setColor(this.client.color.main)
       .addFields(
         {
           name: ctx.locale('cmd.about.fields.creator'),
-          value: '[appujet](https://github.com/appujet)',
+          value: '[Maia 𓆏](https://github.com/gabrielmaialva33)',
           inline: true,
         },
         {
@@ -69,7 +66,7 @@ export default class About extends Command {
         },
         {
           name: ctx.locale('cmd.about.fields.support'),
-          value: '[Here](https://discord.gg/ns8CTk9J3e)',
+          value: '[Here](https://discord.gg/AWGsEdWXun)',
           inline: true,
         },
         {
