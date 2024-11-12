@@ -75,7 +75,7 @@ export default class Setup extends Command {
           })
         }
         const textChannel = await ctx.guild.channels.create({
-          name: `${client.user?.username}-song-requests`,
+          name: `${client.user?.username}`,
           type: ChannelType.GuildText,
           topic: 'Song requests for the music bot.',
           permissionOverwrites: [
