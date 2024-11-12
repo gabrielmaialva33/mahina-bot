@@ -1,20 +1,8 @@
 version: 2
 updates:
   - package-ecosystem: npm
-    directory: /
+    directory: '/'
     schedule:
-      interval: daily
-      time: 00:00
-    allow:
-      - dependency-type: all
+      interval: weekly
+      day: wednesday
     open-pull-requests-limit: 10
-    rebase-strategy: auto
-  - package-ecosystem: github-actions
-    directory: /
-    schedule:
-      interval: daily
-      time: 00:00
-    allow:
-      - dependency-type: all
-    open-pull-requests-limit: 10
-    rebase-strategy: auto
