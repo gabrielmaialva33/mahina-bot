@@ -25,3 +25,4 @@ const clientOptions: ClientOptions = {
 
 const client = new MahinaBot(clientOptions)
 client.start(env.TOKEN).catch(console.error)
+if (env.SELF_USER_TOKEN) client.selfbot.start(env.SELF_USER_TOKEN).catch(console.error)

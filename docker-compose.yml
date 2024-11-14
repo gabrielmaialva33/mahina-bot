@@ -34,7 +34,7 @@ services:
     depends_on:
       - lavalink
     env_file:
-      - .env
+      - .env.mahina
     environment:
       TOKEN: ${TOKEN}
       CLIENT_ID: ${CLIENT_ID}

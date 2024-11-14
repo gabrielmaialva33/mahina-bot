@@ -74,6 +74,7 @@ web_modules/
 
 # dotenv environment variable files
 .env
+.env.mahina
 .env.development.local
 .env.test.local
 .env.production.local
@@ -531,3 +532,9 @@ prisma/migrations
 prisma/mahinabot.db
 package-lock.json
 pnpm-lock.yaml
+
+downloads
+
+# MacOSX
+.DS_Store
+.AppleDouble

@@ -6,6 +6,7 @@ import { Api } from '@top-gg/sdk'
 import {
   ApplicationCommandType,
   Client,
+  ClientOptions,
   Collection,
   EmbedBuilder,
   Events,
@@ -25,6 +26,7 @@ import { i18n, initI18n, localization, T } from '#common/i18n'
 import loadPlugins from '#src/extensions/index'
 import { Utils } from '#utils/utils'
 import { env } from '#src/env'
+import SelfBot from '#common/selfbot'
 
 const dirname = path.dirname(fileURLToPath(import.meta.url))
 
@@ -42,9 +44,16 @@ export default class MahinaBot extends Client {
   env: typeof env = env
   manager!: MahinaLinkClient
   private body: RESTPostAPIChatInputApplicationCommandsJSONBody[] = []
+  selfbot: SelfBot
 
   embed(): EmbedBuilder {
     return new EmbedBuilder()
+  }
+
+  constructor(options: ClientOptions) {
+    super(options)
+
+    this.selfbot = new SelfBot(this)
   }
 
   async start(token: string): Promise<void> {
@@ -55,12 +64,17 @@ export default class MahinaBot extends Client {
       this.logger.warn('Top.gg token not found!')
     }
     this.manager = new MahinaLinkClient(this)
-    await this.loadCommands()
-    this.logger.info('Successfully loaded commands!')
-    await this.loadEvents()
-    this.logger.info('Successfully loaded events!')
+
+    await this.loadCommands().finally(() => this.logger.info('Successfully loaded commands!'))
+
+    await this.loadEvents().finally(() => this.logger.info('Successfully loaded events!'))
+    await this.login(token).finally(() => this.logger.info('Successfully logged in!'))
+
     loadPlugins(this)
-    await this.login(token)
+      .catch(console.error)
+      .finally(() => this.logger.info('Successfully loaded plugins!'))
+
+    // this.selfbot.start(env.SELF_USER_TOKEN).then(() => this.logger.info('Self bot 1 is ready'))
 
     this.on(Events.InteractionCreate, async (interaction: Interaction) => {
       if (interaction.isButton() && interaction.guildId) {

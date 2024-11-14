@@ -6,9 +6,7 @@ import { z } from 'zod'
 
 const dirname = path.dirname(fileURLToPath(import.meta.url))
 
-config({
-  path: path.join(dirname, '../.env'),
-})
+config({ path: path.join(dirname, '../.env') })
 
 const LavalinkNodeSchema = z.object({
   id: z.string(),
@@ -85,14 +83,13 @@ const envSchema = z.object({
     z.array(LavalinkNodeSchema)
   ),
   GENIUS_API: z.string().optional(),
+  SELF_USER_TOKEN: z.string().optional(),
 })
 
 type Env = z.infer<typeof envSchema>
 
 export const env: Env = envSchema.parse(process.env)
 
-for (const key in env) {
-  if (!(key in env)) {
+for (const key in env)
+  if (!(key in env))
     throw new Error(`Missing env variable: ${key}. Please check the .env file and try again.`)
-  }
-}
