@@ -20,6 +20,6 @@
       "#utils/*": ["./src/utils/*.js"]
     }
   },
-  "include": ["src/**/*.ts"],
+  "include": ["src/**/*.ts", "bin/yt-dlp"],
   "exclude": ["dist", "node_modules"]
 }

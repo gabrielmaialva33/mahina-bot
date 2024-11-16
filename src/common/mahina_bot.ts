@@ -124,7 +124,7 @@ export default class MahinaBot extends Client {
         if (command.slashCommand) {
           const data: RESTPostAPIChatInputApplicationCommandsJSONBody = {
             name: command.name,
-            description: T(Locale.EnglishUS, command.description.content),
+            description: T(Locale.PortugueseBR, command.description.content),
             type: ApplicationCommandType.ChatInput,
             options: command.options || [],
             default_member_permissions:
@@ -191,7 +191,7 @@ export default class MahinaBot extends Client {
                     [language2]: description,
                   }
                 }
-                option.description = T(Locale.EnglishUS, option.description)
+                option.description = T(Locale.PortugueseBR, option.description)
               }
             )
 
@@ -217,7 +217,7 @@ export default class MahinaBot extends Client {
                       [language2]: description,
                     }
                   }
-                  subOption.description = T(Locale.EnglishUS, subOption.description)
+                  subOption.description = T(Locale.PortugueseBR, subOption.description)
                 })
               }
             })

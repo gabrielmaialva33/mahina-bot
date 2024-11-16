@@ -10,7 +10,7 @@ const logger = new Logger()
 export function initI18n() {
   i18n.configure({
     locales: Object.keys(Language),
-    defaultLocale: 'EnglishUS',
+    defaultLocale: 'PortugueseBR',
     directory: `${process.cwd()}/locales`,
     retryInDefaultLocale: true,
     objectNotation: true,

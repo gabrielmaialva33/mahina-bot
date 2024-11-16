@@ -534,6 +534,7 @@ package-lock.json
 pnpm-lock.yaml
 
 downloads
+cache
 
 # MacOSX
 .DS_Store

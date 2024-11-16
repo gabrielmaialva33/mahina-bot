@@ -30,7 +30,7 @@ const LavalinkNodeSchema = z.object({
 const envSchema = z.object({
   TOKEN: z.string(),
   CLIENT_ID: z.string(),
-  DEFAULT_LANGUAGE: z.string().default('EnglishUS'),
+  DEFAULT_LANGUAGE: z.string().default('PortugueseBR'),
   PREFIX: z.string().default('!'),
   OWNER_IDS: z.preprocess(
     (val) => (typeof val === 'string' ? JSON.parse(val) : val),
@@ -84,6 +84,7 @@ const envSchema = z.object({
   ),
   GENIUS_API: z.string().optional(),
   SELF_USER_TOKEN: z.string().optional(),
+  YTDL_BIN_PATH: z.string().optional().default(''),
 })
 
 type Env = z.infer<typeof envSchema>

@@ -1,17 +1,27 @@
+import fs from 'node:fs'
+import path from 'node:path'
+
+import { create } from 'youtube-dl-exec'
+import ytdl from '@distube/ytdl-core'
+
 import Command from '#common/command'
 import MahinaBot from '#common/mahina_bot'
 import Context from '#common/context'
-import fs from 'node:fs'
-import path from 'node:path'
+import { T } from '#common/i18n'
+
+import { env } from '#src/env'
+
+const youtubedl = create(env.YTDL_BIN_PATH)
 
 export default class VPlay extends Command {
   constructor(client: MahinaBot) {
     super(client, {
       name: 'vplay',
       description: {
-        content: 'Stream de vídeo no canal de voz.',
+        content: 'cmd.vplay.description',
         examples: [
           'vplay https://www.youtube.com/watch?v=A7blkCcowvk',
+          'vplay https://www.youtube.com/watch?v=mMqSqbyCl30',
           'vplay https://www.twitch.tv/monstercat',
         ],
         usage: 'vplay <url>',
@@ -42,38 +52,80 @@ export default class VPlay extends Command {
       slashCommand: true,
       options: [
         {
-          name: 'song',
-          description: 'cmd.play.options.song',
+          name: 'url',
+          description: 'cmd.vplay.options.url',
           type: 3,
-          required: false,
+          required: true,
           autocomplete: true,
         },
       ],
     })
   }
 
-  async run(client: MahinaBot, ctx: Context, args: string[]): Promise<any> {
-    if (!ctx.guild) return
-    if (!ctx.member) return
+  async run(client: MahinaBot, ctx: Context, args: string[]): Promise<void> {
+    if (!ctx.guild || !ctx.member || !ctx.author) return
 
-    const downloadsPath = fs.readdirSync(path.join(process.cwd(), 'downloads'))
+    const query = args.join(' ').trim()
+    if (!ytdl.validateURL(query)) {
+      await ctx.sendMessage(ctx.locale('cmd.vplay.errors.invalid_url'))
+    }
 
-    let files = downloadsPath.map((file) => {
-      if (file.endsWith('.mp4') || file.endsWith('.mkv')) {
-        const fileName = path.parse(file).name
-        return {
-          name: fileName,
-          path: path.join(path.join(process.cwd(), 'downloads'), file),
-        }
-      }
-    })
+    await ctx.sendMessage(ctx.locale('cmd.vplay.loading'))
 
-    files = files.filter((file) => file !== undefined)
-    // get Space Song.mp4
-    const file = files.find((f) => f!.name === 'Space Song')
+    try {
+      await ctx.editMessage(ctx.locale('cmd.vplay.info_fetching'))
+      const videoInfo = await youtubedl(query, { dumpJson: true })
+      // eslint-disable-next-line @typescript-eslint/naming-convention
+      const { title, webpage_url, thumbnail, channel, duration } = videoInfo
 
-    console.log(file)
+      const outputPath = path.join(process.cwd(), 'downloads', '%(title)s.%(ext)s')
+      console.log(`Downloading to ${outputPath}`)
 
-    await this.client.selfbot.play(ctx.guild.id, ctx.member, file!.path, file?.name)
+      await ctx.editMessage(ctx.locale('cmd.vplay.downloading'))
+      await youtubedl(query, { output: outputPath })
+
+      const downloadsPath = path.join(process.cwd(), 'downloads')
+      const files = fs.readdirSync(downloadsPath)
+
+      const matchedFile = files.find((file) => path.parse(file).name === title)
+      if (!matchedFile) await ctx.editMessage(ctx.locale('cmd.vplay.errors.download_failed'))
+
+      const filePath = path.join(downloadsPath, matchedFile!)
+
+      const locale = await client.db.getLanguage(ctx.guild.id)
+      const embed = client
+        .embed()
+        .setAuthor({
+          name: T(locale, 'player.trackStart.now_playing'),
+          iconURL: client.config.icons['youtube'],
+        })
+        .setColor(client.color.main)
+        .setDescription(`**[${title}](${webpage_url})**`)
+        .setFooter({
+          text: T(locale, 'player.trackStart.requested_by', { user: ctx.author.username }),
+          iconURL: ctx.author.avatarURL() || ctx.author.defaultAvatarURL,
+        })
+        .setThumbnail(thumbnail)
+        .addFields(
+          {
+            name: T(locale, 'player.trackStart.duration'),
+            value: client.utils.formatTime(duration),
+            inline: true,
+          },
+          {
+            name: T(locale, 'player.trackStart.author'),
+            value: channel,
+            inline: true,
+          }
+        )
+        .setTimestamp()
+
+      await ctx.editMessage({ content: '', embeds: [embed] })
+
+      await client.selfbot.play(ctx.guild.id, ctx.member, filePath, title)
+    } catch (error) {
+      this.client.logger.error(error)
+      await ctx.sendMessage(ctx.locale('cmd.vplay.errors.general_error'))
+    }
   }
 }

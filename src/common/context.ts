@@ -125,8 +125,22 @@ export default class Context {
     return this.msg
   }
 
+  async editReply(
+    content: string | MessagePayload | InteractionEditReplyOptions | MessageEditOptions
+  ): Promise<Message> {
+    if (this.isInteraction && this.msg) {
+      this.msg = await this.interaction?.editReply(content)
+      return this.msg
+    }
+    if (this.msg) {
+      this.msg = await this.msg.edit(content)
+      return this.msg
+    }
+    return this.msg
+  }
+
   locale(key: string, ...args: any) {
-    if (!this.guildLocale) this.guildLocale = env.DEFAULT_LANGUAGE || 'EnglishUS'
+    if (!this.guildLocale) this.guildLocale = env.DEFAULT_LANGUAGE || 'PortugueseBR'
     return T(this.guildLocale, key, ...args)
   }
 
@@ -143,7 +157,7 @@ export default class Context {
   }
 
   private async setUpLocale(): Promise<void> {
-    const defaultLanguage = env.DEFAULT_LANGUAGE || 'EnglishUS'
+    const defaultLanguage = env.DEFAULT_LANGUAGE || 'PortugueseBR'
     this.guildLocale = this.guild
       ? await this.client.db.getLanguage(this.guild.id)
       : defaultLanguage
