@@ -52,8 +52,11 @@ export default class SelfBot extends Client {
       fps: 30,
       bitrateKbps: 1000,
       maxBitrateKbps: 2500,
-      hardwareAcceleratedDecoding: true,
+      hardwareAcceleratedDecoding: false,
       videoCodec: Utils.normalizeVideoCodec('H264'),
+      h26xPreset: 'medium',
+      minimizeLatency: true,
+      rtcpSenderReportEnabled: true,
     })
 
     await this.video(link, streamUdpConn).finally(() => {
