@@ -52,12 +52,12 @@ export default class SelfBot extends Client {
     // 480p (854x480) 30fps 500kbps 1500kbps
     // 360p (640x360) 30fps 500kbps 1500kbps
     const streamUdpConn = await this.streamer.createStream({
-      width: 1920,
-      height: 1080,
+      width: 1280,
+      height: 720,
       fps: 30,
       bitrateKbps: 1000,
       maxBitrateKbps: 2500,
-      hardwareAcceleratedDecoding: true,
+      hardwareAcceleratedDecoding: false,
       videoCodec: Utils.normalizeVideoCodec('H264'),
       h26xPreset: 'medium',
       minimizeLatency: true,
