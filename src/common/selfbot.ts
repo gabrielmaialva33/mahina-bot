@@ -52,7 +52,7 @@ export default class SelfBot extends Client {
       fps: 30,
       bitrateKbps: 1000,
       maxBitrateKbps: 2500,
-      hardwareAcceleratedDecoding: false,
+      hardwareAcceleratedDecoding: true,
       videoCodec: Utils.normalizeVideoCodec('H264'),
       h26xPreset: 'medium',
       minimizeLatency: true,
