@@ -517,6 +517,15 @@
       "options": {
         "url": "O link do vídeo que você deseja tocar"
       }
+    },
+    "mlist": {
+      "description": "Lista os downloads de videos"
+    },
+    "mplay": {
+      "description": "cmd.mplay.description",
+      "options": {
+        "movie": "cmd.mplay.options.movie"
+      }
     }
   },
   "buttons": {

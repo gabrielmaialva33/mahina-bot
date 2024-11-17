@@ -56,7 +56,7 @@ export default class VPlay extends Command {
           description: 'cmd.vplay.options.url',
           type: 3,
           required: true,
-          autocomplete: true,
+          autocomplete: false,
         },
       ],
     })

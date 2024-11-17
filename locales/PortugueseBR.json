@@ -529,6 +529,22 @@
         "playlist_stolen": "Playlist `{playlist}` roubada com sucesso de {user}.",
         "error_occurred": "Ocorreu um erro ao roubar a playlist."
       }
+    },
+    "mlist": {
+      "description": "Lista os downloads de videos",
+      "messages": {
+        "no_videos": "Você não tem nenhum vídeo baixado.",
+        "available_movies": "*Vídeos Disponíveis*"
+      }
+    },
+    "mplay": {
+      "description": "Reproduz um vídeo baixado",
+      "options": {
+        "movie": "O vídeo que você deseja reproduzir"
+      },
+      "messages": {
+        "playing_movie": "Reproduzindo o vídeo **{movie}**."
+      }
     }
   },
   "player": {
