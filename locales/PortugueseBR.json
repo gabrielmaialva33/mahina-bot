@@ -307,16 +307,17 @@
         "url": "O link do vídeo que você deseja tocar"
       },
       "errors": {
-        "no_url": "Por favor, forneça um link de vídeo.",
-        "invalid_url": "Por favor, forneça um link de vídeo válido.",
-        "download_failed": "Ocorreu um erro ao baixar o vídeo.",
-        "general_error": "Ocorreu um erro ao tentar reproduzir o vídeo."
+        "no_url": "❌ Por favor, forneça um link de vídeo.",
+        "invalid_url": "⚠️ Por favor, forneça um link de vídeo válido.",
+        "download_failed": "⛔ Ocorreu um erro ao baixar o vídeo.",
+        "general_error": "❗ Ocorreu um erro ao tentar reproduzir o vídeo."
       },
-      "info_fetching": "Obtendo informações do vídeo...",
-      "downloading": "Baixando o vídeo, aguarde...",
-      "progress": "Progresso: **{percentage}%** | Velocidade: **{speed}** | Tamanho: **{size}**",
-      "download_complete": "Download concluído! Preparando para tocar...",
-      "loading": "Carregando..."
+      "info_fetching": "🔍 Obtendo informações do vídeo...",
+      "downloading": "⬇️ Baixando o vídeo, aguarde...",
+      "progress": "📊 Progresso: **{percentage}%** | 🚀 Velocidade: **{speed}** | 📦 Tamanho: **{size}**",
+      "download_complete": "✅ Download concluído! 🎶 Preparando para tocar...",
+      "loading": "⏳ Carregando...",
+      "cleanup": "🧹 Limpando..."
     },
     "playnext": {
       "description": "Adiciona a música para tocar a seguir na fila",

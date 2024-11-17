@@ -85,6 +85,10 @@ const envSchema = z.object({
   GENIUS_API: z.string().optional(),
   SELF_USER_TOKEN: z.string().optional(),
   YTDL_BIN_PATH: z.string().optional().default(''),
+  PORT: z
+    .string()
+    .default('3000')
+    .transform((val) => Number.parseInt(val, 10)),
 })
 
 type Env = z.infer<typeof envSchema>

@@ -122,7 +122,10 @@ export default class VPlay extends Command {
 
       await ctx.editMessage({ content: '', embeds: [embed] })
 
-      await client.selfbot.play(ctx.guild.id, ctx.member, filePath, title)
+      await client.selfbot.play(ctx.guild.id, ctx.member, filePath, title).finally(async () => {
+        fs.unlinkSync(filePath)
+        await ctx.editMessage(ctx.locale('cmd.vplay.cleanup'))
+      })
     } catch (error) {
       this.client.logger.error(error)
       await ctx.sendMessage(ctx.locale('cmd.vplay.errors.general_error'))
