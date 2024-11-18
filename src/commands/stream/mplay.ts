@@ -36,9 +36,8 @@ export default class MPlay extends Command {
         {
           name: 'movie',
           description: 'cmd.mplay.options.movie',
-          type: 3,
+          type: 1,
           required: true,
-          autocomplete: false,
         },
       ],
     })
@@ -46,6 +45,7 @@ export default class MPlay extends Command {
 
   async run(client: MahinaBot, ctx: Context, args: string[]): Promise<void> {
     if (!ctx.guild || !ctx.member || !ctx.author) return
+    const locale = await client.db.getLanguage(ctx.guild.id)
 
     const downloadsFiles = fs.readdirSync(path.join(process.cwd(), 'downloads'))
     if (downloadsFiles.length === 0) await ctx.sendMessage('cmd.mlist.messages.no_movies')
@@ -65,22 +65,19 @@ export default class MPlay extends Command {
     let movieName = args.shift()
     let movie = videos.find((m) => m!.name === movieName)
 
-    await client.selfbot.play(ctx.guild.id, ctx.member, movie!.path)
-
-    const locale = await client.db.getLanguage(ctx.guild.id)
+    await ctx.sendMessage(T(locale, 'cmd.mplay.messages.waiting'))
 
     const embed = this.client
       .embed()
       .setColor(client.color.main)
       .setTitle(T(locale, 'cmd.mplay.messages.playing_movie', { movie: movieName }))
-      .setDescription(videos.map((video) => `- ${video!.name}`).join('\n'))
       .setFooter({
         text: T(locale, 'player.trackStart.requested_by', { user: ctx.author.username }),
         iconURL: ctx.author.avatarURL() || ctx.author.defaultAvatarURL,
       })
       .setTimestamp()
 
-    await ctx.sendMessage({ embeds: [embed] })
+    await ctx.editMessage({ content: '', embeds: [embed] })
 
     await client.selfbot.play(ctx.guild.id, ctx.member, movie!.path, movieName)
   }

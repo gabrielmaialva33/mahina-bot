@@ -29,46 +29,10 @@ export class AnimeZey {
   BASE_URL = 'https://animezey16082023.animezey16082023.workers.dev'
 
   SESSION_HEADERS = {
-    'Host': 'animezey16082023.animezey16082023.workers.dev',
-    'Connection': 'keep-alive',
-    'sec-ch-ua': '"Chromium";v="124", "Microsoft Edge";v="124", "Not-A.Brand";v="99"',
-    'sec-ch-ua-platform': '"macOS"',
-    'DNT': '1',
-    'sec-ch-ua-mobile': '?0',
     'User-Agent':
       'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36 Edg/124.0.0.0',
     'Content-Type': 'application/json',
     'Accept': '*/*',
-    'Origin': 'https://animezey16082023.animezey16082023.workers.dev',
-    'Sec-Fetch-Site': 'same-origin',
-    'Sec-Fetch-Mode': 'cors',
-    'Sec-Fetch-Dest': 'empty',
-    'Referer': 'https://animezey16082023.animezey16082023.workers.dev/0:search?q=a',
-    'Accept-Encoding': 'gzip, deflate, br, zstd',
-    'Accept-Language': 'pt-BR,pt;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6',
-    'Cookie': 'perf_dv6Tr4n=1',
-    'sec-gpc': '1',
-  }
-
-  DOWNLOAD_HEADERS = {
-    'Host': 'animezey16082023.animezey16082023.workers.dev',
-    'Connection': 'keep-alive',
-    'sec-ch-ua': '"Chromium";v="124", "Microsoft Edge";v="124", "Not-A.Brand";v="99"',
-    'sec-ch-ua-platform': '"macOS"',
-    'DNT': '1',
-    'Upgrade-Insecure-Requests': '1',
-    'User-Agent':
-      'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36 Edg/124.0.0.0',
-    'Accept':
-      'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
-    'Sec-Fetch-Site': 'none',
-    'Sec-Fetch-Mode': 'navigate',
-    'Sec-Fetch-User': '?1',
-    'Sec-Fetch-Dest': 'document',
-    'Accept-Encoding': 'gzip, deflate, br, zstd',
-    'Accept-Language': 'pt-BR,pt;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6',
-    'Cookie': 'perf_dv6Tr4n=1',
-    'sec-gpc': '1',
   }
 
   async request(endpoint: string, method: 'GET' | 'POST', data: any = null) {
@@ -113,7 +77,7 @@ export class AnimeZey {
       const response = await axios({
         url: dUrl,
         method: 'GET',
-        headers: this.DOWNLOAD_HEADERS,
+        headers: this.SESSION_HEADERS,
         responseType: 'stream',
       })
 

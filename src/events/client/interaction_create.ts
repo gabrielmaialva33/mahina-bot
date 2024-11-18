@@ -294,7 +294,7 @@ export default class InteractionCreate extends Event {
       if (!command) return
 
       try {
-        await command.autocomplete(interaction)
+        if (command.autocomplete) await command.autocomplete(interaction)
       } catch (error) {
         this.client.logger.error(error)
       }

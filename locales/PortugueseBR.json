@@ -543,6 +543,7 @@
 				"movie": "O vídeo que você deseja reproduzir"
 			},
 			"messages": {
+        "waiting": "Por favor, aguarde...",
 				"playing_movie": "Reproduzindo o vídeo **{movie}**."
 			}
 		},
@@ -559,7 +560,10 @@
 			}
 		},
 		"mstop": {
-			"description": "cmd.mstop.description"
+			"description": "cmd.mstop.description",
+			"messages": {
+				"success": "cmd.mstop.messages.success"
+			}
 		}
 	},
 	"player": {

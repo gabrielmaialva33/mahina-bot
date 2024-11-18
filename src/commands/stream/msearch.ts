@@ -86,7 +86,9 @@ export default class MSearch extends Command {
       const { data } = response
       const filteredData = {
         ...data,
-        files: data.files.filter((file) => file.mimeType === 'video/x-matroska'),
+        files: data.files.filter(
+          (file) => file.mimeType === 'video/x-matroska' || file.mimeType === 'video/mp4'
+        ),
       }
 
       cache.pages[pageIndex] = filteredData
