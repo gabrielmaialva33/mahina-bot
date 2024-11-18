@@ -130,7 +130,7 @@ export class AnimeZey {
         })
       })
     } catch (error) {
-      console.error('Erro na requisição de download:', error)
+      console.error(error)
       throw error
     }
   }
