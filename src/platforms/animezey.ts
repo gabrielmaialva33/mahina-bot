@@ -103,8 +103,8 @@ export class AnimeZey {
   }
 
   async download(fileName: string, link: string) {
-    const sanitizedFileName = fileName.replace(/[\/\?<>\\:\*\|":]/g, '_') // Remover caracteres inválidos
-    const filePath = path.join(process.cwd(), 'movies', sanitizedFileName)
+    const sanitizedFileName = fileName.replace(/[\/\?<>\\:\*\|":]/g, '_')
+    const filePath = path.join(process.cwd(), 'downloads', sanitizedFileName)
 
     const writer = fs.createWriteStream(filePath)
     const dUrl = `${this.BASE_URL}${link}`
