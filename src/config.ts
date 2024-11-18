@@ -1,10 +1,17 @@
 export default {
   color: {
-    red: 0xff0000,
-    green: 0x00ff00,
-    blue: 0x0000ff,
-    yellow: 0xffff00,
-    main: 0x2f3136,
+    // red: 0xff0000,
+    // green: 0x00ff00,
+    // blue: 0x0000ff,
+    // yellow: 0xffff00,
+    // main: 0x2f3136,
+    // violet: 0x9e48a8,
+    red: 0xd78799,
+    green: 0xbfe4b2,
+    blue: 0x499cc2,
+    yellow: 0xfcf9a3,
+    violet: 0x9e48a8,
+    main: 0x4f5aa1,
   },
   emoji: {
     // You can add custom emoji with ID format (e.g., <:emojiName:123456789012345678>)
@@ -40,5 +47,6 @@ export default {
   } as any,
   links: {
     img: 'https://i.imgur.com/ud3EWNh.jpg',
+    live: 'https://telegra.ph/file/8733b86c68e3a169ad4e5.png',
   },
 }

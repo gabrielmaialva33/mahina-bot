@@ -27,6 +27,7 @@ import loadPlugins from '#src/extensions/index'
 import { Utils } from '#utils/utils'
 import { env } from '#src/env'
 import SelfBot from '#common/selfbot'
+import { AnimeZey } from '#src/platforms/animezey'
 
 const dirname = path.dirname(fileURLToPath(import.meta.url))
 
@@ -45,6 +46,7 @@ export default class MahinaBot extends Client {
   manager!: MahinaLinkClient
   private body: RESTPostAPIChatInputApplicationCommandsJSONBody[] = []
   selfbot: SelfBot
+  animezey = new AnimeZey()
 
   embed(): EmbedBuilder {
     return new EmbedBuilder()
