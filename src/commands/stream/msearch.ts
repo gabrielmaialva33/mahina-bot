@@ -192,7 +192,7 @@ export default class MSearch extends Command {
         )
       }
 
-      await interaction.update({ embeds: [embed], components: [row, downloadRow] })
+      await interaction.update({ content: '', embeds: [embed], components: [row, downloadRow] })
     }
 
     // Perguntar ao usuário que tipo de conteúdo ele quer
@@ -325,7 +325,7 @@ export default class MSearch extends Command {
             await new Promise((resolve) => setTimeout(resolve, 30000))
 
             const sanitizedFileName = file.name.replace(/[\/\?<>\\:\*\|":]/g, '_')
-            const filePath = path.join(process.cwd(), 'movies', sanitizedFileName)
+            const filePath = path.join(process.cwd(), 'downloads', sanitizedFileName)
 
             await client.selfbot.play(ctx.guild.id, ctx.member, filePath, sanitizedFileName)
 
