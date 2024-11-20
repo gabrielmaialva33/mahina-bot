@@ -12,8 +12,8 @@ importers:
         specifier: ^4.15.1
         version: 4.15.1
       '@gabrielmaialva33/discord-video-stream':
-        specifier: ^2.0.5
-        version: 2.0.5(discord.js-selfbot-v13@3.4.2(@discordjs/opus@0.9.0)(opusscript@0.1.1))(sodium-native@3.4.1)
+        specifier: ^2.0.6
+        version: 2.0.6(discord.js-selfbot-v13@3.4.2(@discordjs/opus@0.9.0)(opusscript@0.1.1))(sodium-native@3.4.1)
       '@prisma/client':
         specifier: ^5.22.0
         version: 5.22.0(prisma@5.22.0)
@@ -46,7 +46,7 @@ importers:
         version: 0.15.1
       lavalink-client:
         specifier: github:tomato6966/lavalink-client
-        version: https://codeload.github.com/tomato6966/lavalink-client/tar.gz/d3ea220c3045fdafc66bb6cbad657ae34cd8dd6f
+        version: git+https://git@github.com:tomato6966/lavalink-client.git#d3ea220c3045fdafc66bb6cbad657ae34cd8dd6f
       module-alias:
         specifier: ^2.2.3
         version: 2.2.3
@@ -379,8 +379,8 @@ packages:
     resolution: {integrity: sha512-vBZP4NlzfOlerQTnba4aqZoMhE/a9HY7HRqoOPaETQcSQuWEIyZMHGfVu6w9wGtGK5fED5qRs2DteVCjOH60sA==}
     engines: {node: '>=14'}
 
-  '@gabrielmaialva33/discord-video-stream@2.0.5':
-    resolution: {integrity: sha512-kR2p9cn6nXt3V+nkuRgtiq+7JGsS77gbM8ng9P3JlWwWk9XnjTZNjre8tSbi5Ljq9A2f/9CVXmOikQb+L8fuGg==}
+  '@gabrielmaialva33/discord-video-stream@2.0.6':
+    resolution: {integrity: sha512-+ixfGA5tixImHM52B2U+ASuKowyndVk5jNlm6B+f6Yf3PkR3wYehscstcTWMvBjWX9GEBJPLX2xiKu+m5rtxyA==}
     engines: {node: '>=22.11.0'}
     peerDependencies:
       discord.js-selfbot-v13: 3.x
@@ -1840,8 +1840,8 @@ packages:
   keyv@4.5.4:
     resolution: {integrity: sha512-oxVHkHR/EJf2CNXnWxRLW6mg7JyCCUcG0DtEGmL2ctUo1PNTin1PUil+r/+4r5MpVgC/fn1kjsx7mjSujKqIpw==}
 
-  lavalink-client@https://codeload.github.com/tomato6966/lavalink-client/tar.gz/d3ea220c3045fdafc66bb6cbad657ae34cd8dd6f:
-    resolution: {tarball: https://codeload.github.com/tomato6966/lavalink-client/tar.gz/d3ea220c3045fdafc66bb6cbad657ae34cd8dd6f}
+  lavalink-client@git+https://git@github.com:tomato6966/lavalink-client.git#d3ea220c3045fdafc66bb6cbad657ae34cd8dd6f:
+    resolution: {commit: d3ea220c3045fdafc66bb6cbad657ae34cd8dd6f, repo: git@github.com:tomato6966/lavalink-client.git, type: git}
     version: 2.4.1
     engines: {bun: '>=1.0.0', node: '>=18.0.0'}
 
@@ -3258,7 +3258,7 @@ snapshots:
 
   '@fastify/busboy@2.1.1': {}
 
-  '@gabrielmaialva33/discord-video-stream@2.0.5(discord.js-selfbot-v13@3.4.2(@discordjs/opus@0.9.0)(opusscript@0.1.1))(sodium-native@3.4.1)':
+  '@gabrielmaialva33/discord-video-stream@2.0.6(discord.js-selfbot-v13@3.4.2(@discordjs/opus@0.9.0)(opusscript@0.1.1))(sodium-native@3.4.1)':
     dependencies:
       '@libav.js/variant-webcodecs': 6.4.7
       discord.js-selfbot-v13: 3.4.2(@discordjs/opus@0.9.0)(opusscript@0.1.1)
@@ -4929,7 +4929,7 @@ snapshots:
     dependencies:
       json-buffer: 3.0.1
 
-  lavalink-client@https://codeload.github.com/tomato6966/lavalink-client/tar.gz/d3ea220c3045fdafc66bb6cbad657ae34cd8dd6f:
+  lavalink-client@git+https://git@github.com:tomato6966/lavalink-client.git#d3ea220c3045fdafc66bb6cbad657ae34cd8dd6f:
     dependencies:
       tslib: 2.8.1
       ws: 8.18.0
