@@ -76,15 +76,14 @@ export default class SelfBot extends Client {
 
     try {
       const metadata = await getInputMetadata(video)
-      console.log(JSON.stringify(metadata.streams))
+      console.log('metadata', metadata)
       includeAudio = inputHasAudio(metadata)
     } catch (e) {
       console.log(e)
       return
     }
 
-    console.log('Started playing video')
-
+    console.log('started playing video')
     udpConn.mediaConnection.setSpeaking(true)
     udpConn.mediaConnection.setVideoStatus(true)
 

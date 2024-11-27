@@ -1,6 +1,6 @@
 {
   "name": "mahina-bot",
-  "version": "3.0.1",
+  "version": "3.0.2",
   "description": "MahinaBot is a music bot for Discord, written in Typescript, using Lavalink as the audio player.",
   "repository": {
     "type": "git",
@@ -70,23 +70,23 @@
     "@types/fluent-ffmpeg": "^2.1.27",
     "@types/i18n": "^0.13.12",
     "@types/multer": "^1.4.12",
-    "@types/node": "^22.9.0",
+    "@types/node": "^22.10.0",
     "@types/signale": "^1.4.7",
     "esbuild-copy-files": "^0.2.16",
-    "eslint": "^8.57.1",
+    "eslint": "^9.15.0",
     "multer": "1.4.5-lts.1",
     "nodemon": "^3.1.7",
     "prisma": "^5.22.0",
     "tslib": "^2.8.1",
     "tsup": "^8.3.5",
-    "typescript": "^5.6.3"
+    "typescript": "^5.7.2"
   },
   "dependencies": {
     "@distube/ytdl-core": "^4.15.1",
-    "@gabrielmaialva33/discord-video-stream": "^2.0.5",
+    "@gabrielmaialva33/discord-video-stream": "^3.0.0",
     "@prisma/client": "^5.22.0",
     "@top-gg/sdk": "^3.1.6",
-    "axios": "^1.7.7",
+    "axios": "^1.7.8",
     "discord.js": "^14.16.3",
     "discord.js-selfbot-v13": "^3.4.2",
     "dotenv": "^16.4.5",
