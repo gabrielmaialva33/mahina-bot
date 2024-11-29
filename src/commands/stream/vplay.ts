@@ -77,7 +77,11 @@ export default class VPlay extends Command {
       // eslint-disable-next-line @typescript-eslint/naming-convention
       const { title, webpage_url, thumbnail, channel, duration } = videoInfo
 
-      const outputPath = path.join(process.cwd(), 'downloads', '%(title)s.%(ext)s')
+      // escape the title to avoid any issues with the file name
+      const safeTitle = this.sanitizeFilename(title)
+
+      const outputPath = path.join(process.cwd(), 'downloads', `${safeTitle}.%(ext)s`)
+
       console.log(`Downloading to ${outputPath}`)
 
       await ctx.editMessage(ctx.locale('cmd.vplay.downloading'))
@@ -86,7 +90,7 @@ export default class VPlay extends Command {
       const downloadsPath = path.join(process.cwd(), 'downloads')
       const files = fs.readdirSync(downloadsPath)
 
-      const matchedFile = files.find((file) => path.parse(file).name === title)
+      const matchedFile = files.find((file) => path.parse(file).name === safeTitle)
       if (!matchedFile) await ctx.editMessage(ctx.locale('cmd.vplay.errors.download_failed'))
 
       const filePath = path.join(downloadsPath, matchedFile!)
@@ -129,5 +133,12 @@ export default class VPlay extends Command {
       this.client.logger.error(error)
       await ctx.sendMessage(ctx.locale('cmd.vplay.errors.general_error'))
     }
+  }
+
+  sanitizeFilename(title: string) {
+    return title
+      .replace(/[<>:"\/\\|?*\x00-\x1F]/g, '_')
+      .slice(0, 255)
+      .replace(/\s+/g, '_')
   }
 }
