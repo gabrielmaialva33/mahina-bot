@@ -45,11 +45,9 @@ commands to help with moderation, music, and fun.
 
 - **[Typescript](https://www.typescriptlang.org/)**
 - **[Node.js](https://nodejs.org/)**
-- **[Eslint](https://eslint.org/)**
-- **[Prettier](https://prettier.io/)**
 - **[Discord.js](https://discord.js.org/)**
-- **[Knex](http://knexjs.org/)**
 - **[Sqlite3](https://www.sqlite.org/index.html)**
+- **[Prisma](https://www.prisma.io/)**
 
 <br>
 
@@ -89,9 +87,11 @@ The following software must be installed:
 ```sh
   $ cd mahina-bot
   # install dependencies
-  $ pnpm # or npm install
+  $ pnpm install # or npm install
+  # run docker-compose
+  $ docker-compose up -d
   # run the application
-  $ pnpm start:dev # or yarn start
+  $ pnpm build && pnpm start:max # or yarn start
 ```
 
 <br>
