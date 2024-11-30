@@ -37,7 +37,6 @@ export default class MStop extends Command {
 
     const locale = await client.db.getLanguage(ctx.guild.id)
 
-    this.client.selfbot.streamer.signalStopStream(ctx.guild.id, ctx.channel.id)
     this.client.selfbot.streamer.stopStream()
     this.client.selfbot.streamer.leaveVoice()
 

@@ -73,7 +73,7 @@
     "@types/node": "^22.10.1",
     "@types/signale": "^1.4.7",
     "esbuild-copy-files": "^0.2.16",
-    "eslint": "^9.15.0",
+    "eslint": "^9.16.0",
     "multer": "1.4.5-lts.1",
     "nodemon": "^3.1.7",
     "prisma": "^6.0.0",

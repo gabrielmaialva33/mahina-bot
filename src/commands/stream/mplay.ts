@@ -64,6 +64,10 @@ export default class MPlay extends Command {
 
     let movieName = args.shift()
     let movie = videos.find((m) => m!.name === movieName)
+    if (!movie) {
+      await ctx.sendMessage(T(locale, 'cmd.mplay.errors.movie_not_found'))
+      return
+    }
 
     await ctx.sendMessage(T(locale, 'cmd.mplay.messages.waiting'))
 

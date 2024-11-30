@@ -5,9 +5,6 @@ import {
   MediaUdp,
   Streamer,
   streamLivestreamVideo,
-  Utils,
-  playStream,
-  prepareStream,
 } from '@gabrielmaialva33/discord-video-stream'
 import type MahinaBot from '#common/mahina_bot'
 import PCancelable from 'p-cancelable'
@@ -15,6 +12,15 @@ import PCancelable from 'p-cancelable'
 export default class SelfBot extends Client {
   streamer: Streamer
   mahinaBot: MahinaBot
+
+  // streamStatus = {
+  //   joined: false,
+  //   joinsucc: false,
+  //   playing: false,
+  //   channelInfo: { guildId: '', channelId: '', cmdChannelId: '' },
+  //   starttime: '00:00:00',
+  //   timemark: '',
+  // }
 
   constructor(mahinaBot1: MahinaBot) {
     super({
@@ -39,14 +45,54 @@ export default class SelfBot extends Client {
     })
 
     await this.streamer.client.login(token).catch(console.error)
+
+    // this.streamer.client.on('voiceStateUpdate', (oldState, newState) => {
+    //   // when exit channel
+    //   if (oldState.member?.user.id === this.streamer.client.user?.id) {
+    //     if (oldState.channelId && !newState.channelId) {
+    //       this.streamStatus.joined = false
+    //       this.streamStatus.joinsucc = false
+    //       this.streamStatus.playing = true
+    //       this.streamStatus.channelInfo = {
+    //         guildId: '',
+    //         channelId: '',
+    //         cmdChannelId: this.streamStatus.channelInfo.cmdChannelId,
+    //       }
+    //
+    //       this.streamer.client.user!.setActivity({ name: '🎥 𝘾𝙡𝙪𝙗𝙚 𝘽𝙖𝙠𝙠𝙤 🍷', type: 'WATCHING' })
+    //     }
+    //   }
+    //
+    //   // when join channel success
+    //   if (newState.member?.user.id === this.streamer.client.user?.id) {
+    //     if (newState.channelId && !oldState.channelId) {
+    //       this.streamStatus.joined = true
+    //
+    //       if (
+    //         newState.guild.id === this.streamStatus.channelInfo.guildId &&
+    //         newState.channelId === this.streamStatus.channelInfo.channelId
+    //       )
+    //         this.streamStatus.joinsucc = true
+    //     }
+    //   }
+    // })
   }
 
   async play(guildId: string, member: any, link: string, name: string = '') {
     await this.streamer.joinVoice(guildId, member.voice.channelId)
 
+    // this.streamStatus.joined = true
+    // this.streamStatus.playing = false
+    // this.streamStatus.channelInfo = {
+    //   guildId: guildId,
+    //   channelId: member.voice.channelId,
+    //   cmdChannelId: member.voice.channelId,
+    // }
+
     const channel = member.voice.channel
-    if (channel instanceof StageChannel)
+    if (channel instanceof StageChannel) {
       await this.streamer.client.user!.voice!.setSuppressed(false)
+    }
 
     // 4k (3840x2160) 30fps 1000kbps 2500kbps
     // 1080p (1920x1080) 30fps 1000kbps 2500kbps
@@ -54,21 +100,23 @@ export default class SelfBot extends Client {
     // 480p (854x480) 30fps 500kbps 1500kbps
     // 360p (640x360) 30fps 500kbps 1500kbps
     const streamUdpConn = await this.streamer.createStream({
-      width: 1280,
-      height: 720,
-      fps: 30,
-      bitrateKbps: 1000,
-      maxBitrateKbps: 2500,
-      hardwareAcceleratedDecoding: false,
-      videoCodec: Utils.normalizeVideoCodec('H264'),
-      h26xPreset: 'medium',
-      minimizeLatency: true,
-      rtcpSenderReportEnabled: true,
+      // width: 1280,
+      // height: 720,
+      // fps: 30,
+      // bitrateKbps: 1000,
+      // maxBitrateKbps: 2500,
+      // hardwareAcceleratedDecoding: false,
+      // videoCodec: Utils.normalizeVideoCodec('H264'),
+      // h26xPreset: 'medium',
+      // minimizeLatency: true,
+      // rtcpSenderReportEnabled: true,
+      // forceChacha20Encryption: true,
     })
 
-    await this.video(link, streamUdpConn).finally(() => {
-      this.streamer.stopStream()
-    })
+    await this.video(link, streamUdpConn)
+
+    this.streamer.stopStream()
+    this.streamer.leaveVoice()
 
     return
   }
@@ -85,13 +133,14 @@ export default class SelfBot extends Client {
       return
     }
 
-    console.log('started playing video')
     udpConn.mediaConnection.setSpeaking(true)
     udpConn.mediaConnection.setVideoStatus(true)
 
     let command: PCancelable<string>
     command = streamLivestreamVideo(video, udpConn, includeAudio)
     try {
+      // this.streamStatus.playing = true
+
       const res = await command
       this.mahinaBot.logger.info('finished playing video ' + res)
     } catch (e) {
@@ -102,6 +151,8 @@ export default class SelfBot extends Client {
         console.log(e)
       }
     } finally {
+      // this.streamStatus.playing = false
+
       udpConn.mediaConnection.setSpeaking(false)
       udpConn.mediaConnection.setVideoStatus(false)
     }
