@@ -30,8 +30,8 @@ importers:
         specifier: ^3.4.4
         version: 3.4.4(@discordjs/opus@0.9.0)(opusscript@0.1.1)
       dotenv:
-        specifier: ^16.4.5
-        version: 16.4.5
+        specifier: ^16.4.7
+        version: 16.4.7
       express:
         specifier: ^4.21.1
         version: 4.21.1
@@ -46,7 +46,7 @@ importers:
         version: 0.15.1
       lavalink-client:
         specifier: github:tomato6966/lavalink-client
-        version: https://codeload.github.com/tomato6966/lavalink-client/tar.gz/d3ea220c3045fdafc66bb6cbad657ae34cd8dd6f
+        version: git+https://git@github.com:tomato6966/lavalink-client.git#d3ea220c3045fdafc66bb6cbad657ae34cd8dd6f
       module-alias:
         specifier: ^2.2.3
         version: 2.2.3
@@ -1209,6 +1209,7 @@ packages:
   discord.js-selfbot-v13@3.4.4:
     resolution: {integrity: sha512-pxN+Y5C1/LZgGW5XdEs8nNDFE+XlmERlsmqrWZz2P/ebOIAxPd/pQ2JKa7OxNV+tPnmjzfhHjlglIGJ/kv5KpQ==}
     engines: {node: '>=16.6.0', npm: '>=7.0.0'}
+    deprecated: This version is deprecated.
 
   discord.js@14.16.3:
     resolution: {integrity: sha512-EPCWE9OkA9DnFFNrO7Kl1WHHDYFXu3CNVFJg63bfU7hVtjZGyhShwZtSBImINQRWxWP2tgo2XI+QhdXx28r0aA==}
@@ -1229,8 +1230,8 @@ packages:
   domutils@1.7.0:
     resolution: {integrity: sha512-Lgd2XcJ/NjEw+7tFvfKxOzCYKZsdct5lczQ2ZaQY8Djz7pfAD3Gbp8ySJWtreII/vDlMVmxwa6pHmdxIYgttDg==}
 
-  dotenv@16.4.5:
-    resolution: {integrity: sha512-ZmdL2rui+eB2YwhsWzjInR8LldtZHGDoQ1ugH85ppHKwpUHL7j7rN0Ti9NCnGiQbhaZ11FpR+7ao1dNsmduNUg==}
+  dotenv@16.4.7:
+    resolution: {integrity: sha512-47qPchRCykZC03FhkYAhrvwU4xDBFIj1QPqaarj6mdM/hgUzfPHcpkHJOn3mJAufFeeAxAzeGsr5X0M4k6fLZQ==}
     engines: {node: '>=12'}
 
   eastasianwidth@0.2.0:
@@ -1892,8 +1893,8 @@ packages:
   keyv@4.5.4:
     resolution: {integrity: sha512-oxVHkHR/EJf2CNXnWxRLW6mg7JyCCUcG0DtEGmL2ctUo1PNTin1PUil+r/+4r5MpVgC/fn1kjsx7mjSujKqIpw==}
 
-  lavalink-client@https://codeload.github.com/tomato6966/lavalink-client/tar.gz/d3ea220c3045fdafc66bb6cbad657ae34cd8dd6f:
-    resolution: {tarball: https://codeload.github.com/tomato6966/lavalink-client/tar.gz/d3ea220c3045fdafc66bb6cbad657ae34cd8dd6f}
+  lavalink-client@git+https://git@github.com:tomato6966/lavalink-client.git#d3ea220c3045fdafc66bb6cbad657ae34cd8dd6f:
+    resolution: {commit: d3ea220c3045fdafc66bb6cbad657ae34cd8dd6f, repo: git@github.com:tomato6966/lavalink-client.git, type: git}
     version: 2.4.1
     engines: {bun: '>=1.0.0', node: '>=18.0.0'}
 
@@ -4235,7 +4236,7 @@ snapshots:
       dom-serializer: 0.1.1
       domelementtype: 1.3.1
 
-  dotenv@16.4.5: {}
+  dotenv@16.4.7: {}
 
   eastasianwidth@0.2.0: {}
 
@@ -5040,7 +5041,7 @@ snapshots:
     dependencies:
       json-buffer: 3.0.1
 
-  lavalink-client@https://codeload.github.com/tomato6966/lavalink-client/tar.gz/d3ea220c3045fdafc66bb6cbad657ae34cd8dd6f:
+  lavalink-client@git+https://git@github.com:tomato6966/lavalink-client.git#d3ea220c3045fdafc66bb6cbad657ae34cd8dd6f:
     dependencies:
       tslib: 2.8.1
       ws: 8.18.0
