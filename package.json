@@ -88,7 +88,7 @@
     "@top-gg/sdk": "^3.1.6",
     "axios": "^1.7.8",
     "discord.js": "^14.16.3",
-    "discord.js-selfbot-v13": "^3.4.4",
+    "discord.js-selfbot-v13": "^3.4.5",
     "dotenv": "^16.4.5",
     "express": "^4.21.1",
     "fluent-ffmpeg": "^2.1.3",
