@@ -15,8 +15,8 @@ importers:
         specifier: ^3.2.1
         version: 3.2.1(discord.js-selfbot-v13@3.4.4(@discordjs/opus@0.9.0)(opusscript@0.1.1))(sodium-native@3.4.1)
       '@prisma/client':
-        specifier: ^6.0.0
-        version: 6.0.0(prisma@6.0.0)
+        specifier: ^6.0.1
+        version: 6.0.1(prisma@6.0.0)
       '@top-gg/sdk':
         specifier: ^3.1.6
         version: 3.1.6
@@ -46,7 +46,7 @@ importers:
         version: 0.15.1
       lavalink-client:
         specifier: github:tomato6966/lavalink-client
-        version: https://codeload.github.com/tomato6966/lavalink-client/tar.gz/d3ea220c3045fdafc66bb6cbad657ae34cd8dd6f
+        version: git+https://git@github.com:tomato6966/lavalink-client.git#d3ea220c3045fdafc66bb6cbad657ae34cd8dd6f
       module-alias:
         specifier: ^2.2.3
         version: 2.2.3
@@ -496,8 +496,8 @@ packages:
     resolution: {integrity: sha512-cq8o4cWH0ibXh9VGi5P20Tu9XF/0fFXl9EUinr9QfTM7a7p0oTA4iJRCQWppXR1Pg8dSM0UCItCkPwsk9qWWYA==}
     engines: {node: ^12.20.0 || ^14.18.0 || >=16.0.0}
 
-  '@prisma/client@6.0.0':
-    resolution: {integrity: sha512-tOBhG35ozqZ/5Y6B0TNOa6cwULUW8ijXqBXcgb12bfozqf6eGMyGs+jphywCsj6uojv5lAZZnxVSoLMVebIP+g==}
+  '@prisma/client@6.0.1':
+    resolution: {integrity: sha512-60w7kL6bUxz7M6Gs/V+OWMhwy94FshpngVmOY05TmGD0Lhk+Ac0ZgtjlL6Wll9TD4G03t4Sq1wZekNVy+Xdlbg==}
     engines: {node: '>=18.18'}
     peerDependencies:
       prisma: '*'
@@ -1209,6 +1209,7 @@ packages:
   discord.js-selfbot-v13@3.4.4:
     resolution: {integrity: sha512-pxN+Y5C1/LZgGW5XdEs8nNDFE+XlmERlsmqrWZz2P/ebOIAxPd/pQ2JKa7OxNV+tPnmjzfhHjlglIGJ/kv5KpQ==}
     engines: {node: '>=16.6.0', npm: '>=7.0.0'}
+    deprecated: This version is deprecated.
 
   discord.js@14.16.3:
     resolution: {integrity: sha512-EPCWE9OkA9DnFFNrO7Kl1WHHDYFXu3CNVFJg63bfU7hVtjZGyhShwZtSBImINQRWxWP2tgo2XI+QhdXx28r0aA==}
@@ -1892,8 +1893,8 @@ packages:
   keyv@4.5.4:
     resolution: {integrity: sha512-oxVHkHR/EJf2CNXnWxRLW6mg7JyCCUcG0DtEGmL2ctUo1PNTin1PUil+r/+4r5MpVgC/fn1kjsx7mjSujKqIpw==}
 
-  lavalink-client@https://codeload.github.com/tomato6966/lavalink-client/tar.gz/d3ea220c3045fdafc66bb6cbad657ae34cd8dd6f:
-    resolution: {tarball: https://codeload.github.com/tomato6966/lavalink-client/tar.gz/d3ea220c3045fdafc66bb6cbad657ae34cd8dd6f}
+  lavalink-client@git+https://git@github.com:tomato6966/lavalink-client.git#d3ea220c3045fdafc66bb6cbad657ae34cd8dd6f:
+    resolution: {commit: d3ea220c3045fdafc66bb6cbad657ae34cd8dd6f, repo: git@github.com:tomato6966/lavalink-client.git, type: git}
     version: 2.4.1
     engines: {bun: '>=1.0.0', node: '>=18.0.0'}
 
@@ -3449,7 +3450,7 @@ snapshots:
 
   '@pkgr/core@0.1.1': {}
 
-  '@prisma/client@6.0.0(prisma@6.0.0)':
+  '@prisma/client@6.0.1(prisma@6.0.0)':
     optionalDependencies:
       prisma: 6.0.0
 
@@ -5040,7 +5041,7 @@ snapshots:
     dependencies:
       json-buffer: 3.0.1
 
-  lavalink-client@https://codeload.github.com/tomato6966/lavalink-client/tar.gz/d3ea220c3045fdafc66bb6cbad657ae34cd8dd6f:
+  lavalink-client@git+https://git@github.com:tomato6966/lavalink-client.git#d3ea220c3045fdafc66bb6cbad657ae34cd8dd6f:
     dependencies:
       tslib: 2.8.1
       ws: 8.18.0
