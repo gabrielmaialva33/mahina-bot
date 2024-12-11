@@ -46,7 +46,7 @@ importers:
         version: 0.15.1
       lavalink-client:
         specifier: github:tomato6966/lavalink-client
-        version: https://codeload.github.com/tomato6966/lavalink-client/tar.gz/d3ea220c3045fdafc66bb6cbad657ae34cd8dd6f
+        version: git+https://git@github.com:tomato6966/lavalink-client.git#2bb313c33f0e484af025be83ee68fe9590b40df7
       module-alias:
         specifier: ^2.2.3
         version: 2.2.3
@@ -81,8 +81,8 @@ importers:
         specifier: ^3.0.10
         version: 3.0.10
       zod:
-        specifier: ^3.23.8
-        version: 3.23.8
+        specifier: ^3.24.1
+        version: 3.24.1
     devDependencies:
       '@adonisjs/eslint-config':
         specifier: ^1.3.0
@@ -1902,9 +1902,9 @@ packages:
   keyv@4.5.4:
     resolution: {integrity: sha512-oxVHkHR/EJf2CNXnWxRLW6mg7JyCCUcG0DtEGmL2ctUo1PNTin1PUil+r/+4r5MpVgC/fn1kjsx7mjSujKqIpw==}
 
-  lavalink-client@https://codeload.github.com/tomato6966/lavalink-client/tar.gz/d3ea220c3045fdafc66bb6cbad657ae34cd8dd6f:
-    resolution: {tarball: https://codeload.github.com/tomato6966/lavalink-client/tar.gz/d3ea220c3045fdafc66bb6cbad657ae34cd8dd6f}
-    version: 2.4.1
+  lavalink-client@git+https://git@github.com:tomato6966/lavalink-client.git#2bb313c33f0e484af025be83ee68fe9590b40df7:
+    resolution: {commit: 2bb313c33f0e484af025be83ee68fe9590b40df7, repo: git@github.com:tomato6966/lavalink-client.git, type: git}
+    version: 2.4.2
     engines: {bun: '>=1.0.0', node: '>=18.0.0'}
 
   levn@0.3.0:
@@ -3089,8 +3089,8 @@ packages:
     resolution: {integrity: sha512-t3ih+3bn2rFYSStuVjKVHUPyPYhPvPjIPjJZAzjFb6qD8uJxgJ5GHicSwbPkezM8IVdnoKPRkZ6XuIPHCqRRZg==}
     engines: {node: '>= 18'}
 
-  zod@3.23.8:
-    resolution: {integrity: sha512-XBx9AXhXktjUqnepgTiE5flcKIYWi/rme0Eaj+5Y0lftuGBq+jyRu/md4WnuxqgP1ubdpNCsYEYPxrzVHD8d6g==}
+  zod@3.24.1:
+    resolution: {integrity: sha512-muH7gBL9sI1nciMZV67X5fTKKBLtwpZ5VBp1vsOQzj1MhrBZ4wlVCm3gedKZWLp0Oyel8sIGfeiz54Su+OVT+A==}
 
 snapshots:
 
@@ -5062,7 +5062,7 @@ snapshots:
     dependencies:
       json-buffer: 3.0.1
 
-  lavalink-client@https://codeload.github.com/tomato6966/lavalink-client/tar.gz/d3ea220c3045fdafc66bb6cbad657ae34cd8dd6f:
+  lavalink-client@git+https://git@github.com:tomato6966/lavalink-client.git#2bb313c33f0e484af025be83ee68fe9590b40df7:
     dependencies:
       tslib: 2.8.1
       ws: 8.18.0
@@ -6256,4 +6256,4 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  zod@3.23.8: {}
+  zod@3.24.1: {}
