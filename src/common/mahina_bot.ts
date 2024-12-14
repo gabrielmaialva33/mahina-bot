@@ -44,18 +44,18 @@ export default class MahinaBot extends Client {
   utils = Utils
   env: typeof env = env
   manager!: MahinaLinkClient
-  private body: RESTPostAPIChatInputApplicationCommandsJSONBody[] = []
   selfbot: SelfBot
   animezey = new AnimeZey()
-
-  embed(): EmbedBuilder {
-    return new EmbedBuilder()
-  }
+  private body: RESTPostAPIChatInputApplicationCommandsJSONBody[] = []
 
   constructor(options: ClientOptions) {
     super(options)
 
     this.selfbot = new SelfBot(this)
+  }
+
+  embed(): EmbedBuilder {
+    return new EmbedBuilder()
   }
 
   async start(token: string): Promise<void> {

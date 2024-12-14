@@ -78,7 +78,7 @@ export default class RemoveSong extends Command {
     }
 
     /* const res = await client.queue.search(song);
-    
+
             if (!res || res.loadType !== LoadType.TRACK) {
                 const noSongsFoundError = this.client
                     .embed()
@@ -86,12 +86,12 @@ export default class RemoveSong extends Command {
                     .setColor(this.client.color.red);
                 return await ctx.sendMessage({ embeds: [noSongsFoundError] });
             }
-    
+
             const trackToRemove = res.data;
-    
+
             try {
                 await client.db.removeSong(ctx.author.id, playlist, trackToRemove.encoded);
-    
+
                 const successMessage = this.client
                     .embed()
                     .setDescription(

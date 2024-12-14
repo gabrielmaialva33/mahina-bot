@@ -325,8 +325,8 @@ export default class MSearch extends Command {
             await new Promise((resolve) => setTimeout(resolve, 30000))
 
             const sanitizedFileName = file.name.replace(/[\/\?<>\\:\*\|":]/g, '_')
-            const filePath = path.join(process.cwd(), 'downloads', sanitizedFileName)
 
+            const filePath = path.join(process.cwd(), 'downloads', sanitizedFileName)
             await client.selfbot.play(ctx.guild.id, ctx.member, filePath, sanitizedFileName)
 
             embed.setAuthor({ name: 'Live Stream', iconURL: this.client.config.links.live })
