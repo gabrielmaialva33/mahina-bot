@@ -94,11 +94,11 @@ plugins:
     # The clients to use for track loading. See below for a list of valid clients.
     # Clients are queried in the order they are given (so the first client is queried first and so on...)
     clients:
-      - ANDROID_MUSIC
+#      - ANDROID_MUSIC
       - MUSIC
-      - WEB
-      - WEBEMBEDDED
-      - TVHTML5EMBEDDED
+#      - WEB
+#      - WEBEMBEDDED
+#      - TVHTML5EMBEDDED
       # This secure your lavalink is working and playing music if you used this two things below.
       #oauth:
       # enabled: true # IF YOU RUN YOUR LAVALINK CHECK YOUR CONSOLE AND CLICK THE GOOGLE.COM/DEVICES LINK AND THERE IS A CODE THAT YOU NEED TO PUT IN TO THE GOOGLE AND USE A BURNER ACCOUNT OR ALT ACCOUNT THERE IS A POSSIBLE CHANGE YOU CAN GET BANNED FROM GOOGLE OR YOUTUBE SO JUST USE A BURNER ACCOUNT IN CASE.
