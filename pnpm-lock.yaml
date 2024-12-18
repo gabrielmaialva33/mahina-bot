@@ -46,7 +46,7 @@ importers:
         version: 0.15.1
       lavalink-client:
         specifier: github:tomato6966/lavalink-client
-        version: https://codeload.github.com/tomato6966/lavalink-client/tar.gz/d6e00ebc672464907311ccac49c655ff843d23b8
+        version: git+https://git@github.com:tomato6966/lavalink-client.git#0ff200806ac74ee837a3da7e3dccc315211191dc
       module-alias:
         specifier: ^2.2.3
         version: 2.2.3
@@ -75,8 +75,8 @@ importers:
         specifier: ^2.0.2
         version: 2.0.2
       undici:
-        specifier: ^7.1.0
-        version: 7.1.0
+        specifier: ^7.1.1
+        version: 7.1.1
       youtube-dl-exec:
         specifier: ^3.0.10
         version: 3.0.10
@@ -212,6 +212,7 @@ packages:
   '@distube/ytdl-core@4.15.1':
     resolution: {integrity: sha512-10voV+ixUVQgam4/GMhjNTX/ipk9odkPnPoRaUESs5E/EW0JujwPDc815z53D86mSRlVc8esH1eiuzFnxLJKcA==}
     engines: {node: '>=14.0'}
+    deprecated: This version is deprecated, please upgrade to the latest version.
 
   '@esbuild/aix-ppc64@0.24.0':
     resolution: {integrity: sha512-WtKdFM7ls47zkKHFVzMz8opM7LkcsIp9amDUBIAWirg70RM71WRSjdILPsY5Uv1D42ZpUfaPILDlfactHgsRkw==}
@@ -1896,8 +1897,8 @@ packages:
   keyv@4.5.4:
     resolution: {integrity: sha512-oxVHkHR/EJf2CNXnWxRLW6mg7JyCCUcG0DtEGmL2ctUo1PNTin1PUil+r/+4r5MpVgC/fn1kjsx7mjSujKqIpw==}
 
-  lavalink-client@https://codeload.github.com/tomato6966/lavalink-client/tar.gz/d6e00ebc672464907311ccac49c655ff843d23b8:
-    resolution: {tarball: https://codeload.github.com/tomato6966/lavalink-client/tar.gz/d6e00ebc672464907311ccac49c655ff843d23b8}
+  lavalink-client@git+https://git@github.com:tomato6966/lavalink-client.git#0ff200806ac74ee837a3da7e3dccc315211191dc:
+    resolution: {commit: 0ff200806ac74ee837a3da7e3dccc315211191dc, repo: git@github.com:tomato6966/lavalink-client.git, type: git}
     version: 2.4.3
     engines: {bun: '>=1.0.0', node: '>=18.0.0'}
 
@@ -2951,8 +2952,8 @@ packages:
     resolution: {integrity: sha512-BUgJXc752Kou3oOIuU1i+yZZypyZRqNPW0vqoMPl8VaoalSfeR0D8/t4iAS3yirs79SSMTxTag+ZC86uswv+Cw==}
     engines: {node: '>=18.17'}
 
-  undici@7.1.0:
-    resolution: {integrity: sha512-3+mdX2R31khuLCm2mKExSlMdJsfol7bJkIMH80tdXA74W34rT1jKemUTlYR7WY3TqsV4wfOgpatWmmB2Jl1+5g==}
+  undici@7.1.1:
+    resolution: {integrity: sha512-WZkQ6eH9f5ZT93gaIffsbUaDpBwjbpvmMbfaEhOnbdUneurTESeRxwPGwjI28mRFESH3W3e8Togijh37ptOQqA==}
     engines: {node: '>=20.18.1'}
 
   universalify@0.2.0:
@@ -5055,7 +5056,7 @@ snapshots:
     dependencies:
       json-buffer: 3.0.1
 
-  lavalink-client@https://codeload.github.com/tomato6966/lavalink-client/tar.gz/d6e00ebc672464907311ccac49c655ff843d23b8:
+  lavalink-client@git+https://git@github.com:tomato6966/lavalink-client.git#0ff200806ac74ee837a3da7e3dccc315211191dc:
     dependencies:
       tslib: 2.8.1
       ws: 8.18.0
@@ -6119,7 +6120,7 @@ snapshots:
 
   undici@6.21.0: {}
 
-  undici@7.1.0: {}
+  undici@7.1.1: {}
 
   universalify@0.2.0: {}
 
