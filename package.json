@@ -104,7 +104,7 @@
     "rimraf": "^6.0.1",
     "signale": "^1.4.0",
     "topgg-autoposter": "^2.0.2",
-    "undici": "^7.1.0",
+    "undici": "^7.2.0",
     "youtube-dl-exec": "^3.0.10",
     "zod": "^3.24.1"
   },
