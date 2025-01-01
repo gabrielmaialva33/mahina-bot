@@ -70,7 +70,7 @@
     "@types/fluent-ffmpeg": "^2.1.27",
     "@types/i18n": "^0.13.12",
     "@types/multer": "^1.4.12",
-    "@types/node": "^22.10.2",
+    "@types/node": "^22.10.3",
     "@types/signale": "^1.4.7",
     "esbuild-copy-files": "^0.2.16",
     "eslint": "^9.17.0",
@@ -83,7 +83,7 @@
   },
   "dependencies": {
     "@distube/ytdl-core": "^4.15.8",
-    "@gabrielmaialva33/discord-video-stream": "^3.2.3",
+    "@gabrielmaialva33/discord-video-stream": "^3.3.0",
     "@prisma/client": "^6.1.0",
     "@top-gg/sdk": "^3.1.6",
     "axios": "^1.7.9",
@@ -106,7 +106,7 @@
     "signale": "^1.4.0",
     "topgg-autoposter": "^2.0.2",
     "undici": "^7.2.0",
-    "youtube-dl-exec": "^3.0.11",
+    "youtube-dl-exec": "^3.0.12",
     "zod": "^3.24.1"
   },
   "signale": {
