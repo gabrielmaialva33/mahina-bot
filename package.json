@@ -106,7 +106,7 @@
     "signale": "^1.4.0",
     "topgg-autoposter": "^2.0.2",
     "undici": "^7.2.0",
-    "youtube-dl-exec": "^3.0.11",
+    "youtube-dl-exec": "^3.0.12",
     "zod": "^3.24.1"
   },
   "signale": {

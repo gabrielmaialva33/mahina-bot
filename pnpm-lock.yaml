@@ -46,7 +46,7 @@ importers:
         version: 0.15.1
       lavalink-client:
         specifier: github:tomato6966/lavalink-client
-        version: https://codeload.github.com/tomato6966/lavalink-client/tar.gz/0ff200806ac74ee837a3da7e3dccc315211191dc
+        version: git+https://git@github.com:tomato6966/lavalink-client.git#0ff200806ac74ee837a3da7e3dccc315211191dc
       module-alias:
         specifier: ^2.2.3
         version: 2.2.3
@@ -81,8 +81,8 @@ importers:
         specifier: ^7.2.0
         version: 7.2.0
       youtube-dl-exec:
-        specifier: ^3.0.11
-        version: 3.0.11
+        specifier: ^3.0.12
+        version: 3.0.12
       zod:
         specifier: ^3.24.1
         version: 3.24.1
@@ -1930,8 +1930,8 @@ packages:
   keyv@4.5.4:
     resolution: {integrity: sha512-oxVHkHR/EJf2CNXnWxRLW6mg7JyCCUcG0DtEGmL2ctUo1PNTin1PUil+r/+4r5MpVgC/fn1kjsx7mjSujKqIpw==}
 
-  lavalink-client@https://codeload.github.com/tomato6966/lavalink-client/tar.gz/0ff200806ac74ee837a3da7e3dccc315211191dc:
-    resolution: {tarball: https://codeload.github.com/tomato6966/lavalink-client/tar.gz/0ff200806ac74ee837a3da7e3dccc315211191dc}
+  lavalink-client@git+https://git@github.com:tomato6966/lavalink-client.git#0ff200806ac74ee837a3da7e3dccc315211191dc:
+    resolution: {commit: 0ff200806ac74ee837a3da7e3dccc315211191dc, repo: git@github.com:tomato6966/lavalink-client.git, type: git}
     version: 2.4.3
     engines: {bun: '>=1.0.0', node: '>=18.0.0'}
 
@@ -3147,8 +3147,8 @@ packages:
     resolution: {integrity: sha512-rVksvsnNCdJ/ohGc6xgPwyN8eheCxsiLM8mxuE/t/mOVqJewPuO1miLpTHQiRgTKCLexL4MeAFVagts7HmNZ2Q==}
     engines: {node: '>=10'}
 
-  youtube-dl-exec@3.0.11:
-    resolution: {integrity: sha512-mdxMwI1YcKrCHOj1dzKtIv/ZjYiW636KBe8BUejOHpEYtmDYMTMH9Wic58FXgB/sgg8ixO35Oi0hO0Eal+dAGQ==}
+  youtube-dl-exec@3.0.12:
+    resolution: {integrity: sha512-CG7d0Z2RVLZhJ2IVNAauY2BtOvakd/fJq+WiZchFcaShpaQAYcajZxOZYHLej3QjiU/Exx2kR5XBUtPDtbzLwg==}
     engines: {node: '>= 18'}
 
   zod@3.24.1:
@@ -5145,7 +5145,7 @@ snapshots:
     dependencies:
       json-buffer: 3.0.1
 
-  lavalink-client@https://codeload.github.com/tomato6966/lavalink-client/tar.gz/0ff200806ac74ee837a3da7e3dccc315211191dc:
+  lavalink-client@git+https://git@github.com:tomato6966/lavalink-client.git#0ff200806ac74ee837a3da7e3dccc315211191dc:
     dependencies:
       tslib: 2.8.1
       ws: 8.18.0
@@ -6359,7 +6359,7 @@ snapshots:
 
   yocto-queue@0.1.0: {}
 
-  youtube-dl-exec@3.0.11:
+  youtube-dl-exec@3.0.12:
     dependencies:
       bin-version-check: 6.0.0
       dargs: 7.0.0
