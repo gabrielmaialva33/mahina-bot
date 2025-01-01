@@ -1,14 +1,16 @@
-import { Client, StageChannel } from 'discord.js-selfbot-v13'
+import {Client, StageChannel} from 'discord.js-selfbot-v13'
 import {
   getInputMetadata,
   inputHasAudio,
-  MediaUdp,
+  MediaUdp, NewApi,
   Streamer,
   streamLivestreamVideo,
   Utils,
 } from '@gabrielmaialva33/discord-video-stream'
 import type MahinaBot from '#common/mahina_bot'
 import PCancelable from 'p-cancelable'
+
+let current: ReturnType<typeof NewApi.prepareStream>["command"];
 
 export default class SelfBot extends Client {
   streamer: Streamer
@@ -25,7 +27,7 @@ export default class SelfBot extends Client {
 
   constructor(mahinaBot1: MahinaBot) {
     super({
-      allowedMentions: { parse: ['users', 'roles'], repliedUser: true },
+      allowedMentions: {parse: ['users', 'roles'], repliedUser: true},
     })
     this.streamer = new Streamer(this)
     this.mahinaBot = mahinaBot1
@@ -100,33 +102,35 @@ export default class SelfBot extends Client {
     // 720p (1280x720) 30fps 1000kbps 2500kbps
     // 480p (854x480) 30fps 500kbps 1500kbps
     // 360p (640x360) 30fps 500kbps 1500kbps
-    const streamUdpConn = await this.streamer.createStream({
-      width: 1280,
-      height: 720,
-      fps: 30,
-      bitrateKbps: 1000,
-      maxBitrateKbps: 2500,
-      hardwareAcceleratedDecoding: false,
-      videoCodec: Utils.normalizeVideoCodec('H264'),
-      h26xPreset: 'medium',
-      minimizeLatency: true,
-      rtcpSenderReportEnabled: true,
-      forceChacha20Encryption: true,
-    })
-
-    // const { command, output } = prepareStream(link, {
+    // const streamUdpConn = await this.streamer.createStream({
     //   width: 1280,
     //   height: 720,
-    //   frameRate: 30,
+    //   fps: 30,
+    //   bitrateKbps: 1000,
+    //   maxBitrateKbps: 2500,
+    //   hardwareAcceleratedDecoding: false,
+    //   videoCodec: Utils.normalizeVideoCodec('H264'),
+    //   h26xPreset: 'medium',
+    //   minimizeLatency: true,
+    //   rtcpSenderReportEnabled: true,
+    //   forceChacha20Encryption: true,
     // })
 
-    // current = command
-    // await playStream(output, this.streamer).catch(() => current?.kill('SIGTERM'))
+    const {command, output} = NewApi.prepareStream(link, {
+      width: 1280,
+      height: 720,
+      frameRate: 30,
+      videoCodec: Utils.normalizeVideoCodec('H264'),
 
-    await this.video(link, streamUdpConn)
+    })
 
-    this.streamer.stopStream()
-    this.streamer.leaveVoice()
+    current = command
+    await NewApi.playStream(output, this.streamer).catch(() => current?.kill('SIGTERM'))
+
+    // await this.video(link, streamUdpConn)
+    //
+    // this.streamer.stopStream()
+    // this.streamer.leaveVoice()
 
     return
   }
