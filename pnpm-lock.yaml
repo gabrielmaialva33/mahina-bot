@@ -12,8 +12,8 @@ importers:
         specifier: ^4.15.8
         version: 4.15.8
       '@gabrielmaialva33/discord-video-stream':
-        specifier: ^3.3.0
-        version: 3.3.0(discord.js-selfbot-v13@3.4.6(@discordjs/opus@0.9.0)(opusscript@0.1.1))(sodium-native@3.4.1)
+        specifier: ^3.3.1
+        version: 3.3.1(discord.js-selfbot-v13@3.4.6(@discordjs/opus@0.9.0)(opusscript@0.1.1))(sodium-native@3.4.1)
       '@prisma/client':
         specifier: ^6.1.0
         version: 6.1.0(prisma@6.1.0)
@@ -176,9 +176,9 @@ packages:
   '@chevrotain/utils@11.0.3':
     resolution: {integrity: sha512-YslZMgtJUyuMbZ+aKvfF3x1f5liK4mWNxghFRv7jqRR9C3R3fAOGTTKvxXDa2Y1s9zSbcpuO0cAxDYsc9SrXoQ==}
 
-  '@discordjs/builders@1.9.0':
-    resolution: {integrity: sha512-0zx8DePNVvQibh5ly5kCEei5wtPBIUbSoE9n+91Rlladz4tgtFbJ36PZMxxZrTEOQ7AHMZ/b0crT/0fCy6FTKg==}
-    engines: {node: '>=18'}
+  '@discordjs/builders@1.10.0':
+    resolution: {integrity: sha512-ikVZsZP+3shmVJ5S1oM+7SveUCK3L9fTyfA8aJ7uD9cNQlTqF+3Irbk2Y22KXTb3C3RNUahRkSInClJMkHrINg==}
+    engines: {node: '>=16.11.0'}
 
   '@discordjs/collection@1.5.3':
     resolution: {integrity: sha512-SVb428OMd3WO1paV3rm6tSjM4wC+Kecaa1EUGX7vc6/fddvw/6lg90z4QtCqm21zvVe92vMMDt9+DkIvjXImQQ==}
@@ -191,6 +191,10 @@ packages:
   '@discordjs/formatters@0.5.0':
     resolution: {integrity: sha512-98b3i+Y19RFq1Xke4NkVY46x8KjJQjldHUuEbCqMvp1F5Iq9HgnGpu91jOi/Ufazhty32eRsKnnzS8n4c+L93g==}
     engines: {node: '>=18'}
+
+  '@discordjs/formatters@0.6.0':
+    resolution: {integrity: sha512-YIruKw4UILt/ivO4uISmrGq2GdMY6EkoTtD0oS0GvkJFRZbTSdPhzYiUILbJ/QslsvC9H9nTgGgnarnIl4jMfw==}
+    engines: {node: '>=16.11.0'}
 
   '@discordjs/node-pre-gyp@0.4.5':
     resolution: {integrity: sha512-YJOVVZ545x24mHzANfYoy0BJX5PDyeZlpiJjDkUBM/V/Ao7TFX9lcUvCN4nr0tbr5ubeaXxtEBILUrHtTphVeQ==}
@@ -404,8 +408,8 @@ packages:
     resolution: {integrity: sha512-vBZP4NlzfOlerQTnba4aqZoMhE/a9HY7HRqoOPaETQcSQuWEIyZMHGfVu6w9wGtGK5fED5qRs2DteVCjOH60sA==}
     engines: {node: '>=14'}
 
-  '@gabrielmaialva33/discord-video-stream@3.3.0':
-    resolution: {integrity: sha512-ZHKtSPSNlMwk1jVeHJnpBmbiRi3l60XKjmHHFynRKfadAsK5kxQALIVBhZDHY5v2LW+R6Xrr6EQFdRZPwWFPlA==}
+  '@gabrielmaialva33/discord-video-stream@3.3.1':
+    resolution: {integrity: sha512-6CtjWwr1piTS63qt6I3ibYR9IQRCypfFoFpsv0a9ZhyS52E0OsQYTiqkWT/aYjrgqWn9+AJWshcWFALQ8k5S6A==}
     engines: {node: '>=22.11.0'}
     peerDependencies:
       discord.js-selfbot-v13: 3.x
@@ -3213,12 +3217,12 @@ snapshots:
 
   '@chevrotain/utils@11.0.3': {}
 
-  '@discordjs/builders@1.9.0':
+  '@discordjs/builders@1.10.0':
     dependencies:
-      '@discordjs/formatters': 0.5.0
+      '@discordjs/formatters': 0.6.0
       '@discordjs/util': 1.1.1
       '@sapphire/shapeshift': 4.0.0
-      discord-api-types: 0.37.97
+      discord-api-types: 0.37.114
       fast-deep-equal: 3.1.3
       ts-mixer: 6.0.4
       tslib: 2.8.1
@@ -3230,6 +3234,10 @@ snapshots:
   '@discordjs/formatters@0.5.0':
     dependencies:
       discord-api-types: 0.37.97
+
+  '@discordjs/formatters@0.6.0':
+    dependencies:
+      discord-api-types: 0.37.114
 
   '@discordjs/node-pre-gyp@0.4.5':
     dependencies:
@@ -3415,7 +3423,7 @@ snapshots:
 
   '@fastify/busboy@2.1.1': {}
 
-  '@gabrielmaialva33/discord-video-stream@3.3.0(discord.js-selfbot-v13@3.4.6(@discordjs/opus@0.9.0)(opusscript@0.1.1))(sodium-native@3.4.1)':
+  '@gabrielmaialva33/discord-video-stream@3.3.1(discord.js-selfbot-v13@3.4.6(@discordjs/opus@0.9.0)(opusscript@0.1.1))(sodium-native@3.4.1)':
     dependencies:
       '@libav.js/variant-webcodecs': 6.5.7
       debug-level: 3.2.1
@@ -4253,7 +4261,7 @@ snapshots:
 
   discord.js-selfbot-v13@3.4.6(@discordjs/opus@0.9.0)(opusscript@0.1.1):
     dependencies:
-      '@discordjs/builders': 1.9.0
+      '@discordjs/builders': 1.10.0
       '@discordjs/collection': 1.5.3
       '@sapphire/async-queue': 1.5.5
       '@sapphire/shapeshift': 3.9.7
@@ -4278,7 +4286,7 @@ snapshots:
 
   discord.js@14.16.3:
     dependencies:
-      '@discordjs/builders': 1.9.0
+      '@discordjs/builders': 1.10.0
       '@discordjs/collection': 1.5.3
       '@discordjs/formatters': 0.5.0
       '@discordjs/rest': 2.4.0
