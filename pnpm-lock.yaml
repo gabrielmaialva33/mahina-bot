@@ -46,7 +46,7 @@ importers:
         version: 0.15.1
       lavalink-client:
         specifier: github:tomato6966/lavalink-client
-        version: https://codeload.github.com/tomato6966/lavalink-client/tar.gz/0ff200806ac74ee837a3da7e3dccc315211191dc
+        version: git+https://git@github.com:tomato6966/lavalink-client.git#0ff200806ac74ee837a3da7e3dccc315211191dc
       module-alias:
         specifier: ^2.2.3
         version: 2.2.3
@@ -109,8 +109,8 @@ importers:
         specifier: ^1.4.12
         version: 1.4.12
       '@types/node':
-        specifier: ^22.10.2
-        version: 22.10.2
+        specifier: ^22.10.3
+        version: 22.10.3
       '@types/signale':
         specifier: ^1.4.7
         version: 1.4.7
@@ -682,8 +682,8 @@ packages:
   '@types/node@18.19.68':
     resolution: {integrity: sha512-QGtpFH1vB99ZmTa63K4/FU8twThj4fuVSBkGddTp7uIL/cuoLWIUSL2RcOaigBhfR+hg5pgGkBnkoOxrTVBMKw==}
 
-  '@types/node@22.10.2':
-    resolution: {integrity: sha512-Xxr6BBRCAOQixvonOye19wnzyDiUtTeqldOOmj3CkeblonbccA12PFwlufvRdrpjXxqnmUaeiU5EOA+7s5diUQ==}
+  '@types/node@22.10.3':
+    resolution: {integrity: sha512-DifAyw4BkrufCILvD3ucnuN8eydUfc/C1GlyrnI+LK6543w5/L3VeVgf05o3B4fqSXP1dKYLOZsKfutpxPzZrw==}
 
   '@types/normalize-package-data@2.4.4':
     resolution: {integrity: sha512-37i+OaWTh9qeK4LSHPsyRC7NahnGotNuZvjLSgcPzblpHB3rrCJxAOgI5gCdKm7coonsaX1Of0ILiTcnZjbfxA==}
@@ -1930,8 +1930,8 @@ packages:
   keyv@4.5.4:
     resolution: {integrity: sha512-oxVHkHR/EJf2CNXnWxRLW6mg7JyCCUcG0DtEGmL2ctUo1PNTin1PUil+r/+4r5MpVgC/fn1kjsx7mjSujKqIpw==}
 
-  lavalink-client@https://codeload.github.com/tomato6966/lavalink-client/tar.gz/0ff200806ac74ee837a3da7e3dccc315211191dc:
-    resolution: {tarball: https://codeload.github.com/tomato6966/lavalink-client/tar.gz/0ff200806ac74ee837a3da7e3dccc315211191dc}
+  lavalink-client@git+https://git@github.com:tomato6966/lavalink-client.git#0ff200806ac74ee837a3da7e3dccc315211191dc:
+    resolution: {commit: 0ff200806ac74ee837a3da7e3dccc315211191dc, repo: git@github.com:tomato6966/lavalink-client.git, type: git}
     version: 2.4.3
     engines: {bun: '>=1.0.0', node: '>=18.0.0'}
 
@@ -3631,17 +3631,17 @@ snapshots:
   '@types/body-parser@1.19.5':
     dependencies:
       '@types/connect': 3.4.38
-      '@types/node': 22.10.2
+      '@types/node': 22.10.3
 
   '@types/connect@3.4.38':
     dependencies:
-      '@types/node': 22.10.2
+      '@types/node': 22.10.3
 
   '@types/estree@1.0.6': {}
 
   '@types/express-serve-static-core@5.0.2':
     dependencies:
-      '@types/node': 22.10.2
+      '@types/node': 22.10.3
       '@types/qs': 6.9.17
       '@types/range-parser': 1.2.7
       '@types/send': 0.17.4
@@ -3655,7 +3655,7 @@ snapshots:
 
   '@types/fluent-ffmpeg@2.1.27':
     dependencies:
-      '@types/node': 22.10.2
+      '@types/node': 22.10.3
 
   '@types/http-errors@2.0.4': {}
 
@@ -3671,14 +3671,14 @@ snapshots:
 
   '@types/node-fetch@2.6.12':
     dependencies:
-      '@types/node': 22.10.2
+      '@types/node': 22.10.3
       form-data: 4.0.1
 
   '@types/node@18.19.68':
     dependencies:
       undici-types: 5.26.5
 
-  '@types/node@22.10.2':
+  '@types/node@22.10.3':
     dependencies:
       undici-types: 6.20.0
 
@@ -3693,21 +3693,21 @@ snapshots:
   '@types/send@0.17.4':
     dependencies:
       '@types/mime': 1.3.5
-      '@types/node': 22.10.2
+      '@types/node': 22.10.3
 
   '@types/serve-static@1.15.7':
     dependencies:
       '@types/http-errors': 2.0.4
-      '@types/node': 22.10.2
+      '@types/node': 22.10.3
       '@types/send': 0.17.4
 
   '@types/signale@1.4.7':
     dependencies:
-      '@types/node': 22.10.2
+      '@types/node': 22.10.3
 
   '@types/ws@8.5.13':
     dependencies:
-      '@types/node': 22.10.2
+      '@types/node': 22.10.3
 
   '@typescript-eslint/eslint-plugin@6.21.0(@typescript-eslint/parser@6.21.0(eslint@9.17.0)(typescript@5.7.2))(eslint@9.17.0)(typescript@5.7.2)':
     dependencies:
@@ -5145,7 +5145,7 @@ snapshots:
     dependencies:
       json-buffer: 3.0.1
 
-  lavalink-client@https://codeload.github.com/tomato6966/lavalink-client/tar.gz/0ff200806ac74ee837a3da7e3dccc315211191dc:
+  lavalink-client@git+https://git@github.com:tomato6966/lavalink-client.git#0ff200806ac74ee837a3da7e3dccc315211191dc:
     dependencies:
       tslib: 2.8.1
       ws: 8.18.0
