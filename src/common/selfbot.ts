@@ -1,16 +1,8 @@
-import {Client, StageChannel} from 'discord.js-selfbot-v13'
-import {
-  getInputMetadata,
-  inputHasAudio,
-  MediaUdp, NewApi,
-  Streamer,
-  streamLivestreamVideo,
-  Utils,
-} from '@gabrielmaialva33/discord-video-stream'
+import { Client, StageChannel } from 'discord.js-selfbot-v13'
+import { NewApi, Streamer, Utils } from '@gabrielmaialva33/discord-video-stream'
 import type MahinaBot from '#common/mahina_bot'
-import PCancelable from 'p-cancelable'
 
-let current: ReturnType<typeof NewApi.prepareStream>["command"];
+let current: ReturnType<typeof NewApi.prepareStream>['command']
 
 export default class SelfBot extends Client {
   streamer: Streamer
@@ -27,7 +19,7 @@ export default class SelfBot extends Client {
 
   constructor(mahinaBot1: MahinaBot) {
     super({
-      allowedMentions: {parse: ['users', 'roles'], repliedUser: true},
+      allowedMentions: { parse: ['users', 'roles'], repliedUser: true },
     })
     this.streamer = new Streamer(this)
     this.mahinaBot = mahinaBot1
@@ -116,12 +108,11 @@ export default class SelfBot extends Client {
     //   forceChacha20Encryption: true,
     // })
 
-    const {command, output} = NewApi.prepareStream(link, {
+    const { command, output } = NewApi.prepareStream(link, {
       width: 1280,
       height: 720,
       frameRate: 30,
       videoCodec: Utils.normalizeVideoCodec('H264'),
-
     })
 
     current = command
@@ -135,40 +126,40 @@ export default class SelfBot extends Client {
     return
   }
 
-  async video(video: string, udpConn: MediaUdp) {
-    let includeAudio = true
-
-    try {
-      const metadata = await getInputMetadata(video)
-      console.log('metadata', metadata)
-      includeAudio = inputHasAudio(metadata)
-    } catch (e) {
-      console.log(e)
-      return
-    }
-
-    udpConn.mediaConnection.setSpeaking(true)
-    udpConn.mediaConnection.setVideoStatus(true)
-
-    let command: PCancelable<string>
-    command = streamLivestreamVideo(video, udpConn, includeAudio)
-    try {
-      // this.streamStatus.playing = true
-
-      const res = await command
-      this.mahinaBot.logger.info('finished playing video ' + res)
-    } catch (e) {
-      console.log('error: ', e)
-      if (command.isCanceled) {
-        this.mahinaBot.logger.info('operation was canceled')
-      } else {
-        console.log(e)
-      }
-    } finally {
-      // this.streamStatus.playing = false
-
-      udpConn.mediaConnection.setSpeaking(false)
-      udpConn.mediaConnection.setVideoStatus(false)
-    }
-  }
+  // async video(video: string, udpConn: MediaUdp) {
+  //   let includeAudio = true
+  //
+  //   try {
+  //     const metadata = await getInputMetadata(video)
+  //     console.log('metadata', metadata)
+  //     includeAudio = inputHasAudio(metadata)
+  //   } catch (e) {
+  //     console.log(e)
+  //     return
+  //   }
+  //
+  //   udpConn.mediaConnection.setSpeaking(true)
+  //   udpConn.mediaConnection.setVideoStatus(true)
+  //
+  //   let command: PCancelable<string>
+  //   command = streamLivestreamVideo(video, udpConn, includeAudio)
+  //   try {
+  //     // this.streamStatus.playing = true
+  //
+  //     const res = await command
+  //     this.mahinaBot.logger.info('finished playing video ' + res)
+  //   } catch (e) {
+  //     console.log('error: ', e)
+  //     if (command.isCanceled) {
+  //       this.mahinaBot.logger.info('operation was canceled')
+  //     } else {
+  //       console.log(e)
+  //     }
+  //   } finally {
+  //     // this.streamStatus.playing = false
+  //
+  //     udpConn.mediaConnection.setSpeaking(false)
+  //     udpConn.mediaConnection.setVideoStatus(false)
+  //   }
+  // }
 }
