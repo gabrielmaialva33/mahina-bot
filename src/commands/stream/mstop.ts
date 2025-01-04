@@ -40,6 +40,16 @@ export default class MStop extends Command {
     this.client.selfbot.streamer.stopStream()
     this.client.selfbot.streamer.leaveVoice()
 
-    return ctx.sendMessage(T(locale, 'cmd.mstop.messages.success'))
+    const embed = this.client
+      .embed()
+      .setColor(client.color.main)
+      .setTitle(T(locale, 'cmd.mstop.messages.success'))
+      .setFooter({
+        text: T(locale, 'player.trackStart.requested_by', { user: ctx.author.username }),
+        iconURL: ctx.author.avatarURL() || ctx.author.defaultAvatarURL,
+      })
+      .setTimestamp()
+
+    return ctx.sendMessage({ embeds: [embed] })
   }
 }
