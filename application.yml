@@ -163,7 +163,7 @@ lavalink:
       #retryLimit: -1 # -1 = use default lavaplayer value | 0 = infinity | >0 = retry will happen this numbers times
       #youtubeConfig: # Required for avoiding all age restrictions by YouTube, some restricted videos still can be played without.
       #email: "your account mail" # Email of Google account
-      #password: "your account password" # Password of Google account
+    #password: "your account password" # Password of Google account
     #httpConfig: # Useful for blocking bad-actors from ip-grabbing your music node and attacking it, this way only the http proxy will be attacked
     #proxyHost: "localhost" # Hostname of the proxy, (ip or domain)
     #proxyPort: 3128 # Proxy port, 3128 is the default for squidProxy
