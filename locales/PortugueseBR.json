@@ -563,9 +563,9 @@
       }
     },
     "mstop": {
-      "description": "cmd.mstop.description",
+      "description": "Para a transmissão de vídeo",
       "messages": {
-        "success": "cmd.mstop.messages.success"
+        "success": "Transmissão de vídeo parada."
       }
     }
   },
