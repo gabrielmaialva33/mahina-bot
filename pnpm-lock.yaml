@@ -24,8 +24,8 @@ importers:
         specifier: ^1.7.9
         version: 1.7.9
       discord.js:
-        specifier: ^14.17.2
-        version: 14.17.2
+        specifier: ^14.17.3
+        version: 14.17.3
       discord.js-selfbot-v13:
         specifier: ^3.4.6
         version: 3.4.6(@discordjs/opus@0.9.0)(opusscript@0.1.1)
@@ -46,7 +46,7 @@ importers:
         version: 0.15.1
       lavalink-client:
         specifier: github:tomato6966/lavalink-client
-        version: https://codeload.github.com/tomato6966/lavalink-client/tar.gz/0ff200806ac74ee837a3da7e3dccc315211191dc
+        version: git+https://git@github.com:tomato6966/lavalink-client.git#2d53c446447b38acc1dd4526241f84412d7453b3
       module-alias:
         specifier: ^2.2.3
         version: 2.2.3
@@ -1216,8 +1216,8 @@ packages:
     resolution: {integrity: sha512-qFvco5SQ/h1CxAwVs4Kg2vU1tfiS0WExEwD1Rj15fPpr1p5BmviAM7K+iZsoQ2biflYjn2ALCko/Vl5oFsbjRQ==}
     engines: {node: '>=16.6.0', npm: '>=7.0.0'}
 
-  discord.js@14.17.2:
-    resolution: {integrity: sha512-mrH6ziLVtNtId4bV4bsaUt5jE6NUaiHMPqO5VsSw1VVhFnjFi9duD8ctlo90/6cUH+8uyKBkoq9mSJ35SuuZ7Q==}
+  discord.js@14.17.3:
+    resolution: {integrity: sha512-8/j8udc3CU7dz3Eqch64UaSHoJtUT6IXK4da5ixjbav4NAXJicloWswD/iwn1ImZEMoAV3LscsdO0zhBh6H+0Q==}
     engines: {node: '>=18'}
 
   dom-serializer@0.1.1:
@@ -1895,9 +1895,9 @@ packages:
   keyv@4.5.4:
     resolution: {integrity: sha512-oxVHkHR/EJf2CNXnWxRLW6mg7JyCCUcG0DtEGmL2ctUo1PNTin1PUil+r/+4r5MpVgC/fn1kjsx7mjSujKqIpw==}
 
-  lavalink-client@https://codeload.github.com/tomato6966/lavalink-client/tar.gz/0ff200806ac74ee837a3da7e3dccc315211191dc:
-    resolution: {tarball: https://codeload.github.com/tomato6966/lavalink-client/tar.gz/0ff200806ac74ee837a3da7e3dccc315211191dc}
-    version: 2.4.3
+  lavalink-client@git+https://git@github.com:tomato6966/lavalink-client.git#2d53c446447b38acc1dd4526241f84412d7453b3:
+    resolution: {commit: 2d53c446447b38acc1dd4526241f84412d7453b3, repo: git@github.com:tomato6966/lavalink-client.git, type: git}
+    version: 2.4.4
     engines: {bun: '>=1.0.0', node: '>=18.0.0'}
 
   levn@0.3.0:
@@ -4233,7 +4233,7 @@ snapshots:
       - supports-color
       - utf-8-validate
 
-  discord.js@14.17.2:
+  discord.js@14.17.3:
     dependencies:
       '@discordjs/builders': 1.10.0
       '@discordjs/collection': 1.5.3
@@ -5066,7 +5066,7 @@ snapshots:
     dependencies:
       json-buffer: 3.0.1
 
-  lavalink-client@https://codeload.github.com/tomato6966/lavalink-client/tar.gz/0ff200806ac74ee837a3da7e3dccc315211191dc:
+  lavalink-client@git+https://git@github.com:tomato6966/lavalink-client.git#2d53c446447b38acc1dd4526241f84412d7453b3:
     dependencies:
       tslib: 2.8.1
       ws: 8.18.0
