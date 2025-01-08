@@ -16,7 +16,7 @@ importers:
         version: 3.3.1(discord.js-selfbot-v13@3.4.6(@discordjs/opus@0.9.0)(opusscript@0.1.1))(sodium-native@3.4.1)
       '@prisma/client':
         specifier: ^6.1.0
-        version: 6.1.0(prisma@6.1.0)
+        version: 6.1.0(prisma@6.2.0)
       '@top-gg/sdk':
         specifier: ^3.1.6
         version: 3.1.6
@@ -46,7 +46,7 @@ importers:
         version: 0.15.1
       lavalink-client:
         specifier: github:tomato6966/lavalink-client
-        version: https://codeload.github.com/tomato6966/lavalink-client/tar.gz/0ff200806ac74ee837a3da7e3dccc315211191dc
+        version: git+https://git@github.com:tomato6966/lavalink-client.git#2d53c446447b38acc1dd4526241f84412d7453b3
       module-alias:
         specifier: ^2.2.3
         version: 2.2.3
@@ -124,8 +124,8 @@ importers:
         specifier: ^3.1.9
         version: 3.1.9
       prisma:
-        specifier: ^6.1.0
-        version: 6.1.0
+        specifier: ^6.2.0
+        version: 6.2.0
       tslib:
         specifier: ^2.8.1
         version: 2.8.1
@@ -517,20 +517,20 @@ packages:
       prisma:
         optional: true
 
-  '@prisma/debug@6.1.0':
-    resolution: {integrity: sha512-0himsvcM4DGBTtvXkd2Tggv6sl2JyUYLzEGXXleFY+7Kp6rZeSS3hiTW9mwtUlXrwYbJP6pwlVNB7jYElrjWUg==}
+  '@prisma/debug@6.2.0':
+    resolution: {integrity: sha512-Q96rqZVivmEtt29h1hhALceJTqggHDsr3RAWpeSJZOppQu6vcv5PyiY4XxyTf04gZw4Ue+kkqtaRcRms1zC8aQ==}
 
-  '@prisma/engines-version@6.1.0-21.11f085a2012c0f4778414c8db2651556ee0ef959':
-    resolution: {integrity: sha512-PdJqmYM2Fd8K0weOOtQThWylwjsDlTig+8Pcg47/jszMuLL9iLIaygC3cjWJLda69siRW4STlCTMSgOjZzvKPQ==}
+  '@prisma/engines-version@6.2.0-14.4123509d24aa4dede1e864b46351bf2790323b69':
+    resolution: {integrity: sha512-7tw1qs/9GWSX6qbZs4He09TOTg1ff3gYsB3ubaVNN0Pp1zLm9NC5C5MZShtkz7TyQjx7blhpknB7HwEhlG+PrQ==}
 
-  '@prisma/engines@6.1.0':
-    resolution: {integrity: sha512-GnYJbCiep3Vyr1P/415ReYrgJUjP79fBNc1wCo7NP6Eia0CzL2Ot9vK7Infczv3oK7JLrCcawOSAxFxNFsAERQ==}
+  '@prisma/engines@6.2.0':
+    resolution: {integrity: sha512-Od7fH2gH+4n0E/XIhhAfO3OaKKNRzD0s1LY8umyvDQXlFmiDYF8kNJydcfWLvU3XNNV40wM2T0jOU+4ua1Zp3A==}
 
-  '@prisma/fetch-engine@6.1.0':
-    resolution: {integrity: sha512-asdFi7TvPlEZ8CzSZ/+Du5wZ27q6OJbRSXh+S8ISZguu+S9KtS/gP7NeXceZyb1Jv1SM1S5YfiCv+STDsG6rrg==}
+  '@prisma/fetch-engine@6.2.0':
+    resolution: {integrity: sha512-zz0HmZ2Npsthnh+1cj7aFPRWs57GS4CNlM9uXpVeQm2/YN0LMRNeuI5/zpqRhHrZUXdKde0jltJnvIM1Xz/mPQ==}
 
-  '@prisma/get-platform@6.1.0':
-    resolution: {integrity: sha512-ia8bNjboBoHkmKGGaWtqtlgQOhCi7+f85aOkPJKgNwWvYrT6l78KgojLekE8zMhVk0R9lWcifV0Pf8l3/15V0Q==}
+  '@prisma/get-platform@6.2.0':
+    resolution: {integrity: sha512-Nnk2fcjiRB9E0uRKCMl+EmBC1Vs6kXqaHa2E108pDrEXAgxj0Ns/YQSeZE0o4QJiK5m1PGmImA9/FFUAgCUTHA==}
 
   '@rollup/rollup-android-arm-eabi@4.29.1':
     resolution: {integrity: sha512-ssKhA8RNltTZLpG6/QNkCSge+7mBQGUqJRisZ2MDQcEGaK93QESEgWK2iOpIDZ7k9zPVkG5AS3ksvD5ZWxmItw==}
@@ -1895,9 +1895,9 @@ packages:
   keyv@4.5.4:
     resolution: {integrity: sha512-oxVHkHR/EJf2CNXnWxRLW6mg7JyCCUcG0DtEGmL2ctUo1PNTin1PUil+r/+4r5MpVgC/fn1kjsx7mjSujKqIpw==}
 
-  lavalink-client@https://codeload.github.com/tomato6966/lavalink-client/tar.gz/0ff200806ac74ee837a3da7e3dccc315211191dc:
-    resolution: {tarball: https://codeload.github.com/tomato6966/lavalink-client/tar.gz/0ff200806ac74ee837a3da7e3dccc315211191dc}
-    version: 2.4.3
+  lavalink-client@git+https://git@github.com:tomato6966/lavalink-client.git#2d53c446447b38acc1dd4526241f84412d7453b3:
+    resolution: {commit: 2d53c446447b38acc1dd4526241f84412d7453b3, repo: git@github.com:tomato6966/lavalink-client.git, type: git}
+    version: 2.4.4
     engines: {bun: '>=1.0.0', node: '>=18.0.0'}
 
   levn@0.3.0:
@@ -2430,8 +2430,8 @@ packages:
       opusscript:
         optional: true
 
-  prisma@6.1.0:
-    resolution: {integrity: sha512-aFI3Yi+ApUxkwCJJwyQSwpyzUX7YX3ihzuHNHOyv4GJg3X5tQsmRaJEnZ+ZyfHpMtnyahhmXVfbTZ+lS8ZtfKw==}
+  prisma@6.2.0:
+    resolution: {integrity: sha512-3bnAPqtWXbyA9QEKYEstPcsQMxoQ97rjC0E1OZ+QVKuNNpzRDdIgdCpTVpHvqj/9UaWpqaEiENYqS2At8DtESA==}
     engines: {node: '>=18.18'}
     hasBin: true
 
@@ -3486,30 +3486,30 @@ snapshots:
 
   '@pkgr/core@0.1.1': {}
 
-  '@prisma/client@6.1.0(prisma@6.1.0)':
+  '@prisma/client@6.1.0(prisma@6.2.0)':
     optionalDependencies:
-      prisma: 6.1.0
+      prisma: 6.2.0
 
-  '@prisma/debug@6.1.0': {}
+  '@prisma/debug@6.2.0': {}
 
-  '@prisma/engines-version@6.1.0-21.11f085a2012c0f4778414c8db2651556ee0ef959': {}
+  '@prisma/engines-version@6.2.0-14.4123509d24aa4dede1e864b46351bf2790323b69': {}
 
-  '@prisma/engines@6.1.0':
+  '@prisma/engines@6.2.0':
     dependencies:
-      '@prisma/debug': 6.1.0
-      '@prisma/engines-version': 6.1.0-21.11f085a2012c0f4778414c8db2651556ee0ef959
-      '@prisma/fetch-engine': 6.1.0
-      '@prisma/get-platform': 6.1.0
+      '@prisma/debug': 6.2.0
+      '@prisma/engines-version': 6.2.0-14.4123509d24aa4dede1e864b46351bf2790323b69
+      '@prisma/fetch-engine': 6.2.0
+      '@prisma/get-platform': 6.2.0
 
-  '@prisma/fetch-engine@6.1.0':
+  '@prisma/fetch-engine@6.2.0':
     dependencies:
-      '@prisma/debug': 6.1.0
-      '@prisma/engines-version': 6.1.0-21.11f085a2012c0f4778414c8db2651556ee0ef959
-      '@prisma/get-platform': 6.1.0
+      '@prisma/debug': 6.2.0
+      '@prisma/engines-version': 6.2.0-14.4123509d24aa4dede1e864b46351bf2790323b69
+      '@prisma/get-platform': 6.2.0
 
-  '@prisma/get-platform@6.1.0':
+  '@prisma/get-platform@6.2.0':
     dependencies:
-      '@prisma/debug': 6.1.0
+      '@prisma/debug': 6.2.0
 
   '@rollup/rollup-android-arm-eabi@4.29.1':
     optional: true
@@ -5066,7 +5066,7 @@ snapshots:
     dependencies:
       json-buffer: 3.0.1
 
-  lavalink-client@https://codeload.github.com/tomato6966/lavalink-client/tar.gz/0ff200806ac74ee837a3da7e3dccc315211191dc:
+  lavalink-client@git+https://git@github.com:tomato6966/lavalink-client.git#2d53c446447b38acc1dd4526241f84412d7453b3:
     dependencies:
       tslib: 2.8.1
       ws: 8.18.0
@@ -5535,9 +5535,9 @@ snapshots:
       '@discordjs/opus': 0.9.0
       opusscript: 0.1.1
 
-  prisma@6.1.0:
+  prisma@6.2.0:
     dependencies:
-      '@prisma/engines': 6.1.0
+      '@prisma/engines': 6.2.0
     optionalDependencies:
       fsevents: 2.3.3
 
