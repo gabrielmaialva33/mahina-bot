@@ -4,14 +4,14 @@ import {
   ButtonBuilder,
   ButtonStyle,
   CommandInteraction,
+  Message,
   type TextChannel,
 } from 'discord.js'
-
-import type MahinaBot from '#common/mahina_bot'
 import type Context from '#common/context'
+import MahinaBot from '#common/mahina_bot'
 
 export class Utils {
-  static formatTime(ms: number): string {
+  public static formatTime(ms: number): string {
     const minuteMs = 60 * 1000
     const hourMs = 60 * minuteMs
     const dayMs = 24 * hourMs
@@ -21,7 +21,7 @@ export class Utils {
     return `${Math.floor(ms / dayMs)}d ${Math.floor((ms % dayMs) / hourMs)}h`
   }
 
-  static updateStatus(client: MahinaBot, guildId?: string): void {
+  public static updateStatus(client: MahinaBot, guildId?: string): void {
     const { user } = client
     if (user && client.env.GUILD_ID && guildId === client.env.GUILD_ID) {
       const player = client.manager.getPlayer(client.env.GUILD_ID)
@@ -39,15 +39,16 @@ export class Utils {
     }
   }
 
-  static chunk(array: any[], size: number) {
-    const chunkedArr: any[][] = []
+  public static chunk(array: any[], size: number) {
+    // eslint-disable-next-line @typescript-eslint/naming-convention
+    const chunked_arr: any[][] = []
     for (let index = 0; index < array.length; index += size) {
-      chunkedArr.push(array.slice(index, size + index))
+      chunked_arr.push(array.slice(index, size + index))
     }
-    return chunkedArr
+    return chunked_arr
   }
 
-  static formatBytes(bytes: number, decimals = 2): string {
+  public static formatBytes(bytes: number, decimals = 2): string {
     if (bytes === 0) return '0 Bytes'
     const k = 1024
     const dm = decimals < 0 ? 0 : decimals
@@ -56,12 +57,12 @@ export class Utils {
     return `${Number.parseFloat((bytes / k ** i).toFixed(dm))} ${sizes[i]}`
   }
 
-  static formatNumber(number: number): string {
+  public static formatNumber(number: number): string {
     return number.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')
   }
 
-  static parseTime(string: string): number {
-    const time = string.match(/([0-9]+[d,h,m,s])/g)
+  public static parseTime(string: string): number {
+    const time = string.match(/(\d+[dhms])/g)
     if (!time) return 0
     let ms = 0
     for (const t of time) {
@@ -75,7 +76,7 @@ export class Utils {
     return ms
   }
 
-  static progressBar(current: number, total: number, size = 20): string {
+  public static progressBar(current: number, total: number, size = 20): string {
     const percent = Math.round((current / total) * 100)
     const filledSize = Math.round((size * current) / total)
     const filledBar = '▓'.repeat(filledSize)
@@ -83,7 +84,7 @@ export class Utils {
     return `${filledBar}${emptyBar} ${percent}%`
   }
 
-  static async paginate(client: MahinaBot, ctx: Context, embed: any[]): Promise<void> {
+  public static async paginate(client: MahinaBot, ctx: Context, embed: any[]): Promise<void> {
     if (embed.length < 2) {
       if (ctx.isInteraction) {
         ctx.deferred
@@ -91,15 +92,17 @@ export class Utils {
           : ctx.interaction?.reply({ embeds: embed })
         return
       }
+
       ;(ctx.channel as TextChannel).send({ embeds: embed })
       return
     }
 
     let page = 0
-    const getButton = (p: number): any => {
-      const firstEmbed = p === 0
-      const lastEmbed = p === embed.length - 1
-      const pageEmbed = embed[p]
+    // eslint-disable-next-line @typescript-eslint/no-shadow
+    const getButton = (page: number): any => {
+      const firstEmbed = page === 0
+      const lastEmbed = page === embed.length - 1
+      const pageEmbed = embed[page]
       const first = new ButtonBuilder()
         .setCustomId('first')
         .setEmoji(client.emoji.page.first)
@@ -129,17 +132,25 @@ export class Utils {
     }
 
     const msgOptions = getButton(0)
-    const msg = ctx.isInteraction
-      ? await (ctx.deferred
-          ? ctx.interaction!.followUp({
-              ...msgOptions,
-              fetchReply: true as boolean,
-            })
-          : ctx.interaction!.reply({ ...msgOptions, fetchReply: true }))
-      : await (ctx.channel as TextChannel).send({
+    let msg: Message
+    if (ctx.isInteraction) {
+      if (ctx.deferred) {
+        msg = await ctx.interaction!.followUp({
           ...msgOptions,
           fetchReply: true,
         })
+      } else {
+        msg = (await ctx.interaction!.reply({
+          ...msgOptions,
+          fetchReply: true,
+        })) as unknown as Message
+      }
+    } else {
+      msg = await (ctx.channel as TextChannel).send({
+        ...msgOptions,
+        fetchReply: true,
+      })
+    }
 
     const author = ctx instanceof CommandInteraction ? ctx.user : ctx.author
 
