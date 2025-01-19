@@ -37,11 +37,8 @@ export default class SelfBot extends Client {
     member: any,
     link: string,
     movieName: string = 'no name',
-    audioTrack?: number
+    audioTrack: number = 0
   ) {
-    this.streamer.leaveVoice()
-    this.streamer.stopStream()
-
     // Join the specified voice channel
     await this.streamer.joinVoice(guildId, member.voice.channelId)
 
@@ -51,25 +48,23 @@ export default class SelfBot extends Client {
     }
     this.updateStatus(`🎥 ${movieName} 🍷`)
 
+    console.log('audioTrack:', audioTrack)
     // Prepare the FFmpeg command
     const { command, output } = NewApi.prepareStream(link, {
       width: 1280,
       height: 720,
       frameRate: 30,
       videoCodec: Utils.normalizeVideoCodec('H264'),
+      audioTrack: audioTrack,
     })
-
-    // If user provides an audio track index, map the first video track and the specified audio track.
-    // The default is often 0 for the first audio, 1 for the second audio, and so on.
-    if (typeof audioTrack === 'number') {
-      command.addOutputOption('-map', '0:v:0') // Map video track 0
-      command.addOutputOption('-map', `0:a:${audioTrack}`) // Map the chosen audio track
-    }
 
     current = command
 
     // Play the stream (this method handles demuxing and streaming to Discord)
-    await NewApi.playStream(output, this.streamer).catch(() => current?.kill('SIGTERM'))
+    await NewApi.playStream(output, this.streamer).catch((error) => {
+      console.error('Error playing stream:', error)
+      current?.kill('SIGTERM')
+    })
 
     // Optionally, leave the voice channel once playback is done
     this.streamer.leaveVoice()
