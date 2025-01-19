@@ -25,7 +25,24 @@ export default class SelfBot extends Client {
     await this.streamer.client.login(token).catch(console.error)
   }
 
-  async play(guildId: string, member: any, link: string, movieName: string = '') {
+  /**
+   * @param guildId  The guild ID where the user is streaming.
+   * @param member   The guild member initiating the stream.
+   * @param link     The file path or URL of the video.
+   * @param movieName  (Optional) Name of the movie being streamed.
+   * @param audioTrack  (Optional) Numeric index of the desired audio track (e.g., 0 or 1).
+   */
+  async play(
+    guildId: string,
+    member: any,
+    link: string,
+    movieName: string = 'no name',
+    audioTrack?: number
+  ) {
+    this.streamer.leaveVoice()
+    this.streamer.stopStream()
+
+    // Join the specified voice channel
     await this.streamer.joinVoice(guildId, member.voice.channelId)
 
     const channel = member.voice.channel
@@ -34,6 +51,7 @@ export default class SelfBot extends Client {
     }
     this.updateStatus(`🎥 ${movieName} 🍷`)
 
+    // Prepare the FFmpeg command
     const { command, output } = NewApi.prepareStream(link, {
       width: 1280,
       height: 720,
@@ -41,12 +59,22 @@ export default class SelfBot extends Client {
       videoCodec: Utils.normalizeVideoCodec('H264'),
     })
 
+    // If user provides an audio track index, map the first video track and the specified audio track.
+    // The default is often 0 for the first audio, 1 for the second audio, and so on.
+    if (typeof audioTrack === 'number') {
+      command.addOutputOption('-map', '0:v:0') // Map video track 0
+      command.addOutputOption('-map', `0:a:${audioTrack}`) // Map the chosen audio track
+    }
+
     current = command
 
+    // Play the stream (this method handles demuxing and streaming to Discord)
     await NewApi.playStream(output, this.streamer).catch(() => current?.kill('SIGTERM'))
 
+    // Optionally, leave the voice channel once playback is done
     this.streamer.leaveVoice()
 
+    // Reset status
     this.updateStatus('🎥 𝘾𝙡𝙪𝙗𝙚 𝘽𝙖𝙠𝙠𝙤 🍷')
   }
 
