@@ -10,6 +10,7 @@ import Context from '#common/context'
 import { T } from '#common/i18n'
 
 import { env } from '#src/env'
+import { ApplicationCommandOptionType } from 'discord.js'
 
 const youtubedl = create(env.YTDL_BIN_PATH)
 
@@ -54,7 +55,7 @@ export default class VPlay extends Command {
         {
           name: 'url',
           description: 'cmd.vplay.options.url',
-          type: 1,
+          type: ApplicationCommandOptionType.String,
           required: true,
         },
       ],

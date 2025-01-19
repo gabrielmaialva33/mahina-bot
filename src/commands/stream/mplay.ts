@@ -5,6 +5,7 @@ import Command from '#common/command'
 import MahinaBot from '#common/mahina_bot'
 import Context from '#common/context'
 import { T } from '#common/i18n'
+import { ApplicationCommandOptionType } from 'discord.js'
 
 export default class MPlay extends Command {
   constructor(client: MahinaBot) {
@@ -35,14 +36,14 @@ export default class MPlay extends Command {
         {
           name: 'movie',
           description: 'cmd.mplay.options.movie',
-          type: 1,
+          type: ApplicationCommandOptionType.String,
           required: true,
         },
         {
-          name: 'audioTrack',
+          name: 'audio',
           description: 'cmd.mplay.options.audioTrack',
-          type: 4,
-          required: true,
+          type: ApplicationCommandOptionType.Integer,
+          required: false,
         },
       ],
     })
