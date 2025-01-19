@@ -48,7 +48,6 @@ export default class SelfBot extends Client {
     }
     this.updateStatus(`🎥 ${movieName} 🍷`)
 
-    console.log('audioTrack:', audioTrack)
     // Prepare the FFmpeg command
     const { command, output } = NewApi.prepareStream(link, {
       width: 1280,
