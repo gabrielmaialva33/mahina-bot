@@ -13,7 +13,6 @@ import MahinaBot from '#common/mahina_bot'
 import Context from '#common/context'
 
 import moment from 'moment'
-import path from 'node:path'
 
 import { FileResponse, SearchDataResponse, SearchResponse } from '#src/platforms/animezey'
 
@@ -54,6 +53,12 @@ export default class MSearch extends Command {
           type: ApplicationCommandOptionType.String,
           required: true,
         },
+        {
+          name: 'audio',
+          description: 'cmd.mplay.options.audioTrack',
+          type: ApplicationCommandOptionType.Integer,
+          required: false,
+        },
       ],
     })
   }
@@ -62,6 +67,7 @@ export default class MSearch extends Command {
     if (!ctx.channel || !ctx.guild || !ctx.member || !ctx.author) return
 
     const search = args.join(' ').trim()
+    const audioTrack = args[1] ? Number.parseInt(args[1], 10) : 0
 
     const cache: Cache = { pages: [], nextPageTokens: [] }
 
@@ -115,15 +121,6 @@ export default class MSearch extends Command {
       embed
         .setDescription(
           paginatedData
-            // .map(
-            //   (video, index) => `
-            //   **Número**: ${emojiNumbers[index]}
-            //   **Nome**: ${video.name}
-            //   **Tamanho**: ${(Number.parseInt(video.size) / 1024 / 1024 / 1024).toFixed(2)} GB
-            //   **Data de Modificação**: ${moment(video.modifiedTime).format('DD/MM/YYYY HH:mm:ss')}
-            //   **Link**: [Download](${client.animezey.BASE_URL + video.link})
-            //   `
-            // )
             .map(
               (video, index) => `
               **Número**: ${emojiNumbers[index]}
@@ -186,7 +183,7 @@ export default class MSearch extends Command {
       for (let i = 0; i < Math.min(itemsPerPage, totalItems - startIndex); i++) {
         downloadRow.addComponents(
           new ButtonBuilder()
-            .setCustomId(`download_${i + 1}`)
+            .setCustomId(`play_${i + 1}`)
             .setLabel(`Assistir ${emojiNumbers[i]}`)
             .setStyle(ButtonStyle.Success)
         )
@@ -276,7 +273,7 @@ export default class MSearch extends Command {
       for (let i = 0; i < Math.min(5, totalItems); i++) {
         initialDownloadRow.addComponents(
           new ButtonBuilder()
-            .setCustomId(`download_${i + 1}`)
+            .setCustomId(`play_${i + 1}`)
             .setLabel(`Assistir ${emojiNumbers[i]}`)
             .setStyle(ButtonStyle.Success)
         )
@@ -308,26 +305,25 @@ export default class MSearch extends Command {
         let currentItemPageIndex = initialItemPageIndex
 
         collector.on('collect', async (cInteraction: ModalMessageModalSubmitInteraction) => {
-          if (cInteraction.customId.startsWith('download_')) {
-            const downloadIndex = Number.parseInt(cInteraction.customId.split('_')[1], 10) - 1
+          if (cInteraction.customId.startsWith('play_')) {
+            const playIndex = Number.parseInt(cInteraction.customId.split('_')[1], 10) - 1
             const startIndex = currentItemPageIndex * 5
-            const file = cache.pages[currentPageIndex].files[startIndex + downloadIndex]
+            const file = cache.pages[currentPageIndex].files[startIndex + playIndex]
 
             const embed = new EmbedBuilder()
-              .setTitle(`**__Download Iniciado__**: ${file.name}`)
-              .setDescription(`O vídeo será reproduzido em 30 segundos`)
+              .setTitle(`**__Assistindo__**: ${file.name}`)
+              .setDescription(`O vídeo será reproduzido em instantes`)
               .setColor(client.color.yellow)
 
-            await cInteraction.reply({ embeds: [embed] })
+            await cInteraction.reply({ embeds: [embed], fetchReply: true })
 
-            this.client.animezey.download(file.name, file.link)
-
-            await new Promise((resolve) => setTimeout(resolve, 30000))
-
-            const sanitizedFileName = file.name.replace(/[\/\?<>\\:\*\|":]/g, '_')
-
-            const filePath = path.join(process.cwd(), 'downloads', sanitizedFileName)
-            await client.selfbot.play(ctx.guild.id, ctx.member, filePath, sanitizedFileName)
+            await client.selfbot.play(
+              ctx.guild.id,
+              ctx.member,
+              client.animezey.BASE_URL + file.link,
+              file.name,
+              audioTrack
+            )
 
             embed.setAuthor({ name: 'Live Stream', iconURL: this.client.config.links.live })
             embed.setTitle(`${file.name}`)
