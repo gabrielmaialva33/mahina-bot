@@ -4,7 +4,6 @@ import path from 'node:path'
 import Command from '#common/command'
 import MahinaBot from '#common/mahina_bot'
 import Context from '#common/context'
-
 import { T } from '#common/i18n'
 
 export default class MPlay extends Command {
@@ -13,7 +12,7 @@ export default class MPlay extends Command {
       name: 'mplay',
       description: {
         content: 'cmd.mplay.description',
-        examples: ['mplay <movie name>', 'mplay Frozen'],
+        examples: ['mplay <movie name>', 'mplay Frozen', 'mplay Frozen 1'], // 1 to select audio track index 1
         usage: 'mplay',
       },
       category: 'stream',
@@ -39,6 +38,12 @@ export default class MPlay extends Command {
           type: 1,
           required: true,
         },
+        {
+          name: 'audioTrack',
+          description: 'cmd.mplay.options.audioTrack',
+          type: 4,
+          required: true,
+        },
       ],
     })
   }
@@ -48,7 +53,10 @@ export default class MPlay extends Command {
     const locale = await client.db.getLanguage(ctx.guild.id)
 
     const downloadsFiles = fs.readdirSync(path.join(process.cwd(), 'downloads'))
-    if (downloadsFiles.length === 0) await ctx.sendMessage('cmd.mlist.messages.no_movies')
+    if (downloadsFiles.length === 0) {
+      await ctx.sendMessage('cmd.mlist.messages.no_movies')
+      return
+    }
 
     let videos = downloadsFiles
       .map((file) => {
@@ -58,12 +66,20 @@ export default class MPlay extends Command {
           path: path.join(process.cwd(), 'downloads', file),
         }
       })
-      .filter((movie) => movie !== undefined)
+      .filter((movie) => movie !== undefined && movie.name !== '.gitkeep')
 
-    videos = videos.filter((movie) => movie!.name !== '.gitkeep')
+    const movieName = args.shift()
+    if (!movieName) {
+      await ctx.sendMessage('Please specify a movie name.')
+      return
+    }
 
-    let movieName = args.shift()
-    let movie = videos.find((m) => m!.name === movieName)
+    const audioTrackArg = args.shift()
+    const audioTrack = audioTrackArg ? Number.parseInt(audioTrackArg, 10) : undefined
+
+    console.log('audioTrack', audioTrack)
+
+    const movie = videos.find((m) => m!.name === movieName)
     if (!movie) {
       await ctx.sendMessage(T(locale, 'cmd.mplay.errors.movie_not_found'))
       return
@@ -83,6 +99,6 @@ export default class MPlay extends Command {
 
     await ctx.editMessage({ content: '', embeds: [embed] })
 
-    await client.selfbot.play(ctx.guild.id, ctx.member, movie!.path, movieName)
+    await client.selfbot.play(ctx.guild.id, ctx.member, movie!.path, movieName, audioTrack)
   }
 }
