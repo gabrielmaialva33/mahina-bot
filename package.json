@@ -1,6 +1,6 @@
 {
   "name": "mahina-bot",
-  "version": "3.0.5",
+  "version": "3.0.6",
   "description": "MahinaBot is a music bot for Discord, written in Typescript, using Lavalink as the audio player.",
   "repository": {
     "type": "git",
