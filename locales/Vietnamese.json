@@ -513,7 +513,8 @@
 		"mplay": {
 			"description": "cmd.mplay.description",
 			"options": {
-				"movie": "cmd.mplay.options.movie"
+				"movie": "cmd.mplay.options.movie",
+				"audioTrack": "cmd.mplay.options.audioTrack"
 			}
 		},
 		"msearch": {
