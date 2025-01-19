@@ -78,8 +78,6 @@ export default class MPlay extends Command {
     const audioTrackArg = args.shift()
     const audioTrack = audioTrackArg ? Number.parseInt(audioTrackArg, 10) : undefined
 
-    console.log('audioTrack', audioTrack)
-
     const movie = videos.find((m) => m!.name === movieName)
     if (!movie) {
       await ctx.sendMessage(T(locale, 'cmd.mplay.errors.movie_not_found'))
