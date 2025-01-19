@@ -44,11 +44,26 @@ export default class SelfBot extends Client {
     current = command
 
     await NewApi.playStream(output, this.streamer).catch(() => current?.kill('SIGTERM'))
+
+    this.streamer.leaveVoice()
+
+    this.updateStatus('🎥 𝘾𝙡𝙪𝙗𝙚 𝘽𝙖𝙠𝙠𝙤 🍷')
+  }
+
+  pauseStream(): void {
+    if (current) {
+      current.kill('SIGSTOP')
+    }
+  }
+
+  resumeStream(): void {
+    if (current) {
+      current.kill('SIGCONT')
+    }
   }
 
   private updateStatus(status: string): void {
     if (this.streamer.client.user) {
-      console.log('status', status)
       this.streamer.client.user.setActivity({
         name: status,
         type: 'WATCHING',
