@@ -1,6 +1,7 @@
 import Command from '#common/command'
 import type MahinaBot from '#common/mahina_bot'
 import type Context from '#common/context'
+import { ApplicationCommandOptionType } from 'discord.js'
 
 export default class Dj extends Command {
   constructor(client: MahinaBot) {
@@ -32,38 +33,38 @@ export default class Dj extends Command {
         {
           name: 'add',
           description: 'cmd.dj.options.add',
-          type: 1,
+          type: ApplicationCommandOptionType.Subcommand,
           options: [
             {
               name: 'role',
               description: 'cmd.dj.options.role',
-              type: 8,
-              required: true,
+              type: ApplicationCommandOptionType.Role,
+              required: false,
             },
           ],
         },
         {
           name: 'remove',
           description: 'cmd.dj.options.remove',
-          type: 1,
+          type: ApplicationCommandOptionType.Subcommand,
           options: [
             {
               name: 'role',
               description: 'cmd.dj.options.role',
-              type: 8,
-              required: true,
+              type: ApplicationCommandOptionType.Role,
+              required: false,
             },
           ],
         },
         {
           name: 'clear',
           description: 'cmd.dj.options.clear',
-          type: 1,
+          type: ApplicationCommandOptionType.Subcommand,
         },
         {
           name: 'toggle',
           description: 'cmd.dj.options.toggle',
-          type: 1,
+          type: ApplicationCommandOptionType.Subcommand,
         },
       ],
     })

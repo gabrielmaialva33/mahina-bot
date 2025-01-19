@@ -1,4 +1,4 @@
-import type { AutocompleteInteraction } from 'discord.js'
+import { ApplicationCommandOptionType, AutocompleteInteraction } from 'discord.js'
 
 import Command from '#common/command'
 import type MahinaBot from '#common/mahina_bot'
@@ -37,13 +37,13 @@ export default class LanguageCommand extends Command {
         {
           name: 'set',
           description: 'cmd.language.options.set',
-          type: 1,
+          type: ApplicationCommandOptionType.Subcommand,
           options: [
             {
               name: 'language',
               description: 'cmd.language.options.language',
-              type: 3,
-              required: true,
+              type: ApplicationCommandOptionType.String,
+              required: false,
               autocomplete: true,
             },
           ],
@@ -51,7 +51,7 @@ export default class LanguageCommand extends Command {
         {
           name: 'reset',
           description: 'cmd.language.options.reset',
-          type: 1,
+          type: ApplicationCommandOptionType.Subcommand,
         },
       ],
     })
