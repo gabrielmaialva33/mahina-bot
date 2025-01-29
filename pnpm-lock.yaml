@@ -15,8 +15,8 @@ importers:
         specifier: ^3.3.3
         version: 3.3.3(bufferutil@4.0.9)(discord.js-selfbot-v13@3.5.1(@discordjs/opus@0.10.0)(bufferutil@4.0.9)(opusscript@0.1.1)(utf-8-validate@5.0.10))(sodium-native@3.4.1)(utf-8-validate@5.0.10)
       '@prisma/client':
-        specifier: ^6.2.1
-        version: 6.2.1(prisma@6.2.1)
+        specifier: ^6.3.0
+        version: 6.3.0(prisma@6.2.1)(typescript@5.7.3)
       '@top-gg/sdk':
         specifier: ^3.1.6
         version: 3.1.6
@@ -49,7 +49,7 @@ importers:
         version: 0.15.1
       lavalink-client:
         specifier: github:tomato6966/lavalink-client
-        version: https://codeload.github.com/tomato6966/lavalink-client/tar.gz/db891fa3182f980f26364ecee14d19b8a8a2e0df(bufferutil@4.0.9)(utf-8-validate@5.0.10)
+        version: git+https://git@github.com:tomato6966/lavalink-client.git#db891fa3182f980f26364ecee14d19b8a8a2e0df(bufferutil@4.0.9)(utf-8-validate@5.0.10)
       module-alias:
         specifier: ^2.2.3
         version: 2.2.3
@@ -523,13 +523,16 @@ packages:
     resolution: {integrity: sha512-cq8o4cWH0ibXh9VGi5P20Tu9XF/0fFXl9EUinr9QfTM7a7p0oTA4iJRCQWppXR1Pg8dSM0UCItCkPwsk9qWWYA==}
     engines: {node: ^12.20.0 || ^14.18.0 || >=16.0.0}
 
-  '@prisma/client@6.2.1':
-    resolution: {integrity: sha512-msKY2iRLISN8t5X0Tj7hU0UWet1u0KuxSPHWuf3IRkB4J95mCvGpyQBfQ6ufcmvKNOMQSq90O2iUmJEN2e5fiA==}
+  '@prisma/client@6.3.0':
+    resolution: {integrity: sha512-BY3Fi28PUSk447Bpv22LhZp4HgNPo7NsEN+EteM1CLDnLjig5863jpW+3c3HHLFmml+nB/eJv1CjSriFZ8z7Cg==}
     engines: {node: '>=18.18'}
     peerDependencies:
       prisma: '*'
+      typescript: '>=5.1.0'
     peerDependenciesMeta:
       prisma:
+        optional: true
+      typescript:
         optional: true
 
   '@prisma/debug@6.2.1':
@@ -714,6 +717,9 @@ packages:
 
   '@types/node@22.10.10':
     resolution: {integrity: sha512-X47y/mPNzxviAGY5TcYPtYL8JsY3kAq2n8fMmKoRCxq/c4v4pyGNCzM2R6+M5/umG4ZfHuT+sgqDYqWc9rJ6ww==}
+
+  '@types/node@22.12.0':
+    resolution: {integrity: sha512-Fll2FZ1riMjNmlmJOdAyY5pUbkftXslB5DgEzlIuNaiWhXd00FhWxVC/r4yV/4wBb9JfImTu+jiSvXTkJ7F/gA==}
 
   '@types/normalize-package-data@2.4.4':
     resolution: {integrity: sha512-37i+OaWTh9qeK4LSHPsyRC7NahnGotNuZvjLSgcPzblpHB3rrCJxAOgI5gCdKm7coonsaX1Of0ILiTcnZjbfxA==}
@@ -2213,8 +2219,8 @@ packages:
   keyv@4.5.4:
     resolution: {integrity: sha512-oxVHkHR/EJf2CNXnWxRLW6mg7JyCCUcG0DtEGmL2ctUo1PNTin1PUil+r/+4r5MpVgC/fn1kjsx7mjSujKqIpw==}
 
-  lavalink-client@https://codeload.github.com/tomato6966/lavalink-client/tar.gz/db891fa3182f980f26364ecee14d19b8a8a2e0df:
-    resolution: {tarball: https://codeload.github.com/tomato6966/lavalink-client/tar.gz/db891fa3182f980f26364ecee14d19b8a8a2e0df}
+  lavalink-client@git+https://git@github.com:tomato6966/lavalink-client.git#db891fa3182f980f26364ecee14d19b8a8a2e0df:
+    resolution: {commit: db891fa3182f980f26364ecee14d19b8a8a2e0df, repo: git@github.com:tomato6966/lavalink-client.git, type: git}
     version: 2.4.6
     engines: {bun: '>=1.1.27', node: '>=18.0.0'}
 
@@ -4075,9 +4081,10 @@ snapshots:
 
   '@pkgr/core@0.1.1': {}
 
-  '@prisma/client@6.2.1(prisma@6.2.1)':
+  '@prisma/client@6.3.0(prisma@6.2.1)(typescript@5.7.3)':
     optionalDependencies:
       prisma: 6.2.1
+      typescript: 5.7.3
 
   '@prisma/debug@6.2.1': {}
 
@@ -4247,6 +4254,10 @@ snapshots:
       undici-types: 5.26.5
 
   '@types/node@22.10.10':
+    dependencies:
+      undici-types: 6.20.0
+
+  '@types/node@22.12.0':
     dependencies:
       undici-types: 6.20.0
 
@@ -5991,7 +6002,7 @@ snapshots:
 
   jest-worker@27.5.1:
     dependencies:
-      '@types/node': 22.10.10
+      '@types/node': 22.12.0
       merge-stream: 2.0.0
       supports-color: 8.1.1
 
@@ -6067,7 +6078,7 @@ snapshots:
     dependencies:
       json-buffer: 3.0.1
 
-  lavalink-client@https://codeload.github.com/tomato6966/lavalink-client/tar.gz/db891fa3182f980f26364ecee14d19b8a8a2e0df(bufferutil@4.0.9)(utf-8-validate@5.0.10):
+  lavalink-client@git+https://git@github.com:tomato6966/lavalink-client.git#db891fa3182f980f26364ecee14d19b8a8a2e0df(bufferutil@4.0.9)(utf-8-validate@5.0.10):
     dependencies:
       tslib: 2.8.1
       ws: 8.18.0(bufferutil@4.0.9)(utf-8-validate@5.0.10)
