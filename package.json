@@ -85,7 +85,7 @@
   "dependencies": {
     "@distube/ytdl-core": "^4.16.0",
     "@gabrielmaialva33/discord-video-stream": "^3.3.5",
-    "@prisma/client": "^6.3.0",
+    "@prisma/client": "^6.3.1",
     "@top-gg/sdk": "^3.1.6",
     "axios": "^1.7.9",
     "crypto-browserify": "^3.12.1",
