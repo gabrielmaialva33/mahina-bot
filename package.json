@@ -109,7 +109,7 @@
     "telegram": "^2.26.16",
     "topgg-autoposter": "^2.0.2",
     "undici": "^7.3.0",
-    "youtube-dl-exec": "^3.0.13",
+    "youtube-dl-exec": "^3.0.15",
     "zod": "^3.24.1"
   },
   "signale": {
