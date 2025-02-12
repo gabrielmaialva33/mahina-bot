@@ -83,7 +83,7 @@
     "typescript": "^5.7.3"
   },
   "dependencies": {
-    "@distube/ytdl-core": "^4.16.0",
+    "@distube/ytdl-core": "^4.16.3",
     "@gabrielmaialva33/discord-video-stream": "^3.3.5",
     "@prisma/client": "^6.3.0",
     "@top-gg/sdk": "^3.1.6",
