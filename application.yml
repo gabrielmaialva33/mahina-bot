@@ -98,8 +98,8 @@ plugins:
       - "ytsearch:%QUERY%" # Will be used if track has no ISRC or no track could be found for the ISRC
     #        you can add multiple other fallback sources here
     sources:
-      spotify: false # Enable Spotify source
-      applemusic: false # Enable Apple Music source
+      spotify: true # Enable Spotify source
+      applemusic: true # Enable Apple Music source
       deezer: false # Enable Deezer source
       yandexmusic: false # Enable Yandex Music source
       flowerytts: false # Enable Flowery TTS source
@@ -115,7 +115,7 @@ plugins:
       clientId: '530a978df3084f8b916e3f512a8c8bb1'
       clientSecret: '8a82bc47253a43beac406e0618297132'
       # spDc: "your sp dc cookie" # the sp dc cookie used for accessing the spotify lyrics api
-      countryCode: "US" # the country code you want to use for filtering the artists top tracks. See https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2
+      countryCode: "BR" # the country code you want to use for filtering the artists top tracks. See https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2
       playlistLoadLimit: 6 # The number of pages at 100 tracks each
       albumLoadLimit: 6 # The number of pages at 50 tracks each
       resolveArtistsInSearch: true # Whether to resolve artists in track search results (can be slow)
