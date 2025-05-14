@@ -65,6 +65,9 @@ importers:
       openai:
         specifier: ^4.98.0
         version: 4.98.0(ws@8.18.2(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.24.4)
+      optional:
+        specifier: ^0.1.4
+        version: 0.1.4
       p-cancelable:
         specifier: ^4.0.1
         version: 4.0.1
@@ -74,6 +77,9 @@ importers:
       rimraf:
         specifier: ^6.0.1
         version: 6.0.1
+      sharp:
+        specifier: ^0.34.1
+        version: 0.34.1
       signale:
         specifier: ^1.4.0
         version: 1.4.0
@@ -2796,6 +2802,9 @@ packages:
         optional: true
       zod:
         optional: true
+
+  optional@0.1.4:
+    resolution: {integrity: sha512-gtvrrCfkE08wKcgXaVwQVgwEQ8vel2dc5DDBn9RLQZ3YtmtkBss6A2HY6BnJH4N/4Ku97Ri/SF8sNWE2225WJw==}
 
   optionator@0.8.3:
     resolution: {integrity: sha512-+IW9pACdk3XWmmTXG8m3upGUJst5XRGzxMRjXzAuJ1XnIFNvfhjjIuYkDvysnPQ7qzqVzLt78BCruntqRhWQbA==}
@@ -6873,6 +6882,8 @@ snapshots:
       zod: 3.24.4
     transitivePeerDependencies:
       - encoding
+
+  optional@0.1.4: {}
 
   optionator@0.8.3:
     dependencies:
