@@ -12,8 +12,8 @@ importers:
         specifier: ^4.16.10
         version: 4.16.10
       '@gabrielmaialva33/discord-video-stream':
-        specifier: ^3.3.6
-        version: 3.3.6(bufferutil@4.0.9)(discord.js-selfbot-v13@3.6.1(@discordjs/opus@0.10.0)(bufferutil@4.0.9)(opusscript@0.1.1)(utf-8-validate@5.0.10))(sodium-native@3.4.1)(utf-8-validate@5.0.10)
+        specifier: ^3.3.7
+        version: 3.3.7(bufferutil@4.0.9)(discord.js-selfbot-v13@3.6.1(@discordjs/opus@0.10.0)(bufferutil@4.0.9)(opusscript@0.1.1)(utf-8-validate@5.0.10))(sodium-native@3.4.1)(utf-8-validate@5.0.10)
       '@prisma/client':
         specifier: ^6.7.0
         version: 6.7.0(prisma@6.7.0(typescript@5.8.3))(typescript@5.8.3)
@@ -65,9 +65,6 @@ importers:
       openai:
         specifier: ^4.98.0
         version: 4.98.0(ws@8.18.2(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.24.4)
-      optional:
-        specifier: ^0.1.4
-        version: 0.1.4
       p-cancelable:
         specifier: ^4.0.1
         version: 4.0.1
@@ -77,9 +74,6 @@ importers:
       rimraf:
         specifier: ^6.0.1
         version: 6.0.1
-      sharp:
-        specifier: ^0.34.1
-        version: 0.34.1
       signale:
         specifier: ^1.4.0
         version: 1.4.0
@@ -432,8 +426,8 @@ packages:
     resolution: {integrity: sha512-vBZP4NlzfOlerQTnba4aqZoMhE/a9HY7HRqoOPaETQcSQuWEIyZMHGfVu6w9wGtGK5fED5qRs2DteVCjOH60sA==}
     engines: {node: '>=14'}
 
-  '@gabrielmaialva33/discord-video-stream@3.3.6':
-    resolution: {integrity: sha512-2bJaY6Bxi7VNFrKqBZpYGCPFeeCPV6PO4S6oRGNOZa77G1B+2i1XdeZIZGPKC/EAcDvhtI2j+aVmMHXtVge76g==}
+  '@gabrielmaialva33/discord-video-stream@3.3.7':
+    resolution: {integrity: sha512-lfVi8dI25XrTlhwzTzc7rN+qKjMDT2LkmgBeqJTRUMUr2E5w08NQ7B6rq8uELGgarb1tDrZzNUuHMG4ps10uGQ==}
     engines: {node: '>=22.13.1'}
     peerDependencies:
       discord.js-selfbot-v13: 3.x
@@ -4216,8 +4210,9 @@ snapshots:
 
   '@fastify/busboy@2.1.1': {}
 
-  '@gabrielmaialva33/discord-video-stream@3.3.6(bufferutil@4.0.9)(discord.js-selfbot-v13@3.6.1(@discordjs/opus@0.10.0)(bufferutil@4.0.9)(opusscript@0.1.1)(utf-8-validate@5.0.10))(sodium-native@3.4.1)(utf-8-validate@5.0.10)':
+  '@gabrielmaialva33/discord-video-stream@3.3.7(bufferutil@4.0.9)(discord.js-selfbot-v13@3.6.1(@discordjs/opus@0.10.0)(bufferutil@4.0.9)(opusscript@0.1.1)(utf-8-validate@5.0.10))(sodium-native@3.4.1)(utf-8-validate@5.0.10)':
     dependencies:
+      optional: 0.1.4
       '@lng2004/libav.js-variant-webcodecs-avf-with-decoders': 6.5.7-o3
       debug-level: 4.1.1
       discord.js-selfbot-v13: 3.6.1(@discordjs/opus@0.10.0)(bufferutil@4.0.9)(opusscript@0.1.1)(utf-8-validate@5.0.10)
