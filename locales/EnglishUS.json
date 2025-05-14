@@ -519,13 +519,20 @@
 			}
 		},
 		"mlist": {
-			"description": "Lista os downloads de videos"
+			"description": "Lista os downloads de videos",
+			"messages": {
+				"available_movies": "🎥 **Vídeos Disponíveis**"
+			}
 		},
 		"mplay": {
 			"description": "cmd.mplay.description",
 			"options": {
 				"movie": "cmd.mplay.options.movie",
 				"audioTrack": "cmd.mplay.options.audioTrack"
+			},
+			"messages": {
+				"waiting": "⏳ Por favor, aguarde...",
+				"playing_movie": "🎬 Reproduzindo o vídeo **{movie}**."
 			}
 		},
 		"msearch": {
