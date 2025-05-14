@@ -54,7 +54,7 @@ export default class SelfBot extends Client {
       height: 720,
       frameRate: 30,
       videoCodec: Utils.normalizeVideoCodec('H264'),
-      audioTrack: audioTrack,
+      // audioTrack: audioTrack,
     })
 
     current = command
