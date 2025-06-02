@@ -87,7 +87,7 @@ const envSchema = z.object({
   YTDL_BIN_PATH: z.string().optional().default(''),
   PORT: z
     .string()
-    .default('3000')
+    .default('3050')
     .transform((val) => Number.parseInt(val, 10)),
 })
 
