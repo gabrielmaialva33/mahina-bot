@@ -318,4 +318,66 @@ export default class ServerData {
   async clearChatHistory(channelId: string): Promise<void> {
     await this.prisma.chatHistory.deleteMany({ where: { channelId } })
   }
+
+  async clearAllChatHistory(guildId: string): Promise<void> {
+    await this.prisma.chatHistory.deleteMany({ where: { guildId } })
+  }
+
+  // AI Config methods
+  async getAIConfig(guildId: string): Promise<any> {
+    const config = await this.prisma.aIConfig.findUnique({ where: { guildId } })
+    if (!config) {
+      return this.createAIConfig(guildId)
+    }
+    return config
+  }
+
+  async createAIConfig(guildId: string): Promise<any> {
+    return this.prisma.aIConfig.create({
+      data: { guildId },
+    })
+  }
+
+  async updateAIConfig(guildId: string, data: any): Promise<void> {
+    await this.prisma.aIConfig.upsert({
+      where: { guildId },
+      update: data,
+      create: { guildId, ...data },
+    })
+  }
+
+  async toggleAI(guildId: string): Promise<boolean> {
+    const config = await this.getAIConfig(guildId)
+    const newState = !config.enabled
+    await this.updateAIConfig(guildId, { enabled: newState })
+    return newState
+  }
+
+  async setAIPersonality(guildId: string, personality: string): Promise<void> {
+    await this.updateAIConfig(guildId, { defaultPersonality: personality })
+  }
+
+  async updateAIStats(guildId: string, channelId: string, userId: string): Promise<void> {
+    const config = await this.getAIConfig(guildId)
+    const stats = config.stats || {
+      totalMessages: 0,
+      uniqueUsers: [],
+      channelUsage: {},
+      personalityUsage: {},
+    }
+
+    // Convert uniqueUsers array to Set for manipulation
+    const uniqueUsersSet = new Set(stats.uniqueUsers || [])
+    
+    stats.totalMessages++
+    uniqueUsersSet.add(userId)
+    stats.channelUsage[channelId] = (stats.channelUsage[channelId] || 0) + 1
+
+    await this.updateAIConfig(guildId, {
+      stats: {
+        ...stats,
+        uniqueUsers: Array.from(uniqueUsersSet),
+      },
+    })
+  }
 }
