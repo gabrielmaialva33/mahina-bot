@@ -89,6 +89,8 @@ const envSchema = z.object({
     .string()
     .default('3050')
     .transform((val) => Number.parseInt(val, 10)),
+  NVIDIA_API_KEY: z.string().optional(),
+  OPENAI_API_KEY: z.string().optional(),
 })
 
 type Env = z.infer<typeof envSchema>

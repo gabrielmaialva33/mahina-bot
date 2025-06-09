@@ -709,5 +709,171 @@
   "buttons": {
     "invite": "🔗 Convide-me!",
     "support": "🛠️ Suporte"
+  },
+  "ai": {
+    "chat": {
+      "description": "💬 Chat inteligente com IA da NVIDIA - análise de código, geração e muito mais!",
+      "options": {
+        "mode": "🤖 Modo de operação da IA",
+        "prompt": "📝 Sua mensagem ou pergunta",
+        "language": "💻 Linguagem de programação (para modos de código)"
+      },
+      "errors": {
+        "no_prompt": "⚠️ Por favor, forneça uma mensagem ou pergunta!",
+        "api_error": "❌ Ocorreu um erro ao processar sua solicitação.",
+        "invalid_mode": "❌ Modo inválido. Use um dos modos disponíveis."
+      },
+      "messages": {
+        "processing": "🤖 **Processando sua solicitação...**",
+        "conversation_reset": "✅ Conversa reiniciada! Use o comando novamente para começar.",
+        "continue_hint": "💬 Digite sua próxima mensagem usando o comando!",
+        "no_code_blocks": "⚠️ Nenhum bloco de código encontrado na resposta!",
+        "code_extracted": "📝 Código extraído e formatado:",
+        "response_exported": "📤 Resposta exportada como **{filename}**"
+      },
+      "buttons": {
+        "new_chat": "🔄 Nova Conversa",
+        "continue": "💬 Continuar",
+        "format_code": "📝 Formatar Código",
+        "export": "📤 Exportar"
+      },
+      "modes": {
+        "chat": "💬 Chat Normal",
+        "code": "💻 Geração de Código",
+        "analyze": "🔍 Análise de Código",
+        "explain": "📚 Tutorial/Explicação",
+        "debug": "🐛 Debug de Código",
+        "design": "🎨 UI/UX Helper"
+      }
+    },
+    "tools": {
+      "description": "🛠️ Ferramentas avançadas de IA para análise, tradução, documentação e mais!",
+      "options": {
+        "tool": "🔧 Escolha uma ferramenta",
+        "input": "📝 Texto ou código para processar"
+      },
+      "errors": {
+        "tool_not_found": "❌ Ferramenta não encontrada! Use o comando sem argumentos para ver as opções.",
+        "no_input": "⚠️ Por favor, forneça um texto ou código para processar!",
+        "processing_error": "❌ Ocorreu um erro ao executar a ferramenta."
+      },
+      "messages": {
+        "select_tool": "🛠️ Ferramentas de IA Disponíveis",
+        "select_description": "Selecione uma ferramenta no menu abaixo ou use:\n`!tools [ferramenta] [seu texto/código]`",
+        "tool_selected": "Você selecionou: **{emoji} {name}**\n\nAgora use: `!tools {key} [seu input]`",
+        "processing": "{emoji} **Processando com {name}...**",
+        "result_title": "{emoji} {name} - Resultado"
+      },
+      "sentiment": {
+        "name": "💭 Análise de Sentimento",
+        "description": "Analisa o sentimento e emoções em um texto"
+      },
+      "translate": {
+        "name": "🌍 Tradutor Inteligente",
+        "description": "Traduz texto preservando contexto e nuances"
+      },
+      "summarize": {
+        "name": "📄 Resumo de Texto",
+        "description": "Cria resumos inteligentes de textos longos"
+      },
+      "docs": {
+        "name": "📚 Gerador de Documentação",
+        "description": "Gera documentação profissional para código"
+      },
+      "complexity": {
+        "name": "🔍 Análise de Complexidade",
+        "description": "Analisa a complexidade e qualidade do código"
+      },
+      "optimize": {
+        "name": "⚡ Otimizador de Código",
+        "description": "Sugere otimizações de performance e qualidade"
+      },
+      "tests": {
+        "name": "🎯 Gerador de Testes",
+        "description": "Gera testes unitários e de integração"
+      },
+      "security": {
+        "name": "🔐 Análise de Segurança",
+        "description": "Identifica vulnerabilidades e problemas de segurança"
+      }
+    },
+    "vision": {
+      "description": "🖼️ Análise inteligente de imagens com IA - descreva, analise e extraia informações!",
+      "options": {
+        "mode": "🔍 Modo de análise",
+        "question": "❓ Pergunta específica sobre a imagem"
+      },
+      "errors": {
+        "no_image": "⚠️ Por favor, anexe uma imagem à sua mensagem!",
+        "invalid_image": "❌ Por favor, forneça uma imagem válida!",
+        "analysis_failed": "❌ Não foi possível analisar a imagem."
+      },
+      "messages": {
+        "analyzing": "🖼️ **Analisando imagem...**",
+        "help_title": "🖼️ Comando Vision - Análise de Imagens com IA",
+        "help_description": "Envie uma imagem junto com o comando para analisá-la!",
+        "how_to_use": "📋 Como usar",
+        "how_to_steps": "1. Anexe uma imagem à sua mensagem\n2. Use o comando com um modo ou pergunta\n3. Aguarde a análise da IA",
+        "available_modes": "🔧 Modos disponíveis",
+        "custom_questions": "❓ Perguntas personalizadas",
+        "attach_image": "Anexe uma imagem para começar!"
+      },
+      "modes": {
+        "analyze": {
+          "name": "🔍 Análise Detalhada",
+          "title": "Análise Detalhada"
+        },
+        "describe": {
+          "name": "📝 Descrever Imagem",
+          "title": "Descrição da Imagem"
+        },
+        "ocr": {
+          "name": "📄 Extrair Texto (OCR)",
+          "title": "Texto Extraído"
+        },
+        "art": {
+          "name": "🎨 Análise Artística",
+          "title": "Análise Artística"
+        },
+        "detect": {
+          "name": "👥 Detectar Pessoas/Objetos",
+          "title": "Objetos Detectados"
+        },
+        "technical": {
+          "name": "📊 Análise Técnica",
+          "title": "Análise Técnica"
+        }
+      },
+      "metadata": {
+        "dimensions": "📏 Dimensões",
+        "size": "📦 Tamanho",
+        "type": "📄 Tipo"
+      },
+      "buttons": {
+        "reanalyze": "🔄 Analisar Novamente",
+        "export": "📤 Exportar Análise",
+        "modes": "🔧 Outros Modos"
+      }
+    }
+  },
+  "Chat inteligente com IA da NVIDIA - análise de código, geração e muito mais!": "Chat inteligente com IA da NVIDIA - análise de código, geração e muito mais!",
+  "Modo de operação da IA": "Modo de operação da IA",
+  "Sua mensagem ou pergunta": "Sua mensagem ou pergunta",
+  "Linguagem de programação (para modos de código)": "Linguagem de programação (para modos de código)",
+  "Ferramentas avançadas de IA para análise, tradução, documentação e mais!": "Ferramentas avançadas de IA para análise, tradução, documentação e mais!",
+  "Escolha uma ferramenta": "Escolha uma ferramenta",
+  "Texto ou código para processar": "Texto ou código para processar",
+  "Análise inteligente de imagens com IA - descreva, analise e extraia informações!": "Análise inteligente de imagens com IA - descreva, analise e extraia informações!",
+  "Modo de análise": "Modo de análise",
+  "Pergunta específica sobre a imagem": "Pergunta específica sobre a imagem",
+  "ai_mention": {
+    "thinking": "💭 **Mahina está pensando...**",
+    "error": "❌ Erro ao processar mensagem",
+    "error_description": "Ocorreu um erro ao processar sua mensagem.",
+    "try_again": "Tente novamente mais tarde",
+    "new_conversation": "✨ Nova conversa iniciada! A memória anterior foi limpa.",
+    "feedback_positive": "👍",
+    "feedback_negative": "👎",
+    "reset_conversation": "🔄"
   }
 }

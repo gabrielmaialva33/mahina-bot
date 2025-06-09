@@ -6,6 +6,7 @@ import {
   type Role,
   type Setup,
   type Stay,
+  type ChatHistory,
 } from '@prisma/client'
 import { env } from '#src/env'
 
@@ -275,5 +276,46 @@ export default class ServerData {
         prefix: env.PREFIX,
       },
     })
+  }
+
+  // Chat History methods
+  async getChatHistory(channelId: string, limit: number = 20): Promise<ChatHistory | null> {
+    return this.prisma.chatHistory.findFirst({
+      where: { channelId },
+      orderBy: { updatedAt: 'desc' },
+    })
+  }
+
+  async updateChatHistory(
+    channelId: string,
+    userId: string,
+    guildId: string,
+    messages: any[],
+    limit: number = 20
+  ): Promise<void> {
+    const existingHistory = await this.getChatHistory(channelId)
+
+    if (existingHistory) {
+      const existingMessages = existingHistory.messages as any[]
+      const updatedMessages = [...existingMessages, ...messages].slice(-limit)
+
+      await this.prisma.chatHistory.update({
+        where: { id: existingHistory.id },
+        data: { messages: updatedMessages },
+      })
+    } else {
+      await this.prisma.chatHistory.create({
+        data: {
+          channelId,
+          userId,
+          guildId,
+          messages,
+        },
+      })
+    }
+  }
+
+  async clearChatHistory(channelId: string): Promise<void> {
+    await this.prisma.chatHistory.deleteMany({ where: { channelId } })
   }
 }

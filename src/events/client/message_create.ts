@@ -26,6 +26,16 @@ export default class MessageCreate extends Event {
   async run(message: Message): Promise<any> {
     if (message.author.bot) return
     if (!(message.guild && message.guildId)) return
+
+    // Check for Mahina mention in message content
+    const mahinaMention = /mahina/i.test(message.content)
+    if (
+      mahinaMention &&
+      !message.content.startsWith(await this.client.db.getPrefix(message.guildId))
+    ) {
+      return this.client.emit('aiMention', message)
+    }
+
     const setup = await this.client.db.getSetup(message.guildId)
     if (setup && setup.textId === message.channelId) {
       return this.client.emit('setupSystem', message)

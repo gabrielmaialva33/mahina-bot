@@ -540,3 +540,5 @@ cache
 # MacOSX
 .DS_Store
 .AppleDouble
+
+.claude

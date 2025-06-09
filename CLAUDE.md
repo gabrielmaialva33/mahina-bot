@@ -17,6 +17,7 @@ Mahina Bot is a Discord music bot written in TypeScript. It uses Lavalink for au
 ## Required Environment Variables
 
 The bot requires several environment variables to be set for proper functioning:
+
 - `TOKEN`: Discord bot token
 - `CLIENT_ID`: Discord client ID
 - `NODES`: Lavalink nodes configuration (JSON array)
@@ -74,6 +75,7 @@ docker-compose up mahina -d
 Commands are defined in the `src/commands/` directory, organized into categories. Each command extends the `Command` base class and implements a `run` method.
 
 Example command structure:
+
 ```typescript
 export default class ExampleCommand extends Command {
   constructor(client: MahinaBot) {
@@ -108,6 +110,7 @@ export default class ExampleCommand extends Command {
 The bot uses Prisma ORM with MongoDB by default. Database operations are handled through the `ServerData` class in `src/database/server.ts`.
 
 Example database operation:
+
 ```typescript
 // Get guild configuration
 const guildData = await client.db.getGuild(guildId)
@@ -116,6 +119,7 @@ const guildData = await client.db.getGuild(guildId)
 ### Events
 
 Events are defined in the `src/events/` directory, organized by type:
+
 - `client`: Discord.js client events
 - `player`: Lavalink player events
 - `node`: Lavalink node events
@@ -125,6 +129,7 @@ Events are defined in the `src/events/` directory, organized by type:
 The bot supports multiple languages through the i18n system. Translation keys are stored in JSON files in the `locales/` directory.
 
 To use translations in code:
+
 ```typescript
 // In commands
 ctx.locale('translation.key', { placeholder: 'value' })

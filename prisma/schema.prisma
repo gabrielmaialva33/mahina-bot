@@ -65,3 +65,16 @@ model Setup {
   messageId String
   Guild     Guild  @relation(fields: [guildId], references: [guildId])
 }
+
+model ChatHistory {
+  id         String   @id @default(uuid()) @map("_id")
+  userId     String
+  guildId    String
+  channelId  String
+  messages   Json     // Array of {role, content, timestamp}
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  
+  @@index([userId, guildId])
+  @@index([channelId])
+}
