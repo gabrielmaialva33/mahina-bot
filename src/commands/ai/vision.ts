@@ -286,7 +286,7 @@ export default class VisionCommand extends Command {
             name: `analise_imagem_${Date.now()}.md`,
           })
 
-          await interaction.reply({ files: [exportFile], ephemeral: true })
+          await interaction.reply({ files: [exportFile], flags: InteractionResponseFlags.Ephemeral })
           break
 
         case 'vision_modes':
@@ -303,7 +303,7 @@ export default class VisionCommand extends Command {
               { name: '📊 technical', value: 'Análise técnica da imagem', inline: true }
             )
 
-          await interaction.reply({ embeds: [modesEmbed], ephemeral: true })
+          await interaction.reply({ embeds: [modesEmbed], flags: InteractionResponseFlags.Ephemeral })
           break
       }
     })

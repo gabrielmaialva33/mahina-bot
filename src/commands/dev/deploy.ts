@@ -6,6 +6,7 @@ import {
   ComponentType,
   type Message,
   type TextChannel,
+  InteractionResponseFlags,
 } from 'discord.js'
 import Command from '#common/command'
 import type MahinaBot from '#common/mahina_bot'
@@ -68,7 +69,7 @@ export default class Deploy extends Command {
         interaction
           .reply({
             content: "You can't interact with this message",
-            ephemeral: true,
+            flags: InteractionResponseFlags.Ephemeral,
           })
           .catch(client.logger.error)
         return false

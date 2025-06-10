@@ -357,7 +357,7 @@ export default class ChatCommand extends Command {
     if (codeBlocks.length === 0) {
       return interaction.reply({
         content: 'Nenhum bloco de código encontrado na resposta!',
-        ephemeral: true,
+        flags: InteractionResponseFlags.Ephemeral,
       })
     }
 
@@ -372,7 +372,7 @@ export default class ChatCommand extends Command {
     await interaction.reply({
       content: '📝 Código extraído e formatado:',
       files: [attachment],
-      ephemeral: true,
+      flags: InteractionResponseFlags.Ephemeral,
     })
   }
 
@@ -383,7 +383,7 @@ export default class ChatCommand extends Command {
     await interaction.reply({
       content: `📤 Resposta exportada como **${filename}**`,
       files: [attachment],
-      ephemeral: true,
+      flags: InteractionResponseFlags.Ephemeral,
     })
   }
 }

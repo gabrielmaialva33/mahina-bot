@@ -155,7 +155,7 @@ export default class AIConfigCommand extends Command {
       'collect',
       async (interaction: {
         user: { id: any }
-        reply: (arg0: { content: string; ephemeral: boolean }) => any
+        reply: (arg0: { content: string; flags?: number }) => any
         customId: any
         deferUpdate: () => any
       }) => {
@@ -225,7 +225,7 @@ export default class AIConfigCommand extends Command {
       'collect',
       async (interaction: {
         user: { id: any }
-        reply: (arg0: { content: string; ephemeral: boolean }) => any
+        reply: (arg0: { content: string; flags?: number }) => any
         values: any[]
         update: (arg0: { content: string; embeds: never[]; components: never[] }) => any
       }) => {
@@ -339,7 +339,7 @@ export default class AIConfigCommand extends Command {
       'collect',
       async (interaction: {
         user: { id: any }
-        reply: (arg0: { content: string; ephemeral: boolean }) => any
+        reply: (arg0: { content: string; flags?: number }) => any
         customId: string
         update: (arg0: { embeds: EmbedBuilder[]; components: never[] }) => any
       }) => {

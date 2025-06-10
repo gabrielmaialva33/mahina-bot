@@ -413,7 +413,7 @@ export default class ToolsCommand extends Command {
               ),
               { name: `${tool.name.replace(/\s/g, '_')}_${Date.now()}.md` }
             )
-            await interaction.reply({ files: [attachment], ephemeral: true })
+            await interaction.reply({ files: [attachment], flags: InteractionResponseFlags.Ephemeral })
             break
 
           case 'tool_retry':
