@@ -1,13 +1,8 @@
-import {
-  CommandInteraction,
-  Message,
-  EmbedBuilder,
-  ApplicationCommandOptionType,
-  User,
-} from 'discord.js'
+import { ApplicationCommandOptionType, EmbedBuilder, User } from 'discord.js'
 import Command from '#common/command'
-import type { Context, MahinaBot } from '#common/index'
 import { PersonalityRLService } from '#src/services/personality_rl_service'
+import MahinaBot from '#common/mahina_bot'
+import { Context } from 'node:vm'
 
 export default class PersonalityCommand extends Command {
   private personalityService: PersonalityRLService

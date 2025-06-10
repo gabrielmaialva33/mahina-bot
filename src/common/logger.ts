@@ -51,8 +51,10 @@ const options: SignaleOptions = {
   },
 }
 
-export default class Logger extends Signale {
+export class Logger extends Signale {
   constructor() {
     super(options)
   }
 }
+
+export const logger = new Logger()

@@ -1,17 +1,16 @@
 import {
-  CommandInteraction,
-  Message,
-  EmbedBuilder,
-  ApplicationCommandOptionType,
   ActionRowBuilder,
+  ApplicationCommandOptionType,
   ButtonBuilder,
   ButtonStyle,
-  StringSelectMenuBuilder,
   ComponentType,
+  EmbedBuilder,
+  StringSelectMenuBuilder,
 } from 'discord.js'
 import Command from '#common/command'
-import type { Context, MahinaBot } from '#common/index'
 import { AIService } from '#src/services/ai_service'
+import MahinaBot from '#common/mahina_bot'
+import { Context } from 'node:vm'
 
 export default class AIConfigCommand extends Command {
   private aiService: AIService
@@ -151,37 +150,45 @@ export default class AIConfigCommand extends Command {
       time: 60000,
     })
 
-    collector.on('collect', async (interaction) => {
-      if (interaction.user.id !== ctx.author.id) {
-        return interaction.reply({
-          content: 'Apenas o autor do comando pode usar esses botões!',
-          ephemeral: true,
-        })
-      }
+    collector.on(
+      'collect',
+      async (interaction: {
+        user: { id: any }
+        reply: (arg0: { content: string; ephemeral: boolean }) => any
+        customId: any
+        deferUpdate: () => any
+      }) => {
+        if (interaction.user.id !== ctx.author.id) {
+          return interaction.reply({
+            content: 'Apenas o autor do comando pode usar esses botões!',
+            ephemeral: true,
+          })
+        }
 
-      switch (interaction.customId) {
-        case 'ai_cfg_personality':
-          await interaction.deferUpdate()
-          await this.handlePersonality(ctx)
-          break
-        case 'ai_cfg_toggle':
-          await interaction.deferUpdate()
-          await this.handleToggle(ctx, ctx.guild!.id)
-          break
-        case 'ai_cfg_stats':
-          await interaction.deferUpdate()
-          await this.handleStats(ctx, ctx.guild!.id)
-          break
-        case 'ai_cfg_clear':
-          await interaction.deferUpdate()
-          await this.handleClear(ctx)
-          break
-        case 'ai_cfg_settings':
-          await interaction.deferUpdate()
-          await this.handleSettings(ctx, ctx.guild!.id)
-          break
+        switch (interaction.customId) {
+          case 'ai_cfg_personality':
+            await interaction.deferUpdate()
+            await this.handlePersonality(ctx)
+            break
+          case 'ai_cfg_toggle':
+            await interaction.deferUpdate()
+            await this.handleToggle(ctx, ctx.guild!.id)
+            break
+          case 'ai_cfg_stats':
+            await interaction.deferUpdate()
+            await this.handleStats(ctx, ctx.guild!.id)
+            break
+          case 'ai_cfg_clear':
+            await interaction.deferUpdate()
+            await this.handleClear(ctx)
+            break
+          case 'ai_cfg_settings':
+            await interaction.deferUpdate()
+            await this.handleSettings(ctx, ctx.guild!.id)
+            break
+        }
       }
-    })
+    )
 
     collector.on('end', () => {
       msg.edit({ components: [] })
@@ -213,24 +220,32 @@ export default class AIConfigCommand extends Command {
       time: 60000,
     })
 
-    collector.on('collect', async (interaction) => {
-      if (interaction.user.id !== ctx.author.id) {
-        return interaction.reply({
-          content: 'Apenas o autor do comando pode usar este menu!',
-          ephemeral: true,
+    collector.on(
+      'collect',
+      async (interaction: {
+        user: { id: any }
+        reply: (arg0: { content: string; ephemeral: boolean }) => any
+        values: any[]
+        update: (arg0: { content: string; embeds: never[]; components: never[] }) => any
+      }) => {
+        if (interaction.user.id !== ctx.author.id) {
+          return interaction.reply({
+            content: 'Apenas o autor do comando pode usar este menu!',
+            ephemeral: true,
+          })
+        }
+
+        const selected = interaction.values[0]
+        await this.client.db.setAIPersonality(ctx.guild!.id, selected)
+
+        const selectedPersonality = this.aiService.getPersonality(selected)!
+        await interaction.update({
+          content: `${selectedPersonality.emoji} Personalidade padrão do servidor alterada para: **${selectedPersonality.name}**`,
+          embeds: [],
+          components: [],
         })
       }
-
-      const selected = interaction.values[0]
-      await this.client.db.setAIPersonality(ctx.guild!.id, selected)
-
-      const selectedPersonality = this.aiService.getPersonality(selected)!
-      await interaction.update({
-        content: `${selectedPersonality.emoji} Personalidade padrão do servidor alterada para: **${selectedPersonality.name}**`,
-        embeds: [],
-        components: [],
-      })
-    })
+    )
   }
 
   private async handleToggle(ctx: Context, guildId: string) {
@@ -319,39 +334,47 @@ export default class AIConfigCommand extends Command {
       time: 30000,
     })
 
-    collector.on('collect', async (interaction) => {
-      if (interaction.user.id !== ctx.author.id) {
-        return interaction.reply({
-          content: 'Apenas o autor do comando pode confirmar!',
-          ephemeral: true,
-        })
-      }
+    collector.on(
+      'collect',
+      async (interaction: {
+        user: { id: any }
+        reply: (arg0: { content: string; ephemeral: boolean }) => any
+        customId: string
+        update: (arg0: { embeds: EmbedBuilder[]; components: never[] }) => any
+      }) => {
+        if (interaction.user.id !== ctx.author.id) {
+          return interaction.reply({
+            content: 'Apenas o autor do comando pode confirmar!',
+            ephemeral: true,
+          })
+        }
 
-      if (interaction.customId === 'ai_clear_confirm') {
-        // Clear all chat history for guild
-        await this.client.db.clearAllChatHistory(ctx.guild!.id)
+        if (interaction.customId === 'ai_clear_confirm') {
+          // Clear all chat history for guild
+          await this.client.db.clearAllChatHistory(ctx.guild!.id)
 
-        await interaction.update({
-          embeds: [
-            new EmbedBuilder()
-              .setColor(this.client.config.color.green)
-              .setTitle('✅ Histórico Limpo')
-              .setDescription('Todo o histórico de conversas da IA foi removido!'),
-          ],
-          components: [],
-        })
-      } else {
-        await interaction.update({
-          embeds: [
-            new EmbedBuilder()
-              .setColor(this.client.config.color.blue)
-              .setTitle('❌ Limpeza Cancelada')
-              .setDescription('O histórico de conversas foi mantido.'),
-          ],
-          components: [],
-        })
+          await interaction.update({
+            embeds: [
+              new EmbedBuilder()
+                .setColor(this.client.config.color.green)
+                .setTitle('✅ Histórico Limpo')
+                .setDescription('Todo o histórico de conversas da IA foi removido!'),
+            ],
+            components: [],
+          })
+        } else {
+          await interaction.update({
+            embeds: [
+              new EmbedBuilder()
+                .setColor(this.client.config.color.blue)
+                .setTitle('❌ Limpeza Cancelada')
+                .setDescription('O histórico de conversas foi mantido.'),
+            ],
+            components: [],
+          })
+        }
       }
-    })
+    )
   }
 
   private async handleSettings(ctx: Context, guildId: string) {
@@ -380,7 +403,7 @@ export default class AIConfigCommand extends Command {
           name: 'Canais Permitidos',
           value:
             config.allowedChannels.length > 0
-              ? config.allowedChannels.map((c) => `<#${c}>`).join(', ')
+              ? config.allowedChannels.map((c: any) => `<#${c}>`).join(', ')
               : 'Todos',
           inline: false,
         },

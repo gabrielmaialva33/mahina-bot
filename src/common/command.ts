@@ -36,7 +36,7 @@ interface CommandOptions {
   category?: string
 }
 
-export default class Command {
+export class Command {
   client: MahinaBot
   name: string
   name_localizations?: Record<string, string>
@@ -86,3 +86,5 @@ export default class Command {
     return await Promise.resolve()
   }
 }
+
+export default Command

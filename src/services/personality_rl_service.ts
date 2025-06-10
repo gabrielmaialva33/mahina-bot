@@ -398,13 +398,9 @@ export class PersonalityRLService {
       const chatHistories = await this.client.db.prisma.chatHistory.findMany({
         where: {
           guildId,
-          messages: {
-            path: '$[*].userId',
-            array_contains: userId,
-          },
         },
         orderBy: { updatedAt: 'desc' },
-        take: 5, // Últimos 5 canais
+        take: 10, // Get more to ensure we have user's messages
       })
 
       let totalMessages = 0
@@ -423,8 +419,14 @@ export class PersonalityRLService {
       const emojiRegex =
         /[\u{1F600}-\u{1F64F}]|[\u{1F300}-\u{1F5FF}]|[\u{1F680}-\u{1F6FF}]|[\u{1F1E0}-\u{1F1FF}]/gu
 
+      // Filter histories that contain messages from the user
+      const userHistories = chatHistories.filter((history) => {
+        const messages = history.messages as any[]
+        return messages.some((msg) => msg.userId === userId)
+      })
+
       // Analisa mensagens
-      chatHistories.forEach((history) => {
+      userHistories.forEach((history) => {
         const messages = history.messages as any[]
         messages.forEach((msg) => {
           if (msg.role === 'user' && msg.userId === userId) {

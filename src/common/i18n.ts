@@ -2,7 +2,7 @@ import i18n from 'i18n'
 
 import { Locale } from 'discord.js'
 
-import Logger from '#common/logger'
+import { Logger } from '#common/logger'
 import { Language } from '#src/types'
 
 const logger = new Logger()

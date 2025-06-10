@@ -20,7 +20,7 @@ import {
 
 import config from '#src/config'
 import ServerData from '#src/database/server'
-import Logger from '#common/logger'
+import { Logger } from '#common/logger'
 import MahinaLinkClient from '#common/mahina_link_client'
 import { i18n, initI18n, localization, T } from '#common/i18n'
 import loadPlugins from '#src/extensions/index'
@@ -28,6 +28,7 @@ import { Utils } from '#utils/utils'
 import { env } from '#src/env'
 import SelfBot from '#common/selfbot'
 import { AnimeZey } from '#src/platforms/animezey'
+import { NvidiaAIService } from '#src/services/nvidia_ai_service'
 
 const dirname = path.dirname(fileURLToPath(import.meta.url))
 
@@ -46,6 +47,9 @@ export default class MahinaBot extends Client {
   manager!: MahinaLinkClient
   selfbot: SelfBot
   animezey = new AnimeZey()
+  services: {
+    nvidia?: NvidiaAIService
+  } = {}
   private body: RESTPostAPIChatInputApplicationCommandsJSONBody[] = []
 
   constructor(options: ClientOptions) {
@@ -65,6 +69,15 @@ export default class MahinaBot extends Client {
     } else {
       this.logger.warn('Top.gg token not found!')
     }
+
+    // Initialize NVIDIA AI service if API key is available
+    if (env.NVIDIA_API_KEY) {
+      this.services.nvidia = new NvidiaAIService(env.NVIDIA_API_KEY)
+      this.logger.info('NVIDIA AI service initialized')
+    } else {
+      this.logger.warn('NVIDIA API key not found - AI features will be limited')
+    }
+
     this.manager = new MahinaLinkClient(this)
 
     await this.loadCommands().finally(() => this.logger.info('Successfully loaded commands!'))

@@ -368,7 +368,7 @@ export default class ServerData {
 
     // Convert uniqueUsers array to Set for manipulation
     const uniqueUsersSet = new Set(stats.uniqueUsers || [])
-    
+
     stats.totalMessages++
     uniqueUsersSet.add(userId)
     stats.channelUsage[channelId] = (stats.channelUsage[channelId] || 0) + 1

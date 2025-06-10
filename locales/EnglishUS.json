@@ -549,6 +549,18 @@
     },
     "mresume": {
       "description": "cmd.mresume.description"
+    },
+    "code": {
+      "description": "cmd.code.description"
+    },
+    "model": {
+      "description": "cmd.model.description"
+    },
+    "reason": {
+      "description": "cmd.reason.description"
+    },
+    "stream": {
+      "description": "cmd.stream.description"
     }
   },
   "buttons": {
@@ -707,5 +719,23 @@
   "Configura o comportamento da IA da Mahina": "Configura o comportamento da IA da Mahina",
   "Ação a ser executada": "Ação a ser executada",
   "🍁 Descubra seu animal espiritual do World of Warcraft através de análise de personalidade com IA": "🍁 Descubra seu animal espiritual do World of Warcraft através de análise de personalidade com IA",
-  "👤 O usuário que você deseja analisar": "👤 O usuário que você deseja analisar"
+  "👤 O usuário que você deseja analisar": "👤 O usuário que você deseja analisar",
+  "Explain code in detail": "Explain code in detail",
+  "Review code and suggest improvements": "Review code and suggest improvements",
+  "Optimize code for better performance": "Optimize code for better performance",
+  "Debug code and identify issues": "Debug code and identify issues",
+  "Programming language": "Programming language",
+  "The code to explain": "The code to explain",
+  "The code to review": "The code to review",
+  "The code to optimize": "The code to optimize",
+  "The code to debug": "The code to debug",
+  "List all available AI models": "List all available AI models",
+  "Select an AI model": "Select an AI model",
+  "Get information about a specific model": "Get information about a specific model",
+  "Show your current AI model": "Show your current AI model",
+  "The model to select": "The model to select",
+  "The model to get info about": "The model to get info about",
+  "The problem or question to analyze": "The problem or question to analyze",
+  "Additional context for the problem": "Additional context for the problem",
+  "Your message for streaming AI response": "Your message for streaming AI response"
 }
