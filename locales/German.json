@@ -1,756 +1,756 @@
 {
-	"cmd": {
-		"247": {
-			"description": "Lege den Bot so fest, dass er im Sprachkanal bleibt",
-			"errors": {
-				"not_in_voice": "Du musst in einem Sprachkanal sein, um diesen Befehl zu verwenden.",
-				"generic": "Ein Fehler ist aufgetreten, als versucht wurde, diesen Befehl auszuführen."
-			},
-			"messages": {
-				"disabled": "`✅` | 24/7-Modus wurde `DEAKTIVIERT`",
-				"enabled": "`✅` | 24/7-Modus wurde `AKTIVIERT`. \n**Der Bot verlässt den Sprachkanal nicht, auch wenn sich keine Personen im Sprachkanal befinden.**"
-			}
-		},
-		"ping": {
-			"description": "Zeigt den Ping des Bots an.",
-			"content": "Ping...",
-			"bot_latency": "Bot-Latenz",
-			"api_latency": "API-Latenz",
-			"requested_by": "Angefordert von {author}"
-		},
-		"lavalink": {
-			"description": "Zeigt die aktuellen Lavalink-Statistiken an.",
-			"title": "Lavalink-Statistiken",
-			"content": "Spieler: {players}\nSpielende Spieler: {playingPlayers}\nBetriebszeit: {uptime}\nKerne: {cores} Kern(e)\nSpeichernutzung: {used} / {reservable}\nSystemlast: {systemLoad}%\nLavalink-Last: {lavalinkLoad}%"
-		},
-		"invite": {
-			"description": "Hole den Einladungslink des Bots.",
-			"content": "Du kannst mich einladen, indem du auf den unten stehenden Button klickst. Bugs oder Ausfälle? Trete dem Support-Server bei!"
-		},
-		"help": {
-			"description": "Zeigt das Hilfe-Menü an.",
-			"options": {
-				"command": "Der Befehl, zu dem du Informationen erhalten möchtest"
-			},
-			"content": "Hallo! Ich bin {bot}, ein Musikbot, der mit [MahinaBot](https://github.com/gabrielmaialva33/mahina-bot) und Discord erstellt wurde. Du kannst `{prefix}help <command>` verwenden, um mehr Informationen zu einem Befehl zu erhalten.",
-			"title": "Hilfe-Menü",
-			"not_found": "Dieser Befehl `{cmdName}` existiert nicht.",
-			"help_cmd": "**Beschreibung:** {description}\n**Verwendung:** {usage}\n**Beispiele:** {examples}\n**Alias:** {aliases}\n**Kategorie:** {category}\n**Abklingzeit:** {cooldown} Sekunden\n**Berechtigungen:** {premUser}\n**Bot-Berechtigungen:** {premBot}\n**Nur für Entwickler:** {dev}\n**Slash-Befehl:** {slash}\n**Args:** {args}\n**Spieler:** {player}\n**DJ:** {dj}\n**DJ-Berechtigungen:** {djPerm}\n**Stimme:** {voice}",
-			"footer": "Verwende `{prefix}help <command>` für weitere Informationen zu einem Befehl"
-		},
-		"botinfo": {
-			"description": "Informationen über den Bot",
-			"content": "Bot-Informationen:\n- **Betriebssystem**: {osInfo}\n- **Betriebszeit**: {osUptime}\n- **Hostname**: {osHostname}\n- **CPU-Architektur**: {cpuInfo}\n- **CPU-Auslastung**: {cpuUsed}%\n- **Speichernutzung**: {memUsed}MB / {memTotal}GB\n- **Node-Version**: {nodeVersion}\n- **Discord-Version**: {discordJsVersion}\n- **Verbunden mit** {guilds} Guilden, {channels} Kanälen und {users} Benutzern\n- **Gesamtzahl der Befehle**: {commands}"
-		},
-		"about": {
-			"description": "Zeigt Informationen über den Bot an",
-			"fields": {
-				"creator": "Ersteller",
-				"repository": "Repository",
-				"support": "Support",
-				"description": "Er wollte unbedingt sein erstes Open-Source-Projekt überhaupt für mehr Programmiererfahrung erstellen. In diesem Projekt wurde er herausgefordert, ein Projekt mit weniger Bugs zu erstellen. Ich hoffe, du hast Spaß beim Verwenden von MahinaBot!"
-			}
-		},
-		"dj": {
-			"description": "Verwalte den DJ-Modus und die zugehörigen Rollen",
-			"errors": {
-				"provide_role": "Bitte gib eine Rolle an.",
-				"no_roles": "Die DJ-Rolle ist leer.",
-				"invalid_subcommand": "Bitte gib einen gültigen Unterbefehl an."
-			},
-			"messages": {
-				"role_exists": "Die DJ-Rolle <@&{roleId}> wurde bereits hinzugefügt.",
-				"role_added": "Die DJ-Rolle <@&{roleId}> wurde hinzugefügt.",
-				"role_not_found": "Die DJ-Rolle <@&{roleId}> wurde nicht hinzugefügt.",
-				"role_removed": "Die DJ-Rolle <@&{roleId}> wurde entfernt.",
-				"all_roles_cleared": "Alle DJ-Rollen wurden entfernt.",
-				"toggle": "Der DJ-Modus wurde auf {status} umgeschaltet."
-			},
-			"options": {
-				"add": "Die DJ-Rolle, die du hinzufügen möchtest",
-				"remove": "Die DJ-Rolle, die du entfernen möchtest",
-				"clear": "Lösche alle DJ-Rollen",
-				"toggle": "Schalte die DJ-Rolle um",
-				"role": "Die DJ-Rolle"
-			},
-			"subcommands": "Unterbefehle"
-		},
-		"prefix": {
-			"description": "Zeigt oder setzt das Präfix des Bots",
-			"errors": {
-				"prefix_too_long": "Das Präfix darf nicht länger als 3 Zeichen sein."
-			},
-			"messages": {
-				"current_prefix": "Das Präfix für diesen Server ist `{prefix}`",
-				"prefix_set": "Das Präfix für diesen Server ist jetzt `{prefix}`",
-				"prefix_reset": "Das Präfix für diesen Server ist jetzt `{prefix}`"
-			},
-			"options": {
-				"set": "Setzt das Präfix",
-				"prefix": "Das Präfix, das du setzen möchtest",
-				"reset": "Setzt das Präfix auf das Standardpräfix zurück"
-			}
-		},
-		"setup": {
-			"description": "Richte den Bot ein",
-			"errors": {
-				"channel_exists": "Der Song-Anforderungskanal existiert bereits.",
-				"channel_not_exists": "Der Song-Anforderungskanal existiert nicht.",
-				"channel_delete_fail": "Der Song-Anforderungskanal wurde gelöscht. Wenn der Kanal nicht normal gelöscht wird, lösche ihn bitte selbst."
-			},
-			"messages": {
-				"channel_created": "Der Song-Anforderungskanal wurde in <#{channelId}> erstellt.",
-				"channel_deleted": "Der Song-Anforderungskanal wurde gelöscht.",
-				"channel_info": "Der Song-Anforderungskanal ist <#{channelId}>."
-			},
-			"options": {
-				"create": "Erstelle den Song-Anforderungskanal",
-				"delete": "Lösche den Song-Anforderungskanal",
-				"info": "Zeigt den Song-Anforderungskanal an"
-			}
-		},
-		"8d": {
-			"description": "8d-Filter ein-/ausschalten",
-			"messages": {
-				"filter_enabled": "`✅` | 8D-Filter wurde `AKTIVIERT`.",
-				"filter_disabled": "`✅` | 8D-Filter wurde `DEAKTIVIERT`."
-			}
-		},
-		"bassboost": {
-			"description": "Bassboost-Filter ein-/ausschalten",
-			"messages": {
-				"filter_enabled": "`✅` | Bassboost-Filter wurde `AKTIVIERT`. \n**Vorsicht, zu lautes Hören kann deine Ohren schädigen!**",
-				"filter_disabled": "`✅` | Bassboost-Filter wurde `DEAKTIVIERT`."
-			},
-			"options": {
-				"level": "The bassboost level you want to set"
-			}
-		},
-		"distortion": {
-			"description": "Schalte den Verzerrungsfilter ein-/aus",
-			"messages": {
-				"filter_enabled": "`✅` | Verzerrungsfilter wurde `AKTIVIERT`.",
-				"filter_disabled": "`✅` | Verzerrungsfilter wurde `DEAKTIVIERT`."
-			}
-		},
-		"karaoke": {
-			"description": "Schalte den Karaoke-Filter ein-/aus",
-			"messages": {
-				"filter_enabled": "`✅` | Karaoke-Filter wurde `AKTIVIERT`.",
-				"filter_disabled": "`✅` | Karaoke-Filter wurde `DEAKTIVIERT`."
-			}
-		},
-		"lowpass": {
-			"description": "Schalte den Tiefpassfilter ein-/aus",
-			"messages": {
-				"filter_enabled": "`✅` | Tiefpassfilter wurde `AKTIVIERT`.",
-				"filter_disabled": "`✅` | Tiefpassfilter wurde `DEAKTIVIERT`."
-			}
-		},
-		"nightcore": {
-			"description": "Schalte den Nightcore-Filter ein-/aus",
-			"messages": {
-				"filter_enabled": "`✅` | Nightcore-Filter wurde `AKTIVIERT`.",
-				"filter_disabled": "`✅` | Nightcore-Filter wurde `DEAKTIVIERT`."
-			}
-		},
-		"pitch": {
-			"description": "Schalte den Pitch-Filter ein-/aus",
-			"options": {
-				"pitch": "Die Zahl, auf die du den Pitch setzen möchtest (zwischen 0,5 und 5)"
-			},
-			"errors": {
-				"invalid_number": "Bitte gib eine gültige Zahl zwischen 0,5 und 5 ein."
-			},
-			"messages": {
-				"pitch_set": "`✅` | Pitch wurde auf **{pitch}** gesetzt."
-			}
-		},
-		"rate": {
-			"description": "Ändere die Rate des Songs",
-			"options": {
-				"rate": "Die Zahl, auf die du die Rate setzen möchtest (zwischen 0,5 und 5)"
-			},
-			"errors": {
-				"invalid_number": "Bitte gib eine gültige Zahl zwischen 0,5 und 5 ein."
-			},
-			"messages": {
-				"rate_set": "`✅` | Rate wurde auf **{rate}** gesetzt."
-			}
-		},
-		"reset": {
-			"description": "Setzt die aktiven Filter zurück",
-			"messages": {
-				"filters_reset": "`✅` | Filter wurden zurückgesetzt."
-			}
-		},
-		"rotation": {
-			"description": "Schalte den Rotationsfilter ein-/aus",
-			"messages": {
-				"enabled": "`✅` | Rotationsfilter wurde `AKTIVIERT`.",
-				"disabled": "`✅` | Rotationsfilter wurde `DEAKTIVIERT`."
-			}
-		},
-		"speed": {
-			"description": "Ändere die Geschwindigkeit des Songs",
-			"options": {
-				"speed": "Die Geschwindigkeit, die du einstellen möchtest"
-			},
-			"messages": {
-				"invalid_number": "Bitte gib eine gültige Zahl zwischen 0,5 und 5 ein.",
-				"set_speed": "`✅` | Geschwindigkeit wurde auf **{speed}** gesetzt."
-			}
-		},
-		"tremolo": {
-			"description": "Schalte den Tremolo-Filter ein-/aus",
-			"messages": {
-				"enabled": "`✅` | Tremolo-Filter wurde `AKTIVIERT`.",
-				"disabled": "`✅` | Tremolo-Filter wurde `DEAKTIVIERT`."
-			}
-		},
-		"vibrato": {
-			"description": "Schalte den Vibrato-Filter ein-/aus",
-			"messages": {
-				"enabled": "`✅` | Vibrato-Filter wurde `AKTIVIERT`.",
-				"disabled": "`✅` | Vibrato-Filter wurde `DEAKTIVIERT`."
-			}
-		},
-		"autoplay": {
-			"description": "Schaltet Autoplay um",
-			"messages": {
-				"enabled": "`✅` | Autoplay wurde `AKTIVIERT`.",
-				"disabled": "`✅` | Autoplay wurde `DEAKTIVIERT`."
-			}
-		},
-		"clearqueue": {
-			"description": "Leert die Warteschlange",
-			"messages": {
-				"cleared": "Die Warteschlange wurde geleert."
-			}
-		},
-		"grab": {
-			"description": "Holt den aktuell abgespielten Song in deine DM",
-			"content": "**Dauer:** {length}\n**Angefordert von:** <@{requester}>\n**Link:** [Klicke hier]({uri})",
-			"check_dm": "Bitte überprüfe deine DM.",
-			"dm_failed": "Ich konnte dir keine DM senden."
-		},
-		"join": {
-			"description": "Tritt dem Sprachkanal bei",
-			"already_connected": "Ich bin bereits mit <#{channelId}> verbunden.",
-			"no_voice_channel": "Du musst in einem Sprachkanal sein, um diesen Befehl zu verwenden.",
-			"joined": "Erfolgreich <#{channelId}> beigetreten."
-		},
-		"leave": {
-			"description": "Verlässt den Sprachkanal",
-			"left": "Erfolgreich <#{channelId}> verlassen.",
-			"not_in_channel": "Ich bin in keinem Sprachkanal."
-		},
-		"loop": {
-			"description": "Wiederhole den aktuellen Song oder die Warteschlange",
-			"looping_song": "**Wiederhole den Song.**",
-			"looping_queue": "**Wiederhole die Warteschlange.**",
-			"looping_off": "**Wiederholung ist jetzt deaktiviert.**"
-		},
-		"nowplaying": {
-			"description": "Zeigt den aktuell abgespielten Song an",
-			"now_playing": "Jetzt wird abgespielt",
-			"track_info": "[{title}]({uri}) - Angefordert von: <@{requester}>\n\n`{bar}`"
-		},
-		"pause": {
-			"description": "Pausiert den aktuellen Song",
-			"successfully_paused": "Song erfolgreich pausiert."
-		},
-		"play": {
-			"description": "Spielt einen Song von YouTube, Spotify oder http ab",
-			"options": {
-				"song": "Der Song, den du abspielen möchtest"
-			},
-			"loading": "Lädt...",
-			"errors": {
-				"search_error": "Ein Fehler ist beim Suchen aufgetreten.",
-				"no_results": "Es wurden keine Ergebnisse gefunden.",
-				"queue_too_long": "Die Warteschlange ist zu lang. Die maximale Länge beträgt {maxQueueSize} Songs.",
-				"playlist_too_long": "Die Playlist ist zu lang. Die maximale Länge beträgt {maxPlaylistSize} Songs."
-			},
-			"added_to_queue": "[{title}]({uri}) zur Warteschlange hinzugefügt.",
-			"added_playlist_to_queue": "{length} Songs zur Warteschlange hinzugefügt."
-		},
-		"playnext": {
-			"description": "Füge den Song hinzu, der als nächstes in der Warteschlange abgespielt werden soll",
-			"options": {
-				"song": "Der Song, den du abspielen möchtest"
-			},
-			"loading": "Lädt...",
-			"errors": {
-				"search_error": "Ein Fehler ist beim Suchen aufgetreten.",
-				"no_results": "Es wurden keine Ergebnisse gefunden.",
-				"queue_too_long": "Die Warteschlange ist zu lang. Die maximale Länge beträgt {maxQueueSize} Songs.",
-				"playlist_too_long": "Die Playlist ist zu lang. Die maximale Länge beträgt {maxPlaylistSize} Songs."
-			},
-			"added_to_play_next": "[{title}]({uri}) zur nächsten Wiedergabe in der Warteschlange hinzugefügt.",
-			"added_playlist_to_play_next": "{length} Songs zur nächsten Wiedergabe in der Warteschlange hinzugefügt."
-		},
-		"queue": {
-			"description": "Zeigt die aktuelle Warteschlange an",
-			"now_playing": "Wird gerade abgespielt: [{title}]({uri}) - Angefordert von: <@{requester}> - Dauer: `{duration}`",
-			"live": "LIVE",
-			"track_info": "{index}. [{title}]({uri}) - Angefordert von: <@{requester}> - Dauer: `{duration}`",
-			"title": "Warteschlange",
-			"page_info": "Seite {index} von {total}"
-		},
-		"remove": {
-			"description": "Entfernt einen Song aus der Warteschlange",
-			"options": {
-				"song": "Die Songnummer, die du entfernen möchtest"
-			},
-			"errors": {
-				"no_songs": "Es befinden sich keine Songs in der Warteschlange.",
-				"invalid_number": "Bitte gib eine gültige Songnummer ein."
-			},
-			"messages": {
-				"removed": "Song Nummer {songNumber} aus der Warteschlange entfernt."
-			}
-		},
-		"replay": {
-			"description": "Spielt den aktuellen Track erneut ab",
-			"errors": {
-				"not_seekable": "Dieser Track kann nicht erneut abgespielt werden, da er nicht suchbar ist."
-			},
-			"messages": {
-				"replaying": "Spiele den aktuellen Track erneut ab."
-			}
-		},
-		"resume": {
-			"description": "Setzt den aktuellen Song fort",
-			"errors": {
-				"not_paused": "Der Player ist nicht pausiert."
-			},
-			"messages": {
-				"resumed": "Player fortgesetzt."
-			}
-		},
-		"search": {
-			"description": "Sucht nach einem Song",
-			"options": {
-				"song": "Der Song, nach dem du suchen möchtest"
-			},
-			"errors": {
-				"no_results": "Keine Ergebnisse gefunden.",
-				"search_error": "Ein Fehler ist beim Suchen aufgetreten."
-			},
-			"messages": {
-				"added_to_queue": "[[{title}]({uri})] zur Warteschlange hinzugefügt."
-			}
-		},
-		"seek": {
-			"description": "Springt zu einer bestimmten Zeit im Song",
-			"options": {
-				"duration": "Die Dauer, zu der du springen möchtest"
-			},
-			"errors": {
-				"invalid_format": "Ungültiges Zeitformat. Beispiele: seek 1m, seek 1h 30m",
-				"not_seekable": "Dieser Track ist nicht suchbar.",
-				"beyond_duration": "Kann nicht über die Songdauer von {length} hinaus springen."
-			},
-			"messages": {
-				"seeked_to": "Gesprungen zu {duration}"
-			}
-		},
-		"shuffle": {
-			"description": "Mische die Warteschlange",
-			"messages": {
-				"shuffled": "Warteschlange gemischt."
-			}
-		},
-		"skip": {
-			"description": "Überspringe den aktuellen Song",
-			"messages": {
-				"skipped": "Übersprungen [{title}]({uri})."
-			}
-		},
-		"skipto": {
-			"description": "Überspringe zu einem bestimmten Song in der Warteschlange",
-			"options": {
-				"number": "Die Nummer des Songs, zu dem du springen möchtest"
-			},
-			"errors": {
-				"invalid_number": "Bitte gib eine gültige Nummer ein."
-			},
-			"messages": {
-				"skipped_to": "Gesprungen zu Song Nummer {number}."
-			}
-		},
-		"stop": {
-			"description": "Stoppt die Musik und leert die Warteschlange",
-			"messages": {
-				"stopped": "Musik gestoppt und Warteschlange geleert."
-			}
-		},
-		"volume": {
-			"description": "Stellt die Lautstärke des Players ein",
-			"options": {
-				"number": "Die Lautstärke, die du einstellen möchtest"
-			},
-			"messages": {
-				"invalid_number": "Bitte gib eine gültige Nummer ein.",
-				"too_low": "Die Lautstärke kann nicht unter 0 liegen.",
-				"too_high": "Die Lautstärke kann nicht über 200 liegen. Willst du dein Gehör oder deine Lautsprecher beschädigen? Hmmm, ich glaube nicht, dass das eine so gute Idee ist.",
-				"set": "Lautstärke auf {volume} gesetzt"
-			}
-		},
-		"addsong": {
-			"description": "Füge einen Song zur Playlist hinzu",
-			"options": {
-				"playlist": "Die Playlist, zu der du den Song hinzufügen möchtest",
-				"song": "Der Song, den du hinzufügen möchtest"
-			},
-			"messages": {
-				"no_playlist": "Bitte gib eine Playlist an",
-				"no_song": "Bitte gib einen Song an",
-				"playlist_not_found": "Diese Playlist existiert nicht",
-				"no_songs_found": "Keine Songs gefunden",
-				"added": "{count} Song(s) zu {playlist} hinzugefügt"
-			}
-		},
-		"create": {
-			"description": "Erstelle eine Playlist",
-			"options": {
-				"name": "Der Name der Playlist"
-			},
-			"messages": {
-				"name_too_long": "Playlist-Namen dürfen nur 50 Zeichen lang sein.",
-				"playlist_exists": "Eine Playlist mit diesem Namen existiert bereits. Bitte verwende einen anderen Namen.",
-				"playlist_created": "Playlist **{name}** wurde erstellt."
-			}
-		},
-		"delete": {
-			"description": "Lösche eine Playlist",
-			"options": {
-				"playlist": "Die Playlist, die du löschen möchtest"
-			},
-			"messages": {
-				"playlist_not_found": "Diese Playlist existiert nicht.",
-				"playlist_deleted": "Playlist **{playlistName}** gelöscht."
-			}
-		},
-		"list": {
-			"description": "Ruft alle Playlists für den Benutzer ab",
-			"options": {
-				"user": "Der Benutzer, dessen Playlists du abrufen möchtest"
-			},
-			"messages": {
-				"no_playlists": "Dieser Benutzer hat keine Playlists.",
-				"your": "Deine",
-				"playlists_title": "Playlists von {username}",
-				"error": "Ein Fehler ist beim Abrufen der Playlists aufgetreten."
-			}
-		},
-		"load": {
-			"description": "Lädt eine Playlist",
-			"options": {
-				"playlist": "Die Playlist, die du laden möchtest"
-			},
-			"messages": {
-				"playlist_not_exist": "Diese Playlist existiert nicht.",
-				"playlist_empty": "Diese Playlist ist leer.",
-				"playlist_loaded": "Lade `{name}` mit `{count}` Songs."
-			}
-		},
-		"removesong": {
-			"description": "Entfernt einen Song aus der Playlist",
-			"options": {
-				"playlist": "Die Playlist, aus der du den Song entfernen möchtest",
-				"song": "Der Song, den du entfernen möchtest"
-			},
-			"messages": {
-				"provide_playlist": "Bitte gib eine Playlist an.",
-				"provide_song": "Bitte gib einen Song an.",
-				"playlist_not_exist": "Diese Playlist existiert nicht.",
-				"song_not_found": "Kein passender Song gefunden.",
-				"song_removed": "{song} aus {playlist} entfernt.",
-				"error_occurred": "Ein Fehler ist beim Entfernen des Songs aufgetreten."
-			}
-		},
-		"steal": {
-			"description": "Stiehlt eine Playlist von einem anderen Benutzer und fügt sie deinen Playlists hinzu",
-			"options": {
-				"playlist": "Die Playlist, die du stehlen möchtest",
-				"user": "Der Benutzer, von dem du die Playlist stehlen möchtest"
-			},
-			"messages": {
-				"provide_playlist": "Bitte gib einen Playlist-Namen an.",
-				"provide_user": "Bitte erwähne einen Benutzer.",
-				"playlist_not_exist": "Diese Playlist existiert für den genannten Benutzer nicht.",
-				"playlist_stolen": "Playlist `{playlist}` erfolgreich von {user} gestohlen.",
-				"error_occurred": "Ein Fehler ist beim Stehlen der Playlist aufgetreten."
-			}
-		},
-		"language": {
-			"description": "Legt die Sprache für den Bot fest",
-			"invalid_language": "Bitte gib eine gültige Sprache an. Beispiel: `EnglishUS` für Englisch (Vereinigte Staaten)\n\nDie Liste der unterstützten Sprachen findest du [hier](https://discord.com/developers/docs/reference#locales)\n\n**Verfügbare Sprachen:**\n{languages}",
-			"already_set": "Die Sprache ist bereits auf `{language}` gesetzt",
-			"not_set": "Die Sprache wurde nicht festgelegt",
-			"set": "`✅` | Die Sprache wurde auf `{language}` gesetzt",
-			"reset": "`✅` | Die Sprache wurde auf die Standardsprache zurückgesetzt",
-			"options": {
-				"set": "Legt die Sprache für den Bot fest",
-				"language": "Die Sprache, die du einstellen möchtest",
-				"reset": "Ändere die Sprache zurück zur Standardsprache"
-			}
-		},
-		"lyrics": {
-			"description": "Get's the lyrics of the currently playing track"
-		},
-		"vplay": {
-			"description": "Stream de vídeo no canal de voz.",
-			"options": {
-				"url": "O link do vídeo que você deseja tocar"
-			}
-		},
-		"mlist": {
-			"description": "Lista os downloads de videos"
-		},
-		"mplay": {
-			"description": "cmd.mplay.description",
-			"options": {
-				"movie": "cmd.mplay.options.movie",
-				"audioTrack": "cmd.mplay.options.audioTrack"
-			}
-		},
-		"msearch": {
-			"description": "Procura por filmes ou animes",
-			"options": {
-				"search": "cmd.msearch.options.search"
-			}
-		},
-		"mstop": {
-			"description": "cmd.mstop.description"
-		},
-		"mpause": {
-			"description": "cmd.mpause.description"
-		},
-		"mresume": {
-			"description": "cmd.mresume.description"
-		},
-		"code": {
-			"description": "cmd.code.description"
-		},
-		"model": {
-			"description": "cmd.model.description"
-		},
-		"reason": {
-			"description": "cmd.reason.description"
-		},
-		"stream": {
-			"description": "cmd.stream.description"
-		}
-	},
-	"buttons": {
-		"invite": "Einladen",
-		"support": "Support-Server",
-		"previous": "Vorheriger",
-		"resume": "Fortsetzen",
-		"stop": "Stoppen",
-		"skip": "Überspringen",
-		"loop": "Schleife",
-		"errors": {
-			"not_author": "Du kannst diesen Button nicht verwenden."
-		}
-	},
-	"player": {
-		"errors": {
-			"no_player": "Es gibt keinen aktiven Player in dieser Gilde.",
-			"no_channel": "Du musst in einem Sprachkanal sein, um diesen Befehl zu verwenden.",
-			"queue_empty": "Die Warteschlange ist leer.",
-			"no_previous": "Es gibt keine vorherigen Songs in der Warteschlange.",
-			"no_song": "Es befinden sich keine Songs in der Warteschlange.",
-			"already_paused": "Der Song ist bereits pausiert."
-		},
-		"trackStart": {
-			"now_playing": "Jetzt wird abgespielt",
-			"requested_by": "Angefordert von {user}",
-			"duration": "Dauer",
-			"author": "Autor",
-			"not_connected_to_voice_channel": "Du bist nicht mit <#{channel}> verbunden, um diese Buttons zu verwenden.",
-			"need_dj_role": "Du musst die DJ-Rolle haben, um diesen Befehl zu verwenden.",
-			"previous_by": "Vorheriger von {user}",
-			"no_previous_song": "Es gibt keinen vorherigen Song.",
-			"paused_by": "Pausiert von {user}",
-			"resumed_by": "Fortgesetzt von {user}",
-			"skipped_by": "Übersprungen von {user}",
-			"no_more_songs_in_queue": "Es gibt keinen weiteren Song in der Warteschlange.",
-			"looping_by": "Schleife von {user}",
-			"looping_queue_by": "Warteschlange in Schleife von {user}",
-			"looping_off_by": "Schleife aus von {user}"
-		},
-		"setupStart": {
-			"now_playing": "Now Playing",
-			"description": "[{title}]({uri}) by {author} • `[{length}]` - Requested by <@{requester}>",
-			"error_searching": "There was an error while searching.",
-			"no_results": "There were no results found.",
-			"nothing_playing": "Nothing playing right now.",
-			"queue_too_long": "The queue is too long. The maximum length is {maxQueueSize} songs.",
-			"playlist_too_long": "The playlist is too long. The maximum length is {maxPlaylistSize} songs.",
-			"added_to_queue": "Added [{title}]({uri}) to the queue.",
-			"added_playlist_to_queue": "Added [{length}] songs from the playlist to the queue."
-		}
-	},
-	"event": {
-		"interaction": {
-			"setup_channel": "Du kannst diesen Befehl nicht im Einrichtungskanal verwenden.",
-			"no_send_message": "Ich habe keine **`SendMessage`**-Berechtigung in `{guild}`\nKanal: {channel}.",
-			"no_embed_links": "Ich habe keine **`EmbedLinks`**-Berechtigung.",
-			"no_permission": "Ich habe nicht genügend Berechtigungen, um diesen Befehl auszuführen.",
-			"no_user_permission": "Du hast nicht genügend Berechtigungen, um diesen Befehl zu verwenden.",
-			"no_voice_channel": "Du musst mit einem Sprachkanal verbunden sein, um diesen Befehl `{command}` zu verwenden.",
-			"no_connect_permission": "Ich habe keine `CONNECT`-Berechtigungen, um diesen Befehl `{command}` auszuführen.",
-			"no_speak_permission": "Ich habe keine `SPEAK`-Berechtigungen, um diesen Befehl `{command}` auszuführen.",
-			"no_request_to_speak": "Ich habe keine `REQUEST TO SPEAK`-Berechtigung, um diesen Befehl `{command}` auszuführen.",
-			"different_voice_channel": "Du bist nicht mit {channel} verbunden, um diesen Befehl `{command}` zu verwenden.",
-			"no_music_playing": "Es wird gerade nichts abgespielt.",
-			"no_dj_role": "DJ-Rolle ist nicht gesetzt.",
-			"no_dj_permission": "Du musst die DJ-Rolle haben, um diesen Befehl zu verwenden.",
-			"cooldown": "Bitte warte {time} weitere Sekunde(n), bevor du den Befehl `{command}` erneut verwendest.",
-			"error": "Ein Fehler ist aufgetreten: `{error}`"
-		},
-		"message": {
-			"prefix_mention": "Hey, mein Präfix für diesen Server ist `{prefix}`. Möchtest du mehr Infos? Dann gib `{prefix}help` ein\nBleib sicher, bleib großartig!",
-			"no_send_message": "Ich habe keine **`SendMessage`**-Berechtigung in `{guild}`\nKanal: {channel}.",
-			"no_embed_links": "Ich habe keine **`EmbedLinks`**-Berechtigung.",
-			"no_permission": "Ich habe nicht genügend Berechtigungen, um diesen Befehl auszuführen.",
-			"no_user_permission": "Du hast nicht genügend Berechtigungen, um diesen Befehl zu verwenden.",
-			"no_voice_channel": "Du musst mit einem Sprachkanal verbunden sein, um diesen Befehl `{command}` zu verwenden.",
-			"no_connect_permission": "Ich habe keine `CONNECT`-Berechtigungen, um diesen Befehl `{command}` auszuführen.",
-			"no_speak_permission": "Ich habe keine `SPEAK`-Berechtigungen, um diesen Befehl `{command}` auszuführen.",
-			"no_request_to_speak": "Ich habe keine `REQUEST TO SPEAK`-Berechtigung, um diesen Befehl `{command}` auszuführen.",
-			"different_voice_channel": "Du bist nicht mit {channel} verbunden, um diesen Befehl `{command}` zu verwenden.",
-			"no_music_playing": "Es wird gerade nichts abgespielt.",
-			"no_dj_role": "DJ-Rolle ist nicht gesetzt.",
-			"no_dj_permission": "Du musst die DJ-Rolle haben, um diesen Befehl zu verwenden.",
-			"missing_arguments": "Fehlende Argumente",
-			"missing_arguments_description": "Bitte gib die benötigten Argumente für den Befehl `{command}` an.\n\nBeispiele:\n{examples}",
-			"syntax_footer": "Syntax: [] = optional, <> = erforderlich",
-			"cooldown": "Bitte warte {time} weitere Sekunde(n), bevor du den Befehl `{command}` erneut verwendest.",
-			"no_mention_everyone": "Du kannst diesen Befehl nicht mit @everyone oder @here verwenden.",
-			"error": "Ein Fehler ist aufgetreten: `{error}`",
-			"no_voice_channel_queue": "Du bist nicht mit einem Sprachkanal verbunden, um Songs in die Warteschlange zu stellen.",
-			"no_permission_connect_speak": "Ich habe nicht genügend Berechtigungen, um mich in <#{channel}> zu verbinden/sprechen.",
-			"different_voice_channel_queue": "Du bist nicht mit <#{channel}> verbunden, um Songs in die Warteschlange zu stellen."
-		},
-		"setupButton": {
-			"no_voice_channel_button": "Du bist nicht mit einem Sprachkanal verbunden, um diesen Button zu verwenden.",
-			"different_voice_channel_button": "Du bist nicht mit {channel} verbunden, um diese Buttons zu verwenden.",
-			"now_playing": "Jetzt wird abgespielt",
-			"live": "LIVE",
-			"requested_by": "Angefordert von <@{requester}>",
-			"no_dj_permission": "Du musst die DJ-Rolle haben, um diesen Befehl zu verwenden.",
-			"volume_set": "Lautstärke auf {vol}% gesetzt",
-			"volume_footer": "Lautstärke: {vol}%",
-			"paused": "Pausiert",
-			"resumed": "Fortgesetzt",
-			"pause_resume": "{name} die Musik.",
-			"pause_resume_footer": "{name} von {displayName}",
-			"no_music_to_skip": "Es gibt keine Musik zum Überspringen.",
-			"skipped": "Musik übersprungen.",
-			"skipped_footer": "Übersprungen von {displayName}",
-			"stopped": "Musik gestoppt.",
-			"stopped_footer": "Gestoppt von {displayName}",
-			"nothing_playing": "Es wird gerade nichts abgespielt",
-			"loop_set": "Schleife auf {loop} gesetzt.",
-			"loop_footer": "Schleife auf {loop} gesetzt von {displayName}",
-			"shuffled": "Warteschlange gemischt.",
-			"no_previous_track": "Es gibt keinen vorherigen Track.",
-			"playing_previous": "Spiele den vorherigen Track ab.",
-			"previous_footer": "Spiele den vorherigen Track ab von {displayName}",
-			"rewinded": "Musik zurückgespult.",
-			"rewind_footer": "Zurückgespult von {displayName}",
-			"forward_limit": "Du kannst die Musik nicht mehr als die Länge des Songs vorspulen.",
-			"forwarded": "Musik vorgespult.",
-			"forward_footer": "Vorgespult von {displayName}",
-			"button_not_available": "Dieser Button ist nicht verfügbar.",
-			"no_music_playing": "Es wird gerade nichts abgespielt."
-		}
-	},
-	"Evaluate code": "Evaluate code",
-	"Leave a guild": "Leave a guild",
-	"List all guilds the bot is in": "List all guilds the bot is in",
-	"Restart the bot": "Restart the bot",
-	"Stream de vídeo no canal de voz.": "Stream de vídeo no canal de voz.",
-	"Chat inteligente com IA da NVIDIA - análise de código, geração e muito mais!": "Chat inteligente com IA da NVIDIA - análise de código, geração e muito mais!",
-	"Modo de operação da IA": "Modo de operação da IA",
-	"Sua mensagem ou pergunta": "Sua mensagem ou pergunta",
-	"Linguagem de programação (para modos de código)": "Linguagem de programação (para modos de código)",
-	"Ferramentas avançadas de IA para análise, tradução, documentação e mais!": "Ferramentas avançadas de IA para análise, tradução, documentação e mais!",
-	"Escolha uma ferramenta": "Escolha uma ferramenta",
-	"Texto ou código para processar": "Texto ou código para processar",
-	"Análise inteligente de imagens com IA - descreva, analise e extraia informações!": "Análise inteligente de imagens com IA - descreva, analise e extraia informações!",
-	"Modo de análise": "Modo de análise",
-	"Pergunta específica sobre a imagem": "Pergunta específica sobre a imagem",
-	"Configura o comportamento da IA da Mahina": "Configura o comportamento da IA da Mahina",
-	"Ação a ser executada": "Ação a ser executada",
-	"🍁 Descubra seu animal espiritual do World of Warcraft através de análise de personalidade com IA": "🍁 Descubra seu animal espiritual do World of Warcraft através de análise de personalidade com IA",
-	"👤 O usuário que você deseja analisar": "👤 O usuário que você deseja analisar",
-	"Explain code in detail": "Explain code in detail",
-	"Review code and suggest improvements": "Review code and suggest improvements",
-	"Optimize code for better performance": "Optimize code for better performance",
-	"Debug code and identify issues": "Debug code and identify issues",
-	"Programming language": "Programming language",
-	"The code to explain": "The code to explain",
-	"The code to review": "The code to review",
-	"The code to optimize": "The code to optimize",
-	"The code to debug": "The code to debug",
-	"List all available AI models": "List all available AI models",
-	"Select an AI model": "Select an AI model",
-	"Get information about a specific model": "Get information about a specific model",
-	"Show your current AI model": "Show your current AI model",
-	"The model to select": "The model to select",
-	"The model to get info about": "The model to get info about",
-	"The problem or question to analyze": "The problem or question to analyze",
-	"Additional context for the problem": "Additional context for the problem",
-	"Your message for streaming AI response": "Your message for streaming AI response",
-	"Advanced AI chat with context, memory, and personality": "Advanced AI chat with context, memory, and personality",
-	"Your message to Mahina AI": "Your message to Mahina AI",
-	"Choose AI personality": "Choose AI personality",
-	"Conversation mode": "Conversation mode",
-	"Private response (only you can see)": "Private response (only you can see)",
-	"Manage proactive interaction settings": "Manage proactive interaction settings",
-	"Show proactive interaction statistics": "Show proactive interaction statistics",
-	"Test proactive interaction in current channel": "Test proactive interaction in current channel",
-	"Force proactive interaction check": "Force proactive interaction check",
-	"Check AI services status and statistics": "Check AI services status and statistics",
-	"Verificar status e estatísticas dos serviços de IA": "Verificar status e estatísticas dos serviços de IA",
-	"Chat avançado com IA": " contexto, memória e personalidade",
-	"Sua mensagem para a Mahina AI": "Sua mensagem para a Mahina AI",
-	"Escolha a personalidade da IA": "Escolha a personalidade da IA",
-	"Modo de conversa": "Modo de conversa",
-	"Resposta privada (apenas você pode ver)": "Resposta privada (apenas você pode ver)",
-	"Testa e configura sistemas de segurança NVIDIA NemoGuard": "Testa e configura sistemas de segurança NVIDIA NemoGuard",
-	"Texto para verificar (obrigatório para verificações)": "Texto para verificar (obrigatório para verificações)",
-	"Usar modo estrito para verificação de tópicos": "Usar modo estrito para verificação de tópicos",
-	"Receber resposta também em áudio (TTS)": "Receber resposta também em áudio (TTS)",
-	"Busca por comandos e informações usando IA semântica": "Busca por comandos e informações usando IA semântica",
-	"O que você está procurando? Ex": "O que você está procurando? Ex",
-	"Filtrar por categoria específica": "Filtrar por categoria específica",
-	"Nível de precisão da busca (padrão": "Nível de precisão da busca (padrão",
-	"Converte texto em áudio usando NVIDIA TTS": "Converte texto em áudio usando NVIDIA TTS",
-	"O texto que será convertido em áudio": "O texto que será convertido em áudio",
-	"Escolha da voz para o TTS": "Escolha da voz para o TTS",
-	"Velocidade da fala (0": {
-		"5 - 2": {
-			"0)": "Velocidade da fala (0.5 - 2.0)"
-		}
-	},
-	"Tom da voz (-0": {
-		"5 a 0": {
-			"5)": "Tom da voz (-0.5 a 0.5)"
-		}
-	},
-	"Enviar áudio apenas para você": "Enviar áudio apenas para você",
-	"Gera visualizações com física realista usando NVIDIA Cosmos": "Gera visualizações com física realista usando NVIDIA Cosmos",
-	"Tipo de visualização": "Tipo de visualização",
-	"Descrição da visualização (obrigatório para prompt customizado)": "Descrição da visualização (obrigatório para prompt customizado)",
-	"Estilo visual da animação": "Estilo visual da animação",
-	"Número de frames (8-48, padrão": "Número de frames (8-48, padrão",
-	"Incluir texto na visualização": "Incluir texto na visualização",
-	"Imagem base para predição física (opcional)": "Imagem base para predição física (opcional)"
+  "cmd": {
+    "247": {
+      "description": "Lege den Bot so fest, dass er im Sprachkanal bleibt",
+      "errors": {
+        "not_in_voice": "Du musst in einem Sprachkanal sein, um diesen Befehl zu verwenden.",
+        "generic": "Ein Fehler ist aufgetreten, als versucht wurde, diesen Befehl auszuführen."
+      },
+      "messages": {
+        "disabled": "`✅` | 24/7-Modus wurde `DEAKTIVIERT`",
+        "enabled": "`✅` | 24/7-Modus wurde `AKTIVIERT`. \n**Der Bot verlässt den Sprachkanal nicht, auch wenn sich keine Personen im Sprachkanal befinden.**"
+      }
+    },
+    "ping": {
+      "description": "Zeigt den Ping des Bots an.",
+      "content": "Ping...",
+      "bot_latency": "Bot-Latenz",
+      "api_latency": "API-Latenz",
+      "requested_by": "Angefordert von {author}"
+    },
+    "lavalink": {
+      "description": "Zeigt die aktuellen Lavalink-Statistiken an.",
+      "title": "Lavalink-Statistiken",
+      "content": "Spieler: {players}\nSpielende Spieler: {playingPlayers}\nBetriebszeit: {uptime}\nKerne: {cores} Kern(e)\nSpeichernutzung: {used} / {reservable}\nSystemlast: {systemLoad}%\nLavalink-Last: {lavalinkLoad}%"
+    },
+    "invite": {
+      "description": "Hole den Einladungslink des Bots.",
+      "content": "Du kannst mich einladen, indem du auf den unten stehenden Button klickst. Bugs oder Ausfälle? Trete dem Support-Server bei!"
+    },
+    "help": {
+      "description": "Zeigt das Hilfe-Menü an.",
+      "options": {
+        "command": "Der Befehl, zu dem du Informationen erhalten möchtest"
+      },
+      "content": "Hallo! Ich bin {bot}, ein Musikbot, der mit [MahinaBot](https://github.com/gabrielmaialva33/mahina-bot) und Discord erstellt wurde. Du kannst `{prefix}help <command>` verwenden, um mehr Informationen zu einem Befehl zu erhalten.",
+      "title": "Hilfe-Menü",
+      "not_found": "Dieser Befehl `{cmdName}` existiert nicht.",
+      "help_cmd": "**Beschreibung:** {description}\n**Verwendung:** {usage}\n**Beispiele:** {examples}\n**Alias:** {aliases}\n**Kategorie:** {category}\n**Abklingzeit:** {cooldown} Sekunden\n**Berechtigungen:** {premUser}\n**Bot-Berechtigungen:** {premBot}\n**Nur für Entwickler:** {dev}\n**Slash-Befehl:** {slash}\n**Args:** {args}\n**Spieler:** {player}\n**DJ:** {dj}\n**DJ-Berechtigungen:** {djPerm}\n**Stimme:** {voice}",
+      "footer": "Verwende `{prefix}help <command>` für weitere Informationen zu einem Befehl"
+    },
+    "botinfo": {
+      "description": "Informationen über den Bot",
+      "content": "Bot-Informationen:\n- **Betriebssystem**: {osInfo}\n- **Betriebszeit**: {osUptime}\n- **Hostname**: {osHostname}\n- **CPU-Architektur**: {cpuInfo}\n- **CPU-Auslastung**: {cpuUsed}%\n- **Speichernutzung**: {memUsed}MB / {memTotal}GB\n- **Node-Version**: {nodeVersion}\n- **Discord-Version**: {discordJsVersion}\n- **Verbunden mit** {guilds} Guilden, {channels} Kanälen und {users} Benutzern\n- **Gesamtzahl der Befehle**: {commands}"
+    },
+    "about": {
+      "description": "Zeigt Informationen über den Bot an",
+      "fields": {
+        "creator": "Ersteller",
+        "repository": "Repository",
+        "support": "Support",
+        "description": "Er wollte unbedingt sein erstes Open-Source-Projekt überhaupt für mehr Programmiererfahrung erstellen. In diesem Projekt wurde er herausgefordert, ein Projekt mit weniger Bugs zu erstellen. Ich hoffe, du hast Spaß beim Verwenden von MahinaBot!"
+      }
+    },
+    "dj": {
+      "description": "Verwalte den DJ-Modus und die zugehörigen Rollen",
+      "errors": {
+        "provide_role": "Bitte gib eine Rolle an.",
+        "no_roles": "Die DJ-Rolle ist leer.",
+        "invalid_subcommand": "Bitte gib einen gültigen Unterbefehl an."
+      },
+      "messages": {
+        "role_exists": "Die DJ-Rolle <@&{roleId}> wurde bereits hinzugefügt.",
+        "role_added": "Die DJ-Rolle <@&{roleId}> wurde hinzugefügt.",
+        "role_not_found": "Die DJ-Rolle <@&{roleId}> wurde nicht hinzugefügt.",
+        "role_removed": "Die DJ-Rolle <@&{roleId}> wurde entfernt.",
+        "all_roles_cleared": "Alle DJ-Rollen wurden entfernt.",
+        "toggle": "Der DJ-Modus wurde auf {status} umgeschaltet."
+      },
+      "options": {
+        "add": "Die DJ-Rolle, die du hinzufügen möchtest",
+        "remove": "Die DJ-Rolle, die du entfernen möchtest",
+        "clear": "Lösche alle DJ-Rollen",
+        "toggle": "Schalte die DJ-Rolle um",
+        "role": "Die DJ-Rolle"
+      },
+      "subcommands": "Unterbefehle"
+    },
+    "prefix": {
+      "description": "Zeigt oder setzt das Präfix des Bots",
+      "errors": {
+        "prefix_too_long": "Das Präfix darf nicht länger als 3 Zeichen sein."
+      },
+      "messages": {
+        "current_prefix": "Das Präfix für diesen Server ist `{prefix}`",
+        "prefix_set": "Das Präfix für diesen Server ist jetzt `{prefix}`",
+        "prefix_reset": "Das Präfix für diesen Server ist jetzt `{prefix}`"
+      },
+      "options": {
+        "set": "Setzt das Präfix",
+        "prefix": "Das Präfix, das du setzen möchtest",
+        "reset": "Setzt das Präfix auf das Standardpräfix zurück"
+      }
+    },
+    "setup": {
+      "description": "Richte den Bot ein",
+      "errors": {
+        "channel_exists": "Der Song-Anforderungskanal existiert bereits.",
+        "channel_not_exists": "Der Song-Anforderungskanal existiert nicht.",
+        "channel_delete_fail": "Der Song-Anforderungskanal wurde gelöscht. Wenn der Kanal nicht normal gelöscht wird, lösche ihn bitte selbst."
+      },
+      "messages": {
+        "channel_created": "Der Song-Anforderungskanal wurde in <#{channelId}> erstellt.",
+        "channel_deleted": "Der Song-Anforderungskanal wurde gelöscht.",
+        "channel_info": "Der Song-Anforderungskanal ist <#{channelId}>."
+      },
+      "options": {
+        "create": "Erstelle den Song-Anforderungskanal",
+        "delete": "Lösche den Song-Anforderungskanal",
+        "info": "Zeigt den Song-Anforderungskanal an"
+      }
+    },
+    "8d": {
+      "description": "8d-Filter ein-/ausschalten",
+      "messages": {
+        "filter_enabled": "`✅` | 8D-Filter wurde `AKTIVIERT`.",
+        "filter_disabled": "`✅` | 8D-Filter wurde `DEAKTIVIERT`."
+      }
+    },
+    "bassboost": {
+      "description": "Bassboost-Filter ein-/ausschalten",
+      "messages": {
+        "filter_enabled": "`✅` | Bassboost-Filter wurde `AKTIVIERT`. \n**Vorsicht, zu lautes Hören kann deine Ohren schädigen!**",
+        "filter_disabled": "`✅` | Bassboost-Filter wurde `DEAKTIVIERT`."
+      },
+      "options": {
+        "level": "The bassboost level you want to set"
+      }
+    },
+    "distortion": {
+      "description": "Schalte den Verzerrungsfilter ein-/aus",
+      "messages": {
+        "filter_enabled": "`✅` | Verzerrungsfilter wurde `AKTIVIERT`.",
+        "filter_disabled": "`✅` | Verzerrungsfilter wurde `DEAKTIVIERT`."
+      }
+    },
+    "karaoke": {
+      "description": "Schalte den Karaoke-Filter ein-/aus",
+      "messages": {
+        "filter_enabled": "`✅` | Karaoke-Filter wurde `AKTIVIERT`.",
+        "filter_disabled": "`✅` | Karaoke-Filter wurde `DEAKTIVIERT`."
+      }
+    },
+    "lowpass": {
+      "description": "Schalte den Tiefpassfilter ein-/aus",
+      "messages": {
+        "filter_enabled": "`✅` | Tiefpassfilter wurde `AKTIVIERT`.",
+        "filter_disabled": "`✅` | Tiefpassfilter wurde `DEAKTIVIERT`."
+      }
+    },
+    "nightcore": {
+      "description": "Schalte den Nightcore-Filter ein-/aus",
+      "messages": {
+        "filter_enabled": "`✅` | Nightcore-Filter wurde `AKTIVIERT`.",
+        "filter_disabled": "`✅` | Nightcore-Filter wurde `DEAKTIVIERT`."
+      }
+    },
+    "pitch": {
+      "description": "Schalte den Pitch-Filter ein-/aus",
+      "options": {
+        "pitch": "Die Zahl, auf die du den Pitch setzen möchtest (zwischen 0,5 und 5)"
+      },
+      "errors": {
+        "invalid_number": "Bitte gib eine gültige Zahl zwischen 0,5 und 5 ein."
+      },
+      "messages": {
+        "pitch_set": "`✅` | Pitch wurde auf **{pitch}** gesetzt."
+      }
+    },
+    "rate": {
+      "description": "Ändere die Rate des Songs",
+      "options": {
+        "rate": "Die Zahl, auf die du die Rate setzen möchtest (zwischen 0,5 und 5)"
+      },
+      "errors": {
+        "invalid_number": "Bitte gib eine gültige Zahl zwischen 0,5 und 5 ein."
+      },
+      "messages": {
+        "rate_set": "`✅` | Rate wurde auf **{rate}** gesetzt."
+      }
+    },
+    "reset": {
+      "description": "Setzt die aktiven Filter zurück",
+      "messages": {
+        "filters_reset": "`✅` | Filter wurden zurückgesetzt."
+      }
+    },
+    "rotation": {
+      "description": "Schalte den Rotationsfilter ein-/aus",
+      "messages": {
+        "enabled": "`✅` | Rotationsfilter wurde `AKTIVIERT`.",
+        "disabled": "`✅` | Rotationsfilter wurde `DEAKTIVIERT`."
+      }
+    },
+    "speed": {
+      "description": "Ändere die Geschwindigkeit des Songs",
+      "options": {
+        "speed": "Die Geschwindigkeit, die du einstellen möchtest"
+      },
+      "messages": {
+        "invalid_number": "Bitte gib eine gültige Zahl zwischen 0,5 und 5 ein.",
+        "set_speed": "`✅` | Geschwindigkeit wurde auf **{speed}** gesetzt."
+      }
+    },
+    "tremolo": {
+      "description": "Schalte den Tremolo-Filter ein-/aus",
+      "messages": {
+        "enabled": "`✅` | Tremolo-Filter wurde `AKTIVIERT`.",
+        "disabled": "`✅` | Tremolo-Filter wurde `DEAKTIVIERT`."
+      }
+    },
+    "vibrato": {
+      "description": "Schalte den Vibrato-Filter ein-/aus",
+      "messages": {
+        "enabled": "`✅` | Vibrato-Filter wurde `AKTIVIERT`.",
+        "disabled": "`✅` | Vibrato-Filter wurde `DEAKTIVIERT`."
+      }
+    },
+    "autoplay": {
+      "description": "Schaltet Autoplay um",
+      "messages": {
+        "enabled": "`✅` | Autoplay wurde `AKTIVIERT`.",
+        "disabled": "`✅` | Autoplay wurde `DEAKTIVIERT`."
+      }
+    },
+    "clearqueue": {
+      "description": "Leert die Warteschlange",
+      "messages": {
+        "cleared": "Die Warteschlange wurde geleert."
+      }
+    },
+    "grab": {
+      "description": "Holt den aktuell abgespielten Song in deine DM",
+      "content": "**Dauer:** {length}\n**Angefordert von:** <@{requester}>\n**Link:** [Klicke hier]({uri})",
+      "check_dm": "Bitte überprüfe deine DM.",
+      "dm_failed": "Ich konnte dir keine DM senden."
+    },
+    "join": {
+      "description": "Tritt dem Sprachkanal bei",
+      "already_connected": "Ich bin bereits mit <#{channelId}> verbunden.",
+      "no_voice_channel": "Du musst in einem Sprachkanal sein, um diesen Befehl zu verwenden.",
+      "joined": "Erfolgreich <#{channelId}> beigetreten."
+    },
+    "leave": {
+      "description": "Verlässt den Sprachkanal",
+      "left": "Erfolgreich <#{channelId}> verlassen.",
+      "not_in_channel": "Ich bin in keinem Sprachkanal."
+    },
+    "loop": {
+      "description": "Wiederhole den aktuellen Song oder die Warteschlange",
+      "looping_song": "**Wiederhole den Song.**",
+      "looping_queue": "**Wiederhole die Warteschlange.**",
+      "looping_off": "**Wiederholung ist jetzt deaktiviert.**"
+    },
+    "nowplaying": {
+      "description": "Zeigt den aktuell abgespielten Song an",
+      "now_playing": "Jetzt wird abgespielt",
+      "track_info": "[{title}]({uri}) - Angefordert von: <@{requester}>\n\n`{bar}`"
+    },
+    "pause": {
+      "description": "Pausiert den aktuellen Song",
+      "successfully_paused": "Song erfolgreich pausiert."
+    },
+    "play": {
+      "description": "Spielt einen Song von YouTube, Spotify oder http ab",
+      "options": {
+        "song": "Der Song, den du abspielen möchtest"
+      },
+      "loading": "Lädt...",
+      "errors": {
+        "search_error": "Ein Fehler ist beim Suchen aufgetreten.",
+        "no_results": "Es wurden keine Ergebnisse gefunden.",
+        "queue_too_long": "Die Warteschlange ist zu lang. Die maximale Länge beträgt {maxQueueSize} Songs.",
+        "playlist_too_long": "Die Playlist ist zu lang. Die maximale Länge beträgt {maxPlaylistSize} Songs."
+      },
+      "added_to_queue": "[{title}]({uri}) zur Warteschlange hinzugefügt.",
+      "added_playlist_to_queue": "{length} Songs zur Warteschlange hinzugefügt."
+    },
+    "playnext": {
+      "description": "Füge den Song hinzu, der als nächstes in der Warteschlange abgespielt werden soll",
+      "options": {
+        "song": "Der Song, den du abspielen möchtest"
+      },
+      "loading": "Lädt...",
+      "errors": {
+        "search_error": "Ein Fehler ist beim Suchen aufgetreten.",
+        "no_results": "Es wurden keine Ergebnisse gefunden.",
+        "queue_too_long": "Die Warteschlange ist zu lang. Die maximale Länge beträgt {maxQueueSize} Songs.",
+        "playlist_too_long": "Die Playlist ist zu lang. Die maximale Länge beträgt {maxPlaylistSize} Songs."
+      },
+      "added_to_play_next": "[{title}]({uri}) zur nächsten Wiedergabe in der Warteschlange hinzugefügt.",
+      "added_playlist_to_play_next": "{length} Songs zur nächsten Wiedergabe in der Warteschlange hinzugefügt."
+    },
+    "queue": {
+      "description": "Zeigt die aktuelle Warteschlange an",
+      "now_playing": "Wird gerade abgespielt: [{title}]({uri}) - Angefordert von: <@{requester}> - Dauer: `{duration}`",
+      "live": "LIVE",
+      "track_info": "{index}. [{title}]({uri}) - Angefordert von: <@{requester}> - Dauer: `{duration}`",
+      "title": "Warteschlange",
+      "page_info": "Seite {index} von {total}"
+    },
+    "remove": {
+      "description": "Entfernt einen Song aus der Warteschlange",
+      "options": {
+        "song": "Die Songnummer, die du entfernen möchtest"
+      },
+      "errors": {
+        "no_songs": "Es befinden sich keine Songs in der Warteschlange.",
+        "invalid_number": "Bitte gib eine gültige Songnummer ein."
+      },
+      "messages": {
+        "removed": "Song Nummer {songNumber} aus der Warteschlange entfernt."
+      }
+    },
+    "replay": {
+      "description": "Spielt den aktuellen Track erneut ab",
+      "errors": {
+        "not_seekable": "Dieser Track kann nicht erneut abgespielt werden, da er nicht suchbar ist."
+      },
+      "messages": {
+        "replaying": "Spiele den aktuellen Track erneut ab."
+      }
+    },
+    "resume": {
+      "description": "Setzt den aktuellen Song fort",
+      "errors": {
+        "not_paused": "Der Player ist nicht pausiert."
+      },
+      "messages": {
+        "resumed": "Player fortgesetzt."
+      }
+    },
+    "search": {
+      "description": "Sucht nach einem Song",
+      "options": {
+        "song": "Der Song, nach dem du suchen möchtest"
+      },
+      "errors": {
+        "no_results": "Keine Ergebnisse gefunden.",
+        "search_error": "Ein Fehler ist beim Suchen aufgetreten."
+      },
+      "messages": {
+        "added_to_queue": "[[{title}]({uri})] zur Warteschlange hinzugefügt."
+      }
+    },
+    "seek": {
+      "description": "Springt zu einer bestimmten Zeit im Song",
+      "options": {
+        "duration": "Die Dauer, zu der du springen möchtest"
+      },
+      "errors": {
+        "invalid_format": "Ungültiges Zeitformat. Beispiele: seek 1m, seek 1h 30m",
+        "not_seekable": "Dieser Track ist nicht suchbar.",
+        "beyond_duration": "Kann nicht über die Songdauer von {length} hinaus springen."
+      },
+      "messages": {
+        "seeked_to": "Gesprungen zu {duration}"
+      }
+    },
+    "shuffle": {
+      "description": "Mische die Warteschlange",
+      "messages": {
+        "shuffled": "Warteschlange gemischt."
+      }
+    },
+    "skip": {
+      "description": "Überspringe den aktuellen Song",
+      "messages": {
+        "skipped": "Übersprungen [{title}]({uri})."
+      }
+    },
+    "skipto": {
+      "description": "Überspringe zu einem bestimmten Song in der Warteschlange",
+      "options": {
+        "number": "Die Nummer des Songs, zu dem du springen möchtest"
+      },
+      "errors": {
+        "invalid_number": "Bitte gib eine gültige Nummer ein."
+      },
+      "messages": {
+        "skipped_to": "Gesprungen zu Song Nummer {number}."
+      }
+    },
+    "stop": {
+      "description": "Stoppt die Musik und leert die Warteschlange",
+      "messages": {
+        "stopped": "Musik gestoppt und Warteschlange geleert."
+      }
+    },
+    "volume": {
+      "description": "Stellt die Lautstärke des Players ein",
+      "options": {
+        "number": "Die Lautstärke, die du einstellen möchtest"
+      },
+      "messages": {
+        "invalid_number": "Bitte gib eine gültige Nummer ein.",
+        "too_low": "Die Lautstärke kann nicht unter 0 liegen.",
+        "too_high": "Die Lautstärke kann nicht über 200 liegen. Willst du dein Gehör oder deine Lautsprecher beschädigen? Hmmm, ich glaube nicht, dass das eine so gute Idee ist.",
+        "set": "Lautstärke auf {volume} gesetzt"
+      }
+    },
+    "addsong": {
+      "description": "Füge einen Song zur Playlist hinzu",
+      "options": {
+        "playlist": "Die Playlist, zu der du den Song hinzufügen möchtest",
+        "song": "Der Song, den du hinzufügen möchtest"
+      },
+      "messages": {
+        "no_playlist": "Bitte gib eine Playlist an",
+        "no_song": "Bitte gib einen Song an",
+        "playlist_not_found": "Diese Playlist existiert nicht",
+        "no_songs_found": "Keine Songs gefunden",
+        "added": "{count} Song(s) zu {playlist} hinzugefügt"
+      }
+    },
+    "create": {
+      "description": "Erstelle eine Playlist",
+      "options": {
+        "name": "Der Name der Playlist"
+      },
+      "messages": {
+        "name_too_long": "Playlist-Namen dürfen nur 50 Zeichen lang sein.",
+        "playlist_exists": "Eine Playlist mit diesem Namen existiert bereits. Bitte verwende einen anderen Namen.",
+        "playlist_created": "Playlist **{name}** wurde erstellt."
+      }
+    },
+    "delete": {
+      "description": "Lösche eine Playlist",
+      "options": {
+        "playlist": "Die Playlist, die du löschen möchtest"
+      },
+      "messages": {
+        "playlist_not_found": "Diese Playlist existiert nicht.",
+        "playlist_deleted": "Playlist **{playlistName}** gelöscht."
+      }
+    },
+    "list": {
+      "description": "Ruft alle Playlists für den Benutzer ab",
+      "options": {
+        "user": "Der Benutzer, dessen Playlists du abrufen möchtest"
+      },
+      "messages": {
+        "no_playlists": "Dieser Benutzer hat keine Playlists.",
+        "your": "Deine",
+        "playlists_title": "Playlists von {username}",
+        "error": "Ein Fehler ist beim Abrufen der Playlists aufgetreten."
+      }
+    },
+    "load": {
+      "description": "Lädt eine Playlist",
+      "options": {
+        "playlist": "Die Playlist, die du laden möchtest"
+      },
+      "messages": {
+        "playlist_not_exist": "Diese Playlist existiert nicht.",
+        "playlist_empty": "Diese Playlist ist leer.",
+        "playlist_loaded": "Lade `{name}` mit `{count}` Songs."
+      }
+    },
+    "removesong": {
+      "description": "Entfernt einen Song aus der Playlist",
+      "options": {
+        "playlist": "Die Playlist, aus der du den Song entfernen möchtest",
+        "song": "Der Song, den du entfernen möchtest"
+      },
+      "messages": {
+        "provide_playlist": "Bitte gib eine Playlist an.",
+        "provide_song": "Bitte gib einen Song an.",
+        "playlist_not_exist": "Diese Playlist existiert nicht.",
+        "song_not_found": "Kein passender Song gefunden.",
+        "song_removed": "{song} aus {playlist} entfernt.",
+        "error_occurred": "Ein Fehler ist beim Entfernen des Songs aufgetreten."
+      }
+    },
+    "steal": {
+      "description": "Stiehlt eine Playlist von einem anderen Benutzer und fügt sie deinen Playlists hinzu",
+      "options": {
+        "playlist": "Die Playlist, die du stehlen möchtest",
+        "user": "Der Benutzer, von dem du die Playlist stehlen möchtest"
+      },
+      "messages": {
+        "provide_playlist": "Bitte gib einen Playlist-Namen an.",
+        "provide_user": "Bitte erwähne einen Benutzer.",
+        "playlist_not_exist": "Diese Playlist existiert für den genannten Benutzer nicht.",
+        "playlist_stolen": "Playlist `{playlist}` erfolgreich von {user} gestohlen.",
+        "error_occurred": "Ein Fehler ist beim Stehlen der Playlist aufgetreten."
+      }
+    },
+    "language": {
+      "description": "Legt die Sprache für den Bot fest",
+      "invalid_language": "Bitte gib eine gültige Sprache an. Beispiel: `EnglishUS` für Englisch (Vereinigte Staaten)\n\nDie Liste der unterstützten Sprachen findest du [hier](https://discord.com/developers/docs/reference#locales)\n\n**Verfügbare Sprachen:**\n{languages}",
+      "already_set": "Die Sprache ist bereits auf `{language}` gesetzt",
+      "not_set": "Die Sprache wurde nicht festgelegt",
+      "set": "`✅` | Die Sprache wurde auf `{language}` gesetzt",
+      "reset": "`✅` | Die Sprache wurde auf die Standardsprache zurückgesetzt",
+      "options": {
+        "set": "Legt die Sprache für den Bot fest",
+        "language": "Die Sprache, die du einstellen möchtest",
+        "reset": "Ändere die Sprache zurück zur Standardsprache"
+      }
+    },
+    "lyrics": {
+      "description": "Get's the lyrics of the currently playing track"
+    },
+    "vplay": {
+      "description": "Stream de vídeo no canal de voz.",
+      "options": {
+        "url": "O link do vídeo que você deseja tocar"
+      }
+    },
+    "mlist": {
+      "description": "Lista os downloads de videos"
+    },
+    "mplay": {
+      "description": "cmd.mplay.description",
+      "options": {
+        "movie": "cmd.mplay.options.movie",
+        "audioTrack": "cmd.mplay.options.audioTrack"
+      }
+    },
+    "msearch": {
+      "description": "Procura por filmes ou animes",
+      "options": {
+        "search": "cmd.msearch.options.search"
+      }
+    },
+    "mstop": {
+      "description": "cmd.mstop.description"
+    },
+    "mpause": {
+      "description": "cmd.mpause.description"
+    },
+    "mresume": {
+      "description": "cmd.mresume.description"
+    },
+    "code": {
+      "description": "cmd.code.description"
+    },
+    "model": {
+      "description": "cmd.model.description"
+    },
+    "reason": {
+      "description": "cmd.reason.description"
+    },
+    "stream": {
+      "description": "cmd.stream.description"
+    }
+  },
+  "buttons": {
+    "invite": "Einladen",
+    "support": "Support-Server",
+    "previous": "Vorheriger",
+    "resume": "Fortsetzen",
+    "stop": "Stoppen",
+    "skip": "Überspringen",
+    "loop": "Schleife",
+    "errors": {
+      "not_author": "Du kannst diesen Button nicht verwenden."
+    }
+  },
+  "player": {
+    "errors": {
+      "no_player": "Es gibt keinen aktiven Player in dieser Gilde.",
+      "no_channel": "Du musst in einem Sprachkanal sein, um diesen Befehl zu verwenden.",
+      "queue_empty": "Die Warteschlange ist leer.",
+      "no_previous": "Es gibt keine vorherigen Songs in der Warteschlange.",
+      "no_song": "Es befinden sich keine Songs in der Warteschlange.",
+      "already_paused": "Der Song ist bereits pausiert."
+    },
+    "trackStart": {
+      "now_playing": "Jetzt wird abgespielt",
+      "requested_by": "Angefordert von {user}",
+      "duration": "Dauer",
+      "author": "Autor",
+      "not_connected_to_voice_channel": "Du bist nicht mit <#{channel}> verbunden, um diese Buttons zu verwenden.",
+      "need_dj_role": "Du musst die DJ-Rolle haben, um diesen Befehl zu verwenden.",
+      "previous_by": "Vorheriger von {user}",
+      "no_previous_song": "Es gibt keinen vorherigen Song.",
+      "paused_by": "Pausiert von {user}",
+      "resumed_by": "Fortgesetzt von {user}",
+      "skipped_by": "Übersprungen von {user}",
+      "no_more_songs_in_queue": "Es gibt keinen weiteren Song in der Warteschlange.",
+      "looping_by": "Schleife von {user}",
+      "looping_queue_by": "Warteschlange in Schleife von {user}",
+      "looping_off_by": "Schleife aus von {user}"
+    },
+    "setupStart": {
+      "now_playing": "Now Playing",
+      "description": "[{title}]({uri}) by {author} • `[{length}]` - Requested by <@{requester}>",
+      "error_searching": "There was an error while searching.",
+      "no_results": "There were no results found.",
+      "nothing_playing": "Nothing playing right now.",
+      "queue_too_long": "The queue is too long. The maximum length is {maxQueueSize} songs.",
+      "playlist_too_long": "The playlist is too long. The maximum length is {maxPlaylistSize} songs.",
+      "added_to_queue": "Added [{title}]({uri}) to the queue.",
+      "added_playlist_to_queue": "Added [{length}] songs from the playlist to the queue."
+    }
+  },
+  "event": {
+    "interaction": {
+      "setup_channel": "Du kannst diesen Befehl nicht im Einrichtungskanal verwenden.",
+      "no_send_message": "Ich habe keine **`SendMessage`**-Berechtigung in `{guild}`\nKanal: {channel}.",
+      "no_embed_links": "Ich habe keine **`EmbedLinks`**-Berechtigung.",
+      "no_permission": "Ich habe nicht genügend Berechtigungen, um diesen Befehl auszuführen.",
+      "no_user_permission": "Du hast nicht genügend Berechtigungen, um diesen Befehl zu verwenden.",
+      "no_voice_channel": "Du musst mit einem Sprachkanal verbunden sein, um diesen Befehl `{command}` zu verwenden.",
+      "no_connect_permission": "Ich habe keine `CONNECT`-Berechtigungen, um diesen Befehl `{command}` auszuführen.",
+      "no_speak_permission": "Ich habe keine `SPEAK`-Berechtigungen, um diesen Befehl `{command}` auszuführen.",
+      "no_request_to_speak": "Ich habe keine `REQUEST TO SPEAK`-Berechtigung, um diesen Befehl `{command}` auszuführen.",
+      "different_voice_channel": "Du bist nicht mit {channel} verbunden, um diesen Befehl `{command}` zu verwenden.",
+      "no_music_playing": "Es wird gerade nichts abgespielt.",
+      "no_dj_role": "DJ-Rolle ist nicht gesetzt.",
+      "no_dj_permission": "Du musst die DJ-Rolle haben, um diesen Befehl zu verwenden.",
+      "cooldown": "Bitte warte {time} weitere Sekunde(n), bevor du den Befehl `{command}` erneut verwendest.",
+      "error": "Ein Fehler ist aufgetreten: `{error}`"
+    },
+    "message": {
+      "prefix_mention": "Hey, mein Präfix für diesen Server ist `{prefix}`. Möchtest du mehr Infos? Dann gib `{prefix}help` ein\nBleib sicher, bleib großartig!",
+      "no_send_message": "Ich habe keine **`SendMessage`**-Berechtigung in `{guild}`\nKanal: {channel}.",
+      "no_embed_links": "Ich habe keine **`EmbedLinks`**-Berechtigung.",
+      "no_permission": "Ich habe nicht genügend Berechtigungen, um diesen Befehl auszuführen.",
+      "no_user_permission": "Du hast nicht genügend Berechtigungen, um diesen Befehl zu verwenden.",
+      "no_voice_channel": "Du musst mit einem Sprachkanal verbunden sein, um diesen Befehl `{command}` zu verwenden.",
+      "no_connect_permission": "Ich habe keine `CONNECT`-Berechtigungen, um diesen Befehl `{command}` auszuführen.",
+      "no_speak_permission": "Ich habe keine `SPEAK`-Berechtigungen, um diesen Befehl `{command}` auszuführen.",
+      "no_request_to_speak": "Ich habe keine `REQUEST TO SPEAK`-Berechtigung, um diesen Befehl `{command}` auszuführen.",
+      "different_voice_channel": "Du bist nicht mit {channel} verbunden, um diesen Befehl `{command}` zu verwenden.",
+      "no_music_playing": "Es wird gerade nichts abgespielt.",
+      "no_dj_role": "DJ-Rolle ist nicht gesetzt.",
+      "no_dj_permission": "Du musst die DJ-Rolle haben, um diesen Befehl zu verwenden.",
+      "missing_arguments": "Fehlende Argumente",
+      "missing_arguments_description": "Bitte gib die benötigten Argumente für den Befehl `{command}` an.\n\nBeispiele:\n{examples}",
+      "syntax_footer": "Syntax: [] = optional, <> = erforderlich",
+      "cooldown": "Bitte warte {time} weitere Sekunde(n), bevor du den Befehl `{command}` erneut verwendest.",
+      "no_mention_everyone": "Du kannst diesen Befehl nicht mit @everyone oder @here verwenden.",
+      "error": "Ein Fehler ist aufgetreten: `{error}`",
+      "no_voice_channel_queue": "Du bist nicht mit einem Sprachkanal verbunden, um Songs in die Warteschlange zu stellen.",
+      "no_permission_connect_speak": "Ich habe nicht genügend Berechtigungen, um mich in <#{channel}> zu verbinden/sprechen.",
+      "different_voice_channel_queue": "Du bist nicht mit <#{channel}> verbunden, um Songs in die Warteschlange zu stellen."
+    },
+    "setupButton": {
+      "no_voice_channel_button": "Du bist nicht mit einem Sprachkanal verbunden, um diesen Button zu verwenden.",
+      "different_voice_channel_button": "Du bist nicht mit {channel} verbunden, um diese Buttons zu verwenden.",
+      "now_playing": "Jetzt wird abgespielt",
+      "live": "LIVE",
+      "requested_by": "Angefordert von <@{requester}>",
+      "no_dj_permission": "Du musst die DJ-Rolle haben, um diesen Befehl zu verwenden.",
+      "volume_set": "Lautstärke auf {vol}% gesetzt",
+      "volume_footer": "Lautstärke: {vol}%",
+      "paused": "Pausiert",
+      "resumed": "Fortgesetzt",
+      "pause_resume": "{name} die Musik.",
+      "pause_resume_footer": "{name} von {displayName}",
+      "no_music_to_skip": "Es gibt keine Musik zum Überspringen.",
+      "skipped": "Musik übersprungen.",
+      "skipped_footer": "Übersprungen von {displayName}",
+      "stopped": "Musik gestoppt.",
+      "stopped_footer": "Gestoppt von {displayName}",
+      "nothing_playing": "Es wird gerade nichts abgespielt",
+      "loop_set": "Schleife auf {loop} gesetzt.",
+      "loop_footer": "Schleife auf {loop} gesetzt von {displayName}",
+      "shuffled": "Warteschlange gemischt.",
+      "no_previous_track": "Es gibt keinen vorherigen Track.",
+      "playing_previous": "Spiele den vorherigen Track ab.",
+      "previous_footer": "Spiele den vorherigen Track ab von {displayName}",
+      "rewinded": "Musik zurückgespult.",
+      "rewind_footer": "Zurückgespult von {displayName}",
+      "forward_limit": "Du kannst die Musik nicht mehr als die Länge des Songs vorspulen.",
+      "forwarded": "Musik vorgespult.",
+      "forward_footer": "Vorgespult von {displayName}",
+      "button_not_available": "Dieser Button ist nicht verfügbar.",
+      "no_music_playing": "Es wird gerade nichts abgespielt."
+    }
+  },
+  "Evaluate code": "Evaluate code",
+  "Leave a guild": "Leave a guild",
+  "List all guilds the bot is in": "List all guilds the bot is in",
+  "Restart the bot": "Restart the bot",
+  "Stream de vídeo no canal de voz.": "Stream de vídeo no canal de voz.",
+  "Chat inteligente com IA da NVIDIA - análise de código, geração e muito mais!": "Chat inteligente com IA da NVIDIA - análise de código, geração e muito mais!",
+  "Modo de operação da IA": "Modo de operação da IA",
+  "Sua mensagem ou pergunta": "Sua mensagem ou pergunta",
+  "Linguagem de programação (para modos de código)": "Linguagem de programação (para modos de código)",
+  "Ferramentas avançadas de IA para análise, tradução, documentação e mais!": "Ferramentas avançadas de IA para análise, tradução, documentação e mais!",
+  "Escolha uma ferramenta": "Escolha uma ferramenta",
+  "Texto ou código para processar": "Texto ou código para processar",
+  "Análise inteligente de imagens com IA - descreva, analise e extraia informações!": "Análise inteligente de imagens com IA - descreva, analise e extraia informações!",
+  "Modo de análise": "Modo de análise",
+  "Pergunta específica sobre a imagem": "Pergunta específica sobre a imagem",
+  "Configura o comportamento da IA da Mahina": "Configura o comportamento da IA da Mahina",
+  "Ação a ser executada": "Ação a ser executada",
+  "🍁 Descubra seu animal espiritual do World of Warcraft através de análise de personalidade com IA": "🍁 Descubra seu animal espiritual do World of Warcraft através de análise de personalidade com IA",
+  "👤 O usuário que você deseja analisar": "👤 O usuário que você deseja analisar",
+  "Explain code in detail": "Explain code in detail",
+  "Review code and suggest improvements": "Review code and suggest improvements",
+  "Optimize code for better performance": "Optimize code for better performance",
+  "Debug code and identify issues": "Debug code and identify issues",
+  "Programming language": "Programming language",
+  "The code to explain": "The code to explain",
+  "The code to review": "The code to review",
+  "The code to optimize": "The code to optimize",
+  "The code to debug": "The code to debug",
+  "List all available AI models": "List all available AI models",
+  "Select an AI model": "Select an AI model",
+  "Get information about a specific model": "Get information about a specific model",
+  "Show your current AI model": "Show your current AI model",
+  "The model to select": "The model to select",
+  "The model to get info about": "The model to get info about",
+  "The problem or question to analyze": "The problem or question to analyze",
+  "Additional context for the problem": "Additional context for the problem",
+  "Your message for streaming AI response": "Your message for streaming AI response",
+  "Advanced AI chat with context, memory, and personality": "Advanced AI chat with context, memory, and personality",
+  "Your message to Mahina AI": "Your message to Mahina AI",
+  "Choose AI personality": "Choose AI personality",
+  "Conversation mode": "Conversation mode",
+  "Private response (only you can see)": "Private response (only you can see)",
+  "Manage proactive interaction settings": "Manage proactive interaction settings",
+  "Show proactive interaction statistics": "Show proactive interaction statistics",
+  "Test proactive interaction in current channel": "Test proactive interaction in current channel",
+  "Force proactive interaction check": "Force proactive interaction check",
+  "Check AI services status and statistics": "Check AI services status and statistics",
+  "Verificar status e estatísticas dos serviços de IA": "Verificar status e estatísticas dos serviços de IA",
+  "Chat avançado com IA": " contexto, memória e personalidade",
+  "Sua mensagem para a Mahina AI": "Sua mensagem para a Mahina AI",
+  "Escolha a personalidade da IA": "Escolha a personalidade da IA",
+  "Modo de conversa": "Modo de conversa",
+  "Resposta privada (apenas você pode ver)": "Resposta privada (apenas você pode ver)",
+  "Testa e configura sistemas de segurança NVIDIA NemoGuard": "Testa e configura sistemas de segurança NVIDIA NemoGuard",
+  "Texto para verificar (obrigatório para verificações)": "Texto para verificar (obrigatório para verificações)",
+  "Usar modo estrito para verificação de tópicos": "Usar modo estrito para verificação de tópicos",
+  "Receber resposta também em áudio (TTS)": "Receber resposta também em áudio (TTS)",
+  "Busca por comandos e informações usando IA semântica": "Busca por comandos e informações usando IA semântica",
+  "O que você está procurando? Ex": "O que você está procurando? Ex",
+  "Filtrar por categoria específica": "Filtrar por categoria específica",
+  "Nível de precisão da busca (padrão": "Nível de precisão da busca (padrão",
+  "Converte texto em áudio usando NVIDIA TTS": "Converte texto em áudio usando NVIDIA TTS",
+  "O texto que será convertido em áudio": "O texto que será convertido em áudio",
+  "Escolha da voz para o TTS": "Escolha da voz para o TTS",
+  "Velocidade da fala (0": {
+    "5 - 2": {
+      "0)": "Velocidade da fala (0.5 - 2.0)"
+    }
+  },
+  "Tom da voz (-0": {
+    "5 a 0": {
+      "5)": "Tom da voz (-0.5 a 0.5)"
+    }
+  },
+  "Enviar áudio apenas para você": "Enviar áudio apenas para você",
+  "Gera visualizações com física realista usando NVIDIA Cosmos": "Gera visualizações com física realista usando NVIDIA Cosmos",
+  "Tipo de visualização": "Tipo de visualização",
+  "Descrição da visualização (obrigatório para prompt customizado)": "Descrição da visualização (obrigatório para prompt customizado)",
+  "Estilo visual da animação": "Estilo visual da animação",
+  "Número de frames (8-48, padrão": "Número de frames (8-48, padrão",
+  "Incluir texto na visualização": "Incluir texto na visualização",
+  "Imagem base para predição física (opcional)": "Imagem base para predição física (opcional)"
 }

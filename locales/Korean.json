@@ -1,769 +1,769 @@
 {
-	"cmd": {
-		"247": {
-			"description": "봇이 음성 채널에서 나가지 않도록 설정해요",
-			"errors": {
-				"not_in_voice": "이 명령어를 사용하려면 음성 채널에 있어야 해요.",
-				"generic": "이 명령어를 실행하는 도중 오류가 발생했어요."
-			},
-			"messages": {
-				"disabled": "`✅` | 24/7 모드가 `비활성화`되었어요.",
-				"enabled": "`✅` | 24/7 모드가 `활성화`되었어요."
-			}
-		},
-		"ping": {
-			"description": "봇의 핑을 확인해요",
-			"content": "핑...",
-			"bot_latency": "봇 지연시간",
-			"api_latency": "API 지연시간",
-			"requested_by": "요청자: {author}"
-		},
-		"lavalink": {
-			"description": "Lavalink 노드의 상태를 보여줘요",
-			"title": "Lavalink 상태",
-			"content": "플레이어: {players}\n재생 중: {playingPlayers}\n업타임: {uptime}\n코어 수: {cores}개\n메모리 사용량: {used} / {reservable}\n시스템 로드: {systemLoad}%\nLavalink 로드: {lavalinkLoad}%",
-			"page_info": "{index} 페이지 중 {total} 페이지"
-		},
-		"invite": {
-			"description": "봇의 초대 링크를 표시해요",
-			"content": "아래 버튼을 눌러 봇을 초대할 수 있어요. 버그가 있나요? 서포트 서버(영문)에 참여하세요!"
-		},
-		"help": {
-			"description": "도움말 메뉴를 출력해요",
-			"options": {
-				"command": "특정 명령어의 정보를 얻고 싶다면 여기에 입력해주세요"
-			},
-			"content": "안녕하세요! 저는 [MahinaBot](https://github.com/gabrielmaialva33/mahina-bot)와 Discord.js로 만들어진 음악 봇, {bot}이에요. 명령어에 대한 자세한 정보를 얻고 싶다면 `{prefix}help <명령어>`를 사용해보세요.",
-			"title": "도움말 메뉴",
-			"not_found": "`{cmdName}` 명령어는 존재하지 않아요.",
-			"help_cmd": "**설명:** {description}\n**사용 방법:** {usage}\n**예시:** {examples}\n**별칭:** {aliases}\n**카테고리:** {category}\n**쿨다운:** {cooldown}초\n**필요한 권한:** {premUser}\n**봇에게 필요한 권한:** {premBot}\n**개발자 전용:** {dev}\n**빗금 명령어 사용 가능:** {slash}\n**인수 필요:** {args}\n**노래 재생 중에만 사용 가능:** {player}\n**DJ만 사용 가능:** {dj}\n**DJ에게 필요한 권한:** {djPerm}\n**음성 채널 접속 중에만 사용 가능:** {voice}",
-			"footer": "명령어에 대한 자세한 내용을 보려면 {prefix}help <command>를 사용하세요."
-		},
-		"botinfo": {
-			"description": "봇에 대한 정보를 표시해요",
-			"content": "봇 정보:\n- **운영 체제**: {osInfo}\n- **업타임**: {osUptime}\n- **호스트 이름**: {osHostname}\n- **CPU 아키텍처**: {cpuInfo}\n- **CPU 사용량**: {cpuUsed}%\n- **메모리 사용량**: {memUsed}MB / {memTotal}GB\n- **Node 버전**: {nodeVersion}\n- **Discord.js 버전**: {discordJsVersion}\n- 서버 {guilds}개, 채널 {channels}개, 유저 {users}명\n- **명령어 수**: {commands}개"
-		},
-		"about": {
-			"description": "봇에 대한 정보를 확인해요",
-			"fields": {
-				"creator": "제작",
-				"repository": "GitHub 저장소",
-				"support": "지원",
-				"description": "그는 더 많은 코딩 경험을 쌓기 위해 처음으로 오픈 소스 프로젝트를 만들고 싶어했어요. 이 프로젝트에서 그는 버그를 줄이는 도전을 했어요. MahinaBot을 즐겁게 사용해 주시길 바랄게요!"
-			}
-		},
-		"dj": {
-			"description": "DJ 모드 및 역할을 관리해요",
-			"errors": {
-				"provide_role": "역할을 지정해주세요.",
-				"no_roles": "DJ 역할이 비어있어요.",
-				"invalid_subcommand": "하위 명령어를 정확하게 입력해주세요"
-			},
-			"messages": {
-				"role_exists": "<@&{roleId}>은 이미 DJ 역할에 등록되어 있네요.",
-				"role_added": "<@&{roleId}> 역할이 DJ로 등록되었어요.",
-				"role_not_found": "<@&{roleId}> 역할을 DJ로 등록하지 못했어요.",
-				"role_removed": "<@&{roleId}> 역할이 DJ에서 삭제되었어요.",
-				"all_roles_cleared": "DJ 역할이 초기화되었어요.",
-				"toggle": "DJ 모드가 {status}로 변경되었어요."
-			},
-			"options": {
-				"add": "DJ 역할을 추가해요",
-				"remove": "DJ에서 역할을 삭제해요",
-				"clear": "DJ 역할을 초기화해요",
-				"toggle": "DJ 모드를 토글해요",
-				"role": "역할 지정"
-			},
-			"subcommands": "하위 명령어"
-		},
-		"language": {
-			"description": "언어를 설정해요",
-			"invalid_language": "올바른 언어를 지정해주세요. 예시: `EnglishUS` = 영어 (미국)\n\n[여기](https://discord.com/developers/docs/reference#locales)에서 지원되는 언어 목록을 확인할 수 있어요.\n\n**현재 사용 가능한 언어:**\n{languages}",
-			"already_set": "`{language}`로 이미 설정되어 있어요.",
-			"not_set": "언어가 설정되지 않았어요.",
-			"set": "`✅` | 언어가 `{language}`로 변경되었어요.",
-			"reset": "`✅` | 언어가 기본 언어로 초기화되었어요.",
-			"options": {
-				"set": "봇의 언어를 설정해요",
-				"language": "설정할 언어",
-				"reset": "언어를 기본값으로 초기화해요"
-			}
-		},
-		"prefix": {
-			"description": "봇의 접두사를 설정해요",
-			"errors": {
-				"prefix_too_long": "접두사는 3자를 넘을 수 없어요."
-			},
-			"messages": {
-				"current_prefix": "현재 설정된 접두사는 `{prefix}`예요.",
-				"prefix_set": "접두사가 `{prefix}`로 수정되었어요.",
-				"prefix_reset": "접두사가 `{prefix}`로 초기화되었어요."
-			},
-			"options": {
-				"set": "접두사를 설정해요",
-				"prefix": "설정할 접두사",
-				"reset": "접두사를 기본값으로 초기화해요"
-			}
-		},
-		"setup": {
-			"description": "음악 채널을 설정해요",
-			"errors": {
-				"channel_exists": "음악채널이 이미 설정되어 있어요.",
-				"channel_not_exists": "음악채널이 존재하지 않아요.",
-				"channel_delete_fail": "음악 채널이 데이터베이스에서 삭제되었어요. 채널은 직접 삭제해주세요."
-			},
-			"messages": {
-				"channel_created": "<#{channelId}>로 음악 채널이 만들어졌어요.",
-				"channel_deleted": "음악채널이 삭제되었어요.",
-				"channel_info": "현재 등록된 음악 채널은 <#{channelId}> 이에요."
-			},
-			"options": {
-				"create": "음악채널을 만들어요",
-				"delete": "음악채널을 삭제해요",
-				"info": "현재 등록된 음악채널을 확인해요"
-			}
-		},
-		"8d": {
-			"description": "8d 필터를 토글해요",
-			"messages": {
-				"filter_enabled": "`✅` | 8D 필터가 `활성화`되었어요.",
-				"filter_disabled": "`✅` | 8D 필터가 `비활성화`되었어요."
-			}
-		},
-		"bassboost": {
-			"description": "베이스부스트 필터를 토글해요",
-			"options": {
-				"level": "설정할 베이스부스트 레벨"
-			},
-			"messages": {
-				"high": "`✅` | High 베이스부스트 필터가 `활성화`되었어요.",
-				"low": "`✅` | Low 베이스부스트 필터가 `활성화`되었어요.",
-				"medium": "`✅` | Medium 베이스부스트 필터가 `활성화`되었어요.",
-				"off": "`✅` | 베이스부스트 필터가 `비활성화`되었어요."
-			}
-		},
-		"distortion": {
-			"description": "왜곡 필터를 토글해요",
-			"messages": {
-				"filter_enabled": "`✅` | 왜곡 필터가 `활성화`되었어요.",
-				"filter_disabled": "`✅` | 왜곡 필터가 `비활성화`되었어요."
-			}
-		},
-		"karaoke": {
-			"description": "노래방 필터를 토글해요",
-			"messages": {
-				"filter_enabled": "`✅` | 노래방 필터가 `활성화`되었어요.",
-				"filter_disabled": "`✅` | 노래방 필터가 `비활성화`되었어요."
-			}
-		},
-		"lowpass": {
-			"description": "저역 통과 필터를 토글해요",
-			"messages": {
-				"filter_enabled": "`✅` | 저역 통과 필터가 `활성화`되었어요.",
-				"filter_disabled": "`✅` | 저역 통과 필터가 `비활성화`되었어요."
-			}
-		},
-		"nightcore": {
-			"description": "나이트코어 필터를 토글해요",
-			"messages": {
-				"filter_enabled": "`✅` | 나이트코어 필터가 `활성화`되었어요.",
-				"filter_disabled": "`✅` | 나이트코어 필터가 `비활성화`되었어요."
-			}
-		},
-		"pitch": {
-			"description": "노래의 음높이를 변경해요",
-			"options": {
-				"pitch": "설정할 음높이(0.5 - 5)"
-			},
-			"errors": {
-				"invalid_number": "0.5에서 5 사이의 올바른 숫자를 입력해주세요."
-			},
-			"messages": {
-				"pitch_set": "`✅` | 음높이가 **{pitch}**로 변경되었어요."
-			}
-		},
-		"rate": {
-			"description": "노래의 비율을 설정해요",
-			"options": {
-				"rate": "설정할 비율(0.5 - 5)"
-			},
-			"errors": {
-				"invalid_number": "0.5에서 5 사이의 올바른 숫자를 입력해주세요."
-			},
-			"messages": {
-				"rate_set": "`✅` | 노래의 비율이 **{rate}**로 변경되었어요."
-			}
-		},
-		"reset": {
-			"description": "모든 필터를 초기화해요",
-			"messages": {
-				"filters_reset": "`✅` | 필터가 초기화되었어요."
-			}
-		},
-		"rotation": {
-			"description": "회전 필터를 토글해요",
-			"messages": {
-				"enabled": "`✅` | 회전 필터가 `활성화`되었어요.",
-				"disabled": "`✅` | 회전 필터가 `비활성화`되었어요."
-			}
-		},
-		"speed": {
-			"description": "노래의 속도를 변경해요",
-			"options": {
-				"speed": "설정할 속도를 0.5에서 5 사이로 입력하세요"
-			},
-			"messages": {
-				"invalid_number": "0.5에서 5 사이에 올바른 숫자를 입력해주세요.",
-				"set_speed": "`✅` | 속도가 **{speed}**로 변경되었어요."
-			}
-		},
-		"tremolo": {
-			"description": "트레몰로 필터를 토글해요",
-			"messages": {
-				"enabled": "`✅` | 트레몰로 필터가 `활성화`되었어요.",
-				"disabled": "`✅` | 트레몰로 필터가 `비활성화`되었어요."
-			}
-		},
-		"vibrato": {
-			"description": "비브라토 필터를 토글해요",
-			"messages": {
-				"enabled": "`✅` | 비브라토 필터가 `활성화`되었어요.",
-				"disabled": "`✅` | 비브라토 필터가 `비활성화`되었어요."
-			}
-		},
-		"autoplay": {
-			"description": "자동재생을 토글해요",
-			"messages": {
-				"enabled": "`✅` | 자동재생이 `활성화`되었어요.",
-				"disabled": "`✅` | 자동재생이 `비활성화`되었어요."
-			}
-		},
-		"clearqueue": {
-			"description": "대기열을 비워요",
-			"messages": {
-				"cleared": "대기열을 비웠어요."
-			}
-		},
-		"grab": {
-			"description": "현재 재생 중인 노래를 DM으로 보내요",
-			"loading": "로드 중...",
-			"content": "**길이:** {length}\n**요청자:** <@{requester}>\n**링크:** [클릭]({uri})",
-			"check_dm": "DM을 확인해주세요.",
-			"dm_failed": "DM을 보내지 못했어요. 다이렉트 메시지 허용이 켜져 있는지 확인해주세요."
-		},
-		"join": {
-			"description": "봇이 음성 채널에 들어와요",
-			"already_connected": "<#{channelId}>에 이미 들어와있어요.",
-			"no_voice_channel": "이 명령어를 사용하려면 음성 채널에 있어야 해요.",
-			"joined": "<#{channelId}>에 들어왔어요."
-		},
-		"leave": {
-			"description": "봇이 음성 채널을 나가요",
-			"left": "<#{channelId}>에서 나갔어요.",
-			"not_in_channel": "봇이 음성 채널에 들어와 있지 않아요."
-		},
-		"loop": {
-			"description": "현재 노래 또는 대기열을 반복해요",
-			"looping_song": "**한곡 반복이 켜졌어요.**",
-			"looping_queue": "**대기열 반복이 켜졌어요.**",
-			"looping_off": "**반복이 꺼졌어요.**"
-		},
-		"lyrics": {
-			"description": "현재 재생중인 노래의 가사를 확인해요",
-			"lyrics_track": "### [{trackTitle}]({trackUrl}) 노래 가사\n**`{lyrics}`**",
-			"searching": "`🔍` **{trackTitle}** 노래 가사 검색 중...",
-			"errors": {
-				"no_results": "현재 트랙의 가사를 찾지 못했어요.",
-				"lyrics_error": "가사를 검색하는 도중 오류가 발생했어요."
-			}
-		},
-		"nowplaying": {
-			"description": "현재 재생중인 노래를 확인해요",
-			"now_playing": "재생 중",
-			"track_info": "[{title}]({uri}) - 요청자: <@{requester}>\n\n`{bar}`"
-		},
-		"pause": {
-			"description": "노래를 일시정지해요",
-			"successfully_paused": "노래를 일시정지했어요."
-		},
-		"play": {
-			"description": "노래를 재생해요",
-			"options": {
-				"song": "노래 제목 또는 URL"
-			},
-			"loading": "로드 중...",
-			"errors": {
-				"search_error": "노래를 검색하는 도중 오류가 발생했어요.",
-				"no_results": "검색 결과가 없어요.",
-				"queue_too_long": "대기열에 노래가 너무 많아요. 노래는 최대 {maxQueueSize}개까지만 추가할 수 있어요.",
-				"playlist_too_long": "플레이리스트 또는 대기열에 노래가 너무 많아요. 노래는 최대 {maxPlaylistSize}개까지만 추가할 수 있어요."
-			},
-			"added_to_queue": "대기열에 추가되었어요: [{title}]({uri})",
-			"added_playlist_to_queue": "{length}개의 노래가 대기열에 추가되었어요."
-		},
-		"playnext": {
-			"description": "노래를 바로 다음에 재생해요",
-			"options": {
-				"song": "재생할 노래 제목 또는 URL "
-			},
-			"loading": "로드 중...",
-			"errors": {
-				"search_error": "노래를 검색하는 도중 오류가 발생했어요.",
-				"no_results": "검색 결과가 없어요.",
-				"queue_too_long": "대기열에 노래가 너무 많아요. 노래는 최대 {maxQueueSize}개까지만 추가할 수 있어요.",
-				"playlist_too_long": "플레이리스트 또는 대기열에 노래가 너무 많아요. 노래는 최대 {maxPlaylistSize}개까지만 추가할 수 있어요."
-			},
-			"added_to_play_next": "이 노래를 바로 다음에 재생할게요: [{title}]({uri})",
-			"added_playlist_to_play_next": "{length}개의 노래를 바로 다음에 재생할게요."
-		},
-		"queue": {
-			"description": "대기열을 확인해요",
-			"now_playing": "재생 중: [{title}]({uri}) - 요청자: <@{requester}> - 길이: `{duration}`",
-			"live": "라이브",
-			"track_info": "{index}번: [{title}]({uri}) - 요청자: <@{requester}> - 길이: `{duration}`",
-			"title": "대기열",
-			"page_info": "{index} 페이지 중 {total} 페이지"
-		},
-		"remove": {
-			"description": "대기열에서 노래를 삭제해요",
-			"options": {
-				"song": "삭제할 노래의 대기열 번호"
-			},
-			"errors": {
-				"no_songs": "그 번호에 노래가 존재하지 않아요.",
-				"invalid_number": "올바른 노래의 번호를 지정해주세요."
-			},
-			"messages": {
-				"removed": "{songNumber}번 노래가 제거되었어요."
-			}
-		},
-		"replay": {
-			"description": "현재 재생 중인 노래를 다시 재생해요",
-			"errors": {
-				"not_seekable": "이 노래에서는 다시 재생을 지원하지 않는 것 같네요."
-			},
-			"messages": {
-				"replaying": "노래를 다시 재생할게요."
-			}
-		},
-		"resume": {
-			"description": "노래를 재계해요",
-			"errors": {
-				"not_paused": "플레이어가 일시정지되지 않았어요."
-			},
-			"messages": {
-				"resumed": "노래를 재계했어요."
-			}
-		},
-		"search": {
-			"description": "노래를 검색해 추가해요",
-			"options": {
-				"song": "검색하려는 노래 제목 또는 URL"
-			},
-			"select": "재생하고자 하는 노래를 선택해주세요.",
-			"errors": {
-				"no_results": "검색 결과가 없어요",
-				"search_error": "노래를 검색하는 도중 문제가 발생했어요."
-			},
-			"messages": {
-				"added_to_queue": "대기열에 추가되었어요: [{title}]({uri})"
-			}
-		},
-		"seek": {
-			"description": "노래의 구간을 이동해요",
-			"options": {
-				"duration": "이동할 구간"
-			},
-			"errors": {
-				"invalid_format": "시간 형식이 잘못되었어요. 예시: 30s(30초로 이동), 1m(1분으로 이동), 1h 30m(1시간 30분으로 이동)",
-				"not_seekable": "이 노래에서는 구간 이동을 지원하지 않는 것 같네요.",
-				"beyond_duration": "{length}을 넘을 수 없어요."
-			},
-			"messages": {
-				"seeked_to": "{duration}로 이동했어요."
-			}
-		},
-		"shuffle": {
-			"description": "대기열을 섞어요",
-			"messages": {
-				"shuffled": "대기열을 섞었어요."
-			}
-		},
-		"skip": {
-			"description": "현재 재생중인 노래를 스킵해요",
-			"messages": {
-				"skipped": "[{title}]({uri}) 노래를 스킵했어요."
-			}
-		},
-		"skipto": {
-			"description": "노래를 특정 대기열로 스킵해요",
-			"options": {
-				"number": "스킵할 노래의 번호"
-			},
-			"errors": {
-				"invalid_number": "올바른 값을 지정해주세요."
-			},
-			"messages": {
-				"skipped_to": "{number}번 노래로 스킵했어요."
-			}
-		},
-		"stop": {
-			"description": "노래를 정지해요",
-			"messages": {
-				"stopped": "노래를 정지했어요."
-			}
-		},
-		"volume": {
-			"description": "볼륨을 설정해요",
-			"options": {
-				"number": "설정할 볼륨"
-			},
-			"messages": {
-				"invalid_number": "올바른 값을 지정하세요.",
-				"too_low": "볼륨은 0보다 작을 수 없어요.",
-				"too_high": "볼륨은 200보다 클 수 없어요. 혹시 당신의 청력이나 스피커를 손상시키고 싶나요? 음... 그건 그렇게 좋은 생각이 아닌 것 같다만요.",
-				"set": "볼륨을 {volume}으로 설정했어요."
-			}
-		},
-		"addsong": {
-			"description": "노래를 플레이리스트에 추가해요",
-			"options": {
-				"playlist": "노래를 추가하려는 플레이리스트의 이름",
-				"song": "추가하려는 노래의 제목 또는 URL"
-			},
-			"messages": {
-				"no_playlist": "플레이리스트를 지정해주세요",
-				"no_song": "추가하려는 노래를 지정해주세요.",
-				"playlist_not_found": "그 플레이리스트는 존재하지 않아요.",
-				"no_songs_found": "그 노래는 존재하지 않아요.",
-				"added": "{count}개의 노래가 {playlist}에 추가되었어요"
-			}
-		},
-		"create": {
-			"description": "플레이리스트를 만들어요",
-			"options": {
-				"name": "플레이리스트의 이름"
-			},
-			"messages": {
-				"name_too_long": "플레이리스트 이름은 50자보다 길 수 없어요.",
-				"playlist_exists": "같은 플레이리스트가 존재해요. 다른 이름을 사용해주세요.",
-				"playlist_created": "**{name}** 플레이리스트가 만들어졌어요."
-			}
-		},
-		"delete": {
-			"description": "플레이리스트를 삭제해요.",
-			"options": {
-				"playlist": "삭제하려는 플레이리스트의 이름"
-			},
-			"messages": {
-				"playlist_not_found": "그 플레이리스트는 존재하지 않아요.",
-				"playlist_deleted": "**{playlistName}** 플레이리스트를 삭제했어요."
-			}
-		},
-		"list": {
-			"description": "사용자의 모든 플레이리스트를 확인해요",
-			"options": {
-				"user": "플레이리스트 목록을 확인할 사용자"
-			},
-			"messages": {
-				"no_playlists": "플레이리스트가 없어요.",
-				"your": "당신",
-				"playlists_title": "{username}의 플레이리스트",
-				"error": "플레이리스트 목록을 가져오는 동안 오류가 발생했어요."
-			}
-		},
-		"load": {
-			"description": "플레이리스트를 재생해요",
-			"options": {
-				"playlist": "재생할 플레이리스트"
-			},
-			"messages": {
-				"playlist_not_exist": "그 플레이리스트는 존재하지 않아요.",
-				"playlist_empty": "그 플레이리스트는 비었어요.",
-				"playlist_loaded": "`{name}` 플레이리스트에 있는 `{count}`개의 노래를 재생할게요."
-			}
-		},
-		"removesong": {
-			"description": "플레이리스트에서 노래를 삭제해요",
-			"options": {
-				"playlist": "삭제할 노래가 있는 플레이리스트의 이름",
-				"song": "삭제할 노래 제목 또는 URL"
-			},
-			"messages": {
-				"provide_playlist": "플레이리스트를 지정해주세요.",
-				"provide_song": "노래를 지정해주세요.",
-				"playlist_not_exist": "그 플레이리스트는 존재하지 않아요.",
-				"song_not_found": "일치하는 노래가 없어요.",
-				"song_removed": "{playlist}에서 {song} 노래를 제거했어요.",
-				"error_occurred": "플레이리스트에서 노래를 제거하는 도중 오류가 발생했어요."
-			}
-		},
-		"steal": {
-			"description": "다른 사용자로부터 플레이리스트를 가져와요",
-			"options": {
-				"playlist": "가져오려는 플레이리스트의 이름",
-				"user": "플레이리스트를 가져오려는 사용자"
-			},
-			"messages": {
-				"provide_playlist": "플레이리스트를 지정해주세요.",
-				"provide_user": "유저를 지정해주세요.",
-				"playlist_not_exist": "그 플레이리스트는 존재하지 않아요.",
-				"playlist_stolen": "`{playlist}` 플레이리스트를 {user}님에게서 가져왔어요.",
-				"error_occurred": "플레이리스트를 가져오는 도중 오류가 발생했어요."
-			}
-		},
-		"vplay": {
-			"description": "Stream de vídeo no canal de voz.",
-			"options": {
-				"url": "O link do vídeo que você deseja tocar"
-			}
-		},
-		"mlist": {
-			"description": "Lista os downloads de videos"
-		},
-		"mplay": {
-			"description": "cmd.mplay.description",
-			"options": {
-				"movie": "cmd.mplay.options.movie",
-				"audioTrack": "cmd.mplay.options.audioTrack"
-			}
-		},
-		"msearch": {
-			"description": "Procura por filmes ou animes",
-			"options": {
-				"search": "cmd.msearch.options.search"
-			}
-		},
-		"mstop": {
-			"description": "cmd.mstop.description"
-		},
-		"mpause": {
-			"description": "cmd.mpause.description"
-		},
-		"mresume": {
-			"description": "cmd.mresume.description"
-		},
-		"code": {
-			"description": "cmd.code.description"
-		},
-		"model": {
-			"description": "cmd.model.description"
-		},
-		"reason": {
-			"description": "cmd.reason.description"
-		},
-		"stream": {
-			"description": "cmd.stream.description"
-		}
-	},
-	"buttons": {
-		"invite": "초대",
-		"support": "서포트 서버",
-		"previous": "이전",
-		"resume": "재계",
-		"stop": "정지",
-		"skip": "스킵",
-		"loop": "반복",
-		"errors": {
-			"not_author": "지금은 이 버튼을 사용할 수 없어요."
-		}
-	},
-	"player": {
-		"errors": {
-			"no_player": "이 서버에 활성 플레이어가 없어요.",
-			"no_channel": "이 명령어를 사용하려면 음성 채널에 있어야 해요.",
-			"queue_empty": "대기열이 비어있어요.",
-			"no_previous": "이전 노래가 없어요.",
-			"no_song": "대기열에 노래가 없어요.",
-			"already_paused": "노래가 이미 일시정지되어 있어요."
-		},
-		"trackStart": {
-			"now_playing": "재생 중",
-			"requested_by": "요청자: {user}",
-			"duration": "길이",
-			"author": "게시자",
-			"not_connected_to_voice_channel": "이 버튼을 사용하려면 먼저 <#{channel}>에 있어야 해요.",
-			"need_dj_role": "이 명령어를 사용하려면 DJ 권한이 있어야 해요.",
-			"previous_by": "{user}님에 의해 이전 노래 재생 중",
-			"no_previous_song": "이전 노래가 없어요.",
-			"paused_by": "{user}님에 의해 일시정지됨",
-			"resumed_by": "{user}님에 의해 재계됨",
-			"skipped_by": "{user}님에 의해 스킵됨",
-			"no_more_songs_in_queue": "대기열에 더 이상 노래가 없어요.",
-			"looping_by": "{user}님에 의해 한곡 반복 중",
-			"looping_queue_by": "{user}님에 의해 대기열 반복 중",
-			"looping_off_by": "{user}님에 의해 반복 꺼짐"
-		},
-		"setupStart": {
-			"now_playing": "재생 중",
-			"description": "[{title}]({uri}), 게시자 {author} • `[{length}]` - 요청자: <@{requester}>",
-			"error_searching": "노래를 검색하는 도중 오류가 발생했어요.",
-			"no_results": "검색결과가 없어요.",
-			"nothing_playing": "재생 중인 노래 없음",
-			"queue_too_long": "대기열에 노래가 너무 많아요. 노래는 최대 {maxQueueSize}개까지만 추가할 수 있어요.",
-			"playlist_too_long": "플레이리스트 또는 대기열에 노래가 너무 많아요. 노래는 최대 {maxPlaylistSize}개까지만 추가할 수 있어요.",
-			"added_to_queue": "대기열에 추가되었어요: [{title}]({uri})",
-			"added_playlist_to_queue": "[{length}]개의 노래가 추가되었어요."
-		}
-	},
-	"event": {
-		"interaction": {
-			"setup_channel": "음악 채널에서는 이 명령어를 사용할 수 없어요.",
-			"no_send_message": "봇에게 **`메시지 보내기`**, **`채널 보기`**, **`링크 첨부`** 또는 **`메시지 기록 보기`** 권한이 없어요.",
-			"no_permission": "이 명령어를 실행하기 위한 봇의 권한이 부족해요.",
-			"no_user_permission": "이 명령어를 실행하기 위한 권한이 부족해요.",
-			"no_voice_channel": "`{command}` 명령어를 사용하려면 음성 채널에 있어야 해요.",
-			"no_connect_permission": "`{command}` 명령어를 사용하려면 봇에게 `연결` 권한이 필요해요.",
-			"no_speak_permission": "`{command}` 명령어를 사용하려면 봇에게 `말하기` 권한이 필요해요.",
-			"no_request_to_speak": "`{command}` 명령어를 사용하려면 봇에게 `발언권 요청하기` 권한이 필요해요.",
-			"different_voice_channel": "`{command}` 명령어를 사용하려면 {channel} 채널에 있어야 해요.",
-			"no_music_playing": "현재 재생 중인 노래가 없어요.",
-			"no_dj_role": "DJ 역할이 설정되지 않았어요.",
-			"no_dj_permission": "이 명령어를 사용하려면 DJ 권한이 있어야 해요.",
-			"cooldown": "`{command}` 명령어를 사용하려면 {time}초동안 기다려야 해요.",
-			"error": "오류: `{error}`",
-			"vote_button": "투표하기",
-			"vote_message": "잠깐! 이 명령어를 사용하려면 top.gg에서 투표해야 해요."
-		},
-		"message": {
-			"prefix_mention": "이 서버의 접두사는 `{prefix}`예요. 더 많은 정보를 원하시나요? `{prefix}help`를 사용하세요.\n안전하게 지내시고, 멋진 하루 보내세요!",
-			"no_send_message": "봇에게 **`메시지 보내기`**, **`채널 보기`**, **`링크 첨부`** 또는 **`메시지 기록 보기`** 권한이 없어요.",
-			"no_permission": "이 명령어를 실행하기 위한 봇의 권한이 부족해요.",
-			"no_user_permission": "이 명령어를 실행하기 위한 권한이 부족해요.",
-			"no_voice_channel": "{command} 명령어를 사용하려면 음성 채널에 있어야 해요.",
-			"no_connect_permission": "`{command}` 명령어를 사용하려면 봇에게 `연결` 권한이 필요해요.",
-			"no_speak_permission": "`{command}` 명령어를 사용하려면 봇에게 `말하기` 권한이 필요해요.",
-			"no_request_to_speak": "`{command}` 명령어를 사용하려면 봇에게 `발언권 요청하기` 권한이 필요해요.",
-			"different_voice_channel": "`{command}` 명령어를 사용하려면 {channel} 채널에 있어야 해요.",
-			"no_music_playing": "현재 재생 중인 노래가 없어요.",
-			"no_dj_role": "DJ 역할이 설정되지 않았어요.",
-			"no_dj_permission": "이 명령어를 사용하려면 DJ 권한이 있어야 해요.",
-			"missing_arguments": "인수가 부족해요",
-			"missing_arguments_description": "`{command}` 명령어에 필요한 인수를 지정해주세요.\n\n예시:\n{examples}",
-			"syntax_footer": "구문: [] = 선택, <> = 필수",
-			"cooldown": "`{command}` 명령어를 사용하려면 {time}초동안 기다려야 해요.",
-			"no_mention_everyone": "이 명령어는 everyone나 here 멘션으로 사용할 수 없어요. 빗금 명령어로 사용해주세요.",
-			"error": "오류: `{error}`",
-			"no_voice_channel_queue": "대기열에 노래를 추가하려면 음성 채널에 있어야 해요.",
-			"no_permission_connect_speak": "<#{channel}>에서 연결/말하기 권한이 없어요.",
-			"different_voice_channel_queue": "노래를 대기열에 추가하려면 <#{channel}> 채널에 있어야 해요.",
-			"vote_button": "투표하기",
-			"vote_message": "잠깐! 이 명령어를 사용하려면 top.gg에서 투표해야 해요."
-		},
-		"setupButton": {
-			"no_voice_channel_button": "이 버튼을 사용하려면 음성 채널에 있어야 해요.",
-			"different_voice_channel_button": "이 버튼을 사용하려면 {channel} 채널에 있어야 해요.",
-			"now_playing": "재생 중",
-			"live": "라이브",
-			"requested_by": "요청자: <@{requester}>",
-			"no_dj_permission": "이 버튼을 사용하려면 DJ 권한이 있어야 해요.",
-			"volume_set": "볼륨이 {vol}%로 변경되었어요.",
-			"volume_footer": "볼륨: {vol}%",
-			"paused": "일시정지",
-			"resumed": "재계",
-			"pause_resume": "음악이 {name}되었어요.",
-			"pause_resume_footer": "{displayName}님에 의해 {name}됨",
-			"no_music_to_skip": "스킵할 노래가 없어요.",
-			"skipped": "노래를 스킵했어요.",
-			"skipped_footer": "{displayName}님에 의해 스킵됨",
-			"stopped": "노래를 정지했어요.",
-			"stopped_footer": "{displayName}님에 의해 정지됨",
-			"nothing_playing": "재생 중인 노래 없음",
-			"loop_set": "반복 모드가 {loop}로 변경되었어요.",
-			"loop_footer": "{displayName}님에 의해 반복 모드가 {loop}로 설정됨",
-			"shuffled": "노래를 섞었어요.",
-			"no_previous_track": "이전 노래가 없어요.",
-			"playing_previous": "이전 노래를 재생할게요.",
-			"previous_footer": "{displayName}님에 의해 이전 노래 재생 중",
-			"rewinded": "노래를 되감기했어요.",
-			"rewind_footer": "{displayName}님에 의해 노래 되감기됨",
-			"forward_limit": "더 이상 빨리감기할 수 없어요.",
-			"forwarded": "노래를 빨리감기했어요.",
-			"forward_footer": "{displayName}님에 의해 빨리감기됨",
-			"button_not_available": "사용할 수 없는 버튼이에요.",
-			"no_music_playing": "현재 재생 중인 노래가 없어요."
-		}
-	},
-	"Evaluate code": "코드를 실행해요",
-	"Leave a guild": "봇을 서버에서 퇴장시켜요",
-	"List all guilds the bot is in": "봇이 들어가 있는 서버를 확인해요",
-	"Restart the bot": "봇을 재시작해요",
-	"Stream de vídeo no canal de voz.": "Stream de vídeo no canal de voz.",
-	"Chat inteligente com IA da NVIDIA - análise de código, geração e muito mais!": "Chat inteligente com IA da NVIDIA - análise de código, geração e muito mais!",
-	"Modo de operação da IA": "Modo de operação da IA",
-	"Sua mensagem ou pergunta": "Sua mensagem ou pergunta",
-	"Linguagem de programação (para modos de código)": "Linguagem de programação (para modos de código)",
-	"Ferramentas avançadas de IA para análise, tradução, documentação e mais!": "Ferramentas avançadas de IA para análise, tradução, documentação e mais!",
-	"Escolha uma ferramenta": "Escolha uma ferramenta",
-	"Texto ou código para processar": "Texto ou código para processar",
-	"Análise inteligente de imagens com IA - descreva, analise e extraia informações!": "Análise inteligente de imagens com IA - descreva, analise e extraia informações!",
-	"Modo de análise": "Modo de análise",
-	"Pergunta específica sobre a imagem": "Pergunta específica sobre a imagem",
-	"Configura o comportamento da IA da Mahina": "Configura o comportamento da IA da Mahina",
-	"Ação a ser executada": "Ação a ser executada",
-	"🍁 Descubra seu animal espiritual do World of Warcraft através de análise de personalidade com IA": "🍁 Descubra seu animal espiritual do World of Warcraft através de análise de personalidade com IA",
-	"👤 O usuário que você deseja analisar": "👤 O usuário que você deseja analisar",
-	"Explain code in detail": "Explain code in detail",
-	"Review code and suggest improvements": "Review code and suggest improvements",
-	"Optimize code for better performance": "Optimize code for better performance",
-	"Debug code and identify issues": "Debug code and identify issues",
-	"Programming language": "Programming language",
-	"The code to explain": "The code to explain",
-	"The code to review": "The code to review",
-	"The code to optimize": "The code to optimize",
-	"The code to debug": "The code to debug",
-	"List all available AI models": "List all available AI models",
-	"Select an AI model": "Select an AI model",
-	"Get information about a specific model": "Get information about a specific model",
-	"Show your current AI model": "Show your current AI model",
-	"The model to select": "The model to select",
-	"The model to get info about": "The model to get info about",
-	"The problem or question to analyze": "The problem or question to analyze",
-	"Additional context for the problem": "Additional context for the problem",
-	"Your message for streaming AI response": "Your message for streaming AI response",
-	"Advanced AI chat with context, memory, and personality": "Advanced AI chat with context, memory, and personality",
-	"Your message to Mahina AI": "Your message to Mahina AI",
-	"Choose AI personality": "Choose AI personality",
-	"Conversation mode": "Conversation mode",
-	"Private response (only you can see)": "Private response (only you can see)",
-	"Manage proactive interaction settings": "Manage proactive interaction settings",
-	"Show proactive interaction statistics": "Show proactive interaction statistics",
-	"Test proactive interaction in current channel": "Test proactive interaction in current channel",
-	"Force proactive interaction check": "Force proactive interaction check",
-	"Check AI services status and statistics": "Check AI services status and statistics",
-	"Verificar status e estatísticas dos serviços de IA": "Verificar status e estatísticas dos serviços de IA",
-	"Chat avançado com IA": " contexto, memória e personalidade",
-	"Sua mensagem para a Mahina AI": "Sua mensagem para a Mahina AI",
-	"Escolha a personalidade da IA": "Escolha a personalidade da IA",
-	"Modo de conversa": "Modo de conversa",
-	"Resposta privada (apenas você pode ver)": "Resposta privada (apenas você pode ver)",
-	"Testa e configura sistemas de segurança NVIDIA NemoGuard": "Testa e configura sistemas de segurança NVIDIA NemoGuard",
-	"Texto para verificar (obrigatório para verificações)": "Texto para verificar (obrigatório para verificações)",
-	"Usar modo estrito para verificação de tópicos": "Usar modo estrito para verificação de tópicos",
-	"Receber resposta também em áudio (TTS)": "Receber resposta também em áudio (TTS)",
-	"Busca por comandos e informações usando IA semântica": "Busca por comandos e informações usando IA semântica",
-	"O que você está procurando? Ex": "O que você está procurando? Ex",
-	"Filtrar por categoria específica": "Filtrar por categoria específica",
-	"Nível de precisão da busca (padrão": "Nível de precisão da busca (padrão",
-	"Converte texto em áudio usando NVIDIA TTS": "Converte texto em áudio usando NVIDIA TTS",
-	"O texto que será convertido em áudio": "O texto que será convertido em áudio",
-	"Escolha da voz para o TTS": "Escolha da voz para o TTS",
-	"Velocidade da fala (0": {
-		"5 - 2": {
-			"0)": "Velocidade da fala (0.5 - 2.0)"
-		}
-	},
-	"Tom da voz (-0": {
-		"5 a 0": {
-			"5)": "Tom da voz (-0.5 a 0.5)"
-		}
-	},
-	"Enviar áudio apenas para você": "Enviar áudio apenas para você",
-	"Gera visualizações com física realista usando NVIDIA Cosmos": "Gera visualizações com física realista usando NVIDIA Cosmos",
-	"Tipo de visualização": "Tipo de visualização",
-	"Descrição da visualização (obrigatório para prompt customizado)": "Descrição da visualização (obrigatório para prompt customizado)",
-	"Estilo visual da animação": "Estilo visual da animação",
-	"Número de frames (8-48, padrão": "Número de frames (8-48, padrão",
-	"Incluir texto na visualização": "Incluir texto na visualização",
-	"Imagem base para predição física (opcional)": "Imagem base para predição física (opcional)"
+  "cmd": {
+    "247": {
+      "description": "봇이 음성 채널에서 나가지 않도록 설정해요",
+      "errors": {
+        "not_in_voice": "이 명령어를 사용하려면 음성 채널에 있어야 해요.",
+        "generic": "이 명령어를 실행하는 도중 오류가 발생했어요."
+      },
+      "messages": {
+        "disabled": "`✅` | 24/7 모드가 `비활성화`되었어요.",
+        "enabled": "`✅` | 24/7 모드가 `활성화`되었어요."
+      }
+    },
+    "ping": {
+      "description": "봇의 핑을 확인해요",
+      "content": "핑...",
+      "bot_latency": "봇 지연시간",
+      "api_latency": "API 지연시간",
+      "requested_by": "요청자: {author}"
+    },
+    "lavalink": {
+      "description": "Lavalink 노드의 상태를 보여줘요",
+      "title": "Lavalink 상태",
+      "content": "플레이어: {players}\n재생 중: {playingPlayers}\n업타임: {uptime}\n코어 수: {cores}개\n메모리 사용량: {used} / {reservable}\n시스템 로드: {systemLoad}%\nLavalink 로드: {lavalinkLoad}%",
+      "page_info": "{index} 페이지 중 {total} 페이지"
+    },
+    "invite": {
+      "description": "봇의 초대 링크를 표시해요",
+      "content": "아래 버튼을 눌러 봇을 초대할 수 있어요. 버그가 있나요? 서포트 서버(영문)에 참여하세요!"
+    },
+    "help": {
+      "description": "도움말 메뉴를 출력해요",
+      "options": {
+        "command": "특정 명령어의 정보를 얻고 싶다면 여기에 입력해주세요"
+      },
+      "content": "안녕하세요! 저는 [MahinaBot](https://github.com/gabrielmaialva33/mahina-bot)와 Discord.js로 만들어진 음악 봇, {bot}이에요. 명령어에 대한 자세한 정보를 얻고 싶다면 `{prefix}help <명령어>`를 사용해보세요.",
+      "title": "도움말 메뉴",
+      "not_found": "`{cmdName}` 명령어는 존재하지 않아요.",
+      "help_cmd": "**설명:** {description}\n**사용 방법:** {usage}\n**예시:** {examples}\n**별칭:** {aliases}\n**카테고리:** {category}\n**쿨다운:** {cooldown}초\n**필요한 권한:** {premUser}\n**봇에게 필요한 권한:** {premBot}\n**개발자 전용:** {dev}\n**빗금 명령어 사용 가능:** {slash}\n**인수 필요:** {args}\n**노래 재생 중에만 사용 가능:** {player}\n**DJ만 사용 가능:** {dj}\n**DJ에게 필요한 권한:** {djPerm}\n**음성 채널 접속 중에만 사용 가능:** {voice}",
+      "footer": "명령어에 대한 자세한 내용을 보려면 {prefix}help <command>를 사용하세요."
+    },
+    "botinfo": {
+      "description": "봇에 대한 정보를 표시해요",
+      "content": "봇 정보:\n- **운영 체제**: {osInfo}\n- **업타임**: {osUptime}\n- **호스트 이름**: {osHostname}\n- **CPU 아키텍처**: {cpuInfo}\n- **CPU 사용량**: {cpuUsed}%\n- **메모리 사용량**: {memUsed}MB / {memTotal}GB\n- **Node 버전**: {nodeVersion}\n- **Discord.js 버전**: {discordJsVersion}\n- 서버 {guilds}개, 채널 {channels}개, 유저 {users}명\n- **명령어 수**: {commands}개"
+    },
+    "about": {
+      "description": "봇에 대한 정보를 확인해요",
+      "fields": {
+        "creator": "제작",
+        "repository": "GitHub 저장소",
+        "support": "지원",
+        "description": "그는 더 많은 코딩 경험을 쌓기 위해 처음으로 오픈 소스 프로젝트를 만들고 싶어했어요. 이 프로젝트에서 그는 버그를 줄이는 도전을 했어요. MahinaBot을 즐겁게 사용해 주시길 바랄게요!"
+      }
+    },
+    "dj": {
+      "description": "DJ 모드 및 역할을 관리해요",
+      "errors": {
+        "provide_role": "역할을 지정해주세요.",
+        "no_roles": "DJ 역할이 비어있어요.",
+        "invalid_subcommand": "하위 명령어를 정확하게 입력해주세요"
+      },
+      "messages": {
+        "role_exists": "<@&{roleId}>은 이미 DJ 역할에 등록되어 있네요.",
+        "role_added": "<@&{roleId}> 역할이 DJ로 등록되었어요.",
+        "role_not_found": "<@&{roleId}> 역할을 DJ로 등록하지 못했어요.",
+        "role_removed": "<@&{roleId}> 역할이 DJ에서 삭제되었어요.",
+        "all_roles_cleared": "DJ 역할이 초기화되었어요.",
+        "toggle": "DJ 모드가 {status}로 변경되었어요."
+      },
+      "options": {
+        "add": "DJ 역할을 추가해요",
+        "remove": "DJ에서 역할을 삭제해요",
+        "clear": "DJ 역할을 초기화해요",
+        "toggle": "DJ 모드를 토글해요",
+        "role": "역할 지정"
+      },
+      "subcommands": "하위 명령어"
+    },
+    "language": {
+      "description": "언어를 설정해요",
+      "invalid_language": "올바른 언어를 지정해주세요. 예시: `EnglishUS` = 영어 (미국)\n\n[여기](https://discord.com/developers/docs/reference#locales)에서 지원되는 언어 목록을 확인할 수 있어요.\n\n**현재 사용 가능한 언어:**\n{languages}",
+      "already_set": "`{language}`로 이미 설정되어 있어요.",
+      "not_set": "언어가 설정되지 않았어요.",
+      "set": "`✅` | 언어가 `{language}`로 변경되었어요.",
+      "reset": "`✅` | 언어가 기본 언어로 초기화되었어요.",
+      "options": {
+        "set": "봇의 언어를 설정해요",
+        "language": "설정할 언어",
+        "reset": "언어를 기본값으로 초기화해요"
+      }
+    },
+    "prefix": {
+      "description": "봇의 접두사를 설정해요",
+      "errors": {
+        "prefix_too_long": "접두사는 3자를 넘을 수 없어요."
+      },
+      "messages": {
+        "current_prefix": "현재 설정된 접두사는 `{prefix}`예요.",
+        "prefix_set": "접두사가 `{prefix}`로 수정되었어요.",
+        "prefix_reset": "접두사가 `{prefix}`로 초기화되었어요."
+      },
+      "options": {
+        "set": "접두사를 설정해요",
+        "prefix": "설정할 접두사",
+        "reset": "접두사를 기본값으로 초기화해요"
+      }
+    },
+    "setup": {
+      "description": "음악 채널을 설정해요",
+      "errors": {
+        "channel_exists": "음악채널이 이미 설정되어 있어요.",
+        "channel_not_exists": "음악채널이 존재하지 않아요.",
+        "channel_delete_fail": "음악 채널이 데이터베이스에서 삭제되었어요. 채널은 직접 삭제해주세요."
+      },
+      "messages": {
+        "channel_created": "<#{channelId}>로 음악 채널이 만들어졌어요.",
+        "channel_deleted": "음악채널이 삭제되었어요.",
+        "channel_info": "현재 등록된 음악 채널은 <#{channelId}> 이에요."
+      },
+      "options": {
+        "create": "음악채널을 만들어요",
+        "delete": "음악채널을 삭제해요",
+        "info": "현재 등록된 음악채널을 확인해요"
+      }
+    },
+    "8d": {
+      "description": "8d 필터를 토글해요",
+      "messages": {
+        "filter_enabled": "`✅` | 8D 필터가 `활성화`되었어요.",
+        "filter_disabled": "`✅` | 8D 필터가 `비활성화`되었어요."
+      }
+    },
+    "bassboost": {
+      "description": "베이스부스트 필터를 토글해요",
+      "options": {
+        "level": "설정할 베이스부스트 레벨"
+      },
+      "messages": {
+        "high": "`✅` | High 베이스부스트 필터가 `활성화`되었어요.",
+        "low": "`✅` | Low 베이스부스트 필터가 `활성화`되었어요.",
+        "medium": "`✅` | Medium 베이스부스트 필터가 `활성화`되었어요.",
+        "off": "`✅` | 베이스부스트 필터가 `비활성화`되었어요."
+      }
+    },
+    "distortion": {
+      "description": "왜곡 필터를 토글해요",
+      "messages": {
+        "filter_enabled": "`✅` | 왜곡 필터가 `활성화`되었어요.",
+        "filter_disabled": "`✅` | 왜곡 필터가 `비활성화`되었어요."
+      }
+    },
+    "karaoke": {
+      "description": "노래방 필터를 토글해요",
+      "messages": {
+        "filter_enabled": "`✅` | 노래방 필터가 `활성화`되었어요.",
+        "filter_disabled": "`✅` | 노래방 필터가 `비활성화`되었어요."
+      }
+    },
+    "lowpass": {
+      "description": "저역 통과 필터를 토글해요",
+      "messages": {
+        "filter_enabled": "`✅` | 저역 통과 필터가 `활성화`되었어요.",
+        "filter_disabled": "`✅` | 저역 통과 필터가 `비활성화`되었어요."
+      }
+    },
+    "nightcore": {
+      "description": "나이트코어 필터를 토글해요",
+      "messages": {
+        "filter_enabled": "`✅` | 나이트코어 필터가 `활성화`되었어요.",
+        "filter_disabled": "`✅` | 나이트코어 필터가 `비활성화`되었어요."
+      }
+    },
+    "pitch": {
+      "description": "노래의 음높이를 변경해요",
+      "options": {
+        "pitch": "설정할 음높이(0.5 - 5)"
+      },
+      "errors": {
+        "invalid_number": "0.5에서 5 사이의 올바른 숫자를 입력해주세요."
+      },
+      "messages": {
+        "pitch_set": "`✅` | 음높이가 **{pitch}**로 변경되었어요."
+      }
+    },
+    "rate": {
+      "description": "노래의 비율을 설정해요",
+      "options": {
+        "rate": "설정할 비율(0.5 - 5)"
+      },
+      "errors": {
+        "invalid_number": "0.5에서 5 사이의 올바른 숫자를 입력해주세요."
+      },
+      "messages": {
+        "rate_set": "`✅` | 노래의 비율이 **{rate}**로 변경되었어요."
+      }
+    },
+    "reset": {
+      "description": "모든 필터를 초기화해요",
+      "messages": {
+        "filters_reset": "`✅` | 필터가 초기화되었어요."
+      }
+    },
+    "rotation": {
+      "description": "회전 필터를 토글해요",
+      "messages": {
+        "enabled": "`✅` | 회전 필터가 `활성화`되었어요.",
+        "disabled": "`✅` | 회전 필터가 `비활성화`되었어요."
+      }
+    },
+    "speed": {
+      "description": "노래의 속도를 변경해요",
+      "options": {
+        "speed": "설정할 속도를 0.5에서 5 사이로 입력하세요"
+      },
+      "messages": {
+        "invalid_number": "0.5에서 5 사이에 올바른 숫자를 입력해주세요.",
+        "set_speed": "`✅` | 속도가 **{speed}**로 변경되었어요."
+      }
+    },
+    "tremolo": {
+      "description": "트레몰로 필터를 토글해요",
+      "messages": {
+        "enabled": "`✅` | 트레몰로 필터가 `활성화`되었어요.",
+        "disabled": "`✅` | 트레몰로 필터가 `비활성화`되었어요."
+      }
+    },
+    "vibrato": {
+      "description": "비브라토 필터를 토글해요",
+      "messages": {
+        "enabled": "`✅` | 비브라토 필터가 `활성화`되었어요.",
+        "disabled": "`✅` | 비브라토 필터가 `비활성화`되었어요."
+      }
+    },
+    "autoplay": {
+      "description": "자동재생을 토글해요",
+      "messages": {
+        "enabled": "`✅` | 자동재생이 `활성화`되었어요.",
+        "disabled": "`✅` | 자동재생이 `비활성화`되었어요."
+      }
+    },
+    "clearqueue": {
+      "description": "대기열을 비워요",
+      "messages": {
+        "cleared": "대기열을 비웠어요."
+      }
+    },
+    "grab": {
+      "description": "현재 재생 중인 노래를 DM으로 보내요",
+      "loading": "로드 중...",
+      "content": "**길이:** {length}\n**요청자:** <@{requester}>\n**링크:** [클릭]({uri})",
+      "check_dm": "DM을 확인해주세요.",
+      "dm_failed": "DM을 보내지 못했어요. 다이렉트 메시지 허용이 켜져 있는지 확인해주세요."
+    },
+    "join": {
+      "description": "봇이 음성 채널에 들어와요",
+      "already_connected": "<#{channelId}>에 이미 들어와있어요.",
+      "no_voice_channel": "이 명령어를 사용하려면 음성 채널에 있어야 해요.",
+      "joined": "<#{channelId}>에 들어왔어요."
+    },
+    "leave": {
+      "description": "봇이 음성 채널을 나가요",
+      "left": "<#{channelId}>에서 나갔어요.",
+      "not_in_channel": "봇이 음성 채널에 들어와 있지 않아요."
+    },
+    "loop": {
+      "description": "현재 노래 또는 대기열을 반복해요",
+      "looping_song": "**한곡 반복이 켜졌어요.**",
+      "looping_queue": "**대기열 반복이 켜졌어요.**",
+      "looping_off": "**반복이 꺼졌어요.**"
+    },
+    "lyrics": {
+      "description": "현재 재생중인 노래의 가사를 확인해요",
+      "lyrics_track": "### [{trackTitle}]({trackUrl}) 노래 가사\n**`{lyrics}`**",
+      "searching": "`🔍` **{trackTitle}** 노래 가사 검색 중...",
+      "errors": {
+        "no_results": "현재 트랙의 가사를 찾지 못했어요.",
+        "lyrics_error": "가사를 검색하는 도중 오류가 발생했어요."
+      }
+    },
+    "nowplaying": {
+      "description": "현재 재생중인 노래를 확인해요",
+      "now_playing": "재생 중",
+      "track_info": "[{title}]({uri}) - 요청자: <@{requester}>\n\n`{bar}`"
+    },
+    "pause": {
+      "description": "노래를 일시정지해요",
+      "successfully_paused": "노래를 일시정지했어요."
+    },
+    "play": {
+      "description": "노래를 재생해요",
+      "options": {
+        "song": "노래 제목 또는 URL"
+      },
+      "loading": "로드 중...",
+      "errors": {
+        "search_error": "노래를 검색하는 도중 오류가 발생했어요.",
+        "no_results": "검색 결과가 없어요.",
+        "queue_too_long": "대기열에 노래가 너무 많아요. 노래는 최대 {maxQueueSize}개까지만 추가할 수 있어요.",
+        "playlist_too_long": "플레이리스트 또는 대기열에 노래가 너무 많아요. 노래는 최대 {maxPlaylistSize}개까지만 추가할 수 있어요."
+      },
+      "added_to_queue": "대기열에 추가되었어요: [{title}]({uri})",
+      "added_playlist_to_queue": "{length}개의 노래가 대기열에 추가되었어요."
+    },
+    "playnext": {
+      "description": "노래를 바로 다음에 재생해요",
+      "options": {
+        "song": "재생할 노래 제목 또는 URL "
+      },
+      "loading": "로드 중...",
+      "errors": {
+        "search_error": "노래를 검색하는 도중 오류가 발생했어요.",
+        "no_results": "검색 결과가 없어요.",
+        "queue_too_long": "대기열에 노래가 너무 많아요. 노래는 최대 {maxQueueSize}개까지만 추가할 수 있어요.",
+        "playlist_too_long": "플레이리스트 또는 대기열에 노래가 너무 많아요. 노래는 최대 {maxPlaylistSize}개까지만 추가할 수 있어요."
+      },
+      "added_to_play_next": "이 노래를 바로 다음에 재생할게요: [{title}]({uri})",
+      "added_playlist_to_play_next": "{length}개의 노래를 바로 다음에 재생할게요."
+    },
+    "queue": {
+      "description": "대기열을 확인해요",
+      "now_playing": "재생 중: [{title}]({uri}) - 요청자: <@{requester}> - 길이: `{duration}`",
+      "live": "라이브",
+      "track_info": "{index}번: [{title}]({uri}) - 요청자: <@{requester}> - 길이: `{duration}`",
+      "title": "대기열",
+      "page_info": "{index} 페이지 중 {total} 페이지"
+    },
+    "remove": {
+      "description": "대기열에서 노래를 삭제해요",
+      "options": {
+        "song": "삭제할 노래의 대기열 번호"
+      },
+      "errors": {
+        "no_songs": "그 번호에 노래가 존재하지 않아요.",
+        "invalid_number": "올바른 노래의 번호를 지정해주세요."
+      },
+      "messages": {
+        "removed": "{songNumber}번 노래가 제거되었어요."
+      }
+    },
+    "replay": {
+      "description": "현재 재생 중인 노래를 다시 재생해요",
+      "errors": {
+        "not_seekable": "이 노래에서는 다시 재생을 지원하지 않는 것 같네요."
+      },
+      "messages": {
+        "replaying": "노래를 다시 재생할게요."
+      }
+    },
+    "resume": {
+      "description": "노래를 재계해요",
+      "errors": {
+        "not_paused": "플레이어가 일시정지되지 않았어요."
+      },
+      "messages": {
+        "resumed": "노래를 재계했어요."
+      }
+    },
+    "search": {
+      "description": "노래를 검색해 추가해요",
+      "options": {
+        "song": "검색하려는 노래 제목 또는 URL"
+      },
+      "select": "재생하고자 하는 노래를 선택해주세요.",
+      "errors": {
+        "no_results": "검색 결과가 없어요",
+        "search_error": "노래를 검색하는 도중 문제가 발생했어요."
+      },
+      "messages": {
+        "added_to_queue": "대기열에 추가되었어요: [{title}]({uri})"
+      }
+    },
+    "seek": {
+      "description": "노래의 구간을 이동해요",
+      "options": {
+        "duration": "이동할 구간"
+      },
+      "errors": {
+        "invalid_format": "시간 형식이 잘못되었어요. 예시: 30s(30초로 이동), 1m(1분으로 이동), 1h 30m(1시간 30분으로 이동)",
+        "not_seekable": "이 노래에서는 구간 이동을 지원하지 않는 것 같네요.",
+        "beyond_duration": "{length}을 넘을 수 없어요."
+      },
+      "messages": {
+        "seeked_to": "{duration}로 이동했어요."
+      }
+    },
+    "shuffle": {
+      "description": "대기열을 섞어요",
+      "messages": {
+        "shuffled": "대기열을 섞었어요."
+      }
+    },
+    "skip": {
+      "description": "현재 재생중인 노래를 스킵해요",
+      "messages": {
+        "skipped": "[{title}]({uri}) 노래를 스킵했어요."
+      }
+    },
+    "skipto": {
+      "description": "노래를 특정 대기열로 스킵해요",
+      "options": {
+        "number": "스킵할 노래의 번호"
+      },
+      "errors": {
+        "invalid_number": "올바른 값을 지정해주세요."
+      },
+      "messages": {
+        "skipped_to": "{number}번 노래로 스킵했어요."
+      }
+    },
+    "stop": {
+      "description": "노래를 정지해요",
+      "messages": {
+        "stopped": "노래를 정지했어요."
+      }
+    },
+    "volume": {
+      "description": "볼륨을 설정해요",
+      "options": {
+        "number": "설정할 볼륨"
+      },
+      "messages": {
+        "invalid_number": "올바른 값을 지정하세요.",
+        "too_low": "볼륨은 0보다 작을 수 없어요.",
+        "too_high": "볼륨은 200보다 클 수 없어요. 혹시 당신의 청력이나 스피커를 손상시키고 싶나요? 음... 그건 그렇게 좋은 생각이 아닌 것 같다만요.",
+        "set": "볼륨을 {volume}으로 설정했어요."
+      }
+    },
+    "addsong": {
+      "description": "노래를 플레이리스트에 추가해요",
+      "options": {
+        "playlist": "노래를 추가하려는 플레이리스트의 이름",
+        "song": "추가하려는 노래의 제목 또는 URL"
+      },
+      "messages": {
+        "no_playlist": "플레이리스트를 지정해주세요",
+        "no_song": "추가하려는 노래를 지정해주세요.",
+        "playlist_not_found": "그 플레이리스트는 존재하지 않아요.",
+        "no_songs_found": "그 노래는 존재하지 않아요.",
+        "added": "{count}개의 노래가 {playlist}에 추가되었어요"
+      }
+    },
+    "create": {
+      "description": "플레이리스트를 만들어요",
+      "options": {
+        "name": "플레이리스트의 이름"
+      },
+      "messages": {
+        "name_too_long": "플레이리스트 이름은 50자보다 길 수 없어요.",
+        "playlist_exists": "같은 플레이리스트가 존재해요. 다른 이름을 사용해주세요.",
+        "playlist_created": "**{name}** 플레이리스트가 만들어졌어요."
+      }
+    },
+    "delete": {
+      "description": "플레이리스트를 삭제해요.",
+      "options": {
+        "playlist": "삭제하려는 플레이리스트의 이름"
+      },
+      "messages": {
+        "playlist_not_found": "그 플레이리스트는 존재하지 않아요.",
+        "playlist_deleted": "**{playlistName}** 플레이리스트를 삭제했어요."
+      }
+    },
+    "list": {
+      "description": "사용자의 모든 플레이리스트를 확인해요",
+      "options": {
+        "user": "플레이리스트 목록을 확인할 사용자"
+      },
+      "messages": {
+        "no_playlists": "플레이리스트가 없어요.",
+        "your": "당신",
+        "playlists_title": "{username}의 플레이리스트",
+        "error": "플레이리스트 목록을 가져오는 동안 오류가 발생했어요."
+      }
+    },
+    "load": {
+      "description": "플레이리스트를 재생해요",
+      "options": {
+        "playlist": "재생할 플레이리스트"
+      },
+      "messages": {
+        "playlist_not_exist": "그 플레이리스트는 존재하지 않아요.",
+        "playlist_empty": "그 플레이리스트는 비었어요.",
+        "playlist_loaded": "`{name}` 플레이리스트에 있는 `{count}`개의 노래를 재생할게요."
+      }
+    },
+    "removesong": {
+      "description": "플레이리스트에서 노래를 삭제해요",
+      "options": {
+        "playlist": "삭제할 노래가 있는 플레이리스트의 이름",
+        "song": "삭제할 노래 제목 또는 URL"
+      },
+      "messages": {
+        "provide_playlist": "플레이리스트를 지정해주세요.",
+        "provide_song": "노래를 지정해주세요.",
+        "playlist_not_exist": "그 플레이리스트는 존재하지 않아요.",
+        "song_not_found": "일치하는 노래가 없어요.",
+        "song_removed": "{playlist}에서 {song} 노래를 제거했어요.",
+        "error_occurred": "플레이리스트에서 노래를 제거하는 도중 오류가 발생했어요."
+      }
+    },
+    "steal": {
+      "description": "다른 사용자로부터 플레이리스트를 가져와요",
+      "options": {
+        "playlist": "가져오려는 플레이리스트의 이름",
+        "user": "플레이리스트를 가져오려는 사용자"
+      },
+      "messages": {
+        "provide_playlist": "플레이리스트를 지정해주세요.",
+        "provide_user": "유저를 지정해주세요.",
+        "playlist_not_exist": "그 플레이리스트는 존재하지 않아요.",
+        "playlist_stolen": "`{playlist}` 플레이리스트를 {user}님에게서 가져왔어요.",
+        "error_occurred": "플레이리스트를 가져오는 도중 오류가 발생했어요."
+      }
+    },
+    "vplay": {
+      "description": "Stream de vídeo no canal de voz.",
+      "options": {
+        "url": "O link do vídeo que você deseja tocar"
+      }
+    },
+    "mlist": {
+      "description": "Lista os downloads de videos"
+    },
+    "mplay": {
+      "description": "cmd.mplay.description",
+      "options": {
+        "movie": "cmd.mplay.options.movie",
+        "audioTrack": "cmd.mplay.options.audioTrack"
+      }
+    },
+    "msearch": {
+      "description": "Procura por filmes ou animes",
+      "options": {
+        "search": "cmd.msearch.options.search"
+      }
+    },
+    "mstop": {
+      "description": "cmd.mstop.description"
+    },
+    "mpause": {
+      "description": "cmd.mpause.description"
+    },
+    "mresume": {
+      "description": "cmd.mresume.description"
+    },
+    "code": {
+      "description": "cmd.code.description"
+    },
+    "model": {
+      "description": "cmd.model.description"
+    },
+    "reason": {
+      "description": "cmd.reason.description"
+    },
+    "stream": {
+      "description": "cmd.stream.description"
+    }
+  },
+  "buttons": {
+    "invite": "초대",
+    "support": "서포트 서버",
+    "previous": "이전",
+    "resume": "재계",
+    "stop": "정지",
+    "skip": "스킵",
+    "loop": "반복",
+    "errors": {
+      "not_author": "지금은 이 버튼을 사용할 수 없어요."
+    }
+  },
+  "player": {
+    "errors": {
+      "no_player": "이 서버에 활성 플레이어가 없어요.",
+      "no_channel": "이 명령어를 사용하려면 음성 채널에 있어야 해요.",
+      "queue_empty": "대기열이 비어있어요.",
+      "no_previous": "이전 노래가 없어요.",
+      "no_song": "대기열에 노래가 없어요.",
+      "already_paused": "노래가 이미 일시정지되어 있어요."
+    },
+    "trackStart": {
+      "now_playing": "재생 중",
+      "requested_by": "요청자: {user}",
+      "duration": "길이",
+      "author": "게시자",
+      "not_connected_to_voice_channel": "이 버튼을 사용하려면 먼저 <#{channel}>에 있어야 해요.",
+      "need_dj_role": "이 명령어를 사용하려면 DJ 권한이 있어야 해요.",
+      "previous_by": "{user}님에 의해 이전 노래 재생 중",
+      "no_previous_song": "이전 노래가 없어요.",
+      "paused_by": "{user}님에 의해 일시정지됨",
+      "resumed_by": "{user}님에 의해 재계됨",
+      "skipped_by": "{user}님에 의해 스킵됨",
+      "no_more_songs_in_queue": "대기열에 더 이상 노래가 없어요.",
+      "looping_by": "{user}님에 의해 한곡 반복 중",
+      "looping_queue_by": "{user}님에 의해 대기열 반복 중",
+      "looping_off_by": "{user}님에 의해 반복 꺼짐"
+    },
+    "setupStart": {
+      "now_playing": "재생 중",
+      "description": "[{title}]({uri}), 게시자 {author} • `[{length}]` - 요청자: <@{requester}>",
+      "error_searching": "노래를 검색하는 도중 오류가 발생했어요.",
+      "no_results": "검색결과가 없어요.",
+      "nothing_playing": "재생 중인 노래 없음",
+      "queue_too_long": "대기열에 노래가 너무 많아요. 노래는 최대 {maxQueueSize}개까지만 추가할 수 있어요.",
+      "playlist_too_long": "플레이리스트 또는 대기열에 노래가 너무 많아요. 노래는 최대 {maxPlaylistSize}개까지만 추가할 수 있어요.",
+      "added_to_queue": "대기열에 추가되었어요: [{title}]({uri})",
+      "added_playlist_to_queue": "[{length}]개의 노래가 추가되었어요."
+    }
+  },
+  "event": {
+    "interaction": {
+      "setup_channel": "음악 채널에서는 이 명령어를 사용할 수 없어요.",
+      "no_send_message": "봇에게 **`메시지 보내기`**, **`채널 보기`**, **`링크 첨부`** 또는 **`메시지 기록 보기`** 권한이 없어요.",
+      "no_permission": "이 명령어를 실행하기 위한 봇의 권한이 부족해요.",
+      "no_user_permission": "이 명령어를 실행하기 위한 권한이 부족해요.",
+      "no_voice_channel": "`{command}` 명령어를 사용하려면 음성 채널에 있어야 해요.",
+      "no_connect_permission": "`{command}` 명령어를 사용하려면 봇에게 `연결` 권한이 필요해요.",
+      "no_speak_permission": "`{command}` 명령어를 사용하려면 봇에게 `말하기` 권한이 필요해요.",
+      "no_request_to_speak": "`{command}` 명령어를 사용하려면 봇에게 `발언권 요청하기` 권한이 필요해요.",
+      "different_voice_channel": "`{command}` 명령어를 사용하려면 {channel} 채널에 있어야 해요.",
+      "no_music_playing": "현재 재생 중인 노래가 없어요.",
+      "no_dj_role": "DJ 역할이 설정되지 않았어요.",
+      "no_dj_permission": "이 명령어를 사용하려면 DJ 권한이 있어야 해요.",
+      "cooldown": "`{command}` 명령어를 사용하려면 {time}초동안 기다려야 해요.",
+      "error": "오류: `{error}`",
+      "vote_button": "투표하기",
+      "vote_message": "잠깐! 이 명령어를 사용하려면 top.gg에서 투표해야 해요."
+    },
+    "message": {
+      "prefix_mention": "이 서버의 접두사는 `{prefix}`예요. 더 많은 정보를 원하시나요? `{prefix}help`를 사용하세요.\n안전하게 지내시고, 멋진 하루 보내세요!",
+      "no_send_message": "봇에게 **`메시지 보내기`**, **`채널 보기`**, **`링크 첨부`** 또는 **`메시지 기록 보기`** 권한이 없어요.",
+      "no_permission": "이 명령어를 실행하기 위한 봇의 권한이 부족해요.",
+      "no_user_permission": "이 명령어를 실행하기 위한 권한이 부족해요.",
+      "no_voice_channel": "{command} 명령어를 사용하려면 음성 채널에 있어야 해요.",
+      "no_connect_permission": "`{command}` 명령어를 사용하려면 봇에게 `연결` 권한이 필요해요.",
+      "no_speak_permission": "`{command}` 명령어를 사용하려면 봇에게 `말하기` 권한이 필요해요.",
+      "no_request_to_speak": "`{command}` 명령어를 사용하려면 봇에게 `발언권 요청하기` 권한이 필요해요.",
+      "different_voice_channel": "`{command}` 명령어를 사용하려면 {channel} 채널에 있어야 해요.",
+      "no_music_playing": "현재 재생 중인 노래가 없어요.",
+      "no_dj_role": "DJ 역할이 설정되지 않았어요.",
+      "no_dj_permission": "이 명령어를 사용하려면 DJ 권한이 있어야 해요.",
+      "missing_arguments": "인수가 부족해요",
+      "missing_arguments_description": "`{command}` 명령어에 필요한 인수를 지정해주세요.\n\n예시:\n{examples}",
+      "syntax_footer": "구문: [] = 선택, <> = 필수",
+      "cooldown": "`{command}` 명령어를 사용하려면 {time}초동안 기다려야 해요.",
+      "no_mention_everyone": "이 명령어는 everyone나 here 멘션으로 사용할 수 없어요. 빗금 명령어로 사용해주세요.",
+      "error": "오류: `{error}`",
+      "no_voice_channel_queue": "대기열에 노래를 추가하려면 음성 채널에 있어야 해요.",
+      "no_permission_connect_speak": "<#{channel}>에서 연결/말하기 권한이 없어요.",
+      "different_voice_channel_queue": "노래를 대기열에 추가하려면 <#{channel}> 채널에 있어야 해요.",
+      "vote_button": "투표하기",
+      "vote_message": "잠깐! 이 명령어를 사용하려면 top.gg에서 투표해야 해요."
+    },
+    "setupButton": {
+      "no_voice_channel_button": "이 버튼을 사용하려면 음성 채널에 있어야 해요.",
+      "different_voice_channel_button": "이 버튼을 사용하려면 {channel} 채널에 있어야 해요.",
+      "now_playing": "재생 중",
+      "live": "라이브",
+      "requested_by": "요청자: <@{requester}>",
+      "no_dj_permission": "이 버튼을 사용하려면 DJ 권한이 있어야 해요.",
+      "volume_set": "볼륨이 {vol}%로 변경되었어요.",
+      "volume_footer": "볼륨: {vol}%",
+      "paused": "일시정지",
+      "resumed": "재계",
+      "pause_resume": "음악이 {name}되었어요.",
+      "pause_resume_footer": "{displayName}님에 의해 {name}됨",
+      "no_music_to_skip": "스킵할 노래가 없어요.",
+      "skipped": "노래를 스킵했어요.",
+      "skipped_footer": "{displayName}님에 의해 스킵됨",
+      "stopped": "노래를 정지했어요.",
+      "stopped_footer": "{displayName}님에 의해 정지됨",
+      "nothing_playing": "재생 중인 노래 없음",
+      "loop_set": "반복 모드가 {loop}로 변경되었어요.",
+      "loop_footer": "{displayName}님에 의해 반복 모드가 {loop}로 설정됨",
+      "shuffled": "노래를 섞었어요.",
+      "no_previous_track": "이전 노래가 없어요.",
+      "playing_previous": "이전 노래를 재생할게요.",
+      "previous_footer": "{displayName}님에 의해 이전 노래 재생 중",
+      "rewinded": "노래를 되감기했어요.",
+      "rewind_footer": "{displayName}님에 의해 노래 되감기됨",
+      "forward_limit": "더 이상 빨리감기할 수 없어요.",
+      "forwarded": "노래를 빨리감기했어요.",
+      "forward_footer": "{displayName}님에 의해 빨리감기됨",
+      "button_not_available": "사용할 수 없는 버튼이에요.",
+      "no_music_playing": "현재 재생 중인 노래가 없어요."
+    }
+  },
+  "Evaluate code": "코드를 실행해요",
+  "Leave a guild": "봇을 서버에서 퇴장시켜요",
+  "List all guilds the bot is in": "봇이 들어가 있는 서버를 확인해요",
+  "Restart the bot": "봇을 재시작해요",
+  "Stream de vídeo no canal de voz.": "Stream de vídeo no canal de voz.",
+  "Chat inteligente com IA da NVIDIA - análise de código, geração e muito mais!": "Chat inteligente com IA da NVIDIA - análise de código, geração e muito mais!",
+  "Modo de operação da IA": "Modo de operação da IA",
+  "Sua mensagem ou pergunta": "Sua mensagem ou pergunta",
+  "Linguagem de programação (para modos de código)": "Linguagem de programação (para modos de código)",
+  "Ferramentas avançadas de IA para análise, tradução, documentação e mais!": "Ferramentas avançadas de IA para análise, tradução, documentação e mais!",
+  "Escolha uma ferramenta": "Escolha uma ferramenta",
+  "Texto ou código para processar": "Texto ou código para processar",
+  "Análise inteligente de imagens com IA - descreva, analise e extraia informações!": "Análise inteligente de imagens com IA - descreva, analise e extraia informações!",
+  "Modo de análise": "Modo de análise",
+  "Pergunta específica sobre a imagem": "Pergunta específica sobre a imagem",
+  "Configura o comportamento da IA da Mahina": "Configura o comportamento da IA da Mahina",
+  "Ação a ser executada": "Ação a ser executada",
+  "🍁 Descubra seu animal espiritual do World of Warcraft através de análise de personalidade com IA": "🍁 Descubra seu animal espiritual do World of Warcraft através de análise de personalidade com IA",
+  "👤 O usuário que você deseja analisar": "👤 O usuário que você deseja analisar",
+  "Explain code in detail": "Explain code in detail",
+  "Review code and suggest improvements": "Review code and suggest improvements",
+  "Optimize code for better performance": "Optimize code for better performance",
+  "Debug code and identify issues": "Debug code and identify issues",
+  "Programming language": "Programming language",
+  "The code to explain": "The code to explain",
+  "The code to review": "The code to review",
+  "The code to optimize": "The code to optimize",
+  "The code to debug": "The code to debug",
+  "List all available AI models": "List all available AI models",
+  "Select an AI model": "Select an AI model",
+  "Get information about a specific model": "Get information about a specific model",
+  "Show your current AI model": "Show your current AI model",
+  "The model to select": "The model to select",
+  "The model to get info about": "The model to get info about",
+  "The problem or question to analyze": "The problem or question to analyze",
+  "Additional context for the problem": "Additional context for the problem",
+  "Your message for streaming AI response": "Your message for streaming AI response",
+  "Advanced AI chat with context, memory, and personality": "Advanced AI chat with context, memory, and personality",
+  "Your message to Mahina AI": "Your message to Mahina AI",
+  "Choose AI personality": "Choose AI personality",
+  "Conversation mode": "Conversation mode",
+  "Private response (only you can see)": "Private response (only you can see)",
+  "Manage proactive interaction settings": "Manage proactive interaction settings",
+  "Show proactive interaction statistics": "Show proactive interaction statistics",
+  "Test proactive interaction in current channel": "Test proactive interaction in current channel",
+  "Force proactive interaction check": "Force proactive interaction check",
+  "Check AI services status and statistics": "Check AI services status and statistics",
+  "Verificar status e estatísticas dos serviços de IA": "Verificar status e estatísticas dos serviços de IA",
+  "Chat avançado com IA": " contexto, memória e personalidade",
+  "Sua mensagem para a Mahina AI": "Sua mensagem para a Mahina AI",
+  "Escolha a personalidade da IA": "Escolha a personalidade da IA",
+  "Modo de conversa": "Modo de conversa",
+  "Resposta privada (apenas você pode ver)": "Resposta privada (apenas você pode ver)",
+  "Testa e configura sistemas de segurança NVIDIA NemoGuard": "Testa e configura sistemas de segurança NVIDIA NemoGuard",
+  "Texto para verificar (obrigatório para verificações)": "Texto para verificar (obrigatório para verificações)",
+  "Usar modo estrito para verificação de tópicos": "Usar modo estrito para verificação de tópicos",
+  "Receber resposta também em áudio (TTS)": "Receber resposta também em áudio (TTS)",
+  "Busca por comandos e informações usando IA semântica": "Busca por comandos e informações usando IA semântica",
+  "O que você está procurando? Ex": "O que você está procurando? Ex",
+  "Filtrar por categoria específica": "Filtrar por categoria específica",
+  "Nível de precisão da busca (padrão": "Nível de precisão da busca (padrão",
+  "Converte texto em áudio usando NVIDIA TTS": "Converte texto em áudio usando NVIDIA TTS",
+  "O texto que será convertido em áudio": "O texto que será convertido em áudio",
+  "Escolha da voz para o TTS": "Escolha da voz para o TTS",
+  "Velocidade da fala (0": {
+    "5 - 2": {
+      "0)": "Velocidade da fala (0.5 - 2.0)"
+    }
+  },
+  "Tom da voz (-0": {
+    "5 a 0": {
+      "5)": "Tom da voz (-0.5 a 0.5)"
+    }
+  },
+  "Enviar áudio apenas para você": "Enviar áudio apenas para você",
+  "Gera visualizações com física realista usando NVIDIA Cosmos": "Gera visualizações com física realista usando NVIDIA Cosmos",
+  "Tipo de visualização": "Tipo de visualização",
+  "Descrição da visualização (obrigatório para prompt customizado)": "Descrição da visualização (obrigatório para prompt customizado)",
+  "Estilo visual da animação": "Estilo visual da animação",
+  "Número de frames (8-48, padrão": "Número de frames (8-48, padrão",
+  "Incluir texto na visualização": "Incluir texto na visualização",
+  "Imagem base para predição física (opcional)": "Imagem base para predição física (opcional)"
 }
