@@ -1,4 +1,4 @@
-import Discord, {
+import {
   ActionRowBuilder,
   ApplicationCommandOptionType,
   AttachmentBuilder,
@@ -8,11 +8,11 @@ import Discord, {
   EmbedBuilder,
   Message,
 } from 'discord.js'
+
 import OpenAI from 'openai'
 import Command from '#common/command'
 import MahinaBot from '#common/mahina_bot'
-
-const { InteractionResponseFlags } = Discord
+import Context from '#common/context'
 
 export default class ChatCommand extends Command {
   private openai: OpenAI
@@ -121,7 +121,7 @@ export default class ChatCommand extends Command {
 
     try {
       // Get user conversation history
-      const userId = ctx.author.id
+      const userId = ctx.author!.id
       const conversationKey = `${userId}-${mode}`
 
       if (!this.conversations.has(conversationKey)) {
@@ -133,7 +133,7 @@ export default class ChatCommand extends Command {
       // Build system prompt based on mode
       const systemPrompt = this.getSystemPrompt(mode, ctx.args?.language)
 
-      // Add user message
+      // Add a user message
       conversation.push({ role: 'user', content: prompt })
 
       // Keep conversation history limited
@@ -141,7 +141,7 @@ export default class ChatCommand extends Command {
         conversation.splice(0, conversation.length - 10)
       }
 
-      // Create messages array with system prompt
+      // Create message array with system prompt
       const messages = [{ role: 'system', content: systemPrompt }, ...conversation]
 
       // Call NVIDIA API

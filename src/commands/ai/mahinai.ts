@@ -1,5 +1,7 @@
-import { Command, type Context, type MahinaBot } from '#common/index'
-import Discord, {
+import Command from '#common/command'
+import type Context from '#common/context'
+import type MahinaBot from '#common/mahina_bot'
+import {
   ActionRowBuilder,
   ApplicationCommandOptionType,
   ButtonBuilder,
@@ -7,11 +9,10 @@ import Discord, {
   ComponentType,
   EmbedBuilder,
   Message,
+  MessageFlags,
   StringSelectMenuBuilder,
   StringSelectMenuOptionBuilder,
 } from 'discord.js'
-
-const { InteractionResponseFlags } = Discord
 
 export default class MahinaAI extends Command {
   constructor(client: MahinaBot) {
@@ -27,7 +28,7 @@ export default class MahinaAI extends Command {
       cooldown: 2,
       args: true,
       vote: false,
-      player: false,
+      player: undefined,
       inVoice: false,
       sameVoice: false,
       permissions: {
@@ -103,7 +104,7 @@ export default class MahinaAI extends Command {
             color: client.config.color.red,
           },
         ],
-        flags: InteractionResponseFlags.Ephemeral,
+        flags: MessageFlags.Ephemeral,
       })
     }
 
@@ -122,7 +123,7 @@ export default class MahinaAI extends Command {
             color: client.config.color.red,
           },
         ],
-        flags: InteractionResponseFlags.Ephemeral,
+        flags: MessageFlags.Ephemeral,
       })
     }
 
@@ -136,7 +137,7 @@ export default class MahinaAI extends Command {
             color: client.config.color.yellow,
           },
         ],
-        flags: InteractionResponseFlags.Ephemeral,
+        flags: MessageFlags.Ephemeral,
       })
     }
 
@@ -239,7 +240,7 @@ export default class MahinaAI extends Command {
       let enhancedSystemPrompt = systemPrompt
       if (
         analysis.topics?.some(
-          (topic) =>
+          (topic: string) =>
             topic.toLowerCase().includes('music') || topic.toLowerCase().includes('comando')
         )
       ) {
@@ -248,7 +249,7 @@ export default class MahinaAI extends Command {
           const relevantHelp = await embeddingService.searchMusicHelp(message)
           if (relevantHelp.length > 0) {
             enhancedSystemPrompt += '\n\nInformações relevantes sobre comandos:\n'
-            relevantHelp.forEach((result) => {
+            relevantHelp.forEach((result: any) => {
               enhancedSystemPrompt += `- ${result.content}\n`
             })
           }
@@ -337,7 +338,7 @@ export default class MahinaAI extends Command {
           {
             title: '❌ Error',
             description: 'An error occurred while processing your request. Please try again.',
-            fields: [{ name: 'Error', value: error.message || 'Unknown error', inline: false }],
+            fields: [{ name: 'Error', value: (error as Error).message || 'Unknown error', inline: false }],
             color: client.config.color.red,
           },
         ],
@@ -359,7 +360,7 @@ export default class MahinaAI extends Command {
   }
 
   private mapEmotionToSentiment(emotion?: string): 'positive' | 'neutral' | 'negative' {
-    const sentimentMap = {
+    const sentimentMap: Record<string, 'positive' | 'neutral' | 'negative'> = {
       happy: 'positive',
       excited: 'positive',
       sad: 'negative',
@@ -378,7 +379,7 @@ export default class MahinaAI extends Command {
     ctx: Context
   ): string {
     // Base personalities
-    const personalities = {
+    const personalities: Record<string, string> = {
       friendly:
         'Você é Mahina, uma assistente de IA calorosa e amigável. Seja conversacional, solidária e use emojis apropriados. Responda em português brasileiro.',
       professional:
@@ -396,7 +397,7 @@ export default class MahinaAI extends Command {
     }
 
     // Mode enhancements
-    const modeEnhancements = {
+    const modeEnhancements: Record<string, string> = {
       chat: 'Engaje em conversa natural, mantendo contexto e mostrando interesse genuíno.',
       music:
         'Foque em tópicos musicais. Sugira músicas, discuta gêneros e ajude com comandos do bot de música.',
@@ -624,7 +625,7 @@ export default class MahinaAI extends Command {
       if (interaction.user.id !== userId) {
         await interaction.reply({
           content: '❌ Apenas o usuário original pode interagir com esses controles!',
-          flags: InteractionResponseFlags.Ephemeral,
+          flags: MessageFlags.Ephemeral,
         })
         return
       }
@@ -636,7 +637,7 @@ export default class MahinaAI extends Command {
             await memoryService.recordFeedback(userId, guildId, true)
             await interaction.reply({
               content: '✅ Obrigado pelo feedback! Fico feliz em ter ajudado! 😊',
-              flags: InteractionResponseFlags.Ephemeral,
+              flags: MessageFlags.Ephemeral,
             })
             break
 
@@ -645,21 +646,21 @@ export default class MahinaAI extends Command {
             await interaction.reply({
               content:
                 '😔 Desculpe por não ter sido útil. Vou tentar melhorar! Por favor, me diga o que deu errado.',
-              flags: InteractionResponseFlags.Ephemeral,
+              flags: MessageFlags.Ephemeral,
             })
             break
 
           case 'ai_regenerate':
             await interaction.reply({
               content: '🔄 Use o comando novamente com a mesma mensagem para regenerar a resposta!',
-              flags: InteractionResponseFlags.Ephemeral,
+              flags: MessageFlags.Ephemeral,
             })
             break
 
           case 'ai_continue':
             await interaction.reply({
               content: '💬 Continue a conversa enviando outra mensagem com o comando!',
-              flags: InteractionResponseFlags.Ephemeral,
+              flags: MessageFlags.Ephemeral,
             })
             break
 
@@ -680,7 +681,7 @@ export default class MahinaAI extends Command {
 
             await interaction.reply({
               embeds: [settingsEmbed],
-              flags: InteractionResponseFlags.Ephemeral,
+              flags: MessageFlags.Ephemeral,
             })
             break
         }
@@ -708,7 +709,7 @@ export default class MahinaAI extends Command {
 
             await interaction.reply({
               embeds: [personalityEmbed],
-              flags: InteractionResponseFlags.Ephemeral,
+              flags: MessageFlags.Ephemeral,
             })
             break
 
@@ -716,7 +717,7 @@ export default class MahinaAI extends Command {
             contextService.clearContext(userId, channelId)
             await interaction.reply({
               content: '🧹 Conversation context cleared! Start fresh with your next message.',
-              flags: InteractionResponseFlags.Ephemeral,
+              flags: MessageFlags.Ephemeral,
             })
             break
 
@@ -746,7 +747,7 @@ export default class MahinaAI extends Command {
 
             await interaction.reply({
               embeds: [statsEmbed],
-              flags: InteractionResponseFlags.Ephemeral,
+              flags: MessageFlags.Ephemeral,
             })
             break
 
@@ -783,7 +784,7 @@ export default class MahinaAI extends Command {
 
             await interaction.reply({
               embeds: [recEmbed],
-              flags: InteractionResponseFlags.Ephemeral,
+              flags: MessageFlags.Ephemeral,
             })
             break
 
@@ -792,7 +793,7 @@ export default class MahinaAI extends Command {
 
             await interaction.reply({
               content: '📤 Your conversation has been exported! (Feature coming soon)',
-              flags: InteractionResponseFlags.Ephemeral,
+              flags: MessageFlags.Ephemeral,
             })
             break
         }

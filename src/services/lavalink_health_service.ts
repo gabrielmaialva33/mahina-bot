@@ -69,11 +69,20 @@ export class LavalinkHealthService {
     try {
       // Try to reconnect the node
       if (node.socket) {
-        // Check if socket is already closing or closed
-        if (node.socket.readyState === 2 || node.socket.readyState === 3) {
+        // Check WebSocket state:
+        // 0 = CONNECTING, 1 = OPEN, 2 = CLOSING, 3 = CLOSED
+        const socketState = node.socket.readyState
+
+        if (socketState === 0) {
+          // Socket is still connecting, wait for it to finish
+          logger.warn(`Socket for node ${nodeId} is still connecting, waiting...`)
+          await new Promise((resolve) => setTimeout(resolve, 5000))
+          return
+        } else if (socketState === 2 || socketState === 3) {
           // Socket is already closing or closed, just wait a bit
           await new Promise((resolve) => setTimeout(resolve, 1000))
-        } else {
+        } else if (socketState === 1) {
+          // Socket is open, try to close it properly
           node.socket.removeAllListeners()
           try {
             node.socket.close()

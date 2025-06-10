@@ -1,7 +1,7 @@
-import { Command, type Context, type MahinaBot } from '#common/index'
-import Discord, { ApplicationCommandOptionType, EmbedBuilder } from 'discord.js'
-
-const { InteractionResponseFlags } = Discord
+import Command from '#common/command'
+import type Context from '#common/context'
+import type MahinaBot from '#common/mahina_bot'
+import { ApplicationCommandOptionType, EmbedBuilder, MessageFlags } from 'discord.js'
 
 export default class GuardCommand extends Command {
   constructor(client: MahinaBot) {
@@ -17,7 +17,7 @@ export default class GuardCommand extends Command {
       cooldown: 10,
       args: true,
       vote: false,
-      player: false,
+      player: undefined,
       inVoice: false,
       sameVoice: false,
       permissions: {
@@ -100,7 +100,7 @@ export default class GuardCommand extends Command {
             color: client.config.color.red,
           },
         ],
-        flags: InteractionResponseFlags.Ephemeral,
+        flags: MessageFlags.Ephemeral,
       })
     }
 
@@ -112,7 +112,7 @@ export default class GuardCommand extends Command {
             color: client.config.color.red,
           },
         ],
-        flags: InteractionResponseFlags.Ephemeral,
+        flags: MessageFlags.Ephemeral,
       })
     }
 
@@ -135,7 +135,7 @@ export default class GuardCommand extends Command {
                 color: client.config.color.red,
               },
             ],
-            flags: InteractionResponseFlags.Ephemeral,
+            flags: MessageFlags.Ephemeral,
           })
         }
         await this.handleComprehensiveCheck(ctx, guardService, client, text, strictMode)
@@ -150,7 +150,7 @@ export default class GuardCommand extends Command {
                 color: client.config.color.red,
               },
             ],
-            flags: InteractionResponseFlags.Ephemeral,
+            flags: MessageFlags.Ephemeral,
           })
         }
         await this.handleJailbreakTest(ctx, guardService, client, text)
@@ -165,7 +165,7 @@ export default class GuardCommand extends Command {
                 color: client.config.color.red,
               },
             ],
-            flags: InteractionResponseFlags.Ephemeral,
+            flags: MessageFlags.Ephemeral,
           })
         }
         await this.handleSafetyTest(ctx, guardService, client, text)
@@ -180,7 +180,7 @@ export default class GuardCommand extends Command {
               color: client.config.color.red,
             },
           ],
-          flags: InteractionResponseFlags.Ephemeral,
+          flags: MessageFlags.Ephemeral,
         })
     }
   }
@@ -195,12 +195,12 @@ export default class GuardCommand extends Command {
       .addFields(
         {
           name: '🤖 Modelos Disponíveis',
-          value: stats.models.map((model) => `• ${model}`).join('\n'),
+          value: stats.models.map((model: string) => `• ${model}`).join('\n'),
           inline: false,
         },
         {
           name: '🛡️ Recursos',
-          value: stats.features.map((feature) => `• ${feature}`).join('\n'),
+          value: stats.features.map((feature: string) => `• ${feature}`).join('\n'),
           inline: false,
         },
         {
@@ -227,7 +227,7 @@ export default class GuardCommand extends Command {
       .setDescription('Lista de tópicos aprovados para conversas com IA')
       .addFields({
         name: '✅ Tópicos Aprovados',
-        value: allowedTopics.map((topic) => `• ${topic}`).join('\n'),
+        value: allowedTopics.map((topic: string) => `• ${topic}`).join('\n'),
         inline: false,
       })
       .setFooter({
@@ -311,7 +311,7 @@ export default class GuardCommand extends Command {
           resultEmbed.addFields({
             name: '⚠️ Violações de Conteúdo',
             value: violations
-              .map((v) => `• **${v.policy}:** ${v.violation_type} (${v.severity})`)
+              .map((v: any) => `• **${v.policy}:** ${v.violation_type} (${v.severity})`)
               .join('\n'),
             inline: false,
           })
@@ -389,7 +389,7 @@ export default class GuardCommand extends Command {
       if (result.techniques_detected && result.techniques_detected.length > 0) {
         embed.addFields({
           name: '🔍 Técnicas Detectadas',
-          value: result.techniques_detected.map((tech) => `• ${tech}`).join('\n'),
+          value: result.techniques_detected.map((tech: string) => `• ${tech}`).join('\n'),
           inline: false,
         })
       }
@@ -466,7 +466,7 @@ export default class GuardCommand extends Command {
           name: '⚠️ Violações Encontradas',
           value: result.content_policy_violations
             .map(
-              (v) =>
+              (v: any) =>
                 `• **${v.policy}:** ${v.violation_type} (${v.severity}) - Score: ${Math.round(v.score * 100)}%`
             )
             .join('\n'),

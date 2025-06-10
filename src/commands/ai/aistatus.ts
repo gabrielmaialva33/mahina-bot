@@ -1,4 +1,4 @@
-import { Command } from '#common/index'
+import Command from '#common/command'
 import { EmbedBuilder } from 'discord.js'
 import MahinaBot from '#common/mahina_bot'
 import Context from '#common/context'
@@ -17,7 +17,7 @@ export default class AIStatus extends Command {
       cooldown: 5,
       args: false,
       vote: false,
-      player: false,
+      player: undefined,
       inVoice: false,
       sameVoice: false,
       permissions: {
@@ -89,7 +89,7 @@ export default class AIStatus extends Command {
 
       // Channel Usage
       const topChannels = Object.entries(stats.contextStats.contextsByChannel)
-        .sort(([, a], [, b]) => b - a)
+        .sort(([, a], [, b]) => (b as number) - (a as number))
         .slice(0, 3)
 
       if (topChannels.length > 0) {
@@ -134,7 +134,7 @@ export default class AIStatus extends Command {
             fields: [
               {
                 name: 'Erro',
-                value: error.message || 'Erro desconhecido',
+                value: (error as Error).message || 'Erro desconhecido',
               },
             ],
             color: client.config.color.red,

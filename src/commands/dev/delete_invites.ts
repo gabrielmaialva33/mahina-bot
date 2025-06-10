@@ -39,9 +39,8 @@ export default class DestroyInvites extends Command {
     }
 
     try {
-      const botInvites = (await guild.invites.fetch()).filter(
-        (invite) => invite.inviter?.id === client.user?.id
-      )
+      const invites = await guild.invites.fetch()
+      const botInvites = invites.filter((invite) => invite.inviter?.id === client.user?.id)
 
       await Promise.all(botInvites.map((invite) => invite.delete()))
 

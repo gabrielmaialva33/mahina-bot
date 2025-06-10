@@ -4,7 +4,7 @@ import Command from '#common/command'
 import type MahinaBot from '#common/mahina_bot'
 import type Context from '#common/context'
 
-export default class _247 extends Command {
+export default class TwentyFourSeven extends Command {
   constructor(client: MahinaBot) {
     super(client, {
       name: '247',

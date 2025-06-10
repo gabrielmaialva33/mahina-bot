@@ -121,10 +121,11 @@ export class NvidiaEmbeddingService {
     let norm1 = 0
     let norm2 = 0
 
-    for (let i = 0; i < embedding1.length; i++) {
-      dotProduct += embedding1[i] * embedding2[i]
-      norm1 += embedding1[i] * embedding1[i]
-      norm2 += embedding2[i] * embedding2[i]
+    for (const [index, value1] of embedding1.entries()) {
+      const value2 = embedding2[index]
+      dotProduct += value1 * value2
+      norm1 += value1 * value1
+      norm2 += value2 * value2
     }
 
     return dotProduct / (Math.sqrt(norm1) * Math.sqrt(norm2))
@@ -159,14 +160,14 @@ export class NvidiaEmbeddingService {
       // Calculate similarities and rank results
       const results: SearchResult[] = []
 
-      for (let i = 0; i < knowledgeBase.length; i++) {
-        const similarity = this.calculateSimilarity(queryEmbedding, contentEmbeddings[i])
+      for (const [index, item] of knowledgeBase.entries()) {
+        const similarity = this.calculateSimilarity(queryEmbedding, contentEmbeddings[index])
 
         if (similarity >= threshold) {
           results.push({
-            content: knowledgeBase[i].content,
+            content: item.content,
             similarity,
-            metadata: knowledgeBase[i].metadata,
+            metadata: item.metadata,
           })
         }
       }

@@ -43,7 +43,8 @@ export default class Botinfo extends Command {
     const osUptime = client.utils.formatTime(os.uptime())
     const osHostname = os.hostname()
     const cpuInfo = `${os.arch()} (${os.cpus().length} cores)`
-    const cpuUsed = (await usagePercent({ coreIndex: 0, sampleMs: 2000 })).percent
+    const cpuUsage = await usagePercent({ coreIndex: 0, sampleMs: 2000 })
+    const cpuUsed = cpuUsage.percent
     const memTotal = showTotalMemory(true)
     const memUsed = (process.memoryUsage().rss / 1024 ** 2).toFixed(2)
     const nodeVersion = process.version
@@ -51,11 +52,11 @@ export default class Botinfo extends Command {
     const commands = client.commands.size
 
     const promises = [
-      client.shard?.broadcastEval((client) => client.guilds.cache.size),
-      client.shard?.broadcastEval((client) =>
-        client.guilds.cache.reduce((acc, guild) => acc + guild.memberCount, 0)
+      client.shard?.broadcastEval((c) => c.guilds.cache.size),
+      client.shard?.broadcastEval((c) =>
+        c.guilds.cache.reduce((acc, guild) => acc + guild.memberCount, 0)
       ),
-      client.shard?.broadcastEval((client) => client.channels.cache.size),
+      client.shard?.broadcastEval((c) => c.channels.cache.size),
     ]
     return Promise.all(promises).then(async (results) => {
       const guilds = results[0]?.reduce((acc, guildCount) => acc + guildCount, 0)

@@ -1,4 +1,6 @@
-import { Command, type Context, type MahinaBot } from '#common/index'
+import Command from '#common/command'
+import type Context from '#common/context'
+import type MahinaBot from '#common/mahina_bot'
 import { ApplicationCommandOptionType, AttachmentBuilder } from 'discord.js'
 
 export default class Code extends Command {
@@ -18,7 +20,7 @@ export default class Code extends Command {
       cooldown: 10,
       args: true,
       vote: false,
-      player: false,
+      player: undefined,
       inVoice: false,
       sameVoice: false,
       permissions: {
@@ -261,7 +263,7 @@ export default class Code extends Command {
       await ctx.editMessage({
         embeds: [
           {
-            description: `❌ Failed to ${task} code: ${error.message}`,
+            description: `❌ Failed to ${task} code: ${(error as Error).message}`,
             color: 0xff0000,
           },
         ],

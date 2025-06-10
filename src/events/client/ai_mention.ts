@@ -1,16 +1,15 @@
-import Discord, {
+import {
   ActionRowBuilder,
   ButtonBuilder,
   ButtonStyle,
   ComponentType,
   Message,
+  MessageFlags,
   StringSelectMenuBuilder,
 } from 'discord.js'
 import Event from '#common/event'
 import type MahinaBot from '#common/mahina_bot'
 import { AIService, type ChatMessage } from '#src/services/ai_service'
-
-const { InteractionResponseFlags } = Discord
 
 export default class AIMention extends Event {
   private aiService: AIService
@@ -151,7 +150,7 @@ export default class AIMention extends Event {
         if (interaction.user.id !== message.author.id) {
           return interaction.reply({
             content: 'Apenas o autor da mensagem pode usar esses botões!',
-            flags: InteractionResponseFlags.Ephemeral,
+            flags: MessageFlags.Ephemeral,
           })
         }
 
@@ -176,7 +175,7 @@ export default class AIMention extends Event {
             await interaction.reply({
               embeds: [this.aiService.createPersonalityEmbed(personalities, userPersonality)],
               components: [selectMenu],
-              flags: InteractionResponseFlags.Ephemeral,
+              flags: MessageFlags.Ephemeral,
             })
 
             // Handle personality selection
@@ -204,7 +203,7 @@ export default class AIMention extends Event {
             await this.client.db.clearChatHistory(message.channelId)
             await interaction.reply({
               content: '✨ Nova conversa iniciada! A memória anterior foi limpa.',
-              flags: InteractionResponseFlags.Ephemeral,
+              flags: MessageFlags.Ephemeral,
             })
             break
 
@@ -225,7 +224,7 @@ export default class AIMention extends Event {
                 `Suas mensagens: ${userMessages}\n` +
                 `Respostas da Mahina: ${aiMessages}\n` +
                 `Personalidade atual: ${this.aiService.getPersonality(userPersonality)?.name}`,
-              flags: InteractionResponseFlags.Ephemeral,
+              flags: MessageFlags.Ephemeral,
             })
             break
         }

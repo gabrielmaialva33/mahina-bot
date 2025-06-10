@@ -7,6 +7,7 @@ import type MahinaBot from '#common/mahina_bot'
 interface CustomClientEvents {
   setupSystem: (message: Message) => void
   setupButtons: (interaction: ButtonInteraction) => void
+  aiMention: (message: Message) => void
 }
 
 export type AllEvents = LavalinkManagerEvents &
