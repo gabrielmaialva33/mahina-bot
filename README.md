@@ -39,6 +39,7 @@
 ## :sparkles: Features
 
 ### Advanced Music System 🎵
+
 - **High-Quality Playback** - Powered by Lavalink for superior audio streaming
 - **Multi-Platform Support** - YouTube, Spotify, SoundCloud, Apple Music, Deezer, and more
 - **Advanced Queue Management** - Shuffle, loop, skip, pause, and volume control
@@ -48,6 +49,7 @@
 - **Video Streaming** - Stream videos directly in Discord voice channels
 
 ### NVIDIA AI Integration 🤖
+
 - **Multiple AI Models** - Access to cutting-edge NVIDIA models:
   - **Llama 4 Maverick** - General purpose multimodal model
   - **DeepSeek R1** - Advanced reasoning and analysis
@@ -60,6 +62,7 @@
 - **Multi-Modal Support** - Process text and images (vision models)
 
 ### 🧠 AI Memory & Context System
+
 - **User Memory** - Remembers preferences, interests, and interaction patterns
 - **Conversation Context** - Maintains context across messages for coherent discussions
 - **Personality System** - 8 different AI personalities (Friendly, Professional, Playful, DJ, Wise, Technical, Gamer, Teacher)
@@ -67,6 +70,7 @@
 - **Sentiment Analysis** - Understands user emotions and responds appropriately
 
 ### 🛠️ Bot Management
+
 - **Multi-Language Support** - 8+ languages including English, Portuguese, Spanish, French, German
 - **Custom Prefix** - Configurable command prefix per server
 - **Permission System** - Granular permission control for commands
@@ -75,6 +79,7 @@
 - **Auto-Restart** - PM2 support for production deployments
 
 ### 📊 Additional Features
+
 - **78 Total Commands** - Organized into 10 categories
 - **Slash Command Support** - Modern Discord slash commands
 - **Button & Menu Interactions** - Interactive UI components
@@ -91,7 +96,7 @@ Mahina Bot leverages NVIDIA's powerful AI models through their API to provide in
 ### Available Models
 
 | Model              | Use Case                            | Context Length | Features                    |
-|--------------------|-------------------------------------|----------------|-----------------------------|
+| ------------------ | ----------------------------------- | -------------- | --------------------------- |
 | **DeepSeek R1**    | Advanced reasoning, problem-solving | 8,192 tokens   | Step-by-step analysis       |
 | **Qwen 2.5 Coder** | Programming, code review            | 32,768 tokens  | Code generation & debugging |
 | **Llama 3.3 70B**  | General conversations               | 128,000 tokens | Balanced performance        |
@@ -115,15 +120,15 @@ Mahina Bot leverages NVIDIA's powerful AI models through their API to provide in
 
 ```javascript
 // Code generation example
-const invokeUrl = "https://integrate.api.nvidia.com/v1/chat/completions";
+const invokeUrl = 'https://integrate.api.nvidia.com/v1/chat/completions'
 
 const payload = {
-  "model": "meta/llama-4-maverick-17b-128e-instruct",
-  "messages": [{"role":"user","content":"Your message here"}],
-  "max_tokens": 512,
-  "temperature": 1.00,
-  "stream": false
-};
+  model: 'meta/llama-4-maverick-17b-128e-instruct',
+  messages: [{ role: 'user', content: 'Your message here' }],
+  max_tokens: 512,
+  temperature: 1.0,
+  stream: false,
+}
 ```
 
 <br>
@@ -154,34 +159,40 @@ const payload = {
 ### Quick Start
 
 1. **Clone the repository**
+
 ```bash
 git clone https://github.com/gabrielmaialva33/mahina-bot.git
 cd mahina-bot
 ```
 
 2. **Install dependencies**
+
 ```bash
 pnpm install
 # or npm install
 ```
 
 3. **Configure environment**
+
 ```bash
 cp .env.example .env
 # Edit .env with your configuration
 ```
 
 4. **Start services with Docker**
+
 ```bash
 docker-compose up -d
 ```
 
 5. **Run database migrations**
+
 ```bash
 pnpm db:push
 ```
 
 6. **Start the bot**
+
 ```bash
 pnpm build && pnpm start:max
 # or for development
@@ -226,6 +237,7 @@ PORT=3050                           # Web dashboard port
 ### Docker Compose
 
 The included `docker-compose.yml` provides:
+
 - Lavalink server
 - MongoDB database
 - Optional: Bot container
@@ -235,36 +247,44 @@ The included `docker-compose.yml` provides:
 ## :electric_plug: Commands
 
 ### 🎵 Music Commands
+
 - `play`, `pause`, `resume`, `stop`, `skip`, `previous`
 - `queue`, `nowplaying`, `shuffle`, `loop`, `volume`
 - `seek`, `replay`, `remove`, `clear`, `jump`
 - `grab`, `move`, `skipto`, `lyrics`
 
 ### 🤖 AI Commands
+
 - `chat`, `mahinai`, `code`, `reason`, `stream`
 - `model`, `aistatus`, `vision`, `tools`
 
 ### 🎛️ Filter Commands
+
 - `filter`, `bassboost`, `nightcore`, `vaporwave`
 - `8d`, `distortion`, `karaoke`, `tremolo`, `vibrato`
 
 ### 📋 Playlist Commands
+
 - `playlist create`, `playlist add`, `playlist remove`
 - `playlist list`, `playlist load`, `playlist delete`
 
 ### ⚙️ Config Commands
+
 - `prefix`, `language`, `setup`, `reset`
 - `247`, `autoplay`, `voteskip`
 
 ### ℹ️ Info Commands
+
 - `help`, `info`, `invite`, `ping`, `stats`
 - `node`, `lavalink`, `support`
 
 ### 💿 Stream Commands
+
 - `live`, `radio`, `video`, `twitch`
 - `mixer`, `podcast`, `soundcloud`
 
 ### 👑 Developer Commands
+
 - `eval`, `shell`, `reload`, `restart`
 - `blacklist`, `maintenance`, `simulate`
 
@@ -275,29 +295,29 @@ The included `docker-compose.yml` provides:
 ### Using NVIDIA AI in Your Code
 
 ```typescript
-import { NvidiaAIService } from './services/nvidia_ai_service';
+import { NvidiaAIService } from './services/nvidia_ai_service'
 
 // Initialize service
-const aiService = new NvidiaAIService(process.env.NVIDIA_API_KEY);
+const aiService = new NvidiaAIService(process.env.NVIDIA_API_KEY)
 
 // Chat with AI
 const response = await aiService.chat(
   userId,
-  "Explain quantum computing",
-  "Make it simple for beginners"
-);
+  'Explain quantum computing',
+  'Make it simple for beginners'
+)
 
 // Generate code
 const code = await aiService.analyzeCode(
   userId,
-  "function fibonacci(n) { return n <= 1 ? n : fibonacci(n-1) + fibonacci(n-2); }",
-  "javascript",
-  "optimize"
-);
+  'function fibonacci(n) { return n <= 1 ? n : fibonacci(n-1) + fibonacci(n-2); }',
+  'javascript',
+  'optimize'
+)
 
 // Stream responses
 for await (const chunk of aiService.chatStream(userId, message)) {
-  console.log(chunk); // Print each chunk as it arrives
+  console.log(chunk) // Print each chunk as it arrives
 }
 ```
 
