@@ -1,0 +1,66 @@
+name: Deploy to VPS
+
+on:
+  push:
+    branches:
+      - master
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build application
+        run: pnpm run build
+
+      - name: Deploy to server
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USERNAME }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          port: ${{ secrets.VPS_PORT }}
+          script: |
+            cd /root/mahina-bot
+
+            # Pull latest changes
+            git pull origin master
+
+            # Install pnpm if not already installed
+            npm install -g pnpm
+
+            # Install dependencies
+            pnpm install --frozen-lockfile
+
+            # Build the application
+            pnpm run build
+
+            # Push database schema
+            pnpm run db:push
+
+            # Restart the bot using PM2
+            pm2 restart mahina-bot || pm2 start ecosystem.config.cjs --name mahina-bot
+
+            # Save PM2 process list
+            pm2 save
+
+            # Display status
+            pm2 status
