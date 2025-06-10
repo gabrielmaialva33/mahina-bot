@@ -17,6 +17,10 @@ export default class ServerData {
     this.prisma = new PrismaClient()
   }
 
+  getPrismaClient(): PrismaClient {
+    return this.prisma
+  }
+
   async get(guildId: string): Promise<Guild> {
     return (
       (await this.prisma.guild.findUnique({ where: { guildId } })) ??

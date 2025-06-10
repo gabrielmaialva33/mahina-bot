@@ -196,7 +196,11 @@ export class AIService {
         selectedPersonality.systemPrompt +
         `\n
       Você está conversando com ${userName} no canal ${channelName}.
-      Você tem memória das conversas anteriores neste canal.`
+      Você tem memória das conversas anteriores neste canal.
+      
+      IMPORTANTE: Seja sempre coerente e concisa nas suas respostas. 
+      Mantenha as respostas objetivas, úteis e relevantes ao contexto.
+      Evite respostas muito longas ou dispersas.`
 
       // Add context-specific instructions
       if (context) {

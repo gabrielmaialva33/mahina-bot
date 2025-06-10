@@ -11,6 +11,11 @@ export default class GuildCreate extends Event {
   }
 
   async run(guild: Guild): Promise<void> {
+    // Initialize proactive interaction for new guild
+    if (this.client.services.proactiveInteraction) {
+      await this.client.services.proactiveInteraction.handleGuildCreate(guild)
+    }
+
     let owner: GuildMember | undefined
     try {
       owner = await guild.members.fetch(guild.ownerId)

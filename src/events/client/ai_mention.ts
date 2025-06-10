@@ -69,6 +69,20 @@ export default class AIMention extends Event {
       }
       messages.push(userMessage)
 
+      // Clean message content - remove bot mentions
+      let cleanContent = message.content
+        .replace(new RegExp(`<@!?${this.client.user?.id}>`, 'g'), '')
+        .replace(/mahina/gi, '')
+        .trim()
+
+      // If message is empty after cleaning, provide a default greeting
+      if (!cleanContent) {
+        cleanContent = 'Olá!'
+      }
+
+      // Update user message with cleaned content
+      userMessage.content = cleanContent
+
       // Generate AI response with personality and context
       const response = await this.aiService.generateResponse(
         messages.slice(-aiConfig.contextWindow), // Use configured context window

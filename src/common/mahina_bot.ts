@@ -29,6 +29,11 @@ import { env } from '#src/env'
 import SelfBot from '#common/selfbot'
 import { AnimeZey } from '#src/platforms/animezey'
 import { NvidiaAIService } from '#src/services/nvidia_ai_service'
+import { ProactiveInteractionService } from '#src/services/proactive_interaction_service'
+import { LavalinkHealthService } from '#src/services/lavalink_health_service'
+import { AIContextService } from '#src/services/ai_context_service'
+import { AIMemoryService } from '#src/services/ai_memory_service'
+import { getAIManager, AIManager } from '#src/services/ai_manager'
 
 const dirname = path.dirname(fileURLToPath(import.meta.url))
 
@@ -49,7 +54,12 @@ export default class MahinaBot extends Client {
   animezey = new AnimeZey()
   services: {
     nvidia?: NvidiaAIService
+    proactiveInteraction?: ProactiveInteractionService
+    lavalinkHealth?: LavalinkHealthService
+    aiContext?: AIContextService
+    aiMemory?: AIMemoryService
   } = {}
+  aiManager?: AIManager
   private body: RESTPostAPIChatInputApplicationCommandsJSONBody[] = []
 
   constructor(options: ClientOptions) {
@@ -70,13 +80,28 @@ export default class MahinaBot extends Client {
       this.logger.warn('Top.gg token not found!')
     }
 
-    // Initialize NVIDIA AI service if API key is available
-    if (env.NVIDIA_API_KEY) {
-      this.services.nvidia = new NvidiaAIService(env.NVIDIA_API_KEY)
-      this.logger.info('NVIDIA AI service initialized')
-    } else {
-      this.logger.warn('NVIDIA API key not found - AI features will be limited')
+    // Initialize AI Manager with all AI services
+    try {
+      const prisma = await this.db.getPrismaClient()
+      this.aiManager = getAIManager(prisma)
+      await this.aiManager.initialize()
+
+      // Map AI services for backward compatibility
+      this.services.nvidia = this.aiManager.nvidia
+      this.services.aiContext = this.aiManager.context
+      this.services.aiMemory = this.aiManager.memory
+
+      this.logger.info('AI Manager and services initialized successfully')
+    } catch (error) {
+      this.logger.error('Failed to initialize AI Manager:', error)
+      this.logger.warn('AI features will be disabled')
     }
+
+    // Initialize Proactive Interaction Service
+    this.services.proactiveInteraction = new ProactiveInteractionService(this)
+
+    // Initialize Lavalink Health Service
+    this.services.lavalinkHealth = new LavalinkHealthService(this)
 
     this.manager = new MahinaLinkClient(this)
 

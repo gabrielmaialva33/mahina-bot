@@ -31,6 +31,40 @@ export default class MahinaLinkClient extends LavalinkManager {
       },
     })
     this.client = client
+
+    // Setup error handlers for Lavalink nodes
+    this.setupErrorHandlers()
+  }
+
+  private setupErrorHandlers(): void {
+    // Handle node manager errors
+    this.nodeManager.on('error', (node, error) => {
+      this.client.logger.error(`Lavalink Node Error (${node.id}):`, error)
+    })
+
+    // Handle individual node errors after initialization
+    this.on('nodeCreate', (node) => {
+      node.on('error', (error) => {
+        this.client.logger.error(`Lavalink Node ${node.id} Error:`, error)
+      })
+
+      node.on('disconnect', (code, reason) => {
+        this.client.logger.warn(`Lavalink Node ${node.id} disconnected: ${code} - ${reason}`)
+      })
+
+      node.on('reconnecting', () => {
+        this.client.logger.info(`Lavalink Node ${node.id} is reconnecting...`)
+      })
+
+      node.on('connect', () => {
+        this.client.logger.success(`Lavalink Node ${node.id} connected successfully`)
+      })
+    })
+
+    // Global Lavalink error handler
+    this.on('error', (error, node) => {
+      this.client.logger.error(`Lavalink Manager Error${node ? ` (Node: ${node.id})` : ''}:`, error)
+    })
   }
 
   /**

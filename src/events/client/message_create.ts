@@ -27,12 +27,17 @@ export default class MessageCreate extends Event {
     if (message.author.bot) return
     if (!(message.guild && message.guildId)) return
 
-    // Check for Mahina mention in message content
+    // Update channel activity for proactive interaction tracking
+    if (this.client.services.proactiveInteraction && message.channel.isTextBased()) {
+      await this.client.services.proactiveInteraction.updateActivity(message.channelId)
+    }
+
+    // Check for Mahina mention in message content or direct bot mention
+    const botMention = message.mentions.has(this.client.user?.id!)
     const mahinaMention = /mahina/i.test(message.content)
-    if (
-      mahinaMention &&
-      !message.content.startsWith(await this.client.db.getPrefix(message.guildId))
-    ) {
+    const prefix = await this.client.db.getPrefix(message.guildId)
+
+    if ((mahinaMention || botMention) && !message.content.startsWith(prefix)) {
       return this.client.emit('aiMention', message)
     }
 
