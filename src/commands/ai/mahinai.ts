@@ -9,6 +9,7 @@ import {
   Message,
   StringSelectMenuBuilder,
   StringSelectMenuOptionBuilder,
+  InteractionResponseFlags,
 } from 'discord.js'
 
 export default class MahinaAI extends Command {
@@ -94,7 +95,7 @@ export default class MahinaAI extends Command {
             color: client.config.color.red,
           },
         ],
-        ephemeral: true,
+        flags: InteractionResponseFlags.Ephemeral,
       })
     }
 
@@ -112,7 +113,7 @@ export default class MahinaAI extends Command {
             color: client.config.color.red,
           },
         ],
-        ephemeral: true,
+        flags: InteractionResponseFlags.Ephemeral,
       })
     }
 
@@ -126,7 +127,7 @@ export default class MahinaAI extends Command {
             color: client.config.color.yellow,
           },
         ],
-        ephemeral: true,
+        flags: InteractionResponseFlags.Ephemeral,
       })
     }
 
@@ -543,7 +544,7 @@ export default class MahinaAI extends Command {
       if (interaction.user.id !== userId) {
         await interaction.reply({
           content: '❌ Apenas o usuário original pode interagir com esses controles!',
-          ephemeral: true,
+          flags: InteractionResponseFlags.Ephemeral,
         })
         return
       }
@@ -555,7 +556,7 @@ export default class MahinaAI extends Command {
             await memoryService.recordFeedback(userId, guildId, true)
             await interaction.reply({
               content: '✅ Obrigado pelo feedback! Fico feliz em ter ajudado! 😊',
-              ephemeral: true,
+              flags: InteractionResponseFlags.Ephemeral,
             })
             break
 
@@ -564,21 +565,21 @@ export default class MahinaAI extends Command {
             await interaction.reply({
               content:
                 '😔 Desculpe por não ter sido útil. Vou tentar melhorar! Por favor, me diga o que deu errado.',
-              ephemeral: true,
+              flags: InteractionResponseFlags.Ephemeral,
             })
             break
 
           case 'ai_regenerate':
             await interaction.reply({
               content: '🔄 Use o comando novamente com a mesma mensagem para regenerar a resposta!',
-              ephemeral: true,
+              flags: InteractionResponseFlags.Ephemeral,
             })
             break
 
           case 'ai_continue':
             await interaction.reply({
               content: '💬 Continue a conversa enviando outra mensagem com o comando!',
-              ephemeral: true,
+              flags: InteractionResponseFlags.Ephemeral,
             })
             break
 
@@ -599,7 +600,7 @@ export default class MahinaAI extends Command {
 
             await interaction.reply({
               embeds: [settingsEmbed],
-              ephemeral: true,
+              flags: InteractionResponseFlags.Ephemeral,
             })
             break
         }
@@ -627,7 +628,7 @@ export default class MahinaAI extends Command {
 
             await interaction.reply({
               embeds: [personalityEmbed],
-              ephemeral: true,
+              flags: InteractionResponseFlags.Ephemeral,
             })
             break
 
@@ -635,7 +636,7 @@ export default class MahinaAI extends Command {
             contextService.clearContext(userId, channelId)
             await interaction.reply({
               content: '🧹 Conversation context cleared! Start fresh with your next message.',
-              ephemeral: true,
+              flags: InteractionResponseFlags.Ephemeral,
             })
             break
 
@@ -665,7 +666,7 @@ export default class MahinaAI extends Command {
 
             await interaction.reply({
               embeds: [statsEmbed],
-              ephemeral: true,
+              flags: InteractionResponseFlags.Ephemeral,
             })
             break
 
@@ -702,7 +703,7 @@ export default class MahinaAI extends Command {
 
             await interaction.reply({
               embeds: [recEmbed],
-              ephemeral: true,
+              flags: InteractionResponseFlags.Ephemeral,
             })
             break
 
@@ -711,7 +712,7 @@ export default class MahinaAI extends Command {
 
             await interaction.reply({
               content: '📤 Your conversation has been exported! (Feature coming soon)',
-              ephemeral: true,
+              flags: InteractionResponseFlags.Ephemeral,
             })
             break
         }
