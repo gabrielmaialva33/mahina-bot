@@ -77,6 +77,12 @@ export default class MahinaAI extends Command {
           type: ApplicationCommandOptionType.Boolean,
           required: false,
         },
+        {
+          name: 'audio',
+          description: 'Receber resposta também em áudio (TTS)',
+          type: ApplicationCommandOptionType.Boolean,
+          required: false,
+        },
       ],
     })
   }
@@ -87,6 +93,7 @@ export default class MahinaAI extends Command {
     const personality = ctx.interaction?.options.getString('personalidade') || 'friendly'
     const mode = ctx.interaction?.options.getString('modo') || 'chat'
     const ephemeral = ctx.interaction?.options.getBoolean('privado') || false
+    const audioResponse = ctx.interaction?.options.getBoolean('audio') || false
 
     if (!message) {
       return await ctx.sendMessage({
@@ -104,6 +111,7 @@ export default class MahinaAI extends Command {
     const nvidiaService = client.services.nvidia
     const contextService = client.services.aiContext
     const memoryService = client.services.aiMemory
+    const guardService = client.services.nvidiaGuard
 
     if (!nvidiaService) {
       return await ctx.sendMessage({
@@ -144,6 +152,35 @@ export default class MahinaAI extends Command {
       const userId = ctx.author.id
       const channelId = ctx.channel?.id || ''
       const guildId = ctx.guild?.id || 'DM'
+
+      // Perform safety check on user input
+      let safetyResult = null
+      if (guardService?.isAvailable()) {
+        safetyResult = await guardService.comprehensiveSafetyCheck(message, {
+          allowedTopics: guardService.getMusicAllowedTopics(),
+          strictMode: false,
+        })
+
+        if (safetyResult.action === 'block') {
+          return await ctx.editMessage({
+            embeds: [
+              {
+                title: '🛡️ Conteúdo Bloqueado',
+                description:
+                  'Sua mensagem contém conteúdo que não posso processar. Por favor, reformule sua pergunta.',
+                color: client.config.color.red,
+              },
+            ],
+          })
+        }
+
+        if (safetyResult.action === 'warn') {
+          // Log the warning but continue processing
+          client.logger.warn(
+            `AI Safety Warning for user ${userId}: ${safetyResult.overall_risk} risk detected`
+          )
+        }
+      }
 
       // Analyze message
       const analysis = await contextService.analyzeMessage(message)
@@ -198,8 +235,45 @@ export default class MahinaAI extends Command {
       // Build conversation context
       const contextMessages = this.buildContextMessages(history, mode)
 
+      // Enhance context with embedding-based music help if needed
+      let enhancedSystemPrompt = systemPrompt
+      if (
+        analysis.topics?.some(
+          (topic) =>
+            topic.toLowerCase().includes('music') || topic.toLowerCase().includes('comando')
+        )
+      ) {
+        const embeddingService = client.services.nvidiaEmbedding
+        if (embeddingService?.isAvailable()) {
+          const relevantHelp = await embeddingService.searchMusicHelp(message)
+          if (relevantHelp.length > 0) {
+            enhancedSystemPrompt += '\n\nInformações relevantes sobre comandos:\n'
+            relevantHelp.forEach((result) => {
+              enhancedSystemPrompt += `- ${result.content}\n`
+            })
+          }
+        }
+      }
+
       // Get AI response
-      const aiResponse = await nvidiaService.chat(userId, message, contextMessages, systemPrompt)
+      let aiResponse = await nvidiaService.chat(
+        userId,
+        message,
+        contextMessages,
+        enhancedSystemPrompt
+      )
+
+      // Moderate AI response for safety
+      if (guardService?.isAvailable()) {
+        const moderationResult = await guardService.moderateAIResponse(aiResponse)
+
+        if (moderationResult.was_modified) {
+          aiResponse = moderationResult.filtered_response
+          client.logger.info(
+            `AI response was moderated for user ${userId}. Violations: ${moderationResult.violations_found.join(', ')}`
+          )
+        }
+      }
 
       // Add response to context
       contextService.addMessage(userId, channelId, {
@@ -239,6 +313,11 @@ export default class MahinaAI extends Command {
           memoryService,
           client
         )
+      }
+
+      // Generate audio response if requested
+      if (audioResponse && client.services.nvidiaTTS?.isAvailable()) {
+        await this.generateAudioResponse(ctx, aiResponse, personality, client)
       }
 
       // Send follow-up suggestions if appropriate
@@ -771,5 +850,64 @@ export default class MahinaAI extends Command {
       question: '❔ Question',
     }
     return intents[intent] || intent
+  }
+
+  private async generateAudioResponse(
+    ctx: Context,
+    response: string,
+    personality: string,
+    client: MahinaBot
+  ): Promise<void> {
+    try {
+      const ttsService = client.services.nvidiaTTS!
+
+      // Clean response for TTS (remove emojis and markdown)
+      const cleanedResponse = ttsService.cleanTextForTTS(response)
+
+      // Validate text length
+      const validation = ttsService.validateTextLength(cleanedResponse)
+      if (!validation.valid) {
+        return // Skip audio if text is too long or invalid
+      }
+
+      // Choose voice based on personality
+      const voiceMap = {
+        friendly: 'multilingual_female_1',
+        professional: 'portuguese_female_1',
+        playful: 'multilingual_female_2',
+        dj: 'multilingual_male_1',
+        wise: 'portuguese_male_1',
+        technical: 'multilingual_male_2',
+        gamer: 'multilingual_male_1',
+        teacher: 'portuguese_female_1',
+      }
+
+      const voice = voiceMap[personality] || 'multilingual_female_1'
+
+      // Generate TTS
+      const audioResult = await ttsService.textToSpeech(cleanedResponse, {
+        voice,
+        language: 'pt-BR',
+        speed: personality === 'playful' ? 1.1 : personality === 'professional' ? 0.9 : 1.0,
+        pitch: personality === 'playful' ? 0.1 : 0.0,
+      })
+
+      if (audioResult && audioResult.audio_data) {
+        const { AttachmentBuilder } = await import('discord.js')
+        const attachment = new AttachmentBuilder(audioResult.audio_data, {
+          name: 'mahina_response.wav',
+          description: `Resposta de áudio da Mahina AI (${personality})`,
+        })
+
+        // Send audio as follow-up message
+        await ctx.channel?.send({
+          content: `🎵 **Resposta em áudio** (${personality}):`,
+          files: [attachment],
+        })
+      }
+    } catch (error) {
+      console.error('Failed to generate audio response:', error)
+      // Fail silently - don't interrupt the main conversation flow
+    }
   }
 }

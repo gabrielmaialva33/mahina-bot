@@ -34,6 +34,10 @@ import { LavalinkHealthService } from '#src/services/lavalink_health_service'
 import { AIContextService } from '#src/services/ai_context_service'
 import { AIMemoryService } from '#src/services/ai_memory_service'
 import { AIManager, getAIManager } from '#src/services/ai_manager'
+import { NvidiaTTSService } from '#src/services/nvidia_tts_service'
+import { NvidiaEmbeddingService } from '#src/services/nvidia_embedding_service'
+import { NvidiaCosmosService } from '#src/services/nvidia_cosmos_service'
+import { NvidiaGuardService } from '#src/services/nvidia_guard_service'
 
 const dirname = path.dirname(fileURLToPath(import.meta.url))
 
@@ -58,6 +62,10 @@ export default class MahinaBot extends Client {
     lavalinkHealth?: LavalinkHealthService
     aiContext?: AIContextService
     aiMemory?: AIMemoryService
+    nvidiaTTS?: NvidiaTTSService
+    nvidiaEmbedding?: NvidiaEmbeddingService
+    nvidiaCosmos?: NvidiaCosmosService
+    nvidiaGuard?: NvidiaGuardService
   } = {}
   aiManager?: AIManager
   private body: RESTPostAPIChatInputApplicationCommandsJSONBody[] = []
@@ -102,6 +110,18 @@ export default class MahinaBot extends Client {
 
     // Initialize Lavalink Health Service
     this.services.lavalinkHealth = new LavalinkHealthService(this)
+
+    // Initialize NVIDIA TTS Service
+    this.services.nvidiaTTS = new NvidiaTTSService(this)
+
+    // Initialize NVIDIA Embedding Service
+    this.services.nvidiaEmbedding = new NvidiaEmbeddingService(this)
+
+    // Initialize NVIDIA Cosmos Service
+    this.services.nvidiaCosmos = new NvidiaCosmosService(this)
+
+    // Initialize NVIDIA Guard Service
+    this.services.nvidiaGuard = new NvidiaGuardService(this)
 
     this.manager = new MahinaLinkClient(this)
 

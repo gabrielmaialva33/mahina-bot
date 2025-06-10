@@ -1,727 +1,756 @@
 {
-  "cmd": {
-    "247": {
-      "description": "设置机器人停留在语音频道",
-      "errors": {
-        "not_in_voice": "您需要在语音频道中才能使用此命令。",
-        "generic": "执行此命令时出错。"
-      },
-      "messages": {
-        "disabled": "`✅` | 24/7 模式已`禁用`",
-        "enabled": "`✅` | 24/7 模式已`启用`。\n**即使语音频道中没有人，机器人也不会离开语音频道。**"
-      }
-    },
-    "ping": {
-      "description": "显示机器人的延迟。",
-      "content": "正在测试延迟...",
-      "bot_latency": "机器人延迟",
-      "api_latency": "API 延迟",
-      "requested_by": "由 {author} 请求"
-    },
-    "lavalink": {
-      "description": "显示当前 Lavalink 状态。",
-      "title": "Lavalink 状态",
-      "content": "播放器: {players}\n正在播放的播放器: {playingPlayers}\n正常运行时间: {uptime}\n核心: {cores} 个核心\n内存使用量: {used} / {reservable}\n系统负载: {systemLoad}%\nLavalink 负载: {lavalinkLoad}%"
-    },
-    "invite": {
-      "description": "获取机器人邀请链接。",
-      "content": "您可以通过点击下面的按钮邀请我。有任何错误或故障？加入支持服务器！"
-    },
-    "help": {
-      "description": "显示帮助菜单。",
-      "options": {
-        "command": "您想获取信息的命令"
-      },
-      "content": "大家好！我是 {bot}，一个使用 [MahinaBot](https://github.com/gabrielmaialva33/mahina-bot) 和 Discord 制作的音乐机器人。您可以使用 `{prefix}help <command>` 获取有关命令的更多信息。",
-      "title": "帮助菜单",
-      "not_found": "此 `{cmdName}` 命令不存在。",
-      "help_cmd": "**描述:** {description}\n**用法:** {usage}\n**示例:** {examples}\n**别名:** {aliases}\n**类别:** {category}\n**冷却时间:** {cooldown} 秒\n**权限:** {premUser}\n**机器人权限:** {premBot}\n**仅限开发者:** {dev}\n**斜杠命令:** {slash}\n**参数:** {args}\n**播放器:** {player}\n**DJ:** {dj}\n**DJ 权限:** {djPerm}\n**语音:** {voice}",
-      "footer": "使用 {prefix}help <command> 获取有关命令的更多信息"
-    },
-    "botinfo": {
-      "description": "关于机器人的信息",
-      "content": "机器人信息：\n- **操作系统**: {osInfo}\n- **正常运行时间**: {osUptime}\n- **主机名**: {osHostname}\n- **CPU 架构**: {cpuInfo}\n- **CPU 使用率**: {cpuUsed}%\n- **内存使用量**: {memUsed}MB / {memTotal}GB\n- **节点版本**: {nodeVersion}\n- **Discord 版本**: {discordJsVersion}\n- **已连接到** {guilds} 个服务器，{channels} 个频道和 {users} 个用户\n- **命令总数**: {commands}"
-    },
-    "about": {
-      "description": "显示关于机器人的信息",
-      "fields": {
-        "creator": "创建者",
-        "repository": "存储库",
-        "support": "支持",
-        "description": "他真的很想为了获得更多编码经验而制作他的第一个开源项目。在这个项目中，他面临着制作一个错误更少的项目的挑战。希望您喜欢使用 MahinaBot！"
-      }
-    },
-    "dj": {
-      "description": "管理 DJ 模式和相关角色",
-      "errors": {
-        "provide_role": "请提供一个角色。",
-        "no_roles": "DJ 角色为空。",
-        "invalid_subcommand": "请提供有效的子命令。"
-      },
-      "messages": {
-        "role_exists": "DJ 角色 <@&{roleId}> 已添加。",
-        "role_added": "DJ 角色 <@&{roleId}> 已添加。",
-        "role_not_found": "未添加 DJ 角色 <@&{roleId}>。",
-        "role_removed": "DJ 角色 <@&{roleId}> 已删除。",
-        "all_roles_cleared": "所有 DJ 角色都已删除。",
-        "toggle": "DJ 模式已切换为 {status}。"
-      },
-      "options": {
-        "add": "您要添加的 DJ 角色",
-        "remove": "您要删除的 DJ 角色",
-        "clear": "清除所有 DJ 角色",
-        "toggle": "切换 DJ 角色",
-        "role": "DJ 角色"
-      },
-      "subcommands": "子命令"
-    },
-    "language": {
-      "description": "设置机器人的语言",
-      "invalid_language": "请提供有效的语言。例如: `EnglishUS` 代表英语（美国）\n\n您可以在[此处](https://discord.com/developers/docs/reference#locales)找到支持的语言列表\n\n**可用语言:**\n{languages}",
-      "already_set": "语言已设置为 `{language}`",
-      "not_set": "未设置语言。",
-      "set": "`✅` | 语言已设置为 `{language}`",
-      "reset": "`✅` | 语言已重置为默认语言。",
-      "options": {
-        "set": "设置机器人的语言",
-        "language": "您要设置的语言",
-        "reset": "将语言更改回默认语言"
-      }
-    },
-    "prefix": {
-      "description": "显示或设置机器人的前缀",
-      "errors": {
-        "prefix_too_long": "前缀不能超过 3 个字符。"
-      },
-      "messages": {
-        "current_prefix": "此服务器的前缀是 `{prefix}`",
-        "prefix_set": "此服务器的前缀现在是 `{prefix}`",
-        "prefix_reset": "此服务器的前缀现在是 `{prefix}`"
-      },
-      "options": {
-        "set": "设置前缀",
-        "prefix": "您要设置的前缀",
-        "reset": "将前缀重置为默认前缀"
-      }
-    },
-    "setup": {
-      "description": "设置机器人",
-      "errors": {
-        "channel_exists": "歌曲请求频道已存在。",
-        "channel_not_exists": "歌曲请求频道不存在。",
-        "channel_delete_fail": "歌曲请求频道已删除。如果频道未正常删除，请自行删除。"
-      },
-      "messages": {
-        "channel_created": "歌曲请求频道已在 <#{channelId}> 中创建。",
-        "channel_deleted": "歌曲请求频道已删除。",
-        "channel_info": "歌曲请求频道是 <#{channelId}>。"
-      },
-      "options": {
-        "create": "创建歌曲请求频道",
-        "delete": "删除歌曲请求频道",
-        "info": "显示歌曲请求频道"
-      }
-    },
-    "8d": {
-      "description": "启用/关闭 8d 滤镜",
-      "messages": {
-        "filter_enabled": "`✅` | 8D 滤镜已`启用`。",
-        "filter_disabled": "`✅` | 8D 滤镜已`禁用`。"
-      }
-    },
-    "bassboost": {
-      "description": "启用/关闭低音增强滤镜",
-      "messages": {
-        "filter_enabled": "`✅` | 低音增强滤镜已`启用`。\n**请注意，音量过大会损害您的听力！**",
-        "filter_disabled": "`✅` | 低音增强滤镜已`禁用`。"
-      },
-      "options": {
-        "level": "The bassboost level you want to set"
-      }
-    },
-    "distortion": {
-      "description": "启用/关闭失真滤镜",
-      "messages": {
-        "filter_enabled": "`✅` | 失真滤镜已`启用`。",
-        "filter_disabled": "`✅` | 失真滤镜已`禁用`。"
-      }
-    },
-    "karaoke": {
-      "description": "启用/关闭卡拉 OK 滤镜",
-      "messages": {
-        "filter_enabled": "`✅` | 卡拉 OK 滤镜已`启用`。",
-        "filter_disabled": "`✅` | 卡拉 OK 滤镜已`禁用`。"
-      }
-    },
-    "lowpass": {
-      "description": "启用/关闭低通滤镜",
-      "messages": {
-        "filter_enabled": "`✅` | 低通滤镜已`启用`。",
-        "filter_disabled": "`✅` | 低通滤镜已`禁用`。"
-      }
-    },
-    "nightcore": {
-      "description": "启用/关闭夜核滤镜",
-      "messages": {
-        "filter_enabled": "`✅` | 夜核滤镜已`启用`。",
-        "filter_disabled": "`✅` | 夜核滤镜已`禁用`。"
-      }
-    },
-    "pitch": {
-      "description": "启用/关闭音调滤镜",
-      "options": {
-        "pitch": "您要将音调设置为的数字（介于 0.5 和 5 之间）"
-      },
-      "errors": {
-        "invalid_number": "请提供一个介于 0.5 和 5 之间的有效数字。"
-      },
-      "messages": {
-        "pitch_set": "`✅` | 音调已设置为 **{pitch}**。"
-      }
-    },
-    "rate": {
-      "description": "更改歌曲的速率",
-      "options": {
-        "rate": "您要将速率设置到的数字（介于 0.5 和 5 之间）"
-      },
-      "errors": {
-        "invalid_number": "请提供一个介于 0.5 和 5 之间的有效数字。"
-      },
-      "messages": {
-        "rate_set": "`✅` | 速率已设置为 **{rate}**。"
-      }
-    },
-    "reset": {
-      "description": "重置活动的滤镜",
-      "messages": {
-        "filters_reset": "`✅` | 滤镜已重置。"
-      }
-    },
-    "rotation": {
-      "description": "启用/关闭旋转滤镜",
-      "messages": {
-        "enabled": "`✅` | 旋转滤镜已`启用`。",
-        "disabled": "`✅` | 旋转滤镜已`禁用`。"
-      }
-    },
-    "speed": {
-      "description": "更改歌曲的速度",
-      "options": {
-        "speed": "您要设置的速度"
-      },
-      "messages": {
-        "invalid_number": "请提供一个介于 0.5 和 5 之间的有效数字。",
-        "set_speed": "`✅` | 速度已设置为 **{speed}**。"
-      }
-    },
-    "tremolo": {
-      "description": "启用/关闭颤音滤镜",
-      "messages": {
-        "enabled": "`✅` | 颤音滤镜已`启用`。",
-        "disabled": "`✅` | 颤音滤镜已`禁用`。"
-      }
-    },
-    "vibrato": {
-      "description": "启用/关闭震音滤镜",
-      "messages": {
-        "enabled": "`✅` | 震音滤镜已`启用`。",
-        "disabled": "`✅` | 震音滤镜已`禁用`。"
-      }
-    },
-    "autoplay": {
-      "description": "切换自动播放",
-      "messages": {
-        "enabled": "`✅` | 自动播放已`启用`。",
-        "disabled": "`✅` | 自动播放已`禁用`。"
-      }
-    },
-    "clearqueue": {
-      "description": "清除队列",
-      "messages": {
-        "cleared": "队列已清除。"
-      }
-    },
-    "grab": {
-      "description": "获取您 DM 上当前播放的歌曲",
-      "content": "**时长:** {length}\n**请求者:** <@{requester}>\n**链接:** [点击此处]({uri})",
-      "check_dm": "请查看您的私信。",
-      "dm_failed": "我无法向您发送私信。"
-    },
-    "join": {
-      "description": "加入语音频道",
-      "already_connected": "我已经连接到 <#{channelId}>。",
-      "no_voice_channel": "您需要在语音频道中才能使用此命令。",
-      "joined": "已成功加入 <#{channelId}>。"
-    },
-    "leave": {
-      "description": "离开语音频道",
-      "left": "已成功离开 <#{channelId}>。",
-      "not_in_channel": "我不在语音频道中。"
-    },
-    "loop": {
-      "description": "循环当前歌曲或队列",
-      "looping_song": "**正在循环播放歌曲。**",
-      "looping_queue": "**正在循环播放队列。**",
-      "looping_off": "**循环播放已关闭。**"
-    },
-    "nowplaying": {
-      "description": "显示当前播放的歌曲",
-      "now_playing": "正在播放",
-      "track_info": "[{title}]({uri}) - 请求者: <@{requester}>\n\n`{bar}`"
-    },
-    "pause": {
-      "description": "暂停当前歌曲",
-      "successfully_paused": "已成功暂停歌曲。"
-    },
-    "play": {
-      "description": "播放来自 YouTube、Spotify 或 http 的歌曲",
-      "options": {
-        "song": "您要播放的歌曲"
-      },
-      "loading": "正在加载...",
-      "errors": {
-        "search_error": "搜索时出错。",
-        "no_results": "未找到结果。",
-        "queue_too_long": "队列太长。最大长度为 {maxQueueSize} 首歌曲。",
-        "playlist_too_long": "播放列表太长。最大长度为 {maxPlaylistSize} 首歌曲。"
-      },
-      "added_to_queue": "已将 [{title}]({uri}) 添加到队列。",
-      "added_playlist_to_queue": "已将 {length} 首歌曲添加到队列。"
-    },
-    "playnext": {
-      "description": "添加歌曲以在队列中接下来播放",
-      "options": {
-        "song": "您要播放的歌曲"
-      },
-      "loading": "正在加载...",
-      "errors": {
-        "search_error": "搜索时出错。",
-        "no_results": "未找到结果。",
-        "queue_too_long": "队列太长。最大长度为 {maxQueueSize} 首歌曲。",
-        "playlist_too_long": "播放列表太长。最大长度为 {maxPlaylistSize} 首歌曲。"
-      },
-      "added_to_play_next": "已将 [{title}]({uri}) 添加到队列中接下来播放。",
-      "added_playlist_to_play_next": "已将 {length} 首歌曲添加到队列中接下来播放。"
-    },
-    "queue": {
-      "description": "显示当前队列",
-      "now_playing": "正在播放: [{title}]({uri}) - 请求者: <@{requester}> - 时长: `{duration}`",
-      "live": "直播",
-      "track_info": "{index}. [{title}]({uri}) - 请求者: <@{requester}> - 时长: `{duration}`",
-      "title": "队列",
-      "page_info": "第 {index} 页，共 {total} 页"
-    },
-    "remove": {
-      "description": "从队列中删除歌曲",
-      "options": {
-        "song": "您要删除的歌曲编号"
-      },
-      "errors": {
-        "no_songs": "队列中没有歌曲。",
-        "invalid_number": "请提供有效的歌曲编号。"
-      },
-      "messages": {
-        "removed": "已从队列中删除歌曲编号 {songNumber}。"
-      }
-    },
-    "replay": {
-      "description": "重播当前曲目",
-      "errors": {
-        "not_seekable": "无法重播此曲目，因为它不可搜索。"
-      },
-      "messages": {
-        "replaying": "正在重播当前曲目。"
-      }
-    },
-    "resume": {
-      "description": "恢复当前歌曲",
-      "errors": {
-        "not_paused": "播放器未暂停。"
-      },
-      "messages": {
-        "resumed": "已恢复播放器。"
-      }
-    },
-    "search": {
-      "description": "搜索歌曲",
-      "options": {
-        "song": "您要搜索的歌曲"
-      },
-      "errors": {
-        "no_results": "未找到结果。",
-        "search_error": "搜索时出错。"
-      },
-      "messages": {
-        "added_to_queue": "已将 [{title}]({uri}) 添加到队列。"
-      }
-    },
-    "seek": {
-      "description": "跳转到歌曲中的某个时间点",
-      "options": {
-        "duration": "要跳转到的时长"
-      },
-      "errors": {
-        "invalid_format": "无效的时间格式。示例: seek 1m, seek 1h 30m",
-        "not_seekable": "此曲目不可搜索。",
-        "beyond_duration": "无法跳转到歌曲时长 {length} 之后。"
-      },
-      "messages": {
-        "seeked_to": "已跳转到 {duration}"
-      }
-    },
-    "shuffle": {
-      "description": "随机播放队列",
-      "messages": {
-        "shuffled": "已随机播放队列。"
-      }
-    },
-    "skip": {
-      "description": "跳过当前歌曲",
-      "messages": {
-        "skipped": "已跳过 [{title}]({uri})。"
-      }
-    },
-    "skipto": {
-      "description": "跳至队列中的特定歌曲",
-      "options": {
-        "number": "您要跳至的歌曲编号"
-      },
-      "errors": {
-        "invalid_number": "请提供有效的编号。"
-      },
-      "messages": {
-        "skipped_to": "已跳至歌曲编号 {number}。"
-      }
-    },
-    "stop": {
-      "description": "停止音乐并清除队列",
-      "messages": {
-        "stopped": "已停止音乐并清除队列。"
-      }
-    },
-    "volume": {
-      "description": "设置播放器的音量",
-      "options": {
-        "number": "您要设置的音量"
-      },
-      "messages": {
-        "invalid_number": "请提供有效的数字。",
-        "too_low": "音量不能低于 0。",
-        "too_high": "音量不能高于 200。您想损害您的听力或扬声器吗？嗯，我认为这不是一个好主意。",
-        "set": "已将音量设置为 {volume}"
-      }
-    },
-    "addsong": {
-      "description": "将歌曲添加到播放列表",
-      "options": {
-        "playlist": "您要添加到的播放列表",
-        "song": "您要添加的歌曲"
-      },
-      "messages": {
-        "no_playlist": "请提供一个播放列表",
-        "no_song": "请提供一首歌曲",
-        "playlist_not_found": "该播放列表不存在",
-        "no_songs_found": "未找到歌曲",
-        "added": "已将 {count} 首歌曲添加到 {playlist}"
-      }
-    },
-    "create": {
-      "description": "创建播放列表",
-      "options": {
-        "name": "播放列表的名称"
-      },
-      "messages": {
-        "name_too_long": "播放列表名称只能包含 50 个字符。",
-        "playlist_exists": "具有该名称的播放列表已存在。请使用其他名称。",
-        "playlist_created": "播放列表 **{name}** 已创建。"
-      }
-    },
-    "delete": {
-      "description": "删除播放列表",
-      "options": {
-        "playlist": "您要删除的播放列表"
-      },
-      "messages": {
-        "playlist_not_found": "该播放列表不存在。",
-        "playlist_deleted": "已删除播放列表 **{playlistName}**。"
-      }
-    },
-    "list": {
-      "description": "检索用户的所有播放列表",
-      "options": {
-        "user": "您要检索其播放列表的用户"
-      },
-      "messages": {
-        "no_playlists": "此用户没有播放列表。",
-        "your": "您的",
-        "playlists_title": "{username} 的播放列表",
-        "error": "检索播放列表时出错。"
-      }
-    },
-    "load": {
-      "description": "加载播放列表",
-      "options": {
-        "playlist": "您要加载的播放列表"
-      },
-      "messages": {
-        "playlist_not_exist": "该播放列表不存在。",
-        "playlist_empty": "该播放列表为空。",
-        "playlist_loaded": "已加载包含 {count} 首歌曲的 `{name}`。"
-      }
-    },
-    "removesong": {
-      "description": "从播放列表中删除歌曲",
-      "options": {
-        "playlist": "您要从中删除的播放列表",
-        "song": "您要删除的歌曲"
-      },
-      "messages": {
-        "provide_playlist": "请提供一个播放列表。",
-        "provide_song": "请提供一首歌曲。",
-        "playlist_not_exist": "该播放列表不存在。",
-        "song_not_found": "未找到匹配的歌曲。",
-        "song_removed": "已从 {playlist} 中删除 {song}。",
-        "error_occurred": "删除歌曲时出错。"
-      }
-    },
-    "steal": {
-      "description": "从另一个用户那里窃取播放列表并将其添加到您的播放列表中",
-      "options": {
-        "playlist": "您要窃取的播放列表",
-        "user": "您要从其窃取播放列表的用户"
-      },
-      "messages": {
-        "provide_playlist": "请提供播放列表名称。",
-        "provide_user": "请@一个用户。",
-        "playlist_not_exist": "所提及的用户没有该播放列表。",
-        "playlist_stolen": "已成功从 {user} 窃取播放列表 `{playlist}`。",
-        "error_occurred": "窃取播放列表时出错。"
-      }
-    },
-    "lyrics": {
-      "description": "Get's the lyrics of the currently playing track"
-    },
-    "vplay": {
-      "description": "Stream de vídeo no canal de voz.",
-      "options": {
-        "url": "O link do vídeo que você deseja tocar"
-      }
-    },
-    "mlist": {
-      "description": "Lista os downloads de videos"
-    },
-    "mplay": {
-      "description": "cmd.mplay.description",
-      "options": {
-        "movie": "cmd.mplay.options.movie",
-        "audioTrack": "cmd.mplay.options.audioTrack"
-      }
-    },
-    "msearch": {
-      "description": "Procura por filmes ou animes",
-      "options": {
-        "search": "cmd.msearch.options.search"
-      }
-    },
-    "mstop": {
-      "description": "cmd.mstop.description"
-    },
-    "mpause": {
-      "description": "cmd.mpause.description"
-    },
-    "mresume": {
-      "description": "cmd.mresume.description"
-    },
-    "code": {
-      "description": "cmd.code.description"
-    },
-    "model": {
-      "description": "cmd.model.description"
-    },
-    "reason": {
-      "description": "cmd.reason.description"
-    },
-    "stream": {
-      "description": "cmd.stream.description"
-    }
-  },
-  "buttons": {
-    "invite": "邀请",
-    "support": "支持服务器",
-    "previous": "上一首",
-    "resume": "恢复",
-    "stop": "停止",
-    "skip": "跳过",
-    "loop": "循环",
-    "errors": {
-      "not_author": "您不能使用此按钮。"
-    }
-  },
-  "player": {
-    "errors": {
-      "no_player": "此服务器中没有活动的播放器。",
-      "no_channel": "您需要在语音频道中才能使用此命令。",
-      "queue_empty": "队列为空。",
-      "no_previous": "队列中没有上一首歌曲。",
-      "no_song": "队列中没有歌曲。",
-      "already_paused": "歌曲已暂停。"
-    },
-    "trackStart": {
-      "now_playing": "正在播放",
-      "requested_by": "由 {user} 请求",
-      "duration": "时长",
-      "author": "作者",
-      "not_connected_to_voice_channel": "您未连接到 <#{channel}> 以使用这些按钮。",
-      "need_dj_role": "您需要拥有 DJ 角色才能使用此命令。",
-      "previous_by": "由 {user} 上一首",
-      "no_previous_song": "没有上一首歌曲。",
-      "paused_by": "由 {user} 暂停",
-      "resumed_by": "由 {user} 恢复",
-      "skipped_by": "由 {user} 跳过",
-      "no_more_songs_in_queue": "队列中没有更多歌曲。",
-      "looping_by": "由 {user} 循环播放",
-      "looping_queue_by": "由 {user} 循环播放队列",
-      "looping_off_by": "由 {user} 关闭循环播放"
-    },
-    "setupStart": {
-      "now_playing": "正在播放",
-      "description": "[{title}]({uri}) 作者: {author} • `[{length}]` - 请求者: <@{requester}>",
-      "error_searching": "搜索时出错。",
-      "no_results": "未找到结果。",
-      "nothing_playing": "现在没有播放任何内容。",
-      "queue_too_long": "队列太长。最大长度为 {maxQueueSize} 首歌曲。",
-      "playlist_too_long": "播放列表太长。最大长度为 {maxPlaylistSize} 首歌曲。",
-      "added_to_queue": "已将 [{title}]({uri}) 添加到队列。",
-      "added_playlist_to_queue": "已将播放列表中的 [{length}] 首歌曲添加到队列。"
-    }
-  },
-  "event": {
-    "interaction": {
-      "setup_channel": "您不能在设置频道中使用此命令。",
-      "no_send_message": "我在 `{guild}`\n频道: {channel} 中没有 **`发送消息`** 权限。",
-      "no_embed_links": "我没有 **`嵌入链接`** 权限。",
-      "no_permission": "我没有足够的权限来执行此命令。",
-      "no_user_permission": "您没有足够的权限来使用此命令。",
-      "no_voice_channel": "您必须连接到语音频道才能使用此 `{command}` 命令。",
-      "no_connect_permission": "我没有 `连接` 权限来执行此 `{command}` 命令。",
-      "no_speak_permission": "我没有 `发言` 权限来执行此 `{command}` 命令。",
-      "no_request_to_speak": "我没有 `请求发言` 权限来执行此 `{command}` 命令。",
-      "different_voice_channel": "您未连接到 {channel} 以使用此 `{command}` 命令。",
-      "no_music_playing": "现在没有播放任何内容。",
-      "no_dj_role": "未设置 DJ 角色。",
-      "no_dj_permission": "您需要拥有 DJ 角色才能使用此命令。",
-      "cooldown": "请等待 {time} 秒后再使用 `{command}` 命令。",
-      "error": "发生错误: `{error}`"
-    },
-    "message": {
-      "prefix_mention": "嘿，我这个服务器的前缀是 `{prefix}`。想要了解更多信息？请执行 `{prefix}help`\n注意安全，保持出色！",
-      "no_send_message": "我在 `{guild}`\n频道: {channel} 中没有 **`发送消息`** 权限。",
-      "no_embed_links": "我没有 **`嵌入链接`** 权限。",
-      "no_permission": "我没有足够的权限来执行此命令。",
-      "no_user_permission": "您没有足够的权限来使用此命令。",
-      "no_voice_channel": "您必须连接到语音频道才能使用此 `{command}` 命令。",
-      "no_connect_permission": "我没有 `连接` 权限来执行此 `{command}` 命令。",
-      "no_speak_permission": "我没有 `发言` 权限来执行此 `{command}` 命令。",
-      "no_request_to_speak": "我没有 `请求发言` 权限来执行此 `{command}` 命令。",
-      "different_voice_channel": "您未连接到 {channel} 以使用此 `{command}` 命令。",
-      "no_music_playing": "现在没有播放任何内容。",
-      "no_dj_role": "未设置 DJ 角色。",
-      "no_dj_permission": "您需要拥有 DJ 角色才能使用此命令。",
-      "missing_arguments": "缺少参数",
-      "missing_arguments_description": "请为 `{command}` 命令提供所需的 参数。\n\n示例:\n{examples}",
-      "syntax_footer": "语法: [] = 可选，<> = 必需",
-      "cooldown": "请等待 {time} 秒后再使用 `{command}` 命令。",
-      "no_mention_everyone": "您不能对所有人或此处使用此命令。",
-      "error": "发生错误: `{error}`",
-      "no_voice_channel_queue": "您未连接到语音频道以将歌曲排入队列。",
-      "no_permission_connect_speak": "我在 <#{channel}> 中没有足够的权限连接/发言。",
-      "different_voice_channel_queue": "您未连接到 <#{channel}> 以将歌曲排入队列。"
-    },
-    "setupButton": {
-      "no_voice_channel_button": "您未连接到语音频道以使用此按钮。",
-      "different_voice_channel_button": "您未连接到 {channel} 以使用这些按钮。",
-      "now_playing": "正在播放",
-      "live": "直播",
-      "requested_by": "由 <@{requester}> 请求",
-      "no_dj_permission": "您需要拥有 DJ 角色才能使用此命令。",
-      "volume_set": "音量已设置为 {vol}%",
-      "volume_footer": "音量: {vol}%",
-      "paused": "已暂停",
-      "resumed": "已恢复",
-      "pause_resume": "{name} 音乐。",
-      "pause_resume_footer": "由 {displayName} {name}",
-      "no_music_to_skip": "没有可跳过的音乐。",
-      "skipped": "已跳过音乐。",
-      "skipped_footer": "由 {displayName} 跳过",
-      "stopped": "已停止音乐。",
-      "stopped_footer": "由 {displayName} 停止",
-      "nothing_playing": "现在没有播放任何内容",
-      "loop_set": "循环已设置为 {loop}。",
-      "loop_footer": "由 {displayName} 将循环设置为 {loop}",
-      "shuffled": "已随机播放队列。",
-      "no_previous_track": "没有上一首曲目。",
-      "playing_previous": "正在播放上一首曲目。",
-      "previous_footer": "由 {displayName} 播放上一首曲目",
-      "rewinded": "已倒回音乐。",
-      "rewind_footer": "由 {displayName} 倒回",
-      "forward_limit": "您不能将音乐快进到超过歌曲长度的位置。",
-      "forwarded": "已快进音乐。",
-      "forward_footer": "由 {displayName} 快进",
-      "button_not_available": "此按钮不可用。",
-      "no_music_playing": "此服务器中没有正在播放的音乐。"
-    }
-  },
-  "Evaluate code": "评估代码",
-  "Leave a guild": "离开服务器",
-  "List all guilds the bot is in": "列出机器人所在的所有服务器",
-  "Restart the bot": "重启机器人",
-  "Stream de vídeo no canal de voz.": "Stream de vídeo no canal de voz.",
-  "Chat inteligente com IA da NVIDIA - análise de código, geração e muito mais!": "Chat inteligente com IA da NVIDIA - análise de código, geração e muito mais!",
-  "Modo de operação da IA": "Modo de operação da IA",
-  "Sua mensagem ou pergunta": "Sua mensagem ou pergunta",
-  "Linguagem de programação (para modos de código)": "Linguagem de programação (para modos de código)",
-  "Ferramentas avançadas de IA para análise, tradução, documentação e mais!": "Ferramentas avançadas de IA para análise, tradução, documentação e mais!",
-  "Escolha uma ferramenta": "Escolha uma ferramenta",
-  "Texto ou código para processar": "Texto ou código para processar",
-  "Análise inteligente de imagens com IA - descreva, analise e extraia informações!": "Análise inteligente de imagens com IA - descreva, analise e extraia informações!",
-  "Modo de análise": "Modo de análise",
-  "Pergunta específica sobre a imagem": "Pergunta específica sobre a imagem",
-  "Configura o comportamento da IA da Mahina": "Configura o comportamento da IA da Mahina",
-  "Ação a ser executada": "Ação a ser executada",
-  "🍁 Descubra seu animal espiritual do World of Warcraft através de análise de personalidade com IA": "🍁 Descubra seu animal espiritual do World of Warcraft através de análise de personalidade com IA",
-  "👤 O usuário que você deseja analisar": "👤 O usuário que você deseja analisar",
-  "Explain code in detail": "Explain code in detail",
-  "Review code and suggest improvements": "Review code and suggest improvements",
-  "Optimize code for better performance": "Optimize code for better performance",
-  "Debug code and identify issues": "Debug code and identify issues",
-  "Programming language": "Programming language",
-  "The code to explain": "The code to explain",
-  "The code to review": "The code to review",
-  "The code to optimize": "The code to optimize",
-  "The code to debug": "The code to debug",
-  "List all available AI models": "List all available AI models",
-  "Select an AI model": "Select an AI model",
-  "Get information about a specific model": "Get information about a specific model",
-  "Show your current AI model": "Show your current AI model",
-  "The model to select": "The model to select",
-  "The model to get info about": "The model to get info about",
-  "The problem or question to analyze": "The problem or question to analyze",
-  "Additional context for the problem": "Additional context for the problem",
-  "Your message for streaming AI response": "Your message for streaming AI response",
-  "Advanced AI chat with context, memory, and personality": "Advanced AI chat with context, memory, and personality",
-  "Your message to Mahina AI": "Your message to Mahina AI",
-  "Choose AI personality": "Choose AI personality",
-  "Conversation mode": "Conversation mode",
-  "Private response (only you can see)": "Private response (only you can see)",
-  "Manage proactive interaction settings": "Manage proactive interaction settings",
-  "Show proactive interaction statistics": "Show proactive interaction statistics",
-  "Test proactive interaction in current channel": "Test proactive interaction in current channel",
-  "Force proactive interaction check": "Force proactive interaction check",
-  "Check AI services status and statistics": "Check AI services status and statistics",
-  "Verificar status e estatísticas dos serviços de IA": "Verificar status e estatísticas dos serviços de IA",
-  "Chat avançado com IA": " contexto, memória e personalidade",
-  "Sua mensagem para a Mahina AI": "Sua mensagem para a Mahina AI",
-  "Escolha a personalidade da IA": "Escolha a personalidade da IA",
-  "Modo de conversa": "Modo de conversa",
-  "Resposta privada (apenas você pode ver)": "Resposta privada (apenas você pode ver)"
+	"cmd": {
+		"247": {
+			"description": "设置机器人停留在语音频道",
+			"errors": {
+				"not_in_voice": "您需要在语音频道中才能使用此命令。",
+				"generic": "执行此命令时出错。"
+			},
+			"messages": {
+				"disabled": "`✅` | 24/7 模式已`禁用`",
+				"enabled": "`✅` | 24/7 模式已`启用`。\n**即使语音频道中没有人，机器人也不会离开语音频道。**"
+			}
+		},
+		"ping": {
+			"description": "显示机器人的延迟。",
+			"content": "正在测试延迟...",
+			"bot_latency": "机器人延迟",
+			"api_latency": "API 延迟",
+			"requested_by": "由 {author} 请求"
+		},
+		"lavalink": {
+			"description": "显示当前 Lavalink 状态。",
+			"title": "Lavalink 状态",
+			"content": "播放器: {players}\n正在播放的播放器: {playingPlayers}\n正常运行时间: {uptime}\n核心: {cores} 个核心\n内存使用量: {used} / {reservable}\n系统负载: {systemLoad}%\nLavalink 负载: {lavalinkLoad}%"
+		},
+		"invite": {
+			"description": "获取机器人邀请链接。",
+			"content": "您可以通过点击下面的按钮邀请我。有任何错误或故障？加入支持服务器！"
+		},
+		"help": {
+			"description": "显示帮助菜单。",
+			"options": {
+				"command": "您想获取信息的命令"
+			},
+			"content": "大家好！我是 {bot}，一个使用 [MahinaBot](https://github.com/gabrielmaialva33/mahina-bot) 和 Discord 制作的音乐机器人。您可以使用 `{prefix}help <command>` 获取有关命令的更多信息。",
+			"title": "帮助菜单",
+			"not_found": "此 `{cmdName}` 命令不存在。",
+			"help_cmd": "**描述:** {description}\n**用法:** {usage}\n**示例:** {examples}\n**别名:** {aliases}\n**类别:** {category}\n**冷却时间:** {cooldown} 秒\n**权限:** {premUser}\n**机器人权限:** {premBot}\n**仅限开发者:** {dev}\n**斜杠命令:** {slash}\n**参数:** {args}\n**播放器:** {player}\n**DJ:** {dj}\n**DJ 权限:** {djPerm}\n**语音:** {voice}",
+			"footer": "使用 {prefix}help <command> 获取有关命令的更多信息"
+		},
+		"botinfo": {
+			"description": "关于机器人的信息",
+			"content": "机器人信息：\n- **操作系统**: {osInfo}\n- **正常运行时间**: {osUptime}\n- **主机名**: {osHostname}\n- **CPU 架构**: {cpuInfo}\n- **CPU 使用率**: {cpuUsed}%\n- **内存使用量**: {memUsed}MB / {memTotal}GB\n- **节点版本**: {nodeVersion}\n- **Discord 版本**: {discordJsVersion}\n- **已连接到** {guilds} 个服务器，{channels} 个频道和 {users} 个用户\n- **命令总数**: {commands}"
+		},
+		"about": {
+			"description": "显示关于机器人的信息",
+			"fields": {
+				"creator": "创建者",
+				"repository": "存储库",
+				"support": "支持",
+				"description": "他真的很想为了获得更多编码经验而制作他的第一个开源项目。在这个项目中，他面临着制作一个错误更少的项目的挑战。希望您喜欢使用 MahinaBot！"
+			}
+		},
+		"dj": {
+			"description": "管理 DJ 模式和相关角色",
+			"errors": {
+				"provide_role": "请提供一个角色。",
+				"no_roles": "DJ 角色为空。",
+				"invalid_subcommand": "请提供有效的子命令。"
+			},
+			"messages": {
+				"role_exists": "DJ 角色 <@&{roleId}> 已添加。",
+				"role_added": "DJ 角色 <@&{roleId}> 已添加。",
+				"role_not_found": "未添加 DJ 角色 <@&{roleId}>。",
+				"role_removed": "DJ 角色 <@&{roleId}> 已删除。",
+				"all_roles_cleared": "所有 DJ 角色都已删除。",
+				"toggle": "DJ 模式已切换为 {status}。"
+			},
+			"options": {
+				"add": "您要添加的 DJ 角色",
+				"remove": "您要删除的 DJ 角色",
+				"clear": "清除所有 DJ 角色",
+				"toggle": "切换 DJ 角色",
+				"role": "DJ 角色"
+			},
+			"subcommands": "子命令"
+		},
+		"language": {
+			"description": "设置机器人的语言",
+			"invalid_language": "请提供有效的语言。例如: `EnglishUS` 代表英语（美国）\n\n您可以在[此处](https://discord.com/developers/docs/reference#locales)找到支持的语言列表\n\n**可用语言:**\n{languages}",
+			"already_set": "语言已设置为 `{language}`",
+			"not_set": "未设置语言。",
+			"set": "`✅` | 语言已设置为 `{language}`",
+			"reset": "`✅` | 语言已重置为默认语言。",
+			"options": {
+				"set": "设置机器人的语言",
+				"language": "您要设置的语言",
+				"reset": "将语言更改回默认语言"
+			}
+		},
+		"prefix": {
+			"description": "显示或设置机器人的前缀",
+			"errors": {
+				"prefix_too_long": "前缀不能超过 3 个字符。"
+			},
+			"messages": {
+				"current_prefix": "此服务器的前缀是 `{prefix}`",
+				"prefix_set": "此服务器的前缀现在是 `{prefix}`",
+				"prefix_reset": "此服务器的前缀现在是 `{prefix}`"
+			},
+			"options": {
+				"set": "设置前缀",
+				"prefix": "您要设置的前缀",
+				"reset": "将前缀重置为默认前缀"
+			}
+		},
+		"setup": {
+			"description": "设置机器人",
+			"errors": {
+				"channel_exists": "歌曲请求频道已存在。",
+				"channel_not_exists": "歌曲请求频道不存在。",
+				"channel_delete_fail": "歌曲请求频道已删除。如果频道未正常删除，请自行删除。"
+			},
+			"messages": {
+				"channel_created": "歌曲请求频道已在 <#{channelId}> 中创建。",
+				"channel_deleted": "歌曲请求频道已删除。",
+				"channel_info": "歌曲请求频道是 <#{channelId}>。"
+			},
+			"options": {
+				"create": "创建歌曲请求频道",
+				"delete": "删除歌曲请求频道",
+				"info": "显示歌曲请求频道"
+			}
+		},
+		"8d": {
+			"description": "启用/关闭 8d 滤镜",
+			"messages": {
+				"filter_enabled": "`✅` | 8D 滤镜已`启用`。",
+				"filter_disabled": "`✅` | 8D 滤镜已`禁用`。"
+			}
+		},
+		"bassboost": {
+			"description": "启用/关闭低音增强滤镜",
+			"messages": {
+				"filter_enabled": "`✅` | 低音增强滤镜已`启用`。\n**请注意，音量过大会损害您的听力！**",
+				"filter_disabled": "`✅` | 低音增强滤镜已`禁用`。"
+			},
+			"options": {
+				"level": "The bassboost level you want to set"
+			}
+		},
+		"distortion": {
+			"description": "启用/关闭失真滤镜",
+			"messages": {
+				"filter_enabled": "`✅` | 失真滤镜已`启用`。",
+				"filter_disabled": "`✅` | 失真滤镜已`禁用`。"
+			}
+		},
+		"karaoke": {
+			"description": "启用/关闭卡拉 OK 滤镜",
+			"messages": {
+				"filter_enabled": "`✅` | 卡拉 OK 滤镜已`启用`。",
+				"filter_disabled": "`✅` | 卡拉 OK 滤镜已`禁用`。"
+			}
+		},
+		"lowpass": {
+			"description": "启用/关闭低通滤镜",
+			"messages": {
+				"filter_enabled": "`✅` | 低通滤镜已`启用`。",
+				"filter_disabled": "`✅` | 低通滤镜已`禁用`。"
+			}
+		},
+		"nightcore": {
+			"description": "启用/关闭夜核滤镜",
+			"messages": {
+				"filter_enabled": "`✅` | 夜核滤镜已`启用`。",
+				"filter_disabled": "`✅` | 夜核滤镜已`禁用`。"
+			}
+		},
+		"pitch": {
+			"description": "启用/关闭音调滤镜",
+			"options": {
+				"pitch": "您要将音调设置为的数字（介于 0.5 和 5 之间）"
+			},
+			"errors": {
+				"invalid_number": "请提供一个介于 0.5 和 5 之间的有效数字。"
+			},
+			"messages": {
+				"pitch_set": "`✅` | 音调已设置为 **{pitch}**。"
+			}
+		},
+		"rate": {
+			"description": "更改歌曲的速率",
+			"options": {
+				"rate": "您要将速率设置到的数字（介于 0.5 和 5 之间）"
+			},
+			"errors": {
+				"invalid_number": "请提供一个介于 0.5 和 5 之间的有效数字。"
+			},
+			"messages": {
+				"rate_set": "`✅` | 速率已设置为 **{rate}**。"
+			}
+		},
+		"reset": {
+			"description": "重置活动的滤镜",
+			"messages": {
+				"filters_reset": "`✅` | 滤镜已重置。"
+			}
+		},
+		"rotation": {
+			"description": "启用/关闭旋转滤镜",
+			"messages": {
+				"enabled": "`✅` | 旋转滤镜已`启用`。",
+				"disabled": "`✅` | 旋转滤镜已`禁用`。"
+			}
+		},
+		"speed": {
+			"description": "更改歌曲的速度",
+			"options": {
+				"speed": "您要设置的速度"
+			},
+			"messages": {
+				"invalid_number": "请提供一个介于 0.5 和 5 之间的有效数字。",
+				"set_speed": "`✅` | 速度已设置为 **{speed}**。"
+			}
+		},
+		"tremolo": {
+			"description": "启用/关闭颤音滤镜",
+			"messages": {
+				"enabled": "`✅` | 颤音滤镜已`启用`。",
+				"disabled": "`✅` | 颤音滤镜已`禁用`。"
+			}
+		},
+		"vibrato": {
+			"description": "启用/关闭震音滤镜",
+			"messages": {
+				"enabled": "`✅` | 震音滤镜已`启用`。",
+				"disabled": "`✅` | 震音滤镜已`禁用`。"
+			}
+		},
+		"autoplay": {
+			"description": "切换自动播放",
+			"messages": {
+				"enabled": "`✅` | 自动播放已`启用`。",
+				"disabled": "`✅` | 自动播放已`禁用`。"
+			}
+		},
+		"clearqueue": {
+			"description": "清除队列",
+			"messages": {
+				"cleared": "队列已清除。"
+			}
+		},
+		"grab": {
+			"description": "获取您 DM 上当前播放的歌曲",
+			"content": "**时长:** {length}\n**请求者:** <@{requester}>\n**链接:** [点击此处]({uri})",
+			"check_dm": "请查看您的私信。",
+			"dm_failed": "我无法向您发送私信。"
+		},
+		"join": {
+			"description": "加入语音频道",
+			"already_connected": "我已经连接到 <#{channelId}>。",
+			"no_voice_channel": "您需要在语音频道中才能使用此命令。",
+			"joined": "已成功加入 <#{channelId}>。"
+		},
+		"leave": {
+			"description": "离开语音频道",
+			"left": "已成功离开 <#{channelId}>。",
+			"not_in_channel": "我不在语音频道中。"
+		},
+		"loop": {
+			"description": "循环当前歌曲或队列",
+			"looping_song": "**正在循环播放歌曲。**",
+			"looping_queue": "**正在循环播放队列。**",
+			"looping_off": "**循环播放已关闭。**"
+		},
+		"nowplaying": {
+			"description": "显示当前播放的歌曲",
+			"now_playing": "正在播放",
+			"track_info": "[{title}]({uri}) - 请求者: <@{requester}>\n\n`{bar}`"
+		},
+		"pause": {
+			"description": "暂停当前歌曲",
+			"successfully_paused": "已成功暂停歌曲。"
+		},
+		"play": {
+			"description": "播放来自 YouTube、Spotify 或 http 的歌曲",
+			"options": {
+				"song": "您要播放的歌曲"
+			},
+			"loading": "正在加载...",
+			"errors": {
+				"search_error": "搜索时出错。",
+				"no_results": "未找到结果。",
+				"queue_too_long": "队列太长。最大长度为 {maxQueueSize} 首歌曲。",
+				"playlist_too_long": "播放列表太长。最大长度为 {maxPlaylistSize} 首歌曲。"
+			},
+			"added_to_queue": "已将 [{title}]({uri}) 添加到队列。",
+			"added_playlist_to_queue": "已将 {length} 首歌曲添加到队列。"
+		},
+		"playnext": {
+			"description": "添加歌曲以在队列中接下来播放",
+			"options": {
+				"song": "您要播放的歌曲"
+			},
+			"loading": "正在加载...",
+			"errors": {
+				"search_error": "搜索时出错。",
+				"no_results": "未找到结果。",
+				"queue_too_long": "队列太长。最大长度为 {maxQueueSize} 首歌曲。",
+				"playlist_too_long": "播放列表太长。最大长度为 {maxPlaylistSize} 首歌曲。"
+			},
+			"added_to_play_next": "已将 [{title}]({uri}) 添加到队列中接下来播放。",
+			"added_playlist_to_play_next": "已将 {length} 首歌曲添加到队列中接下来播放。"
+		},
+		"queue": {
+			"description": "显示当前队列",
+			"now_playing": "正在播放: [{title}]({uri}) - 请求者: <@{requester}> - 时长: `{duration}`",
+			"live": "直播",
+			"track_info": "{index}. [{title}]({uri}) - 请求者: <@{requester}> - 时长: `{duration}`",
+			"title": "队列",
+			"page_info": "第 {index} 页，共 {total} 页"
+		},
+		"remove": {
+			"description": "从队列中删除歌曲",
+			"options": {
+				"song": "您要删除的歌曲编号"
+			},
+			"errors": {
+				"no_songs": "队列中没有歌曲。",
+				"invalid_number": "请提供有效的歌曲编号。"
+			},
+			"messages": {
+				"removed": "已从队列中删除歌曲编号 {songNumber}。"
+			}
+		},
+		"replay": {
+			"description": "重播当前曲目",
+			"errors": {
+				"not_seekable": "无法重播此曲目，因为它不可搜索。"
+			},
+			"messages": {
+				"replaying": "正在重播当前曲目。"
+			}
+		},
+		"resume": {
+			"description": "恢复当前歌曲",
+			"errors": {
+				"not_paused": "播放器未暂停。"
+			},
+			"messages": {
+				"resumed": "已恢复播放器。"
+			}
+		},
+		"search": {
+			"description": "搜索歌曲",
+			"options": {
+				"song": "您要搜索的歌曲"
+			},
+			"errors": {
+				"no_results": "未找到结果。",
+				"search_error": "搜索时出错。"
+			},
+			"messages": {
+				"added_to_queue": "已将 [{title}]({uri}) 添加到队列。"
+			}
+		},
+		"seek": {
+			"description": "跳转到歌曲中的某个时间点",
+			"options": {
+				"duration": "要跳转到的时长"
+			},
+			"errors": {
+				"invalid_format": "无效的时间格式。示例: seek 1m, seek 1h 30m",
+				"not_seekable": "此曲目不可搜索。",
+				"beyond_duration": "无法跳转到歌曲时长 {length} 之后。"
+			},
+			"messages": {
+				"seeked_to": "已跳转到 {duration}"
+			}
+		},
+		"shuffle": {
+			"description": "随机播放队列",
+			"messages": {
+				"shuffled": "已随机播放队列。"
+			}
+		},
+		"skip": {
+			"description": "跳过当前歌曲",
+			"messages": {
+				"skipped": "已跳过 [{title}]({uri})。"
+			}
+		},
+		"skipto": {
+			"description": "跳至队列中的特定歌曲",
+			"options": {
+				"number": "您要跳至的歌曲编号"
+			},
+			"errors": {
+				"invalid_number": "请提供有效的编号。"
+			},
+			"messages": {
+				"skipped_to": "已跳至歌曲编号 {number}。"
+			}
+		},
+		"stop": {
+			"description": "停止音乐并清除队列",
+			"messages": {
+				"stopped": "已停止音乐并清除队列。"
+			}
+		},
+		"volume": {
+			"description": "设置播放器的音量",
+			"options": {
+				"number": "您要设置的音量"
+			},
+			"messages": {
+				"invalid_number": "请提供有效的数字。",
+				"too_low": "音量不能低于 0。",
+				"too_high": "音量不能高于 200。您想损害您的听力或扬声器吗？嗯，我认为这不是一个好主意。",
+				"set": "已将音量设置为 {volume}"
+			}
+		},
+		"addsong": {
+			"description": "将歌曲添加到播放列表",
+			"options": {
+				"playlist": "您要添加到的播放列表",
+				"song": "您要添加的歌曲"
+			},
+			"messages": {
+				"no_playlist": "请提供一个播放列表",
+				"no_song": "请提供一首歌曲",
+				"playlist_not_found": "该播放列表不存在",
+				"no_songs_found": "未找到歌曲",
+				"added": "已将 {count} 首歌曲添加到 {playlist}"
+			}
+		},
+		"create": {
+			"description": "创建播放列表",
+			"options": {
+				"name": "播放列表的名称"
+			},
+			"messages": {
+				"name_too_long": "播放列表名称只能包含 50 个字符。",
+				"playlist_exists": "具有该名称的播放列表已存在。请使用其他名称。",
+				"playlist_created": "播放列表 **{name}** 已创建。"
+			}
+		},
+		"delete": {
+			"description": "删除播放列表",
+			"options": {
+				"playlist": "您要删除的播放列表"
+			},
+			"messages": {
+				"playlist_not_found": "该播放列表不存在。",
+				"playlist_deleted": "已删除播放列表 **{playlistName}**。"
+			}
+		},
+		"list": {
+			"description": "检索用户的所有播放列表",
+			"options": {
+				"user": "您要检索其播放列表的用户"
+			},
+			"messages": {
+				"no_playlists": "此用户没有播放列表。",
+				"your": "您的",
+				"playlists_title": "{username} 的播放列表",
+				"error": "检索播放列表时出错。"
+			}
+		},
+		"load": {
+			"description": "加载播放列表",
+			"options": {
+				"playlist": "您要加载的播放列表"
+			},
+			"messages": {
+				"playlist_not_exist": "该播放列表不存在。",
+				"playlist_empty": "该播放列表为空。",
+				"playlist_loaded": "已加载包含 {count} 首歌曲的 `{name}`。"
+			}
+		},
+		"removesong": {
+			"description": "从播放列表中删除歌曲",
+			"options": {
+				"playlist": "您要从中删除的播放列表",
+				"song": "您要删除的歌曲"
+			},
+			"messages": {
+				"provide_playlist": "请提供一个播放列表。",
+				"provide_song": "请提供一首歌曲。",
+				"playlist_not_exist": "该播放列表不存在。",
+				"song_not_found": "未找到匹配的歌曲。",
+				"song_removed": "已从 {playlist} 中删除 {song}。",
+				"error_occurred": "删除歌曲时出错。"
+			}
+		},
+		"steal": {
+			"description": "从另一个用户那里窃取播放列表并将其添加到您的播放列表中",
+			"options": {
+				"playlist": "您要窃取的播放列表",
+				"user": "您要从其窃取播放列表的用户"
+			},
+			"messages": {
+				"provide_playlist": "请提供播放列表名称。",
+				"provide_user": "请@一个用户。",
+				"playlist_not_exist": "所提及的用户没有该播放列表。",
+				"playlist_stolen": "已成功从 {user} 窃取播放列表 `{playlist}`。",
+				"error_occurred": "窃取播放列表时出错。"
+			}
+		},
+		"lyrics": {
+			"description": "Get's the lyrics of the currently playing track"
+		},
+		"vplay": {
+			"description": "Stream de vídeo no canal de voz.",
+			"options": {
+				"url": "O link do vídeo que você deseja tocar"
+			}
+		},
+		"mlist": {
+			"description": "Lista os downloads de videos"
+		},
+		"mplay": {
+			"description": "cmd.mplay.description",
+			"options": {
+				"movie": "cmd.mplay.options.movie",
+				"audioTrack": "cmd.mplay.options.audioTrack"
+			}
+		},
+		"msearch": {
+			"description": "Procura por filmes ou animes",
+			"options": {
+				"search": "cmd.msearch.options.search"
+			}
+		},
+		"mstop": {
+			"description": "cmd.mstop.description"
+		},
+		"mpause": {
+			"description": "cmd.mpause.description"
+		},
+		"mresume": {
+			"description": "cmd.mresume.description"
+		},
+		"code": {
+			"description": "cmd.code.description"
+		},
+		"model": {
+			"description": "cmd.model.description"
+		},
+		"reason": {
+			"description": "cmd.reason.description"
+		},
+		"stream": {
+			"description": "cmd.stream.description"
+		}
+	},
+	"buttons": {
+		"invite": "邀请",
+		"support": "支持服务器",
+		"previous": "上一首",
+		"resume": "恢复",
+		"stop": "停止",
+		"skip": "跳过",
+		"loop": "循环",
+		"errors": {
+			"not_author": "您不能使用此按钮。"
+		}
+	},
+	"player": {
+		"errors": {
+			"no_player": "此服务器中没有活动的播放器。",
+			"no_channel": "您需要在语音频道中才能使用此命令。",
+			"queue_empty": "队列为空。",
+			"no_previous": "队列中没有上一首歌曲。",
+			"no_song": "队列中没有歌曲。",
+			"already_paused": "歌曲已暂停。"
+		},
+		"trackStart": {
+			"now_playing": "正在播放",
+			"requested_by": "由 {user} 请求",
+			"duration": "时长",
+			"author": "作者",
+			"not_connected_to_voice_channel": "您未连接到 <#{channel}> 以使用这些按钮。",
+			"need_dj_role": "您需要拥有 DJ 角色才能使用此命令。",
+			"previous_by": "由 {user} 上一首",
+			"no_previous_song": "没有上一首歌曲。",
+			"paused_by": "由 {user} 暂停",
+			"resumed_by": "由 {user} 恢复",
+			"skipped_by": "由 {user} 跳过",
+			"no_more_songs_in_queue": "队列中没有更多歌曲。",
+			"looping_by": "由 {user} 循环播放",
+			"looping_queue_by": "由 {user} 循环播放队列",
+			"looping_off_by": "由 {user} 关闭循环播放"
+		},
+		"setupStart": {
+			"now_playing": "正在播放",
+			"description": "[{title}]({uri}) 作者: {author} • `[{length}]` - 请求者: <@{requester}>",
+			"error_searching": "搜索时出错。",
+			"no_results": "未找到结果。",
+			"nothing_playing": "现在没有播放任何内容。",
+			"queue_too_long": "队列太长。最大长度为 {maxQueueSize} 首歌曲。",
+			"playlist_too_long": "播放列表太长。最大长度为 {maxPlaylistSize} 首歌曲。",
+			"added_to_queue": "已将 [{title}]({uri}) 添加到队列。",
+			"added_playlist_to_queue": "已将播放列表中的 [{length}] 首歌曲添加到队列。"
+		}
+	},
+	"event": {
+		"interaction": {
+			"setup_channel": "您不能在设置频道中使用此命令。",
+			"no_send_message": "我在 `{guild}`\n频道: {channel} 中没有 **`发送消息`** 权限。",
+			"no_embed_links": "我没有 **`嵌入链接`** 权限。",
+			"no_permission": "我没有足够的权限来执行此命令。",
+			"no_user_permission": "您没有足够的权限来使用此命令。",
+			"no_voice_channel": "您必须连接到语音频道才能使用此 `{command}` 命令。",
+			"no_connect_permission": "我没有 `连接` 权限来执行此 `{command}` 命令。",
+			"no_speak_permission": "我没有 `发言` 权限来执行此 `{command}` 命令。",
+			"no_request_to_speak": "我没有 `请求发言` 权限来执行此 `{command}` 命令。",
+			"different_voice_channel": "您未连接到 {channel} 以使用此 `{command}` 命令。",
+			"no_music_playing": "现在没有播放任何内容。",
+			"no_dj_role": "未设置 DJ 角色。",
+			"no_dj_permission": "您需要拥有 DJ 角色才能使用此命令。",
+			"cooldown": "请等待 {time} 秒后再使用 `{command}` 命令。",
+			"error": "发生错误: `{error}`"
+		},
+		"message": {
+			"prefix_mention": "嘿，我这个服务器的前缀是 `{prefix}`。想要了解更多信息？请执行 `{prefix}help`\n注意安全，保持出色！",
+			"no_send_message": "我在 `{guild}`\n频道: {channel} 中没有 **`发送消息`** 权限。",
+			"no_embed_links": "我没有 **`嵌入链接`** 权限。",
+			"no_permission": "我没有足够的权限来执行此命令。",
+			"no_user_permission": "您没有足够的权限来使用此命令。",
+			"no_voice_channel": "您必须连接到语音频道才能使用此 `{command}` 命令。",
+			"no_connect_permission": "我没有 `连接` 权限来执行此 `{command}` 命令。",
+			"no_speak_permission": "我没有 `发言` 权限来执行此 `{command}` 命令。",
+			"no_request_to_speak": "我没有 `请求发言` 权限来执行此 `{command}` 命令。",
+			"different_voice_channel": "您未连接到 {channel} 以使用此 `{command}` 命令。",
+			"no_music_playing": "现在没有播放任何内容。",
+			"no_dj_role": "未设置 DJ 角色。",
+			"no_dj_permission": "您需要拥有 DJ 角色才能使用此命令。",
+			"missing_arguments": "缺少参数",
+			"missing_arguments_description": "请为 `{command}` 命令提供所需的 参数。\n\n示例:\n{examples}",
+			"syntax_footer": "语法: [] = 可选，<> = 必需",
+			"cooldown": "请等待 {time} 秒后再使用 `{command}` 命令。",
+			"no_mention_everyone": "您不能对所有人或此处使用此命令。",
+			"error": "发生错误: `{error}`",
+			"no_voice_channel_queue": "您未连接到语音频道以将歌曲排入队列。",
+			"no_permission_connect_speak": "我在 <#{channel}> 中没有足够的权限连接/发言。",
+			"different_voice_channel_queue": "您未连接到 <#{channel}> 以将歌曲排入队列。"
+		},
+		"setupButton": {
+			"no_voice_channel_button": "您未连接到语音频道以使用此按钮。",
+			"different_voice_channel_button": "您未连接到 {channel} 以使用这些按钮。",
+			"now_playing": "正在播放",
+			"live": "直播",
+			"requested_by": "由 <@{requester}> 请求",
+			"no_dj_permission": "您需要拥有 DJ 角色才能使用此命令。",
+			"volume_set": "音量已设置为 {vol}%",
+			"volume_footer": "音量: {vol}%",
+			"paused": "已暂停",
+			"resumed": "已恢复",
+			"pause_resume": "{name} 音乐。",
+			"pause_resume_footer": "由 {displayName} {name}",
+			"no_music_to_skip": "没有可跳过的音乐。",
+			"skipped": "已跳过音乐。",
+			"skipped_footer": "由 {displayName} 跳过",
+			"stopped": "已停止音乐。",
+			"stopped_footer": "由 {displayName} 停止",
+			"nothing_playing": "现在没有播放任何内容",
+			"loop_set": "循环已设置为 {loop}。",
+			"loop_footer": "由 {displayName} 将循环设置为 {loop}",
+			"shuffled": "已随机播放队列。",
+			"no_previous_track": "没有上一首曲目。",
+			"playing_previous": "正在播放上一首曲目。",
+			"previous_footer": "由 {displayName} 播放上一首曲目",
+			"rewinded": "已倒回音乐。",
+			"rewind_footer": "由 {displayName} 倒回",
+			"forward_limit": "您不能将音乐快进到超过歌曲长度的位置。",
+			"forwarded": "已快进音乐。",
+			"forward_footer": "由 {displayName} 快进",
+			"button_not_available": "此按钮不可用。",
+			"no_music_playing": "此服务器中没有正在播放的音乐。"
+		}
+	},
+	"Evaluate code": "评估代码",
+	"Leave a guild": "离开服务器",
+	"List all guilds the bot is in": "列出机器人所在的所有服务器",
+	"Restart the bot": "重启机器人",
+	"Stream de vídeo no canal de voz.": "Stream de vídeo no canal de voz.",
+	"Chat inteligente com IA da NVIDIA - análise de código, geração e muito mais!": "Chat inteligente com IA da NVIDIA - análise de código, geração e muito mais!",
+	"Modo de operação da IA": "Modo de operação da IA",
+	"Sua mensagem ou pergunta": "Sua mensagem ou pergunta",
+	"Linguagem de programação (para modos de código)": "Linguagem de programação (para modos de código)",
+	"Ferramentas avançadas de IA para análise, tradução, documentação e mais!": "Ferramentas avançadas de IA para análise, tradução, documentação e mais!",
+	"Escolha uma ferramenta": "Escolha uma ferramenta",
+	"Texto ou código para processar": "Texto ou código para processar",
+	"Análise inteligente de imagens com IA - descreva, analise e extraia informações!": "Análise inteligente de imagens com IA - descreva, analise e extraia informações!",
+	"Modo de análise": "Modo de análise",
+	"Pergunta específica sobre a imagem": "Pergunta específica sobre a imagem",
+	"Configura o comportamento da IA da Mahina": "Configura o comportamento da IA da Mahina",
+	"Ação a ser executada": "Ação a ser executada",
+	"🍁 Descubra seu animal espiritual do World of Warcraft através de análise de personalidade com IA": "🍁 Descubra seu animal espiritual do World of Warcraft através de análise de personalidade com IA",
+	"👤 O usuário que você deseja analisar": "👤 O usuário que você deseja analisar",
+	"Explain code in detail": "Explain code in detail",
+	"Review code and suggest improvements": "Review code and suggest improvements",
+	"Optimize code for better performance": "Optimize code for better performance",
+	"Debug code and identify issues": "Debug code and identify issues",
+	"Programming language": "Programming language",
+	"The code to explain": "The code to explain",
+	"The code to review": "The code to review",
+	"The code to optimize": "The code to optimize",
+	"The code to debug": "The code to debug",
+	"List all available AI models": "List all available AI models",
+	"Select an AI model": "Select an AI model",
+	"Get information about a specific model": "Get information about a specific model",
+	"Show your current AI model": "Show your current AI model",
+	"The model to select": "The model to select",
+	"The model to get info about": "The model to get info about",
+	"The problem or question to analyze": "The problem or question to analyze",
+	"Additional context for the problem": "Additional context for the problem",
+	"Your message for streaming AI response": "Your message for streaming AI response",
+	"Advanced AI chat with context, memory, and personality": "Advanced AI chat with context, memory, and personality",
+	"Your message to Mahina AI": "Your message to Mahina AI",
+	"Choose AI personality": "Choose AI personality",
+	"Conversation mode": "Conversation mode",
+	"Private response (only you can see)": "Private response (only you can see)",
+	"Manage proactive interaction settings": "Manage proactive interaction settings",
+	"Show proactive interaction statistics": "Show proactive interaction statistics",
+	"Test proactive interaction in current channel": "Test proactive interaction in current channel",
+	"Force proactive interaction check": "Force proactive interaction check",
+	"Check AI services status and statistics": "Check AI services status and statistics",
+	"Verificar status e estatísticas dos serviços de IA": "Verificar status e estatísticas dos serviços de IA",
+	"Chat avançado com IA": " contexto, memória e personalidade",
+	"Sua mensagem para a Mahina AI": "Sua mensagem para a Mahina AI",
+	"Escolha a personalidade da IA": "Escolha a personalidade da IA",
+	"Modo de conversa": "Modo de conversa",
+	"Resposta privada (apenas você pode ver)": "Resposta privada (apenas você pode ver)",
+	"Testa e configura sistemas de segurança NVIDIA NemoGuard": "Testa e configura sistemas de segurança NVIDIA NemoGuard",
+	"Texto para verificar (obrigatório para verificações)": "Texto para verificar (obrigatório para verificações)",
+	"Usar modo estrito para verificação de tópicos": "Usar modo estrito para verificação de tópicos",
+	"Receber resposta também em áudio (TTS)": "Receber resposta também em áudio (TTS)",
+	"Busca por comandos e informações usando IA semântica": "Busca por comandos e informações usando IA semântica",
+	"O que você está procurando? Ex": "O que você está procurando? Ex",
+	"Filtrar por categoria específica": "Filtrar por categoria específica",
+	"Nível de precisão da busca (padrão": "Nível de precisão da busca (padrão",
+	"Converte texto em áudio usando NVIDIA TTS": "Converte texto em áudio usando NVIDIA TTS",
+	"O texto que será convertido em áudio": "O texto que será convertido em áudio",
+	"Escolha da voz para o TTS": "Escolha da voz para o TTS",
+	"Velocidade da fala (0": {
+		"5 - 2": {
+			"0)": "Velocidade da fala (0.5 - 2.0)"
+		}
+	},
+	"Tom da voz (-0": {
+		"5 a 0": {
+			"5)": "Tom da voz (-0.5 a 0.5)"
+		}
+	},
+	"Enviar áudio apenas para você": "Enviar áudio apenas para você",
+	"Gera visualizações com física realista usando NVIDIA Cosmos": "Gera visualizações com física realista usando NVIDIA Cosmos",
+	"Tipo de visualização": "Tipo de visualização",
+	"Descrição da visualização (obrigatório para prompt customizado)": "Descrição da visualização (obrigatório para prompt customizado)",
+	"Estilo visual da animação": "Estilo visual da animação",
+	"Número de frames (8-48, padrão": "Número de frames (8-48, padrão",
+	"Incluir texto na visualização": "Incluir texto na visualização",
+	"Imagem base para predição física (opcional)": "Imagem base para predição física (opcional)"
 }

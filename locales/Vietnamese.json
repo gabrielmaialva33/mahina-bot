@@ -1,727 +1,756 @@
 {
-  "cmd": {
-    "247": {
-      "description": "Đặt bot ở lại trong kênh thoại",
-      "errors": {
-        "not_in_voice": "Bạn cần phải ở trong một kênh thoại để sử dụng lệnh này.",
-        "generic": "Đã xảy ra lỗi khi cố gắng thực thi lệnh này."
-      },
-      "messages": {
-        "disabled": "`✅` | Chế độ 24/7 đã được `TẮT`",
-        "enabled": "`✅` | Chế độ 24/7 đã được `BẬT`. \n**Bot sẽ không rời khỏi kênh thoại ngay cả khi không có người trong kênh thoại.**"
-      }
-    },
-    "ping": {
-      "description": "Hiển thị độ trễ của bot.",
-      "content": "Đang kiểm tra độ trễ...",
-      "bot_latency": "Độ trễ của Bot",
-      "api_latency": "Độ trễ của API",
-      "requested_by": "Yêu cầu bởi {author}"
-    },
-    "lavalink": {
-      "description": "Hiển thị thông tin hiện tại của Lavalink.",
-      "title": "Thông tin Lavalink",
-      "content": "Trình phát: {players}\nTrình phát đang hoạt động: {playingPlayers}\nThời gian hoạt động: {uptime}\nSố lõi: {cores} Lõi\nSử dụng bộ nhớ: {used} / {reservable}\nTải hệ thống: {systemLoad}%\nTải Lavalink: {lavalinkLoad}%"
-    },
-    "invite": {
-      "description": "Nhận liên kết mời bot.",
-      "content": "Bạn có thể mời tôi bằng cách nhấp vào nút dưới đây. Có lỗi hoặc sự cố? Tham gia máy chủ hỗ trợ!"
-    },
-    "help": {
-      "description": "Hiển thị menu trợ giúp.",
-      "options": {
-        "command": "Lệnh bạn muốn xem thông tin"
-      },
-      "content": "Chào bạn! Tôi là {bot}, một bot phát nhạc được tạo bởi [MahinaBot](https://github.com/gabrielmaialva33/mahina-bot) và Discord. Bạn có thể sử dụng `{prefix}help <command>` để biết thêm thông tin về lệnh.",
-      "title": "Menu trợ giúp",
-      "not_found": "Lệnh `{cmdName}` này không tồn tại.",
-      "help_cmd": "**Mô tả:** {description}\n**Cách sử dụng:** {usage}\n**Ví dụ:** {examples}\n**Biệt danh:** {aliases}\n**Danh mục:** {category}\n**Thời gian chờ:** {cooldown} giây\n**Quyền:** {premUser}\n**Quyền của bot:** {premBot}\n**Chỉ dành cho nhà phát triển:** {dev}\n**Lệnh Slash:** {slash}\n**Tham số:** {args}\n**Trình phát:** {player}\n**DJ:** {dj}\n**Quyền của DJ:** {djPerm}\n**Giọng nói:** {voice}",
-      "footer": "Sử dụng {prefix}help <command> để biết thêm thông tin về lệnh"
-    },
-    "botinfo": {
-      "description": "Thông tin về bot",
-      "content": "Thông tin bot:\n- **Hệ điều hành**: {osInfo}\n- **Thời gian hoạt động**: {osUptime}\n- **Tên máy chủ**: {osHostname}\n- **Kiến trúc CPU**: {cpuInfo}\n- **Sử dụng CPU**: {cpuUsed}%\n- **Sử dụng bộ nhớ**: {memUsed}MB / {memTotal}GB\n- **Phiên bản Node**: {nodeVersion}\n- **Phiên bản Discord**: {discordJsVersion}\n- **Kết nối với** {guilds} máy chủ, {channels} kênh, và {users} người dùng\n- **Tổng số lệnh**: {commands}"
-    },
-    "about": {
-      "description": "Hiển thị thông tin về bot",
-      "fields": {
-        "creator": "Người tạo",
-        "repository": "Kho lưu trữ",
-        "support": "Hỗ trợ",
-        "description": "Anh ấy thực sự muốn tạo dự án mã nguồn mở đầu tiên của mình để có thêm kinh nghiệm lập trình. Trong dự án này, anh ấy đã thách thức bản thân để tạo ra một dự án với ít lỗi hơn. Hy vọng bạn thích sử dụng MahinaBot!"
-      }
-    },
-    "dj": {
-      "description": "Quản lý chế độ DJ và các vai trò liên quan",
-      "errors": {
-        "provide_role": "Vui lòng cung cấp một vai trò.",
-        "no_roles": "Vai trò DJ rỗng.",
-        "invalid_subcommand": "Vui lòng cung cấp một lệnh phụ hợp lệ."
-      },
-      "messages": {
-        "role_exists": "Vai trò DJ <@&{roleId}> đã được thêm.",
-        "role_added": "Vai trò DJ <@&{roleId}> đã được thêm.",
-        "role_not_found": "Vai trò DJ <@&{roleId}> chưa được thêm.",
-        "role_removed": "Vai trò DJ <@&{roleId}> đã được xóa.",
-        "all_roles_cleared": "Tất cả vai trò DJ đã được xóa.",
-        "toggle": "Chế độ DJ đã được chuyển sang {status}."
-      },
-      "options": {
-        "add": "Vai trò DJ bạn muốn thêm",
-        "remove": "Vai trò DJ bạn muốn xóa",
-        "clear": "Xóa tất cả các vai trò DJ",
-        "toggle": "Chuyển đổi chế độ DJ",
-        "role": "Vai trò DJ"
-      },
-      "subcommands": "Lệnh phụ"
-    },
-    "language": {
-      "description": "Đặt ngôn ngữ cho bot",
-      "invalid_language": "Vui lòng cung cấp một ngôn ngữ hợp lệ. Ví dụ: `EnglishUS` cho tiếng Anh (Hoa Kỳ)\n\nBạn có thể tìm danh sách các ngôn ngữ được hỗ trợ [tại đây](https://discord.com/developers/docs/reference#locales)\n\n**Ngôn ngữ có sẵn:**\n{languages}",
-      "already_set": "Ngôn ngữ đã được đặt thành `{language}`",
-      "not_set": "Ngôn ngữ chưa được đặt.",
-      "set": "`✅` | Ngôn ngữ đã được đặt thành `{language}`",
-      "reset": "`✅` | Ngôn ngữ đã được đặt lại về ngôn ngữ mặc định.",
-      "options": {
-        "set": "Đặt ngôn ngữ cho bot",
-        "language": "Ngôn ngữ bạn muốn đặt",
-        "reset": "Đặt lại ngôn ngữ về ngôn ngữ mặc định"
-      }
-    },
-    "prefix": {
-      "description": "Hiển thị hoặc đặt tiền tố của bot",
-      "errors": {
-        "prefix_too_long": "Tiền tố không được dài hơn 3 ký tự."
-      },
-      "messages": {
-        "current_prefix": "Tiền tố cho máy chủ này là `{prefix}`",
-        "prefix_set": "Tiền tố cho máy chủ này bây giờ là `{prefix}`",
-        "prefix_reset": "Tiền tố cho máy chủ này bây giờ là `{prefix}`"
-      },
-      "options": {
-        "set": "Đặt tiền tố",
-        "prefix": "Tiền tố bạn muốn đặt",
-        "reset": "Đặt lại tiền tố về mặc định"
-      }
-    },
-    "setup": {
-      "description": "Thiết lập bot",
-      "errors": {
-        "channel_exists": "Kênh yêu cầu bài hát đã tồn tại.",
-        "channel_not_exists": "Kênh yêu cầu bài hát không tồn tại.",
-        "channel_delete_fail": "Kênh yêu cầu bài hát đã bị xóa. Nếu kênh không bị xóa bình thường, vui lòng tự xóa nó."
-      },
-      "messages": {
-        "channel_created": "Kênh yêu cầu bài hát đã được tạo trong <#{channelId}>.",
-        "channel_deleted": "Kênh yêu cầu bài hát đã bị xóa.",
-        "channel_info": "Kênh yêu cầu bài hát là <#{channelId}>."
-      },
-      "options": {
-        "create": "Tạo kênh yêu cầu bài hát",
-        "delete": "Xóa kênh yêu cầu bài hát",
-        "info": "Hiển thị kênh yêu cầu bài hát"
-      }
-    },
-    "8d": {
-      "description": "bật/tắt bộ lọc 8d",
-      "messages": {
-        "filter_enabled": "`✅` | Bộ lọc 8D đã được `BẬT`.",
-        "filter_disabled": "`✅` | Bộ lọc 8D đã được `TẮT`."
-      }
-    },
-    "bassboost": {
-      "description": "bật/tắt bộ lọc bassboost",
-      "messages": {
-        "filter_enabled": "`✅` | Bộ lọc Bassboost đã được `BẬT`. \n**Cẩn thận, nghe quá to có thể gây hại cho thính giác của bạn!**",
-        "filter_disabled": "`✅` | Bộ lọc Bassboost đã được `TẮT`."
-      },
-      "options": {
-        "level": "The bassboost level you want to set"
-      }
-    },
-    "distortion": {
-      "description": "Bật/tắt bộ lọc distortion",
-      "messages": {
-        "filter_enabled": "`✅` | Bộ lọc Distortion đã được `BẬT`.",
-        "filter_disabled": "`✅` | Bộ lọc Distortion đã được `TẮT`."
-      }
-    },
-    "karaoke": {
-      "description": "Bật/tắt bộ lọc karaoke",
-      "messages": {
-        "filter_enabled": "`✅` | Bộ lọc Karaoke đã được `BẬT`.",
-        "filter_disabled": "`✅` | Bộ lọc Karaoke đã được `TẮT`."
-      }
-    },
-    "lowpass": {
-      "description": "Bật/tắt bộ lọc lowpass",
-      "messages": {
-        "filter_enabled": "`✅` | Bộ lọc Lowpass đã được `BẬT`.",
-        "filter_disabled": "`✅` | Bộ lọc Lowpass đã được `TẮT`."
-      }
-    },
-    "nightcore": {
-      "description": "Bật/tắt bộ lọc nightcore",
-      "messages": {
-        "filter_enabled": "`✅` | Bộ lọc Nightcore đã được `BẬT`.",
-        "filter_disabled": "`✅` | Bộ lọc Nightcore đã được `TẮT`."
-      }
-    },
-    "pitch": {
-      "description": "Bật/tắt bộ lọc pitch",
-      "options": {
-        "pitch": "Số bạn muốn đặt độ cao (giữa 0.5 và 5)"
-      },
-      "errors": {
-        "invalid_number": "Vui lòng cung cấp một số hợp lệ giữa 0.5 và 5."
-      },
-      "messages": {
-        "pitch_set": "`✅` | Độ cao đã được đặt thành **{pitch}**."
-      }
-    },
-    "rate": {
-      "description": "Thay đổi tốc độ của bài hát",
-      "options": {
-        "rate": "Số bạn muốn đặt tốc độ (giữa 0.5 và 5)"
-      },
-      "errors": {
-        "invalid_number": "Vui lòng cung cấp một số hợp lệ giữa 0.5 và 5."
-      },
-      "messages": {
-        "rate_set": "`✅` | Tốc độ đã được đặt thành **{rate}**."
-      }
-    },
-    "reset": {
-      "description": "Đặt lại các bộ lọc đang hoạt động",
-      "messages": {
-        "filters_reset": "`✅` | Các bộ lọc đã được đặt lại."
-      }
-    },
-    "rotation": {
-      "description": "Bật/tắt bộ lọc rotation",
-      "messages": {
-        "enabled": "`✅` | Bộ lọc Rotation đã được `BẬT`.",
-        "disabled": "`✅` | Bộ lọc Rotation đã được `TẮT`."
-      }
-    },
-    "speed": {
-      "description": "Thay đổi tốc độ của bài hát",
-      "options": {
-        "speed": "Tốc độ bạn muốn đặt"
-      },
-      "messages": {
-        "invalid_number": "Vui lòng cung cấp một số hợp lệ giữa 0.5 và 5.",
-        "set_speed": "`✅` | Tốc độ đã được đặt thành **{speed}**."
-      }
-    },
-    "tremolo": {
-      "description": "Bật/tắt bộ lọc tremolo",
-      "messages": {
-        "enabled": "`✅` | Bộ lọc Tremolo đã được `BẬT`.",
-        "disabled": "`✅` | Bộ lọc Tremolo đã được `TẮT`."
-      }
-    },
-    "vibrato": {
-      "description": "Bật/tắt bộ lọc vibrato",
-      "messages": {
-        "enabled": "`✅` | Bộ lọc Vibrato đã được `BẬT`.",
-        "disabled": "`✅` | Bộ lọc Vibrato đã được `TẮT`."
-      }
-    },
-    "autoplay": {
-      "description": "Bật/tắt chế độ tự động phát",
-      "messages": {
-        "enabled": "`✅` | Chế độ tự động phát đã được `BẬT`.",
-        "disabled": "`✅` | Chế độ tự động phát đã được `TẮT`."
-      }
-    },
-    "clearqueue": {
-      "description": "Xóa hàng chờ",
-      "messages": {
-        "cleared": "Hàng chờ đã được xóa."
-      }
-    },
-    "grab": {
-      "description": "Lấy bài hát đang phát hiện tại vào tin nhắn trực tiếp của bạn",
-      "content": "**Thời lượng:** {length}\n**Yêu cầu bởi:** <@{requester}>\n**Liên kết:** [Nhấp vào đây]({uri})",
-      "check_dm": "Vui lòng kiểm tra tin nhắn trực tiếp của bạn.",
-      "dm_failed": "Tôi không thể gửi tin nhắn trực tiếp cho bạn. Vui lòng đảm bảo rằng tin nhắn trực tiếp đã được bật."
-    },
-    "join": {
-      "description": "Tham gia kênh thoại",
-      "already_connected": "Tôi đã kết nối với <#{channelId}>.",
-      "no_voice_channel": "Bạn cần phải ở trong một kênh thoại để sử dụng lệnh này.",
-      "joined": "Đã tham gia thành công <#{channelId}>."
-    },
-    "leave": {
-      "description": "Rời khỏi kênh thoại",
-      "left": "Đã rời khỏi <#{channelId}> thành công.",
-      "not_in_channel": "Tôi không có trong kênh thoại."
-    },
-    "loop": {
-      "description": "Lặp lại bài hát hiện tại hoặc hàng chờ",
-      "looping_song": "**Đang lặp lại bài hát.**",
-      "looping_queue": "**Đang lặp lại hàng chờ.**",
-      "looping_off": "**Đã tắt chế độ lặp lại.**"
-    },
-    "nowplaying": {
-      "description": "Hiển thị bài hát đang phát hiện tại",
-      "now_playing": "Đang phát",
-      "track_info": "[{title}]({uri}) - Yêu cầu bởi: <@{requester}>\n\n`{bar}`"
-    },
-    "pause": {
-      "description": "Tạm dừng bài hát hiện tại",
-      "successfully_paused": "Đã tạm dừng bài hát thành công."
-    },
-    "play": {
-      "description": "Phát một bài hát từ YouTube, Spotify hoặc http",
-      "options": {
-        "song": "Bài hát bạn muốn phát"
-      },
-      "loading": "Đang tải...",
-      "errors": {
-        "search_error": "Đã xảy ra lỗi khi tìm kiếm.",
-        "no_results": "Không tìm thấy kết quả.",
-        "queue_too_long": "Hàng chờ quá dài. Độ dài tối đa là {maxQueueSize} bài hát.",
-        "playlist_too_long": "Danh sách phát quá dài. Độ dài tối đa là {maxPlaylistSize} bài hát."
-      },
-      "added_to_queue": "Đã thêm [{title}]({uri}) vào hàng chờ.",
-      "added_playlist_to_queue": "Đã thêm {length} bài hát vào hàng chờ."
-    },
-    "playnext": {
-      "description": "Thêm bài hát để phát tiếp theo trong hàng chờ",
-      "options": {
-        "song": "Bài hát bạn muốn phát"
-      },
-      "loading": "Đang tải...",
-      "errors": {
-        "search_error": "Đã xảy ra lỗi khi tìm kiếm.",
-        "no_results": "Không tìm thấy kết quả.",
-        "queue_too_long": "Hàng chờ quá dài. Độ dài tối đa là {maxQueueSize} bài hát.",
-        "playlist_too_long": "Danh sách phát quá dài. Độ dài tối đa là {maxPlaylistSize} bài hát."
-      },
-      "added_to_play_next": "Đã thêm [{title}]({uri}) để phát tiếp theo trong hàng chờ.",
-      "added_playlist_to_play_next": "Đã thêm {length} bài hát để phát tiếp theo trong hàng chờ."
-    },
-    "queue": {
-      "description": "Hiển thị hàng chờ hiện tại",
-      "now_playing": "Đang phát: [{title}]({uri}) - Yêu cầu bởi: <@{requester}> - Thời lượng: `{duration}`",
-      "live": "TRỰC TIẾP",
-      "track_info": "{index}. [{title}]({uri}) - Yêu cầu bởi: <@{requester}> - Thời lượng: `{duration}`",
-      "title": "Hàng chờ",
-      "page_info": "Trang {index} của {total}"
-    },
-    "remove": {
-      "description": "Xóa một bài hát khỏi hàng chờ",
-      "options": {
-        "song": "Số bài hát bạn muốn xóa"
-      },
-      "errors": {
-        "no_songs": "Không có bài hát nào trong hàng chờ.",
-        "invalid_number": "Vui lòng cung cấp một số hợp lệ."
-      },
-      "messages": {
-        "removed": "Đã xóa bài hát số {songNumber} khỏi hàng chờ."
-      }
-    },
-    "replay": {
-      "description": "Phát lại bài hát hiện tại",
-      "errors": {
-        "not_seekable": "Không thể phát lại bài hát này vì không thể tìm kiếm được."
-      },
-      "messages": {
-        "replaying": "Đang phát lại bài hát hiện tại."
-      }
-    },
-    "resume": {
-      "description": "Tiếp tục phát bài hát hiện tại",
-      "errors": {
-        "not_paused": "Trình phát không bị tạm dừng."
-      },
-      "messages": {
-        "resumed": "Trình phát đã được tiếp tục."
-      }
-    },
-    "search": {
-      "description": "Tìm kiếm một bài hát",
-      "options": {
-        "song": "Bài hát bạn muốn tìm kiếm"
-      },
-      "errors": {
-        "no_results": "Không tìm thấy kết quả.",
-        "search_error": "Đã xảy ra lỗi khi tìm kiếm."
-      },
-      "messages": {
-        "added_to_queue": "Đã thêm [{title}]({uri}) vào hàng chờ."
-      }
-    },
-    "seek": {
-      "description": "Tìm đến một thời điểm nhất định trong bài hát",
-      "options": {
-        "duration": "Thời gian bạn muốn tìm đến"
-      },
-      "errors": {
-        "invalid_format": "Định dạng thời gian không hợp lệ. Ví dụ: seek 1m, seek 1h 30m",
-        "not_seekable": "Không thể tìm kiếm bài hát này.",
-        "beyond_duration": "Không thể tìm kiếm vượt quá thời lượng bài hát {length}."
-      },
-      "messages": {
-        "seeked_to": "Đã tìm đến {duration}"
-      }
-    },
-    "shuffle": {
-      "description": "Trộn hàng chờ",
-      "messages": {
-        "shuffled": "Hàng chờ đã được trộn."
-      }
-    },
-    "skip": {
-      "description": "Bỏ qua bài hát hiện tại",
-      "messages": {
-        "skipped": "Đã bỏ qua [{title}]({uri})."
-      }
-    },
-    "skipto": {
-      "description": "Bỏ qua đến một bài hát cụ thể trong hàng chờ",
-      "options": {
-        "number": "Số của bài hát bạn muốn bỏ qua đến"
-      },
-      "errors": {
-        "invalid_number": "Vui lòng cung cấp một số hợp lệ."
-      },
-      "messages": {
-        "skipped_to": "Đã bỏ qua đến bài hát số {number}."
-      }
-    },
-    "stop": {
-      "description": "Dừng nhạc và xóa hàng chờ",
-      "messages": {
-        "stopped": "Đã dừng nhạc và xóa hàng chờ."
-      }
-    },
-    "volume": {
-      "description": "Đặt âm lượng của trình phát",
-      "options": {
-        "number": "Âm lượng bạn muốn đặt"
-      },
-      "messages": {
-        "invalid_number": "Vui lòng cung cấp một số hợp lệ.",
-        "too_low": "Âm lượng không thể thấp hơn 0.",
-        "too_high": "Âm lượng không thể cao hơn 200. Bạn có muốn làm hỏng tai hoặc loa của mình không? Hmmm, tôi không nghĩ đó là một ý kiến hay.",
-        "set": "Âm lượng đã được đặt thành {volume}"
-      }
-    },
-    "addsong": {
-      "description": "Thêm một bài hát vào danh sách phát",
-      "options": {
-        "playlist": "Danh sách phát bạn muốn thêm",
-        "song": "Bài hát bạn muốn thêm"
-      },
-      "messages": {
-        "no_playlist": "Vui lòng cung cấp một danh sách phát",
-        "no_song": "Vui lòng cung cấp một bài hát",
-        "playlist_not_found": "Danh sách phát đó không tồn tại",
-        "no_songs_found": "Không tìm thấy bài hát nào",
-        "added": "Đã thêm {count} bài hát vào {playlist}"
-      }
-    },
-    "create": {
-      "description": "Tạo một danh sách phát",
-      "options": {
-        "name": "Tên của danh sách phát"
-      },
-      "messages": {
-        "name_too_long": "Tên danh sách phát chỉ có thể dài 50 ký tự.",
-        "playlist_exists": "Danh sách phát với tên đó đã tồn tại. Vui lòng sử dụng tên khác.",
-        "playlist_created": "Danh sách phát **{name}** đã được tạo."
-      }
-    },
-    "delete": {
-      "description": "Xóa một danh sách phát",
-      "options": {
-        "playlist": "Danh sách phát bạn muốn xóa"
-      },
-      "messages": {
-        "playlist_not_found": "Danh sách phát đó không tồn tại.",
-        "playlist_deleted": "Đã xóa danh sách phát **{playlistName}**."
-      }
-    },
-    "list": {
-      "description": "Lấy tất cả danh sách phát của người dùng",
-      "options": {
-        "user": "Người dùng mà bạn muốn lấy danh sách phát"
-      },
-      "messages": {
-        "no_playlists": "Người dùng này không có danh sách phát nào.",
-        "your": "Danh sách phát của bạn",
-        "playlists_title": "Danh sách phát của {username}",
-        "error": "Đã xảy ra lỗi khi lấy danh sách phát."
-      }
-    },
-    "load": {
-      "description": "Tải một danh sách phát",
-      "options": {
-        "playlist": "Danh sách phát bạn muốn tải"
-      },
-      "messages": {
-        "playlist_not_exist": "Danh sách phát đó không tồn tại.",
-        "playlist_empty": "Danh sách phát đó trống.",
-        "playlist_loaded": "Đã tải `{name}` với `{count}` bài hát."
-      }
-    },
-    "removesong": {
-      "description": "Xóa một bài hát khỏi danh sách phát",
-      "options": {
-        "playlist": "Danh sách phát bạn muốn xóa khỏi",
-        "song": "Bài hát bạn muốn xóa"
-      },
-      "messages": {
-        "provide_playlist": "Vui lòng cung cấp một danh sách phát.",
-        "provide_song": "Vui lòng cung cấp một bài hát.",
-        "playlist_not_exist": "Danh sách phát đó không tồn tại.",
-        "song_not_found": "Không tìm thấy bài hát phù hợp.",
-        "song_removed": "Đã xóa {song} khỏi {playlist}.",
-        "error_occurred": "Đã xảy ra lỗi khi xóa bài hát."
-      }
-    },
-    "steal": {
-      "description": "Đánh cắp một danh sách phát từ người dùng khác và thêm vào danh sách phát của bạn",
-      "options": {
-        "playlist": "Danh sách phát bạn muốn đánh cắp",
-        "user": "Người dùng mà bạn muốn đánh cắp danh sách phát"
-      },
-      "messages": {
-        "provide_playlist": "Vui lòng cung cấp tên danh sách phát.",
-        "provide_user": "Vui lòng nhắc đến một người dùng.",
-        "playlist_not_exist": "Danh sách phát đó không tồn tại cho người dùng được đề cập.",
-        "playlist_stolen": "Đã đánh cắp danh sách phát `{playlist}` từ {user} thành công.",
-        "error_occurred": "Đã xảy ra lỗi khi đánh cắp danh sách phát."
-      }
-    },
-    "lyrics": {
-      "description": "Get's the lyrics of the currently playing track"
-    },
-    "vplay": {
-      "description": "Stream de vídeo no canal de voz.",
-      "options": {
-        "url": "O link do vídeo que você deseja tocar"
-      }
-    },
-    "mlist": {
-      "description": "Lista os downloads de videos"
-    },
-    "mplay": {
-      "description": "cmd.mplay.description",
-      "options": {
-        "movie": "cmd.mplay.options.movie",
-        "audioTrack": "cmd.mplay.options.audioTrack"
-      }
-    },
-    "msearch": {
-      "description": "Procura por filmes ou animes",
-      "options": {
-        "search": "cmd.msearch.options.search"
-      }
-    },
-    "mstop": {
-      "description": "cmd.mstop.description"
-    },
-    "mpause": {
-      "description": "cmd.mpause.description"
-    },
-    "mresume": {
-      "description": "cmd.mresume.description"
-    },
-    "code": {
-      "description": "cmd.code.description"
-    },
-    "model": {
-      "description": "cmd.model.description"
-    },
-    "reason": {
-      "description": "cmd.reason.description"
-    },
-    "stream": {
-      "description": "cmd.stream.description"
-    }
-  },
-  "buttons": {
-    "invite": "Mời",
-    "support": "Máy chủ hỗ trợ",
-    "previous": "Trước",
-    "resume": "Tiếp tục",
-    "stop": "Dừng",
-    "skip": "Bỏ qua",
-    "loop": "Lặp lại",
-    "errors": {
-      "not_author": "Bạn không thể sử dụng nút này."
-    }
-  },
-  "player": {
-    "errors": {
-      "no_player": "Không có player hoạt động trong guild này.",
-      "no_channel": "Bạn cần phải ở trong một kênh thoại để sử dụng lệnh này.",
-      "queue_empty": "Danh sách phát đang trống.",
-      "no_previous": "Không có bài hát trước trong danh sách phát.",
-      "no_song": "Không có bài hát nào trong danh sách phát.",
-      "already_paused": "Bài hát đã được tạm dừng rồi."
-    },
-    "trackStart": {
-      "now_playing": "Đang phát",
-      "requested_by": "Yêu cầu bởi {user}",
-      "duration": "Thời gian",
-      "author": "Tác giả",
-      "not_connected_to_voice_channel": "Bạn không kết nối với <#{channel}> để sử dụng các nút này.",
-      "need_dj_role": "Bạn cần có vai trò DJ để sử dụng lệnh này.",
-      "previous_by": "Trước đó bởi {user}",
-      "no_previous_song": "Không có bài hát trước.",
-      "paused_by": "Tạm dừng bởi {user}",
-      "resumed_by": "Tiếp tục bởi {user}",
-      "skipped_by": "Bỏ qua bởi {user}",
-      "no_more_songs_in_queue": "Không còn bài hát nào trong danh sách phát.",
-      "looping_by": "Lặp lại bởi {user}",
-      "looping_queue_by": "Lặp lại danh sách phát bởi {user}",
-      "looping_off_by": "Tắt lặp lại bởi {user}"
-    },
-    "setupStart": {
-      "now_playing": "Đang phát",
-      "description": "[{title}]({uri}) của {author} • `[{length}]` - Yêu cầu bởi <@{requester}>",
-      "error_searching": "Đã xảy ra lỗi khi tìm kiếm.",
-      "no_results": "Không tìm thấy kết quả.",
-      "nothing_playing": "Hiện tại không có gì đang phát.",
-      "queue_too_long": "Danh sách phát quá dài. Độ dài tối đa là {maxQueueSize} bài hát.",
-      "playlist_too_long": "Danh sách phát quá dài. Độ dài tối đa là {maxPlaylistSize} bài hát.",
-      "added_to_queue": "Đã thêm [{title}]({uri}) vào danh sách phát.",
-      "added_playlist_to_queue": "Đã thêm [{length}] bài hát từ danh sách phát vào danh sách phát."
-    }
-  },
-  "event": {
-    "interaction": {
-      "setup_channel": "Bạn không thể sử dụng lệnh này trong kênh thiết lập.",
-      "no_send_message": "Tôi không có quyền **`SendMessage`** trong `{guild}`\nKênh: {channel}.",
-      "no_embed_links": "Tôi không có quyền **`EmbedLinks`**.",
-      "no_permission": "Tôi không có đủ quyền để thực hiện lệnh này.",
-      "no_user_permission": "Bạn không có đủ quyền để sử dụng lệnh này.",
-      "no_voice_channel": "Bạn phải kết nối với một kênh thoại để sử dụng lệnh `{command}` này.",
-      "no_connect_permission": "Tôi không có quyền `CONNECT` để thực hiện lệnh `{command}` này.",
-      "no_speak_permission": "Tôi không có quyền `SPEAK` để thực hiện lệnh `{command}` này.",
-      "no_request_to_speak": "Tôi không có quyền `REQUEST TO SPEAK` để thực hiện lệnh `{command}` này.",
-      "different_voice_channel": "Bạn không kết nối với {channel} để sử dụng lệnh `{command}` này.",
-      "no_music_playing": "Hiện tại không có gì đang phát.",
-      "no_dj_role": "Vai trò DJ chưa được thiết lập.",
-      "no_dj_permission": "Bạn cần có vai trò DJ để sử dụng lệnh này.",
-      "cooldown": "Vui lòng đợi {time} giây nữa trước khi sử dụng lệnh `{command}` này.",
-      "error": "Đã xảy ra lỗi: `{error}`"
-    },
-    "message": {
-      "prefix_mention": "Chào, tiền tố của tôi cho máy chủ này là `{prefix}`. Muốn biết thêm thông tin? thì hãy dùng `{prefix}help`\nHãy an toàn, hãy tuyệt vời!",
-      "no_send_message": "Tôi không có quyền **`SendMessage`** trong `{guild}`\nKênh: {channel}.",
-      "no_embed_links": "Tôi không có quyền **`EmbedLinks`**.",
-      "no_permission": "Tôi không có đủ quyền để thực hiện lệnh này.",
-      "no_user_permission": "Bạn không có đủ quyền để sử dụng lệnh này.",
-      "no_voice_channel": "Bạn phải kết nối với một kênh thoại để sử dụng lệnh `{command}` này.",
-      "no_connect_permission": "Tôi không có quyền `CONNECT` để thực hiện lệnh `{command}` này.",
-      "no_speak_permission": "Tôi không có quyền `SPEAK` để thực hiện lệnh `{command}` này.",
-      "no_request_to_speak": "Tôi không có quyền `REQUEST TO SPEAK` để thực hiện lệnh `{command}` này.",
-      "different_voice_channel": "Bạn không kết nối với {channel} để sử dụng lệnh `{command}` này.",
-      "no_music_playing": "Hiện tại không có gì đang phát.",
-      "no_dj_role": "Vai trò DJ chưa được thiết lập.",
-      "no_dj_permission": "Bạn cần có vai trò DJ để sử dụng lệnh này.",
-      "missing_arguments": "Thiếu đối số",
-      "missing_arguments_description": "Vui lòng cung cấp các đối số cần thiết cho lệnh `{command}`.\n\nVí dụ:\n{examples}",
-      "syntax_footer": "Cú pháp: [] = tùy chọn, <> = bắt buộc",
-      "cooldown": "Vui lòng đợi {time} giây nữa trước khi sử dụng lệnh `{command}` này.",
-      "no_mention_everyone": "Bạn không thể sử dụng lệnh này với everyone hoặc here. Vui lòng sử dụng lệnh slash.",
-      "error": "Đã xảy ra lỗi: `{error}`",
-      "no_voice_channel_queue": "Bạn không kết nối với kênh thoại để xếp hàng bài hát.",
-      "no_permission_connect_speak": "Tôi không có đủ quyền để kết nối/nói trong <#{channel}>.",
-      "different_voice_channel_queue": "Bạn không kết nối với <#{channel}> để xếp hàng bài hát."
-    },
-    "setupButton": {
-      "no_voice_channel_button": "Bạn không kết nối với kênh thoại để sử dụng nút này.",
-      "different_voice_channel_button": "Bạn không kết nối với {channel} để sử dụng các nút này.",
-      "now_playing": "Đang phát",
-      "live": "LIVE",
-      "requested_by": "Yêu cầu bởi <@{requester}>",
-      "no_dj_permission": "Bạn cần có vai trò DJ để sử dụng nút này.",
-      "volume_set": "Âm lượng đã được đặt thành {vol}%",
-      "volume_footer": "Âm lượng: {vol}%",
-      "paused": "Tạm dừng",
-      "resumed": "Tiếp tục",
-      "pause_resume": "{name} nhạc.",
-      "pause_resume_footer": "{name} bởi {displayName}",
-      "no_music_to_skip": "Không có nhạc để bỏ qua.",
-      "skipped": "Đã bỏ qua nhạc.",
-      "skipped_footer": "Bỏ qua bởi {displayName}",
-      "stopped": "Đã dừng nhạc.",
-      "stopped_footer": "Dừng bởi {displayName}",
-      "nothing_playing": "Hiện tại không có gì đang phát.",
-      "loop_set": "Lặp lại đã được đặt thành {loop}.",
-      "loop_footer": "Lặp lại đã được đặt thành {loop} bởi {displayName}",
-      "shuffled": "Đã xáo trộn danh sách phát.",
-      "no_previous_track": "Không có bài hát trước.",
-      "playing_previous": "Đang phát bài hát trước.",
-      "previous_footer": "Đang phát bài hát trước bởi {displayName}",
-      "rewinded": "Đã quay lại nhạc.",
-      "rewind_footer": "Quay lại bởi {displayName}",
-      "forward_limit": "Bạn không thể tiến tới nhạc nhiều hơn độ dài của bài hát.",
-      "forwarded": "Đã tiến tới nhạc.",
-      "forward_footer": "Tiến tới bởi {displayName}",
-      "button_not_available": "Nút này không có sẵn.",
-      "no_music_playing": "Không có nhạc nào đang phát trong máy chủ này."
-    }
-  },
-  "Evaluate code": "Đánh giá mã",
-  "Leave a guild": "Rời khỏi một guild",
-  "List all guilds the bot is in": "Danh sách tất cả guild mà bot đang ở",
-  "Restart the bot": "Khởi động lại bot",
-  "Stream de vídeo no canal de voz.": "Stream de vídeo no canal de voz.",
-  "Chat inteligente com IA da NVIDIA - análise de código, geração e muito mais!": "Chat inteligente com IA da NVIDIA - análise de código, geração e muito mais!",
-  "Modo de operação da IA": "Modo de operação da IA",
-  "Sua mensagem ou pergunta": "Sua mensagem ou pergunta",
-  "Linguagem de programação (para modos de código)": "Linguagem de programação (para modos de código)",
-  "Ferramentas avançadas de IA para análise, tradução, documentação e mais!": "Ferramentas avançadas de IA para análise, tradução, documentação e mais!",
-  "Escolha uma ferramenta": "Escolha uma ferramenta",
-  "Texto ou código para processar": "Texto ou código para processar",
-  "Análise inteligente de imagens com IA - descreva, analise e extraia informações!": "Análise inteligente de imagens com IA - descreva, analise e extraia informações!",
-  "Modo de análise": "Modo de análise",
-  "Pergunta específica sobre a imagem": "Pergunta específica sobre a imagem",
-  "Configura o comportamento da IA da Mahina": "Configura o comportamento da IA da Mahina",
-  "Ação a ser executada": "Ação a ser executada",
-  "🍁 Descubra seu animal espiritual do World of Warcraft através de análise de personalidade com IA": "🍁 Descubra seu animal espiritual do World of Warcraft através de análise de personalidade com IA",
-  "👤 O usuário que você deseja analisar": "👤 O usuário que você deseja analisar",
-  "Explain code in detail": "Explain code in detail",
-  "Review code and suggest improvements": "Review code and suggest improvements",
-  "Optimize code for better performance": "Optimize code for better performance",
-  "Debug code and identify issues": "Debug code and identify issues",
-  "Programming language": "Programming language",
-  "The code to explain": "The code to explain",
-  "The code to review": "The code to review",
-  "The code to optimize": "The code to optimize",
-  "The code to debug": "The code to debug",
-  "List all available AI models": "List all available AI models",
-  "Select an AI model": "Select an AI model",
-  "Get information about a specific model": "Get information about a specific model",
-  "Show your current AI model": "Show your current AI model",
-  "The model to select": "The model to select",
-  "The model to get info about": "The model to get info about",
-  "The problem or question to analyze": "The problem or question to analyze",
-  "Additional context for the problem": "Additional context for the problem",
-  "Your message for streaming AI response": "Your message for streaming AI response",
-  "Advanced AI chat with context, memory, and personality": "Advanced AI chat with context, memory, and personality",
-  "Your message to Mahina AI": "Your message to Mahina AI",
-  "Choose AI personality": "Choose AI personality",
-  "Conversation mode": "Conversation mode",
-  "Private response (only you can see)": "Private response (only you can see)",
-  "Manage proactive interaction settings": "Manage proactive interaction settings",
-  "Show proactive interaction statistics": "Show proactive interaction statistics",
-  "Test proactive interaction in current channel": "Test proactive interaction in current channel",
-  "Force proactive interaction check": "Force proactive interaction check",
-  "Check AI services status and statistics": "Check AI services status and statistics",
-  "Verificar status e estatísticas dos serviços de IA": "Verificar status e estatísticas dos serviços de IA",
-  "Chat avançado com IA": " contexto, memória e personalidade",
-  "Sua mensagem para a Mahina AI": "Sua mensagem para a Mahina AI",
-  "Escolha a personalidade da IA": "Escolha a personalidade da IA",
-  "Modo de conversa": "Modo de conversa",
-  "Resposta privada (apenas você pode ver)": "Resposta privada (apenas você pode ver)"
+	"cmd": {
+		"247": {
+			"description": "Đặt bot ở lại trong kênh thoại",
+			"errors": {
+				"not_in_voice": "Bạn cần phải ở trong một kênh thoại để sử dụng lệnh này.",
+				"generic": "Đã xảy ra lỗi khi cố gắng thực thi lệnh này."
+			},
+			"messages": {
+				"disabled": "`✅` | Chế độ 24/7 đã được `TẮT`",
+				"enabled": "`✅` | Chế độ 24/7 đã được `BẬT`. \n**Bot sẽ không rời khỏi kênh thoại ngay cả khi không có người trong kênh thoại.**"
+			}
+		},
+		"ping": {
+			"description": "Hiển thị độ trễ của bot.",
+			"content": "Đang kiểm tra độ trễ...",
+			"bot_latency": "Độ trễ của Bot",
+			"api_latency": "Độ trễ của API",
+			"requested_by": "Yêu cầu bởi {author}"
+		},
+		"lavalink": {
+			"description": "Hiển thị thông tin hiện tại của Lavalink.",
+			"title": "Thông tin Lavalink",
+			"content": "Trình phát: {players}\nTrình phát đang hoạt động: {playingPlayers}\nThời gian hoạt động: {uptime}\nSố lõi: {cores} Lõi\nSử dụng bộ nhớ: {used} / {reservable}\nTải hệ thống: {systemLoad}%\nTải Lavalink: {lavalinkLoad}%"
+		},
+		"invite": {
+			"description": "Nhận liên kết mời bot.",
+			"content": "Bạn có thể mời tôi bằng cách nhấp vào nút dưới đây. Có lỗi hoặc sự cố? Tham gia máy chủ hỗ trợ!"
+		},
+		"help": {
+			"description": "Hiển thị menu trợ giúp.",
+			"options": {
+				"command": "Lệnh bạn muốn xem thông tin"
+			},
+			"content": "Chào bạn! Tôi là {bot}, một bot phát nhạc được tạo bởi [MahinaBot](https://github.com/gabrielmaialva33/mahina-bot) và Discord. Bạn có thể sử dụng `{prefix}help <command>` để biết thêm thông tin về lệnh.",
+			"title": "Menu trợ giúp",
+			"not_found": "Lệnh `{cmdName}` này không tồn tại.",
+			"help_cmd": "**Mô tả:** {description}\n**Cách sử dụng:** {usage}\n**Ví dụ:** {examples}\n**Biệt danh:** {aliases}\n**Danh mục:** {category}\n**Thời gian chờ:** {cooldown} giây\n**Quyền:** {premUser}\n**Quyền của bot:** {premBot}\n**Chỉ dành cho nhà phát triển:** {dev}\n**Lệnh Slash:** {slash}\n**Tham số:** {args}\n**Trình phát:** {player}\n**DJ:** {dj}\n**Quyền của DJ:** {djPerm}\n**Giọng nói:** {voice}",
+			"footer": "Sử dụng {prefix}help <command> để biết thêm thông tin về lệnh"
+		},
+		"botinfo": {
+			"description": "Thông tin về bot",
+			"content": "Thông tin bot:\n- **Hệ điều hành**: {osInfo}\n- **Thời gian hoạt động**: {osUptime}\n- **Tên máy chủ**: {osHostname}\n- **Kiến trúc CPU**: {cpuInfo}\n- **Sử dụng CPU**: {cpuUsed}%\n- **Sử dụng bộ nhớ**: {memUsed}MB / {memTotal}GB\n- **Phiên bản Node**: {nodeVersion}\n- **Phiên bản Discord**: {discordJsVersion}\n- **Kết nối với** {guilds} máy chủ, {channels} kênh, và {users} người dùng\n- **Tổng số lệnh**: {commands}"
+		},
+		"about": {
+			"description": "Hiển thị thông tin về bot",
+			"fields": {
+				"creator": "Người tạo",
+				"repository": "Kho lưu trữ",
+				"support": "Hỗ trợ",
+				"description": "Anh ấy thực sự muốn tạo dự án mã nguồn mở đầu tiên của mình để có thêm kinh nghiệm lập trình. Trong dự án này, anh ấy đã thách thức bản thân để tạo ra một dự án với ít lỗi hơn. Hy vọng bạn thích sử dụng MahinaBot!"
+			}
+		},
+		"dj": {
+			"description": "Quản lý chế độ DJ và các vai trò liên quan",
+			"errors": {
+				"provide_role": "Vui lòng cung cấp một vai trò.",
+				"no_roles": "Vai trò DJ rỗng.",
+				"invalid_subcommand": "Vui lòng cung cấp một lệnh phụ hợp lệ."
+			},
+			"messages": {
+				"role_exists": "Vai trò DJ <@&{roleId}> đã được thêm.",
+				"role_added": "Vai trò DJ <@&{roleId}> đã được thêm.",
+				"role_not_found": "Vai trò DJ <@&{roleId}> chưa được thêm.",
+				"role_removed": "Vai trò DJ <@&{roleId}> đã được xóa.",
+				"all_roles_cleared": "Tất cả vai trò DJ đã được xóa.",
+				"toggle": "Chế độ DJ đã được chuyển sang {status}."
+			},
+			"options": {
+				"add": "Vai trò DJ bạn muốn thêm",
+				"remove": "Vai trò DJ bạn muốn xóa",
+				"clear": "Xóa tất cả các vai trò DJ",
+				"toggle": "Chuyển đổi chế độ DJ",
+				"role": "Vai trò DJ"
+			},
+			"subcommands": "Lệnh phụ"
+		},
+		"language": {
+			"description": "Đặt ngôn ngữ cho bot",
+			"invalid_language": "Vui lòng cung cấp một ngôn ngữ hợp lệ. Ví dụ: `EnglishUS` cho tiếng Anh (Hoa Kỳ)\n\nBạn có thể tìm danh sách các ngôn ngữ được hỗ trợ [tại đây](https://discord.com/developers/docs/reference#locales)\n\n**Ngôn ngữ có sẵn:**\n{languages}",
+			"already_set": "Ngôn ngữ đã được đặt thành `{language}`",
+			"not_set": "Ngôn ngữ chưa được đặt.",
+			"set": "`✅` | Ngôn ngữ đã được đặt thành `{language}`",
+			"reset": "`✅` | Ngôn ngữ đã được đặt lại về ngôn ngữ mặc định.",
+			"options": {
+				"set": "Đặt ngôn ngữ cho bot",
+				"language": "Ngôn ngữ bạn muốn đặt",
+				"reset": "Đặt lại ngôn ngữ về ngôn ngữ mặc định"
+			}
+		},
+		"prefix": {
+			"description": "Hiển thị hoặc đặt tiền tố của bot",
+			"errors": {
+				"prefix_too_long": "Tiền tố không được dài hơn 3 ký tự."
+			},
+			"messages": {
+				"current_prefix": "Tiền tố cho máy chủ này là `{prefix}`",
+				"prefix_set": "Tiền tố cho máy chủ này bây giờ là `{prefix}`",
+				"prefix_reset": "Tiền tố cho máy chủ này bây giờ là `{prefix}`"
+			},
+			"options": {
+				"set": "Đặt tiền tố",
+				"prefix": "Tiền tố bạn muốn đặt",
+				"reset": "Đặt lại tiền tố về mặc định"
+			}
+		},
+		"setup": {
+			"description": "Thiết lập bot",
+			"errors": {
+				"channel_exists": "Kênh yêu cầu bài hát đã tồn tại.",
+				"channel_not_exists": "Kênh yêu cầu bài hát không tồn tại.",
+				"channel_delete_fail": "Kênh yêu cầu bài hát đã bị xóa. Nếu kênh không bị xóa bình thường, vui lòng tự xóa nó."
+			},
+			"messages": {
+				"channel_created": "Kênh yêu cầu bài hát đã được tạo trong <#{channelId}>.",
+				"channel_deleted": "Kênh yêu cầu bài hát đã bị xóa.",
+				"channel_info": "Kênh yêu cầu bài hát là <#{channelId}>."
+			},
+			"options": {
+				"create": "Tạo kênh yêu cầu bài hát",
+				"delete": "Xóa kênh yêu cầu bài hát",
+				"info": "Hiển thị kênh yêu cầu bài hát"
+			}
+		},
+		"8d": {
+			"description": "bật/tắt bộ lọc 8d",
+			"messages": {
+				"filter_enabled": "`✅` | Bộ lọc 8D đã được `BẬT`.",
+				"filter_disabled": "`✅` | Bộ lọc 8D đã được `TẮT`."
+			}
+		},
+		"bassboost": {
+			"description": "bật/tắt bộ lọc bassboost",
+			"messages": {
+				"filter_enabled": "`✅` | Bộ lọc Bassboost đã được `BẬT`. \n**Cẩn thận, nghe quá to có thể gây hại cho thính giác của bạn!**",
+				"filter_disabled": "`✅` | Bộ lọc Bassboost đã được `TẮT`."
+			},
+			"options": {
+				"level": "The bassboost level you want to set"
+			}
+		},
+		"distortion": {
+			"description": "Bật/tắt bộ lọc distortion",
+			"messages": {
+				"filter_enabled": "`✅` | Bộ lọc Distortion đã được `BẬT`.",
+				"filter_disabled": "`✅` | Bộ lọc Distortion đã được `TẮT`."
+			}
+		},
+		"karaoke": {
+			"description": "Bật/tắt bộ lọc karaoke",
+			"messages": {
+				"filter_enabled": "`✅` | Bộ lọc Karaoke đã được `BẬT`.",
+				"filter_disabled": "`✅` | Bộ lọc Karaoke đã được `TẮT`."
+			}
+		},
+		"lowpass": {
+			"description": "Bật/tắt bộ lọc lowpass",
+			"messages": {
+				"filter_enabled": "`✅` | Bộ lọc Lowpass đã được `BẬT`.",
+				"filter_disabled": "`✅` | Bộ lọc Lowpass đã được `TẮT`."
+			}
+		},
+		"nightcore": {
+			"description": "Bật/tắt bộ lọc nightcore",
+			"messages": {
+				"filter_enabled": "`✅` | Bộ lọc Nightcore đã được `BẬT`.",
+				"filter_disabled": "`✅` | Bộ lọc Nightcore đã được `TẮT`."
+			}
+		},
+		"pitch": {
+			"description": "Bật/tắt bộ lọc pitch",
+			"options": {
+				"pitch": "Số bạn muốn đặt độ cao (giữa 0.5 và 5)"
+			},
+			"errors": {
+				"invalid_number": "Vui lòng cung cấp một số hợp lệ giữa 0.5 và 5."
+			},
+			"messages": {
+				"pitch_set": "`✅` | Độ cao đã được đặt thành **{pitch}**."
+			}
+		},
+		"rate": {
+			"description": "Thay đổi tốc độ của bài hát",
+			"options": {
+				"rate": "Số bạn muốn đặt tốc độ (giữa 0.5 và 5)"
+			},
+			"errors": {
+				"invalid_number": "Vui lòng cung cấp một số hợp lệ giữa 0.5 và 5."
+			},
+			"messages": {
+				"rate_set": "`✅` | Tốc độ đã được đặt thành **{rate}**."
+			}
+		},
+		"reset": {
+			"description": "Đặt lại các bộ lọc đang hoạt động",
+			"messages": {
+				"filters_reset": "`✅` | Các bộ lọc đã được đặt lại."
+			}
+		},
+		"rotation": {
+			"description": "Bật/tắt bộ lọc rotation",
+			"messages": {
+				"enabled": "`✅` | Bộ lọc Rotation đã được `BẬT`.",
+				"disabled": "`✅` | Bộ lọc Rotation đã được `TẮT`."
+			}
+		},
+		"speed": {
+			"description": "Thay đổi tốc độ của bài hát",
+			"options": {
+				"speed": "Tốc độ bạn muốn đặt"
+			},
+			"messages": {
+				"invalid_number": "Vui lòng cung cấp một số hợp lệ giữa 0.5 và 5.",
+				"set_speed": "`✅` | Tốc độ đã được đặt thành **{speed}**."
+			}
+		},
+		"tremolo": {
+			"description": "Bật/tắt bộ lọc tremolo",
+			"messages": {
+				"enabled": "`✅` | Bộ lọc Tremolo đã được `BẬT`.",
+				"disabled": "`✅` | Bộ lọc Tremolo đã được `TẮT`."
+			}
+		},
+		"vibrato": {
+			"description": "Bật/tắt bộ lọc vibrato",
+			"messages": {
+				"enabled": "`✅` | Bộ lọc Vibrato đã được `BẬT`.",
+				"disabled": "`✅` | Bộ lọc Vibrato đã được `TẮT`."
+			}
+		},
+		"autoplay": {
+			"description": "Bật/tắt chế độ tự động phát",
+			"messages": {
+				"enabled": "`✅` | Chế độ tự động phát đã được `BẬT`.",
+				"disabled": "`✅` | Chế độ tự động phát đã được `TẮT`."
+			}
+		},
+		"clearqueue": {
+			"description": "Xóa hàng chờ",
+			"messages": {
+				"cleared": "Hàng chờ đã được xóa."
+			}
+		},
+		"grab": {
+			"description": "Lấy bài hát đang phát hiện tại vào tin nhắn trực tiếp của bạn",
+			"content": "**Thời lượng:** {length}\n**Yêu cầu bởi:** <@{requester}>\n**Liên kết:** [Nhấp vào đây]({uri})",
+			"check_dm": "Vui lòng kiểm tra tin nhắn trực tiếp của bạn.",
+			"dm_failed": "Tôi không thể gửi tin nhắn trực tiếp cho bạn. Vui lòng đảm bảo rằng tin nhắn trực tiếp đã được bật."
+		},
+		"join": {
+			"description": "Tham gia kênh thoại",
+			"already_connected": "Tôi đã kết nối với <#{channelId}>.",
+			"no_voice_channel": "Bạn cần phải ở trong một kênh thoại để sử dụng lệnh này.",
+			"joined": "Đã tham gia thành công <#{channelId}>."
+		},
+		"leave": {
+			"description": "Rời khỏi kênh thoại",
+			"left": "Đã rời khỏi <#{channelId}> thành công.",
+			"not_in_channel": "Tôi không có trong kênh thoại."
+		},
+		"loop": {
+			"description": "Lặp lại bài hát hiện tại hoặc hàng chờ",
+			"looping_song": "**Đang lặp lại bài hát.**",
+			"looping_queue": "**Đang lặp lại hàng chờ.**",
+			"looping_off": "**Đã tắt chế độ lặp lại.**"
+		},
+		"nowplaying": {
+			"description": "Hiển thị bài hát đang phát hiện tại",
+			"now_playing": "Đang phát",
+			"track_info": "[{title}]({uri}) - Yêu cầu bởi: <@{requester}>\n\n`{bar}`"
+		},
+		"pause": {
+			"description": "Tạm dừng bài hát hiện tại",
+			"successfully_paused": "Đã tạm dừng bài hát thành công."
+		},
+		"play": {
+			"description": "Phát một bài hát từ YouTube, Spotify hoặc http",
+			"options": {
+				"song": "Bài hát bạn muốn phát"
+			},
+			"loading": "Đang tải...",
+			"errors": {
+				"search_error": "Đã xảy ra lỗi khi tìm kiếm.",
+				"no_results": "Không tìm thấy kết quả.",
+				"queue_too_long": "Hàng chờ quá dài. Độ dài tối đa là {maxQueueSize} bài hát.",
+				"playlist_too_long": "Danh sách phát quá dài. Độ dài tối đa là {maxPlaylistSize} bài hát."
+			},
+			"added_to_queue": "Đã thêm [{title}]({uri}) vào hàng chờ.",
+			"added_playlist_to_queue": "Đã thêm {length} bài hát vào hàng chờ."
+		},
+		"playnext": {
+			"description": "Thêm bài hát để phát tiếp theo trong hàng chờ",
+			"options": {
+				"song": "Bài hát bạn muốn phát"
+			},
+			"loading": "Đang tải...",
+			"errors": {
+				"search_error": "Đã xảy ra lỗi khi tìm kiếm.",
+				"no_results": "Không tìm thấy kết quả.",
+				"queue_too_long": "Hàng chờ quá dài. Độ dài tối đa là {maxQueueSize} bài hát.",
+				"playlist_too_long": "Danh sách phát quá dài. Độ dài tối đa là {maxPlaylistSize} bài hát."
+			},
+			"added_to_play_next": "Đã thêm [{title}]({uri}) để phát tiếp theo trong hàng chờ.",
+			"added_playlist_to_play_next": "Đã thêm {length} bài hát để phát tiếp theo trong hàng chờ."
+		},
+		"queue": {
+			"description": "Hiển thị hàng chờ hiện tại",
+			"now_playing": "Đang phát: [{title}]({uri}) - Yêu cầu bởi: <@{requester}> - Thời lượng: `{duration}`",
+			"live": "TRỰC TIẾP",
+			"track_info": "{index}. [{title}]({uri}) - Yêu cầu bởi: <@{requester}> - Thời lượng: `{duration}`",
+			"title": "Hàng chờ",
+			"page_info": "Trang {index} của {total}"
+		},
+		"remove": {
+			"description": "Xóa một bài hát khỏi hàng chờ",
+			"options": {
+				"song": "Số bài hát bạn muốn xóa"
+			},
+			"errors": {
+				"no_songs": "Không có bài hát nào trong hàng chờ.",
+				"invalid_number": "Vui lòng cung cấp một số hợp lệ."
+			},
+			"messages": {
+				"removed": "Đã xóa bài hát số {songNumber} khỏi hàng chờ."
+			}
+		},
+		"replay": {
+			"description": "Phát lại bài hát hiện tại",
+			"errors": {
+				"not_seekable": "Không thể phát lại bài hát này vì không thể tìm kiếm được."
+			},
+			"messages": {
+				"replaying": "Đang phát lại bài hát hiện tại."
+			}
+		},
+		"resume": {
+			"description": "Tiếp tục phát bài hát hiện tại",
+			"errors": {
+				"not_paused": "Trình phát không bị tạm dừng."
+			},
+			"messages": {
+				"resumed": "Trình phát đã được tiếp tục."
+			}
+		},
+		"search": {
+			"description": "Tìm kiếm một bài hát",
+			"options": {
+				"song": "Bài hát bạn muốn tìm kiếm"
+			},
+			"errors": {
+				"no_results": "Không tìm thấy kết quả.",
+				"search_error": "Đã xảy ra lỗi khi tìm kiếm."
+			},
+			"messages": {
+				"added_to_queue": "Đã thêm [{title}]({uri}) vào hàng chờ."
+			}
+		},
+		"seek": {
+			"description": "Tìm đến một thời điểm nhất định trong bài hát",
+			"options": {
+				"duration": "Thời gian bạn muốn tìm đến"
+			},
+			"errors": {
+				"invalid_format": "Định dạng thời gian không hợp lệ. Ví dụ: seek 1m, seek 1h 30m",
+				"not_seekable": "Không thể tìm kiếm bài hát này.",
+				"beyond_duration": "Không thể tìm kiếm vượt quá thời lượng bài hát {length}."
+			},
+			"messages": {
+				"seeked_to": "Đã tìm đến {duration}"
+			}
+		},
+		"shuffle": {
+			"description": "Trộn hàng chờ",
+			"messages": {
+				"shuffled": "Hàng chờ đã được trộn."
+			}
+		},
+		"skip": {
+			"description": "Bỏ qua bài hát hiện tại",
+			"messages": {
+				"skipped": "Đã bỏ qua [{title}]({uri})."
+			}
+		},
+		"skipto": {
+			"description": "Bỏ qua đến một bài hát cụ thể trong hàng chờ",
+			"options": {
+				"number": "Số của bài hát bạn muốn bỏ qua đến"
+			},
+			"errors": {
+				"invalid_number": "Vui lòng cung cấp một số hợp lệ."
+			},
+			"messages": {
+				"skipped_to": "Đã bỏ qua đến bài hát số {number}."
+			}
+		},
+		"stop": {
+			"description": "Dừng nhạc và xóa hàng chờ",
+			"messages": {
+				"stopped": "Đã dừng nhạc và xóa hàng chờ."
+			}
+		},
+		"volume": {
+			"description": "Đặt âm lượng của trình phát",
+			"options": {
+				"number": "Âm lượng bạn muốn đặt"
+			},
+			"messages": {
+				"invalid_number": "Vui lòng cung cấp một số hợp lệ.",
+				"too_low": "Âm lượng không thể thấp hơn 0.",
+				"too_high": "Âm lượng không thể cao hơn 200. Bạn có muốn làm hỏng tai hoặc loa của mình không? Hmmm, tôi không nghĩ đó là một ý kiến hay.",
+				"set": "Âm lượng đã được đặt thành {volume}"
+			}
+		},
+		"addsong": {
+			"description": "Thêm một bài hát vào danh sách phát",
+			"options": {
+				"playlist": "Danh sách phát bạn muốn thêm",
+				"song": "Bài hát bạn muốn thêm"
+			},
+			"messages": {
+				"no_playlist": "Vui lòng cung cấp một danh sách phát",
+				"no_song": "Vui lòng cung cấp một bài hát",
+				"playlist_not_found": "Danh sách phát đó không tồn tại",
+				"no_songs_found": "Không tìm thấy bài hát nào",
+				"added": "Đã thêm {count} bài hát vào {playlist}"
+			}
+		},
+		"create": {
+			"description": "Tạo một danh sách phát",
+			"options": {
+				"name": "Tên của danh sách phát"
+			},
+			"messages": {
+				"name_too_long": "Tên danh sách phát chỉ có thể dài 50 ký tự.",
+				"playlist_exists": "Danh sách phát với tên đó đã tồn tại. Vui lòng sử dụng tên khác.",
+				"playlist_created": "Danh sách phát **{name}** đã được tạo."
+			}
+		},
+		"delete": {
+			"description": "Xóa một danh sách phát",
+			"options": {
+				"playlist": "Danh sách phát bạn muốn xóa"
+			},
+			"messages": {
+				"playlist_not_found": "Danh sách phát đó không tồn tại.",
+				"playlist_deleted": "Đã xóa danh sách phát **{playlistName}**."
+			}
+		},
+		"list": {
+			"description": "Lấy tất cả danh sách phát của người dùng",
+			"options": {
+				"user": "Người dùng mà bạn muốn lấy danh sách phát"
+			},
+			"messages": {
+				"no_playlists": "Người dùng này không có danh sách phát nào.",
+				"your": "Danh sách phát của bạn",
+				"playlists_title": "Danh sách phát của {username}",
+				"error": "Đã xảy ra lỗi khi lấy danh sách phát."
+			}
+		},
+		"load": {
+			"description": "Tải một danh sách phát",
+			"options": {
+				"playlist": "Danh sách phát bạn muốn tải"
+			},
+			"messages": {
+				"playlist_not_exist": "Danh sách phát đó không tồn tại.",
+				"playlist_empty": "Danh sách phát đó trống.",
+				"playlist_loaded": "Đã tải `{name}` với `{count}` bài hát."
+			}
+		},
+		"removesong": {
+			"description": "Xóa một bài hát khỏi danh sách phát",
+			"options": {
+				"playlist": "Danh sách phát bạn muốn xóa khỏi",
+				"song": "Bài hát bạn muốn xóa"
+			},
+			"messages": {
+				"provide_playlist": "Vui lòng cung cấp một danh sách phát.",
+				"provide_song": "Vui lòng cung cấp một bài hát.",
+				"playlist_not_exist": "Danh sách phát đó không tồn tại.",
+				"song_not_found": "Không tìm thấy bài hát phù hợp.",
+				"song_removed": "Đã xóa {song} khỏi {playlist}.",
+				"error_occurred": "Đã xảy ra lỗi khi xóa bài hát."
+			}
+		},
+		"steal": {
+			"description": "Đánh cắp một danh sách phát từ người dùng khác và thêm vào danh sách phát của bạn",
+			"options": {
+				"playlist": "Danh sách phát bạn muốn đánh cắp",
+				"user": "Người dùng mà bạn muốn đánh cắp danh sách phát"
+			},
+			"messages": {
+				"provide_playlist": "Vui lòng cung cấp tên danh sách phát.",
+				"provide_user": "Vui lòng nhắc đến một người dùng.",
+				"playlist_not_exist": "Danh sách phát đó không tồn tại cho người dùng được đề cập.",
+				"playlist_stolen": "Đã đánh cắp danh sách phát `{playlist}` từ {user} thành công.",
+				"error_occurred": "Đã xảy ra lỗi khi đánh cắp danh sách phát."
+			}
+		},
+		"lyrics": {
+			"description": "Get's the lyrics of the currently playing track"
+		},
+		"vplay": {
+			"description": "Stream de vídeo no canal de voz.",
+			"options": {
+				"url": "O link do vídeo que você deseja tocar"
+			}
+		},
+		"mlist": {
+			"description": "Lista os downloads de videos"
+		},
+		"mplay": {
+			"description": "cmd.mplay.description",
+			"options": {
+				"movie": "cmd.mplay.options.movie",
+				"audioTrack": "cmd.mplay.options.audioTrack"
+			}
+		},
+		"msearch": {
+			"description": "Procura por filmes ou animes",
+			"options": {
+				"search": "cmd.msearch.options.search"
+			}
+		},
+		"mstop": {
+			"description": "cmd.mstop.description"
+		},
+		"mpause": {
+			"description": "cmd.mpause.description"
+		},
+		"mresume": {
+			"description": "cmd.mresume.description"
+		},
+		"code": {
+			"description": "cmd.code.description"
+		},
+		"model": {
+			"description": "cmd.model.description"
+		},
+		"reason": {
+			"description": "cmd.reason.description"
+		},
+		"stream": {
+			"description": "cmd.stream.description"
+		}
+	},
+	"buttons": {
+		"invite": "Mời",
+		"support": "Máy chủ hỗ trợ",
+		"previous": "Trước",
+		"resume": "Tiếp tục",
+		"stop": "Dừng",
+		"skip": "Bỏ qua",
+		"loop": "Lặp lại",
+		"errors": {
+			"not_author": "Bạn không thể sử dụng nút này."
+		}
+	},
+	"player": {
+		"errors": {
+			"no_player": "Không có player hoạt động trong guild này.",
+			"no_channel": "Bạn cần phải ở trong một kênh thoại để sử dụng lệnh này.",
+			"queue_empty": "Danh sách phát đang trống.",
+			"no_previous": "Không có bài hát trước trong danh sách phát.",
+			"no_song": "Không có bài hát nào trong danh sách phát.",
+			"already_paused": "Bài hát đã được tạm dừng rồi."
+		},
+		"trackStart": {
+			"now_playing": "Đang phát",
+			"requested_by": "Yêu cầu bởi {user}",
+			"duration": "Thời gian",
+			"author": "Tác giả",
+			"not_connected_to_voice_channel": "Bạn không kết nối với <#{channel}> để sử dụng các nút này.",
+			"need_dj_role": "Bạn cần có vai trò DJ để sử dụng lệnh này.",
+			"previous_by": "Trước đó bởi {user}",
+			"no_previous_song": "Không có bài hát trước.",
+			"paused_by": "Tạm dừng bởi {user}",
+			"resumed_by": "Tiếp tục bởi {user}",
+			"skipped_by": "Bỏ qua bởi {user}",
+			"no_more_songs_in_queue": "Không còn bài hát nào trong danh sách phát.",
+			"looping_by": "Lặp lại bởi {user}",
+			"looping_queue_by": "Lặp lại danh sách phát bởi {user}",
+			"looping_off_by": "Tắt lặp lại bởi {user}"
+		},
+		"setupStart": {
+			"now_playing": "Đang phát",
+			"description": "[{title}]({uri}) của {author} • `[{length}]` - Yêu cầu bởi <@{requester}>",
+			"error_searching": "Đã xảy ra lỗi khi tìm kiếm.",
+			"no_results": "Không tìm thấy kết quả.",
+			"nothing_playing": "Hiện tại không có gì đang phát.",
+			"queue_too_long": "Danh sách phát quá dài. Độ dài tối đa là {maxQueueSize} bài hát.",
+			"playlist_too_long": "Danh sách phát quá dài. Độ dài tối đa là {maxPlaylistSize} bài hát.",
+			"added_to_queue": "Đã thêm [{title}]({uri}) vào danh sách phát.",
+			"added_playlist_to_queue": "Đã thêm [{length}] bài hát từ danh sách phát vào danh sách phát."
+		}
+	},
+	"event": {
+		"interaction": {
+			"setup_channel": "Bạn không thể sử dụng lệnh này trong kênh thiết lập.",
+			"no_send_message": "Tôi không có quyền **`SendMessage`** trong `{guild}`\nKênh: {channel}.",
+			"no_embed_links": "Tôi không có quyền **`EmbedLinks`**.",
+			"no_permission": "Tôi không có đủ quyền để thực hiện lệnh này.",
+			"no_user_permission": "Bạn không có đủ quyền để sử dụng lệnh này.",
+			"no_voice_channel": "Bạn phải kết nối với một kênh thoại để sử dụng lệnh `{command}` này.",
+			"no_connect_permission": "Tôi không có quyền `CONNECT` để thực hiện lệnh `{command}` này.",
+			"no_speak_permission": "Tôi không có quyền `SPEAK` để thực hiện lệnh `{command}` này.",
+			"no_request_to_speak": "Tôi không có quyền `REQUEST TO SPEAK` để thực hiện lệnh `{command}` này.",
+			"different_voice_channel": "Bạn không kết nối với {channel} để sử dụng lệnh `{command}` này.",
+			"no_music_playing": "Hiện tại không có gì đang phát.",
+			"no_dj_role": "Vai trò DJ chưa được thiết lập.",
+			"no_dj_permission": "Bạn cần có vai trò DJ để sử dụng lệnh này.",
+			"cooldown": "Vui lòng đợi {time} giây nữa trước khi sử dụng lệnh `{command}` này.",
+			"error": "Đã xảy ra lỗi: `{error}`"
+		},
+		"message": {
+			"prefix_mention": "Chào, tiền tố của tôi cho máy chủ này là `{prefix}`. Muốn biết thêm thông tin? thì hãy dùng `{prefix}help`\nHãy an toàn, hãy tuyệt vời!",
+			"no_send_message": "Tôi không có quyền **`SendMessage`** trong `{guild}`\nKênh: {channel}.",
+			"no_embed_links": "Tôi không có quyền **`EmbedLinks`**.",
+			"no_permission": "Tôi không có đủ quyền để thực hiện lệnh này.",
+			"no_user_permission": "Bạn không có đủ quyền để sử dụng lệnh này.",
+			"no_voice_channel": "Bạn phải kết nối với một kênh thoại để sử dụng lệnh `{command}` này.",
+			"no_connect_permission": "Tôi không có quyền `CONNECT` để thực hiện lệnh `{command}` này.",
+			"no_speak_permission": "Tôi không có quyền `SPEAK` để thực hiện lệnh `{command}` này.",
+			"no_request_to_speak": "Tôi không có quyền `REQUEST TO SPEAK` để thực hiện lệnh `{command}` này.",
+			"different_voice_channel": "Bạn không kết nối với {channel} để sử dụng lệnh `{command}` này.",
+			"no_music_playing": "Hiện tại không có gì đang phát.",
+			"no_dj_role": "Vai trò DJ chưa được thiết lập.",
+			"no_dj_permission": "Bạn cần có vai trò DJ để sử dụng lệnh này.",
+			"missing_arguments": "Thiếu đối số",
+			"missing_arguments_description": "Vui lòng cung cấp các đối số cần thiết cho lệnh `{command}`.\n\nVí dụ:\n{examples}",
+			"syntax_footer": "Cú pháp: [] = tùy chọn, <> = bắt buộc",
+			"cooldown": "Vui lòng đợi {time} giây nữa trước khi sử dụng lệnh `{command}` này.",
+			"no_mention_everyone": "Bạn không thể sử dụng lệnh này với everyone hoặc here. Vui lòng sử dụng lệnh slash.",
+			"error": "Đã xảy ra lỗi: `{error}`",
+			"no_voice_channel_queue": "Bạn không kết nối với kênh thoại để xếp hàng bài hát.",
+			"no_permission_connect_speak": "Tôi không có đủ quyền để kết nối/nói trong <#{channel}>.",
+			"different_voice_channel_queue": "Bạn không kết nối với <#{channel}> để xếp hàng bài hát."
+		},
+		"setupButton": {
+			"no_voice_channel_button": "Bạn không kết nối với kênh thoại để sử dụng nút này.",
+			"different_voice_channel_button": "Bạn không kết nối với {channel} để sử dụng các nút này.",
+			"now_playing": "Đang phát",
+			"live": "LIVE",
+			"requested_by": "Yêu cầu bởi <@{requester}>",
+			"no_dj_permission": "Bạn cần có vai trò DJ để sử dụng nút này.",
+			"volume_set": "Âm lượng đã được đặt thành {vol}%",
+			"volume_footer": "Âm lượng: {vol}%",
+			"paused": "Tạm dừng",
+			"resumed": "Tiếp tục",
+			"pause_resume": "{name} nhạc.",
+			"pause_resume_footer": "{name} bởi {displayName}",
+			"no_music_to_skip": "Không có nhạc để bỏ qua.",
+			"skipped": "Đã bỏ qua nhạc.",
+			"skipped_footer": "Bỏ qua bởi {displayName}",
+			"stopped": "Đã dừng nhạc.",
+			"stopped_footer": "Dừng bởi {displayName}",
+			"nothing_playing": "Hiện tại không có gì đang phát.",
+			"loop_set": "Lặp lại đã được đặt thành {loop}.",
+			"loop_footer": "Lặp lại đã được đặt thành {loop} bởi {displayName}",
+			"shuffled": "Đã xáo trộn danh sách phát.",
+			"no_previous_track": "Không có bài hát trước.",
+			"playing_previous": "Đang phát bài hát trước.",
+			"previous_footer": "Đang phát bài hát trước bởi {displayName}",
+			"rewinded": "Đã quay lại nhạc.",
+			"rewind_footer": "Quay lại bởi {displayName}",
+			"forward_limit": "Bạn không thể tiến tới nhạc nhiều hơn độ dài của bài hát.",
+			"forwarded": "Đã tiến tới nhạc.",
+			"forward_footer": "Tiến tới bởi {displayName}",
+			"button_not_available": "Nút này không có sẵn.",
+			"no_music_playing": "Không có nhạc nào đang phát trong máy chủ này."
+		}
+	},
+	"Evaluate code": "Đánh giá mã",
+	"Leave a guild": "Rời khỏi một guild",
+	"List all guilds the bot is in": "Danh sách tất cả guild mà bot đang ở",
+	"Restart the bot": "Khởi động lại bot",
+	"Stream de vídeo no canal de voz.": "Stream de vídeo no canal de voz.",
+	"Chat inteligente com IA da NVIDIA - análise de código, geração e muito mais!": "Chat inteligente com IA da NVIDIA - análise de código, geração e muito mais!",
+	"Modo de operação da IA": "Modo de operação da IA",
+	"Sua mensagem ou pergunta": "Sua mensagem ou pergunta",
+	"Linguagem de programação (para modos de código)": "Linguagem de programação (para modos de código)",
+	"Ferramentas avançadas de IA para análise, tradução, documentação e mais!": "Ferramentas avançadas de IA para análise, tradução, documentação e mais!",
+	"Escolha uma ferramenta": "Escolha uma ferramenta",
+	"Texto ou código para processar": "Texto ou código para processar",
+	"Análise inteligente de imagens com IA - descreva, analise e extraia informações!": "Análise inteligente de imagens com IA - descreva, analise e extraia informações!",
+	"Modo de análise": "Modo de análise",
+	"Pergunta específica sobre a imagem": "Pergunta específica sobre a imagem",
+	"Configura o comportamento da IA da Mahina": "Configura o comportamento da IA da Mahina",
+	"Ação a ser executada": "Ação a ser executada",
+	"🍁 Descubra seu animal espiritual do World of Warcraft através de análise de personalidade com IA": "🍁 Descubra seu animal espiritual do World of Warcraft através de análise de personalidade com IA",
+	"👤 O usuário que você deseja analisar": "👤 O usuário que você deseja analisar",
+	"Explain code in detail": "Explain code in detail",
+	"Review code and suggest improvements": "Review code and suggest improvements",
+	"Optimize code for better performance": "Optimize code for better performance",
+	"Debug code and identify issues": "Debug code and identify issues",
+	"Programming language": "Programming language",
+	"The code to explain": "The code to explain",
+	"The code to review": "The code to review",
+	"The code to optimize": "The code to optimize",
+	"The code to debug": "The code to debug",
+	"List all available AI models": "List all available AI models",
+	"Select an AI model": "Select an AI model",
+	"Get information about a specific model": "Get information about a specific model",
+	"Show your current AI model": "Show your current AI model",
+	"The model to select": "The model to select",
+	"The model to get info about": "The model to get info about",
+	"The problem or question to analyze": "The problem or question to analyze",
+	"Additional context for the problem": "Additional context for the problem",
+	"Your message for streaming AI response": "Your message for streaming AI response",
+	"Advanced AI chat with context, memory, and personality": "Advanced AI chat with context, memory, and personality",
+	"Your message to Mahina AI": "Your message to Mahina AI",
+	"Choose AI personality": "Choose AI personality",
+	"Conversation mode": "Conversation mode",
+	"Private response (only you can see)": "Private response (only you can see)",
+	"Manage proactive interaction settings": "Manage proactive interaction settings",
+	"Show proactive interaction statistics": "Show proactive interaction statistics",
+	"Test proactive interaction in current channel": "Test proactive interaction in current channel",
+	"Force proactive interaction check": "Force proactive interaction check",
+	"Check AI services status and statistics": "Check AI services status and statistics",
+	"Verificar status e estatísticas dos serviços de IA": "Verificar status e estatísticas dos serviços de IA",
+	"Chat avançado com IA": " contexto, memória e personalidade",
+	"Sua mensagem para a Mahina AI": "Sua mensagem para a Mahina AI",
+	"Escolha a personalidade da IA": "Escolha a personalidade da IA",
+	"Modo de conversa": "Modo de conversa",
+	"Resposta privada (apenas você pode ver)": "Resposta privada (apenas você pode ver)",
+	"Testa e configura sistemas de segurança NVIDIA NemoGuard": "Testa e configura sistemas de segurança NVIDIA NemoGuard",
+	"Texto para verificar (obrigatório para verificações)": "Texto para verificar (obrigatório para verificações)",
+	"Usar modo estrito para verificação de tópicos": "Usar modo estrito para verificação de tópicos",
+	"Receber resposta também em áudio (TTS)": "Receber resposta também em áudio (TTS)",
+	"Busca por comandos e informações usando IA semântica": "Busca por comandos e informações usando IA semântica",
+	"O que você está procurando? Ex": "O que você está procurando? Ex",
+	"Filtrar por categoria específica": "Filtrar por categoria específica",
+	"Nível de precisão da busca (padrão": "Nível de precisão da busca (padrão",
+	"Converte texto em áudio usando NVIDIA TTS": "Converte texto em áudio usando NVIDIA TTS",
+	"O texto que será convertido em áudio": "O texto que será convertido em áudio",
+	"Escolha da voz para o TTS": "Escolha da voz para o TTS",
+	"Velocidade da fala (0": {
+		"5 - 2": {
+			"0)": "Velocidade da fala (0.5 - 2.0)"
+		}
+	},
+	"Tom da voz (-0": {
+		"5 a 0": {
+			"5)": "Tom da voz (-0.5 a 0.5)"
+		}
+	},
+	"Enviar áudio apenas para você": "Enviar áudio apenas para você",
+	"Gera visualizações com física realista usando NVIDIA Cosmos": "Gera visualizações com física realista usando NVIDIA Cosmos",
+	"Tipo de visualização": "Tipo de visualização",
+	"Descrição da visualização (obrigatório para prompt customizado)": "Descrição da visualização (obrigatório para prompt customizado)",
+	"Estilo visual da animação": "Estilo visual da animação",
+	"Número de frames (8-48, padrão": "Número de frames (8-48, padrão",
+	"Incluir texto na visualização": "Incluir texto na visualização",
+	"Imagem base para predição física (opcional)": "Imagem base para predição física (opcional)"
 }
