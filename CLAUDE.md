@@ -4,7 +4,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Mahina Bot is a Discord music bot written in TypeScript. It uses Lavalink for audio playback and can be deployed with Docker. The bot includes features for music playback, playlist management, filters, and various configuration settings.
+Mahina Bot is a Discord music bot written in TypeScript. It uses Lavalink for audio playback and can be deployed with
+Docker. The bot includes features for music playback, playlist management, filters, and various configuration settings.
 
 ## Architecture
 
@@ -72,7 +73,8 @@ docker-compose up mahina -d
 
 ### Command Structure
 
-Commands are defined in the `src/commands/` directory, organized into categories. Each command extends the `Command` base class and implements a `run` method.
+Commands are defined in the `src/commands/` directory, organized into categories. Each command extends the `Command`
+base class and implements a `run` method.
 
 Example command structure:
 
@@ -107,7 +109,8 @@ export default class ExampleCommand extends Command {
 
 ### Database Operations
 
-The bot uses Prisma ORM with MongoDB by default. Database operations are handled through the `ServerData` class in `src/database/server.ts`.
+The bot uses Prisma ORM with MongoDB by default. Database operations are handled through the `ServerData` class in
+`src/database/server.ts`.
 
 Example database operation:
 
@@ -126,7 +129,8 @@ Events are defined in the `src/events/` directory, organized by type:
 
 ### Internationalization
 
-The bot supports multiple languages through the i18n system. Translation keys are stored in JSON files in the `locales/` directory.
+The bot supports multiple languages through the i18n system. Translation keys are stored in JSON files in the `locales/`
+directory.
 
 To use translations in code:
 

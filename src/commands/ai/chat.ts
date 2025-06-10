@@ -1,18 +1,18 @@
-import {
-  CommandInteraction,
-  Message,
-  EmbedBuilder,
-  ApplicationCommandOptionType,
+import Discord, {
   ActionRowBuilder,
+  ApplicationCommandOptionType,
+  AttachmentBuilder,
   ButtonBuilder,
   ButtonStyle,
   ComponentType,
-  AttachmentBuilder,
-  InteractionResponseFlags,
+  EmbedBuilder,
+  Message,
 } from 'discord.js'
 import OpenAI from 'openai'
 import Command from '#common/command'
-import type { Context, MahinaBot } from '#common/index'
+import MahinaBot from '#common/mahina_bot'
+
+const { InteractionResponseFlags } = Discord
 
 export default class ChatCommand extends Command {
   private openai: OpenAI
@@ -196,39 +196,46 @@ export default class ChatCommand extends Command {
         time: 300000, // 5 minutes
       })
 
-      collector.on('collect', async (interaction) => {
-        if (interaction.user.id !== ctx.author.id) {
-          return interaction.reply({
-            content: 'Apenas o autor do comando pode usar esses botões!',
-            flags: InteractionResponseFlags.Ephemeral,
-          })
-        }
-
-        switch (interaction.customId) {
-          case 'ai_new_chat':
-            this.conversations.delete(conversationKey)
-            await interaction.reply({
-              content: '✅ Conversa reiniciada! Use o comando novamente para começar.',
+      collector.on(
+        'collect',
+        async (interaction: {
+          user: { id: any }
+          reply: (arg0: { content: string; flags: any }) => any
+          customId: any
+        }) => {
+          if (interaction.user.id !== ctx.author.id) {
+            return interaction.reply({
+              content: 'Apenas o autor do comando pode usar esses botões!',
               flags: InteractionResponseFlags.Ephemeral,
             })
-            break
+          }
 
-          case 'ai_continue':
-            await interaction.reply({
-              content: '💬 Digite sua próxima mensagem usando o comando!',
-              flags: InteractionResponseFlags.Ephemeral,
-            })
-            break
+          switch (interaction.customId) {
+            case 'ai_new_chat':
+              this.conversations.delete(conversationKey)
+              await interaction.reply({
+                content: '✅ Conversa reiniciada! Use o comando novamente para começar.',
+                flags: InteractionResponseFlags.Ephemeral,
+              })
+              break
 
-          case 'ai_code_format':
-            await this.formatCodeResponse(interaction, response)
-            break
+            case 'ai_continue':
+              await interaction.reply({
+                content: '💬 Digite sua próxima mensagem usando o comando!',
+                flags: InteractionResponseFlags.Ephemeral,
+              })
+              break
 
-          case 'ai_export':
-            await this.exportResponse(interaction, response, mode)
-            break
+            case 'ai_code_format':
+              await this.formatCodeResponse(interaction, response)
+              break
+
+            case 'ai_export':
+              await this.exportResponse(interaction, response, mode)
+              break
+          }
         }
-      })
+      )
     } catch (error) {
       console.error('Error in chat command:', error)
 
@@ -244,15 +251,15 @@ export default class ChatCommand extends Command {
 
   private getSystemPrompt(mode: string, language?: string): string {
     const basePrompts = {
-      chat: `Você é um assistente inteligente e amigável. Responda de forma clara, útil e concisa. 
+      chat: `Você é um assistente inteligente e amigável. Responda de forma clara, útil e concisa.
              Use markdown para formatar suas respostas quando apropriado.`,
 
-      code: `Você é um expert em programação${language ? ` especializado em ${language}` : ''}. 
-             Gere código limpo, eficiente e bem comentado. 
+      code: `Você é um expert em programação${language ? ` especializado em ${language}` : ''}.
+             Gere código limpo, eficiente e bem comentado.
              Sempre formate o código em blocos markdown com syntax highlighting.
              Inclua explicações breves sobre partes importantes do código.`,
 
-      analyze: `Você é um analisador de código experiente. 
+      analyze: `Você é um analisador de código experiente.
                 Analise o código fornecido identificando:
                 - Possíveis bugs ou problemas
                 - Melhorias de performance
@@ -260,20 +267,20 @@ export default class ChatCommand extends Command {
                 - Sugestões de refatoração
                 Seja construtivo e educativo em suas análises.`,
 
-      explain: `Você é um professor de programação paciente e didático. 
+      explain: `Você é um professor de programação paciente e didático.
                 Explique conceitos de forma clara e progressiva.
                 Use analogias quando apropriado.
                 Inclua exemplos de código simples para ilustrar conceitos.
                 Divida explicações complexas em passos menores.`,
 
-      debug: `Você é um debugger especialista. 
+      debug: `Você é um debugger especialista.
               Analise o código ou erro fornecido e:
               - Identifique a causa raiz do problema
               - Explique por que o erro está ocorrendo
               - Forneça soluções passo a passo
               - Sugira como prevenir erros similares no futuro`,
 
-      design: `Você é um especialista em UI/UX e front-end. 
+      design: `Você é um especialista em UI/UX e front-end.
                Forneça sugestões de design, melhores práticas de interface,
                e código para componentes visuais modernos e acessíveis.
                Considere responsividade e experiência do usuário.`,
@@ -286,10 +293,10 @@ export default class ChatCommand extends Command {
     // Split response if too long
     const chunks = this.splitResponse(response, 4000)
 
-    for (let i = 0; i < chunks.length; i++) {
+    for (const [i, chunk] of chunks.entries()) {
       const embed = new EmbedBuilder()
         .setColor(this.getModeColor(mode))
-        .setDescription(chunks[i])
+        .setDescription(chunk)
         .setFooter({
           text: `${this.getModeEmoji(mode)} ${mode.charAt(0).toUpperCase() + mode.slice(1)} Mode | Powered by NVIDIA`,
           iconURL:

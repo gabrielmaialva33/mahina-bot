@@ -210,7 +210,7 @@ lavalink:
       #password: "your account password" # Password of Google account
       #httpConfig: # Useful for blocking bad-actors from ip-grabbing your music node and attacking it, this way only the http proxy will be attacked
       #proxyHost: "localhost" # Hostname of the proxy, (ip or domain)
-      #proxyPort: 3128 # Proxy port, 3128 is the default for squidProxy
+    #proxyPort: 3128 # Proxy port, 3128 is the default for squidProxy
     #proxyUser: "" # Optional user for basic authentication fields, leave blank if you don't use basic auth
     #proxyPassword: "" # Password for basic authentication
 

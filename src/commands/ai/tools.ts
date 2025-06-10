@@ -1,19 +1,18 @@
-import {
-  CommandInteraction,
-  Message,
-  EmbedBuilder,
-  ApplicationCommandOptionType,
+import Discord, {
   ActionRowBuilder,
+  ApplicationCommandOptionType,
+  AttachmentBuilder,
   ButtonBuilder,
   ButtonStyle,
-  StringSelectMenuBuilder,
   ComponentType,
-  AttachmentBuilder,
-  InteractionResponseFlags,
+  EmbedBuilder,
+  StringSelectMenuBuilder,
 } from 'discord.js'
 import OpenAI from 'openai'
 import Command from '#common/command'
 import type { Context, MahinaBot } from '#common/index'
+
+const { InteractionResponseFlags } = Discord
 
 interface Tool {
   name: string
@@ -110,7 +109,7 @@ export default class ToolsCommand extends Command {
           name: 'Tradutor Inteligente',
           description: 'Traduz texto preservando contexto e nuances',
           emoji: '🌍',
-          systemPrompt: `Você é um tradutor profissional. 
+          systemPrompt: `Você é um tradutor profissional.
         Traduza o texto preservando:
         - Contexto e significado
         - Tom e estilo
@@ -413,7 +412,10 @@ export default class ToolsCommand extends Command {
               ),
               { name: `${tool.name.replace(/\s/g, '_')}_${Date.now()}.md` }
             )
-            await interaction.reply({ files: [attachment], flags: InteractionResponseFlags.Ephemeral })
+            await interaction.reply({
+              files: [attachment],
+              flags: InteractionResponseFlags.Ephemeral,
+            })
             break
 
           case 'tool_retry':

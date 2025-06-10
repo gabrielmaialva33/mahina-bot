@@ -1,16 +1,17 @@
 import { Command, type Context, type MahinaBot } from '#common/index'
-import {
-  ApplicationCommandOptionType,
-  EmbedBuilder,
+import Discord, {
   ActionRowBuilder,
+  ApplicationCommandOptionType,
   ButtonBuilder,
   ButtonStyle,
   ComponentType,
+  EmbedBuilder,
   Message,
   StringSelectMenuBuilder,
   StringSelectMenuOptionBuilder,
-  InteractionResponseFlags,
 } from 'discord.js'
+
+const { InteractionResponseFlags } = Discord
 
 export default class MahinaAI extends Command {
   constructor(client: MahinaBot) {

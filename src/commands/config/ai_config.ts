@@ -1,4 +1,4 @@
-import {
+import Discord, {
   ActionRowBuilder,
   ApplicationCommandOptionType,
   ButtonBuilder,
@@ -6,12 +6,13 @@ import {
   ComponentType,
   EmbedBuilder,
   StringSelectMenuBuilder,
-  InteractionResponseFlags,
 } from 'discord.js'
 import Command from '#common/command'
 import { AIService } from '#src/services/ai_service'
 import MahinaBot from '#common/mahina_bot'
 import { Context } from 'node:vm'
+
+const { InteractionResponseFlags } = Discord
 
 export default class AIConfigCommand extends Command {
   private aiService: AIService

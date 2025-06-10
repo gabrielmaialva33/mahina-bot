@@ -1,4 +1,5 @@
 import {
+  type ChatHistory,
   type Dj,
   type Guild,
   type Playlist,
@@ -6,7 +7,6 @@ import {
   type Role,
   type Setup,
   type Stay,
-  type ChatHistory,
 } from '@prisma/client'
 import { env } from '#src/env'
 

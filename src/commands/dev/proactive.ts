@@ -1,4 +1,4 @@
-import { EmbedBuilder, ApplicationCommandOptionType } from 'discord.js'
+import { ApplicationCommandOptionType, EmbedBuilder } from 'discord.js'
 import Command from '#common/command'
 import type { Context, MahinaBot } from '#common/index'
 

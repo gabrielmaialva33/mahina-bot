@@ -69,9 +69,23 @@ export class LavalinkHealthService {
     try {
       // Try to reconnect the node
       if (node.socket) {
-        node.socket.removeAllListeners()
-        node.socket.close()
+        // Check if socket is already closing or closed
+        if (node.socket.readyState === 2 || node.socket.readyState === 3) {
+          // Socket is already closing or closed, just wait a bit
+          await new Promise((resolve) => setTimeout(resolve, 1000))
+        } else {
+          node.socket.removeAllListeners()
+          try {
+            node.socket.close()
+          } catch (closeError) {
+            // Ignore close errors as the socket might already be closed
+            logger.warn(`Socket close error for node ${nodeId}:`, closeError)
+          }
+        }
       }
+
+      // Wait a bit before reconnecting
+      await new Promise((resolve) => setTimeout(resolve, 2000))
 
       await node.connect()
       logger.success(`Successfully reconnected Lavalink node ${nodeId}`)

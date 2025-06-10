@@ -1,4 +1,4 @@
-import {
+import Discord, {
   ActionRowBuilder,
   ButtonBuilder,
   type ButtonInteraction,
@@ -11,7 +11,6 @@ import {
   type StringSelectMenuInteraction,
   type TextChannel,
   type UserSelectMenuInteraction,
-  InteractionResponseFlags,
 } from 'discord.js'
 import type { Player, Track, TrackStartEvent } from 'lavalink-client'
 
@@ -21,6 +20,8 @@ import type MahinaBot from '#common/mahina_bot'
 
 import { Requester } from '#src/types'
 import { trackStart } from '#utils/setup_system'
+
+const { InteractionResponseFlags } = Discord
 
 export default class TrackStart extends Event {
   constructor(client: MahinaBot, file: string) {

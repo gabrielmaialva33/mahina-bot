@@ -1,4 +1,4 @@
-import {
+import Discord, {
   ActionRowBuilder,
   type AutocompleteInteraction,
   ButtonBuilder,
@@ -11,13 +11,13 @@ import {
   InteractionType,
   PermissionFlagsBits,
   type TextChannel,
-  InteractionResponseFlags,
 } from 'discord.js'
-
 import Event from '#common/event'
 import Context from '#common/context'
 import type MahinaBot from '#common/mahina_bot'
 import { T } from '#common/i18n'
+
+const { InteractionResponseFlags } = Discord
 
 export default class InteractionCreate extends Event {
   constructor(client: MahinaBot, file: string) {

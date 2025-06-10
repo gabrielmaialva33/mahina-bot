@@ -1,15 +1,16 @@
-import {
-  Message,
+import Discord, {
   ActionRowBuilder,
   ButtonBuilder,
   ButtonStyle,
   ComponentType,
+  Message,
   StringSelectMenuBuilder,
-  InteractionResponseFlags,
 } from 'discord.js'
 import Event from '#common/event'
 import type MahinaBot from '#common/mahina_bot'
 import { AIService, type ChatMessage } from '#src/services/ai_service'
+
+const { InteractionResponseFlags } = Discord
 
 export default class AIMention extends Event {
   private aiService: AIService

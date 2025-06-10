@@ -33,7 +33,7 @@ import { ProactiveInteractionService } from '#src/services/proactive_interaction
 import { LavalinkHealthService } from '#src/services/lavalink_health_service'
 import { AIContextService } from '#src/services/ai_context_service'
 import { AIMemoryService } from '#src/services/ai_memory_service'
-import { getAIManager, AIManager } from '#src/services/ai_manager'
+import { AIManager, getAIManager } from '#src/services/ai_manager'
 
 const dirname = path.dirname(fileURLToPath(import.meta.url))
 

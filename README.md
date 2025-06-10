@@ -65,7 +65,8 @@
 
 - **User Memory** - Remembers preferences, interests, and interaction patterns
 - **Conversation Context** - Maintains context across messages for coherent discussions
-- **Personality System** - 8 different AI personalities (Friendly, Professional, Playful, DJ, Wise, Technical, Gamer, Teacher)
+- **Personality System** - 8 different AI personalities (Friendly, Professional, Playful, DJ, Wise, Technical, Gamer,
+  Teacher)
 - **Learning System** - Learns from user interactions to provide better responses
 - **Sentiment Analysis** - Understands user emotions and responds appropriately
 

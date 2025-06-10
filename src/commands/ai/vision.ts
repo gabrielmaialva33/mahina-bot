@@ -1,18 +1,18 @@
-import {
-  CommandInteraction,
-  Message,
-  EmbedBuilder,
-  ApplicationCommandOptionType,
+import Discord, {
   ActionRowBuilder,
+  ApplicationCommandOptionType,
+  AttachmentBuilder,
   ButtonBuilder,
   ButtonStyle,
   ComponentType,
-  AttachmentBuilder,
-  InteractionResponseFlags,
+  EmbedBuilder,
+  Message,
 } from 'discord.js'
 import OpenAI from 'openai'
 import Command from '#common/command'
 import type { Context, MahinaBot } from '#common/index'
+
+const { InteractionResponseFlags } = Discord
 
 export default class VisionCommand extends Command {
   private openai: OpenAI
@@ -146,7 +146,7 @@ export default class VisionCommand extends Command {
       - Composição e estilo
       - Contexto e possível propósito`,
 
-      describe: `Descreva a imagem de forma clara e detalhada. 
+      describe: `Descreva a imagem de forma clara e detalhada.
       Seja objetivo mas completo, mencionando todos os elementos importantes visíveis.`,
 
       ocr: `Extraia e transcreva todo o texto visível na imagem.
@@ -286,7 +286,10 @@ export default class VisionCommand extends Command {
             name: `analise_imagem_${Date.now()}.md`,
           })
 
-          await interaction.reply({ files: [exportFile], flags: InteractionResponseFlags.Ephemeral })
+          await interaction.reply({
+            files: [exportFile],
+            flags: InteractionResponseFlags.Ephemeral,
+          })
           break
 
         case 'vision_modes':
@@ -303,7 +306,10 @@ export default class VisionCommand extends Command {
               { name: '📊 technical', value: 'Análise técnica da imagem', inline: true }
             )
 
-          await interaction.reply({ embeds: [modesEmbed], flags: InteractionResponseFlags.Ephemeral })
+          await interaction.reply({
+            embeds: [modesEmbed],
+            flags: InteractionResponseFlags.Ephemeral,
+          })
           break
       }
     })

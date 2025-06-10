@@ -1,4 +1,4 @@
-import {
+import Discord, {
   ActionRowBuilder,
   ActivityType,
   ButtonBuilder,
@@ -6,10 +6,11 @@ import {
   CommandInteraction,
   Message,
   type TextChannel,
-  InteractionResponseFlags,
 } from 'discord.js'
 import type Context from '#common/context'
 import MahinaBot from '#common/mahina_bot'
+
+const { InteractionResponseFlags } = Discord
 
 export class Utils {
   public static formatTime(ms: number): string {

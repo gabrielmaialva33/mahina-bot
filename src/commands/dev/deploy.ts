@@ -1,4 +1,4 @@
-import {
+import Discord, {
   ActionRowBuilder,
   ButtonBuilder,
   type ButtonInteraction,
@@ -6,11 +6,12 @@ import {
   ComponentType,
   type Message,
   type TextChannel,
-  InteractionResponseFlags,
 } from 'discord.js'
 import Command from '#common/command'
 import type MahinaBot from '#common/mahina_bot'
 import type Context from '#common/context'
+
+const { InteractionResponseFlags } = Discord
 
 export default class Deploy extends Command {
   constructor(client: MahinaBot) {

@@ -49,7 +49,7 @@ export class AIService {
           description: 'Mahina em modo amigável e casual',
           emoji: '😊',
           temperature: 0.7,
-          systemPrompt: `Você é Mahina, uma assistente musical inteligente e amigável do Discord. 
+          systemPrompt: `Você é Mahina, uma assistente musical inteligente e amigável do Discord.
         Seja casual, use emojis ocasionalmente e mantenha um tom divertido e acolhedor.
         Responda de forma concisa mas informativa.`,
         },
@@ -197,8 +197,8 @@ export class AIService {
         `\n
       Você está conversando com ${userName} no canal ${channelName}.
       Você tem memória das conversas anteriores neste canal.
-      
-      IMPORTANTE: Seja sempre coerente e concisa nas suas respostas. 
+
+      IMPORTANTE: Seja sempre coerente e concisa nas suas respostas.
       Mantenha as respostas objetivas, úteis e relevantes ao contexto.
       Evite respostas muito longas ou dispersas.`
 
