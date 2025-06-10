@@ -9,6 +9,7 @@ import {
   StringSelectMenuBuilder,
   ComponentType,
   AttachmentBuilder,
+  InteractionResponseFlags,
 } from 'discord.js'
 import OpenAI from 'openai'
 import Command from '#common/command'
@@ -302,7 +303,7 @@ export default class ToolsCommand extends Command {
       if (interaction.user.id !== ctx.author.id) {
         return interaction.reply({
           content: 'Apenas o autor do comando pode usar este menu!',
-          ephemeral: true,
+          flags: InteractionResponseFlags.Ephemeral,
         })
       }
 
@@ -310,7 +311,7 @@ export default class ToolsCommand extends Command {
       if (selectedTool) {
         await interaction.reply({
           content: `Você selecionou: **${selectedTool.emoji} ${selectedTool.name}**\n\nAgora use: \`!tools ${interaction.values[0]} [seu input]\`\n\n**Exemplos:**\n${selectedTool.examples.map((ex) => `• \`!tools ${interaction.values[0]} ${ex}\``).join('\n')}`,
-          ephemeral: true,
+          flags: InteractionResponseFlags.Ephemeral,
         })
       }
     })
@@ -400,7 +401,7 @@ export default class ToolsCommand extends Command {
         if (interaction.user.id !== ctx.author.id) {
           return interaction.reply({
             content: 'Apenas o autor pode usar esses botões!',
-            ephemeral: true,
+            flags: InteractionResponseFlags.Ephemeral,
           })
         }
 
@@ -425,7 +426,7 @@ export default class ToolsCommand extends Command {
             const codeBlock = '```\n' + response + '\n```'
             await interaction.reply({
               content: 'Resultado formatado para cópia:\n' + codeBlock,
-              ephemeral: true,
+              flags: InteractionResponseFlags.Ephemeral,
             })
             break
         }

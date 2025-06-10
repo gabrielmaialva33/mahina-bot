@@ -6,6 +6,7 @@ import {
   ComponentType,
   EmbedBuilder,
   StringSelectMenuBuilder,
+  InteractionResponseFlags,
 } from 'discord.js'
 import Command from '#common/command'
 import { AIService } from '#src/services/ai_service'
@@ -161,7 +162,7 @@ export default class AIConfigCommand extends Command {
         if (interaction.user.id !== ctx.author.id) {
           return interaction.reply({
             content: 'Apenas o autor do comando pode usar esses botões!',
-            ephemeral: true,
+            flags: InteractionResponseFlags.Ephemeral,
           })
         }
 
@@ -231,7 +232,7 @@ export default class AIConfigCommand extends Command {
         if (interaction.user.id !== ctx.author.id) {
           return interaction.reply({
             content: 'Apenas o autor do comando pode usar este menu!',
-            ephemeral: true,
+            flags: InteractionResponseFlags.Ephemeral,
           })
         }
 
@@ -345,7 +346,7 @@ export default class AIConfigCommand extends Command {
         if (interaction.user.id !== ctx.author.id) {
           return interaction.reply({
             content: 'Apenas o autor do comando pode confirmar!',
-            ephemeral: true,
+            flags: InteractionResponseFlags.Ephemeral,
           })
         }
 

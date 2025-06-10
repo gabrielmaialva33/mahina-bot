@@ -8,6 +8,7 @@ import {
   ButtonStyle,
   ComponentType,
   AttachmentBuilder,
+  InteractionResponseFlags,
 } from 'discord.js'
 import OpenAI from 'openai'
 import Command from '#common/command'
@@ -199,7 +200,7 @@ export default class ChatCommand extends Command {
         if (interaction.user.id !== ctx.author.id) {
           return interaction.reply({
             content: 'Apenas o autor do comando pode usar esses botões!',
-            ephemeral: true,
+            flags: InteractionResponseFlags.Ephemeral,
           })
         }
 
@@ -208,14 +209,14 @@ export default class ChatCommand extends Command {
             this.conversations.delete(conversationKey)
             await interaction.reply({
               content: '✅ Conversa reiniciada! Use o comando novamente para começar.',
-              ephemeral: true,
+              flags: InteractionResponseFlags.Ephemeral,
             })
             break
 
           case 'ai_continue':
             await interaction.reply({
               content: '💬 Digite sua próxima mensagem usando o comando!',
-              ephemeral: true,
+              flags: InteractionResponseFlags.Ephemeral,
             })
             break
 

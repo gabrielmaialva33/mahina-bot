@@ -8,6 +8,7 @@ import {
   ButtonStyle,
   ComponentType,
   AttachmentBuilder,
+  InteractionResponseFlags,
 } from 'discord.js'
 import OpenAI from 'openai'
 import Command from '#common/command'
@@ -262,7 +263,7 @@ export default class VisionCommand extends Command {
       if (interaction.user.id !== ctx.author.id) {
         return interaction.reply({
           content: 'Apenas o autor pode usar esses botões!',
-          ephemeral: true,
+          flags: InteractionResponseFlags.Ephemeral,
         })
       }
 

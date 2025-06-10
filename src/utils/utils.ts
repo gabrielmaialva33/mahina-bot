@@ -6,6 +6,7 @@ import {
   CommandInteraction,
   Message,
   type TextChannel,
+  InteractionResponseFlags,
 } from 'discord.js'
 import type Context from '#common/context'
 import MahinaBot from '#common/mahina_bot'
@@ -178,7 +179,7 @@ export class Utils {
       } else {
         await interaction.reply({
           content: ctx.locale('buttons.errors.not_author'),
-          ephemeral: true,
+          flags: InteractionResponseFlags.Ephemeral,
         })
       }
     })

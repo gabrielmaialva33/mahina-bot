@@ -11,6 +11,7 @@ import {
   InteractionType,
   PermissionFlagsBits,
   type TextChannel,
+  InteractionResponseFlags,
 } from 'discord.js'
 
 import Event from '#common/event'
@@ -40,7 +41,7 @@ export default class InteractionCreate extends Event {
       ) {
         return await interaction.reply({
           content: T(locale, 'event.interaction.setup_channel'),
-          ephemeral: true,
+          flags: InteractionResponseFlags.Ephemeral,
         })
       }
 
@@ -94,7 +95,7 @@ export default class InteractionCreate extends Event {
                   .map((perm: string) => `\`${perm}\``)
                   .join(', '),
               }),
-              ephemeral: true,
+              flags: InteractionResponseFlags.Ephemeral,
             })
           }
         }
@@ -105,7 +106,7 @@ export default class InteractionCreate extends Event {
         ) {
           await interaction.reply({
             content: T(locale, 'event.interaction.no_user_permission'),
-            ephemeral: true,
+            flags: InteractionResponseFlags.Ephemeral,
           })
           return
         }
@@ -128,7 +129,7 @@ export default class InteractionCreate extends Event {
           return await interaction.reply({
             content: T(locale, 'event.interaction.vote_message'),
             components: [voteBtn],
-            ephemeral: true,
+            flags: InteractionResponseFlags.Ephemeral,
           })
         }
       }
@@ -213,7 +214,7 @@ export default class InteractionCreate extends Event {
             ) {
               return await interaction.reply({
                 content: T(locale, 'event.interaction.no_dj_permission'),
-                ephemeral: true,
+                flags: InteractionResponseFlags.Ephemeral,
               })
             }
           }
