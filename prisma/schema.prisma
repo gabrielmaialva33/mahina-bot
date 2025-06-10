@@ -122,3 +122,17 @@ model RLQTable {
   @@unique([state, action])
   @@index([state])
 }
+
+model AIMemory {
+  id        String   @id @default(uuid()) @map("_id")
+  userId    String
+  guildId   String
+  data      Json     // UserMemory object serialized
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@unique([userId, guildId])
+  @@index([userId])
+  @@index([guildId])
+  @@index([updatedAt])
+}
