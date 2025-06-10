@@ -737,5 +737,21 @@
   "The model to get info about": "The model to get info about",
   "The problem or question to analyze": "The problem or question to analyze",
   "Additional context for the problem": "Additional context for the problem",
-  "Your message for streaming AI response": "Your message for streaming AI response"
+  "Your message for streaming AI response": "Your message for streaming AI response",
+  "Advanced AI chat with context, memory, and personality": "Advanced AI chat with context, memory, and personality",
+  "Your message to Mahina AI": "Your message to Mahina AI",
+  "Choose AI personality": "Choose AI personality",
+  "Conversation mode": "Conversation mode",
+  "Private response (only you can see)": "Private response (only you can see)",
+  "Manage proactive interaction settings": "Manage proactive interaction settings",
+  "Show proactive interaction statistics": "Show proactive interaction statistics",
+  "Test proactive interaction in current channel": "Test proactive interaction in current channel",
+  "Force proactive interaction check": "Force proactive interaction check",
+  "Check AI services status and statistics": "Check AI services status and statistics",
+  "Verificar status e estatísticas dos serviços de IA": "Verificar status e estatísticas dos serviços de IA",
+  "Chat avançado com IA": " contexto, memória e personalidade",
+  "Sua mensagem para a Mahina AI": "Sua mensagem para a Mahina AI",
+  "Escolha a personalidade da IA": "Escolha a personalidade da IA",
+  "Modo de conversa": "Modo de conversa",
+  "Resposta privada (apenas você pode ver)": "Resposta privada (apenas você pode ver)"
 }
