@@ -374,6 +374,11 @@ export default class ServerData {
     return config
   }
 
+  async getGuild(guildId: string): Promise<Guild | null> {
+    const prisma = await this.ensurePrisma()
+    return prisma.guild.findUnique({ where: { guildId } })
+  }
+
   async createAIConfig(guildId: string): Promise<any> {
     const prisma = await this.ensurePrisma()
     return prisma.aIConfig.create({
