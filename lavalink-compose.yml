@@ -1,5 +1,4 @@
 ---
-
 services:
   # Lavalink Audio Server
   mahina-lavalink:
@@ -21,7 +20,11 @@ services:
     ports:
       - '2333:2333'
     healthcheck:
-      test: ['CMD-SHELL', 'wget --no-verbose --tries=1 --spider http://localhost:2333/version || exit 1']
+      test:
+        [
+          'CMD-SHELL',
+          'wget --no-verbose --tries=1 --spider http://localhost:2333/version || exit 1',
+        ]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -33,10 +36,10 @@ services:
         reservations:
           memory: 1G
     logging:
-      driver: "json-file"
+      driver: 'json-file'
       options:
-        max-size: "10m"
-        max-file: "3"
+        max-size: '10m'
+        max-file: '3'
 
   # TimescaleDB with pgvector and pgai extensions
   mahina-database:
@@ -124,10 +127,10 @@ services:
         reservations:
           memory: 4G
     logging:
-      driver: "json-file"
+      driver: 'json-file'
       options:
-        max-size: "50m"
-        max-file: "5"
+        max-size: '50m'
+        max-file: '5'
 
   # PostgREST API Gateway
   mahina-postgrest:
@@ -169,10 +172,10 @@ services:
         reservations:
           memory: 256M
     logging:
-      driver: "json-file"
+      driver: 'json-file'
       options:
-        max-size: "10m"
-        max-file: "3"
+        max-size: '10m'
+        max-file: '3'
 
   # Redis Cache & Pub/Sub
   mahina-redis:
@@ -204,7 +207,11 @@ services:
     networks:
       - mahina-internal
     healthcheck:
-      test: ['CMD-SHELL', 'redis-cli --no-auth-warning -a ${REDIS_PASSWORD:-mahina_redis_2024} ping | grep PONG']
+      test:
+        [
+          'CMD-SHELL',
+          'redis-cli --no-auth-warning -a ${REDIS_PASSWORD:-mahina_redis_2024} ping | grep PONG',
+        ]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -216,10 +223,10 @@ services:
         reservations:
           memory: 512M
     logging:
-      driver: "json-file"
+      driver: 'json-file'
       options:
-        max-size: "10m"
-        max-file: "3"
+        max-size: '10m'
+        max-file: '3'
 
   # Redis Commander (Interface Web para Redis)
   redis-commander:
@@ -247,10 +254,10 @@ services:
         reservations:
           memory: 128M
     logging:
-      driver: "json-file"
+      driver: 'json-file'
       options:
-        max-size: "5m"
-        max-file: "2"
+        max-size: '5m'
+        max-file: '2'
 
 networks:
   mahina-internal:
