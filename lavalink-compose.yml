@@ -84,8 +84,8 @@ services:
       PGRST_DB_URI: postgres://${DB_USER:-mahina}:${DB_PASSWORD:-mahina}@mahina-database:5432/${DB_NAME:-mahina}
       PGRST_DB_SCHEMA: public
       PGRST_DB_ANON_ROLE: web_anon
-      PGRST_JWT_SECRET: ${JWT_SECRET}
-      PGRST_JWT_AUD: ${KEYCLOAK_CLIENT_ID}
+      PGRST_JWT_SECRET: ${JWT_SECRET:-mahina_jwt_secret_2025}
+      PGRST_JWT_AUD: ${KEYCLOAK_CLIENT_ID:-mahina}
       PGRST_SERVER_PORT: 3010
       PGRST_OPENAPI_SERVER_PROXY_URI: http://localhost:3002
       PGRST_DB_PRE_REQUEST: public.pre_request
