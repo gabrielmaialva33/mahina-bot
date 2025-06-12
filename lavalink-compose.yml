@@ -1,28 +1,124 @@
 services:
-  lava:
-    container_name: lava
+  lavalink:
+    container_name: lavalink
     image: ghcr.io/lavalink-devs/lavalink
     restart: on-failure
     environment:
-      _JAVA_OPTIONS: -Xmx6G
-      SERVER_PORT: 2333
-      SERVER_ADDRESS: 0.0.0.0
-      LAVALINK_SERVER_PASSWORD: 'Mahina@551238'
+      - SERVER_PORT=2333
     volumes:
       - ./application.yml:/opt/Lavalink/application.yml
       - ./lavalink/plugins/:/opt/Lavalink/plugins/
+    networks:
+      - lavalink-net
+    expose:
+      - 2333
+    ports:
+      - '2333:2333'
     healthcheck:
       test: 'curl -H "Authorization: Mahina@551238" -s http://localhost:2333/version'
       interval: 10s
       timeout: 10s
       retries: 5
       start_period: 10s
-    networks:
-      - lava
-    expose:
-      - 2333
+
+  # TimescaleDB with pgvector and pgai extensions
+  mahina-database:
+    image: timescale/timescaledb-ha:pg17
+    container_name: mahina-database
+    restart: always
+    command:
+      - postgres
+      - -c
+      - shared_preload_libraries=timescaledb,pg_stat_statements,pg_cron
+      - -c
+      - timescaledb.telemetry_level=basic
+      - -c
+      - cron.database_name=${POSTGRES_DB:-mahina}
+      - -c
+      - max_connections=200
+      - -c
+      - shared_buffers=2GB
+      - -c
+      - effective_cache_size=6GB
+      - -c
+      - work_mem=16MB
+      - -c
+      - maintenance_work_mem=512MB
+      - -c
+      - random_page_cost=1.1
+      - -c
+      - effective_io_concurrency=200
+      - -c
+      - wal_buffers=16MB
+      - -c
+      - max_wal_size=4GB
+      - -c
+      - checkpoint_completion_target=0.9
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-mahina}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-mahina}
+      POSTGRES_DB: ${POSTGRES_DB:-mahina}
+      POSTGRES_EXTENSIONS: timescaledb,vector,pg_trgm,pg_stat_statements,pgai,pg_cron,pgcrypto
+      POSTGRES_INITDB_ARGS: --auth-host=scram-sha-256 --auth-local=trust
     ports:
-      - '2333:2333'
+      - '5436:5432'
+    volumes:
+      - mahina-db-data:/var/lib/postgresql/data
+      - ./scripts/init-db.sql:/docker-entrypoint-initdb.d/00-init.sql:ro
+      - ./scripts/init-pgai.sql:/docker-entrypoint-initdb.d/01-pgai.sql:ro
+      - ./scripts/init-pgboss.sql:/docker-entrypoint-initdb.d/02-pgboss.sql:ro
+    networks:
+      - lavalink-net
+    healthcheck:
+      test: [ 'CMD-SHELL', 'pg_isready -U ${POSTGRES_USER:-mahina}' ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # PostgREST for REST API
+  mahina-postgrest:
+    image: postgrest/postgrest:latest
+    container_name: mahina-postgrest
+    restart: always
+    environment:
+      PGRST_DB_URI: postgres://${DB_USER:-mahina}:${DB_PASSWORD:-mahina}@mahina-database:5432/${DB_NAME:-mahina}
+      PGRST_DB_SCHEMA: public
+      PGRST_DB_ANON_ROLE: web_anon
+      PGRST_JWT_SECRET: ${JWT_SECRET}
+      PGRST_JWT_AUD: ${KEYCLOAK_CLIENT_ID}
+      PGRST_SERVER_PORT: 3010
+      PGRST_OPENAPI_SERVER_PROXY_URI: http://localhost:3002
+      PGRST_DB_PRE_REQUEST: public.pre_request
+      PGRST_ROLE_CLAIM_KEY: .resource_access."mahina".roles[0]
+      PGRST_DB_MAX_ROWS: 1000
+    ports:
+      - '3010:3010'
+    depends_on:
+      - mahina-database
+    networks:
+      - lavalink-net
+
+  # Redis for caching and pub/sub
+  mahina-redis:
+    image: redis:7-alpine
+    container_name: mahina-redis
+    restart: always
+    command: redis-server --requirepass ${REDIS_PASSWORD:-mahina_redis_2024} --appendonly yes --appendfsync everysec
+    ports:
+      - '6380:6379'
+    volumes:
+      - mahina-redis-data:/data
+    networks:
+      - lavalink-net
+    healthcheck:
+      test: [ 'CMD', 'redis-cli', '--raw', 'incr', 'ping' ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 networks:
-  lava:
-    name: lava
+  lavalink-net:
+    name: lavalink-net
+
+volumes:
+  mahina-db-data:
+  mahina-redis-data:
