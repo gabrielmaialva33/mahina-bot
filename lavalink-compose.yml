@@ -1,4 +1,4 @@
----
+version: '3.8'
 
 services:
   # Lavalink Audio Server
@@ -40,14 +40,14 @@ services:
 
   # TimescaleDB with pgvector and pgai extensions
   mahina-database:
-    image: timescale/timescaledb-ha:pg17-latest
+    image: timescale/timescaledb-ha:pg17
     container_name: mahina-database
     restart: unless-stopped
     shm_size: 256mb
     command:
       - postgres
       - -c
-      - shared_preload_libraries=timescaledb,pg_stat_statements,pg_cron,pgaudit
+      - shared_preload_libraries=timescaledb,pg_stat_statements,pg_cron
       - -c
       - timescaledb.telemetry_level=off
       - -c
@@ -98,7 +98,7 @@ services:
       POSTGRES_USER: ${POSTGRES_USER:-mahina}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-mahina}
       POSTGRES_DB: ${POSTGRES_DB:-mahina}
-      POSTGRES_EXTENSIONS: timescaledb,vector,pg_trgm,pg_stat_statements,pgai,pg_cron,pgcrypto,pgaudit,uuid-ossp
+      POSTGRES_EXTENSIONS: timescaledb,vector,pg_trgm,pg_stat_statements,pgai,pg_cron,pgcrypto,uuid-ossp
       POSTGRES_INITDB_ARGS: --auth-host=scram-sha-256 --auth-local=trust --data-checksums
       PGDATA: /var/lib/postgresql/data/pgdata
     ports:
@@ -177,7 +177,7 @@ services:
 
   # Redis Cache & Pub/Sub
   mahina-redis:
-    image: redis:7.2-alpine
+    image: redis:7.4-alpine
     container_name: mahina-redis
     restart: unless-stopped
     command: >
