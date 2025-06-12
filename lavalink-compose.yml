@@ -1,4 +1,4 @@
-version: '3.8'
+---
 
 services:
   # Lavalink Audio Server
@@ -43,6 +43,7 @@ services:
     image: timescale/timescaledb-ha:pg17
     container_name: mahina-database
     restart: unless-stopped
+    user: postgres
     shm_size: 256mb
     command:
       - postgres
@@ -100,12 +101,10 @@ services:
       POSTGRES_DB: ${POSTGRES_DB:-mahina}
       POSTGRES_EXTENSIONS: timescaledb,vector,pg_trgm,pg_stat_statements,pgai,pg_cron,pgcrypto,uuid-ossp
       POSTGRES_INITDB_ARGS: --auth-host=scram-sha-256 --auth-local=trust --data-checksums
-      PGDATA: /var/lib/postgresql/data/pgdata
     ports:
       - '5436:5432'
     volumes:
       - mahina-db-data:/var/lib/postgresql/data
-      - mahina-db-logs:/var/log/postgresql
       - ./scripts/init-db.sql:/docker-entrypoint-initdb.d/00-init.sql:ro
       - ./scripts/init-pgai.sql:/docker-entrypoint-initdb.d/01-pgai.sql:ro
       - ./scripts/init-pgboss.sql:/docker-entrypoint-initdb.d/02-pgboss.sql:ro
@@ -202,7 +201,6 @@ services:
       - '6380:6379'
     volumes:
       - mahina-redis-data:/data
-      - mahina-redis-logs:/var/log/redis
     networks:
       - mahina-internal
     healthcheck:
@@ -265,11 +263,7 @@ networks:
 volumes:
   mahina-db-data:
     name: mahina-db-data
-  mahina-db-logs:
-    name: mahina-db-logs
   mahina-redis-data:
     name: mahina-redis-data
-  mahina-redis-logs:
-    name: mahina-redis-logs
   lavalink-logs:
     name: lavalink-logs
