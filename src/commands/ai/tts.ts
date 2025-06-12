@@ -1,7 +1,12 @@
-import { Command, type Context, type MahinaBot } from '#common/index'
-import Discord, { ApplicationCommandOptionType, AttachmentBuilder, EmbedBuilder } from 'discord.js'
-
-const { InteractionResponseFlags } = Discord
+import Command from '#common/command'
+import type Context from '#common/context'
+import type MahinaBot from '#common/mahina_bot'
+import {
+  ApplicationCommandOptionType,
+  AttachmentBuilder,
+  EmbedBuilder,
+  MessageFlags,
+} from 'discord.js'
 
 export default class TTSCommand extends Command {
   constructor(client: MahinaBot) {
@@ -20,9 +25,7 @@ export default class TTSCommand extends Command {
       cooldown: 10,
       args: true,
       vote: false,
-      player: false,
-      inVoice: false,
-      sameVoice: false,
+      player: undefined,
       permissions: {
         client: ['SendMessages', 'ViewChannel', 'EmbedLinks', 'AttachFiles'],
         user: [],
@@ -79,11 +82,25 @@ export default class TTSCommand extends Command {
 
   async run(client: MahinaBot, ctx: Context, args: string[]): Promise<any> {
     // Parse arguments
-    const text = ctx.interaction?.options.getString('texto') || args.join(' ')
-    const voice = ctx.interaction?.options.getString('voz') || 'multilingual_female_1'
-    const speed = ctx.interaction?.options.getNumber('velocidade') || 1.0
-    const pitch = ctx.interaction?.options.getNumber('tom') || 0.0
-    const ephemeral = ctx.interaction?.options.getBoolean('privado') || false
+    let text: string
+    let voice: string
+    let speed: number
+    let pitch: number
+    let ephemeral: boolean
+
+    if (ctx.isInteraction) {
+      text = ctx.options.get('texto')?.value as string
+      voice = (ctx.options.get('voz')?.value as string) || 'multilingual_female_1'
+      speed = (ctx.options.get('velocidade')?.value as number) || 1.0
+      pitch = (ctx.options.get('tom')?.value as number) || 0.0
+      ephemeral = (ctx.options.get('privado')?.value as boolean) || false
+    } else {
+      text = args.join(' ')
+      voice = 'multilingual_female_1'
+      speed = 1.0
+      pitch = 0.0
+      ephemeral = false
+    }
 
     // Validate input
     if (!text) {
@@ -94,7 +111,7 @@ export default class TTSCommand extends Command {
             color: client.config.color.red,
           },
         ],
-        flags: InteractionResponseFlags.Ephemeral,
+        flags: MessageFlags.Ephemeral,
       })
     }
 
@@ -109,7 +126,7 @@ export default class TTSCommand extends Command {
             color: client.config.color.red,
           },
         ],
-        flags: InteractionResponseFlags.Ephemeral,
+        flags: MessageFlags.Ephemeral,
       })
     }
 
@@ -122,7 +139,7 @@ export default class TTSCommand extends Command {
             color: client.config.color.red,
           },
         ],
-        flags: InteractionResponseFlags.Ephemeral,
+        flags: MessageFlags.Ephemeral,
       })
     }
 
@@ -138,7 +155,7 @@ export default class TTSCommand extends Command {
             color: client.config.color.red,
           },
         ],
-        flags: InteractionResponseFlags.Ephemeral,
+        flags: MessageFlags.Ephemeral,
       })
     }
 
@@ -162,7 +179,7 @@ export default class TTSCommand extends Command {
       )
       .setFooter({ text: 'NVIDIA TTS • Powered by Magpie Multilingual' })
 
-    await ctx.sendDeferMessage({ embeds: [loadingEmbed] }, ephemeral)
+    const msg = await ctx.sendDeferMessage({ embeds: [loadingEmbed] })
 
     try {
       // Generate TTS
@@ -210,8 +227,8 @@ export default class TTSCommand extends Command {
           }
         )
         .setFooter({
-          text: `Solicitado por ${ctx.author.username} • NVIDIA TTS`,
-          iconURL: ctx.author.avatarURL() || undefined,
+          text: `Solicitado por ${ctx.author!.username} • NVIDIA TTS`,
+          iconURL: ctx.author!.avatarURL() || undefined,
         })
         .setTimestamp()
 
@@ -238,7 +255,7 @@ export default class TTSCommand extends Command {
             fields: [
               {
                 name: 'Detalhes do erro',
-                value: error.message || 'Erro desconhecido',
+                value: (error as Error).message || 'Erro desconhecido',
                 inline: false,
               },
             ],
@@ -250,7 +267,7 @@ export default class TTSCommand extends Command {
   }
 
   private getVoiceName(voiceId: string): string {
-    const voiceNames = {
+    const voiceNames: Record<string, string> = {
       portuguese_female_1: '🇧🇷 Feminina Brasileira',
       portuguese_male_1: '🇧🇷 Masculina Brasileira',
       multilingual_female_1: '🌍 Feminina Multilíngue 1',

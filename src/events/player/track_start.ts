@@ -1,4 +1,4 @@
-import Discord, {
+import {
   ActionRowBuilder,
   ButtonBuilder,
   type ButtonInteraction,
@@ -6,6 +6,7 @@ import Discord, {
   type ChannelSelectMenuInteraction,
   GuildMember,
   type MentionableSelectMenuInteraction,
+  MessageFlags,
   PermissionFlagsBits,
   type RoleSelectMenuInteraction,
   type StringSelectMenuInteraction,
@@ -20,8 +21,6 @@ import type MahinaBot from '#common/mahina_bot'
 
 import { Requester } from '#src/types'
 import { trackStart } from '#utils/setup_system'
-
-const { InteractionResponseFlags } = Discord
 
 export default class TrackStart extends Event {
   constructor(client: MahinaBot, file: string) {
@@ -147,7 +146,7 @@ function createCollector(
         content: T(locale, 'player.trackStart.not_connected_to_voice_channel', {
           channel: b.guild?.members.me?.voice.channelId ?? 'None',
         }),
-        flags: InteractionResponseFlags.Ephemeral,
+        flags: MessageFlags.Ephemeral,
       })
       return false
     },
@@ -157,7 +156,7 @@ function createCollector(
     if (!(await checkDj(client, interaction))) {
       await interaction.reply({
         content: T(locale, 'player.trackStart.need_dj_role'),
-        flags: InteractionResponseFlags.Ephemeral,
+        flags: MessageFlags.Ephemeral,
       })
       return
     }
@@ -191,7 +190,7 @@ function createCollector(
         } else {
           await interaction.reply({
             content: T(locale, 'player.trackStart.no_previous_song'),
-            flags: InteractionResponseFlags.Ephemeral,
+            flags: MessageFlags.Ephemeral,
           })
         }
         break
@@ -231,7 +230,7 @@ function createCollector(
         } else {
           await interaction.reply({
             content: T(locale, 'player.trackStart.no_more_songs_in_queue'),
-            flags: InteractionResponseFlags.Ephemeral,
+            flags: MessageFlags.Ephemeral,
           })
         }
         break

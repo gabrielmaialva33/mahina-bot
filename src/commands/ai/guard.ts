@@ -18,8 +18,6 @@ export default class GuardCommand extends Command {
       args: true,
       vote: false,
       player: undefined,
-      inVoice: false,
-      sameVoice: false,
       permissions: {
         client: ['SendMessages', 'ViewChannel', 'EmbedLinks'],
         user: ['ManageMessages'], // Require moderation permissions
@@ -57,9 +55,19 @@ export default class GuardCommand extends Command {
 
   async run(client: MahinaBot, ctx: Context, args: string[]): Promise<any> {
     // Parse arguments
-    const action = ctx.interaction?.options.getString('acao') || args[0]
-    const text = ctx.interaction?.options.getString('texto') || args.slice(1).join(' ')
-    const strictMode = ctx.interaction?.options.getBoolean('modo_estrito') || false
+    let action: string
+    let text: string
+    let strictMode: boolean
+
+    if (ctx.isInteraction) {
+      action = ctx.options.get('acao')?.value as string
+      text = (ctx.options.get('texto')?.value as string) || ''
+      strictMode = (ctx.options.get('modo_estrito')?.value as boolean) || false
+    } else {
+      action = args[0]
+      text = args.slice(1).join(' ')
+      strictMode = false
+    }
 
     if (!action) {
       return await ctx.sendMessage({
@@ -185,7 +193,7 @@ export default class GuardCommand extends Command {
     }
   }
 
-  private async handleStats(ctx: Context, guardService: any, client: MahinaBot): Promise<void> {
+  private async handleStats(ctx: Context, guardService: any, client: MahinaBot): Promise<any> {
     const stats = guardService.getGuardStats()
 
     const embed = new EmbedBuilder()
@@ -215,10 +223,10 @@ export default class GuardCommand extends Command {
       })
       .setTimestamp()
 
-    await ctx.sendMessage({ embeds: [embed] })
+    return await ctx.sendMessage({ embeds: [embed] })
   }
 
-  private async handleTopics(ctx: Context, guardService: any, client: MahinaBot): Promise<void> {
+  private async handleTopics(ctx: Context, guardService: any, client: MahinaBot): Promise<any> {
     const allowedTopics = guardService.getMusicAllowedTopics()
 
     const embed = new EmbedBuilder()
@@ -236,7 +244,7 @@ export default class GuardCommand extends Command {
       })
       .setTimestamp()
 
-    await ctx.sendMessage({ embeds: [embed] })
+    return await ctx.sendMessage({ embeds: [embed] })
   }
 
   private async handleComprehensiveCheck(
@@ -245,7 +253,7 @@ export default class GuardCommand extends Command {
     client: MahinaBot,
     text: string,
     strictMode: boolean
-  ): Promise<void> {
+  ): Promise<any> {
     // Show loading message
     const loadingEmbed = new EmbedBuilder()
       .setColor(client.config.color.main)
@@ -345,7 +353,7 @@ export default class GuardCommand extends Command {
     guardService: any,
     client: MahinaBot,
     text: string
-  ): Promise<void> {
+  ): Promise<any> {
     const loadingEmbed = new EmbedBuilder()
       .setColor(client.config.color.main)
       .setDescription('🧪 Testando detecção de jailbreak...')
@@ -421,7 +429,7 @@ export default class GuardCommand extends Command {
     guardService: any,
     client: MahinaBot,
     text: string
-  ): Promise<void> {
+  ): Promise<any> {
     const loadingEmbed = new EmbedBuilder()
       .setColor(client.config.color.main)
       .setDescription('🛡️ Testando segurança de conteúdo...')

@@ -2,6 +2,7 @@ import Command from '#common/command'
 import type Context from '#common/context'
 import type MahinaBot from '#common/mahina_bot'
 import {
+  TextChannel,
   ActionRowBuilder,
   ApplicationCommandOptionType,
   ButtonBuilder,
@@ -29,8 +30,6 @@ export default class MahinaAI extends Command {
       args: true,
       vote: false,
       player: undefined,
-      inVoice: false,
-      sameVoice: false,
       permissions: {
         client: ['SendMessages', 'ViewChannel', 'EmbedLinks'],
         user: [],
@@ -90,11 +89,25 @@ export default class MahinaAI extends Command {
 
   async run(client: MahinaBot, ctx: Context, args: string[]): Promise<any> {
     // Parse arguments
-    const message = ctx.interaction?.options.getString('mensagem') || args.join(' ')
-    const personality = ctx.interaction?.options.getString('personalidade') || 'friendly'
-    const mode = ctx.interaction?.options.getString('modo') || 'chat'
-    const ephemeral = ctx.interaction?.options.getBoolean('privado') || false
-    const audioResponse = ctx.interaction?.options.getBoolean('audio') || false
+    let message: string
+    let personality: string
+    let mode: string
+    let ephemeral: boolean
+    let audioResponse: boolean
+
+    if (ctx.isInteraction) {
+      message = ctx.options.get('mensagem')?.value as string
+      personality = (ctx.options.get('personalidade')?.value as string) || 'friendly'
+      mode = (ctx.options.get('modo')?.value as string) || 'chat'
+      ephemeral = (ctx.options.get('privado')?.value as boolean) || false
+      audioResponse = (ctx.options.get('audio')?.value as boolean) || false
+    } else {
+      message = args.join(' ')
+      personality = 'friendly'
+      mode = 'chat'
+      ephemeral = false
+      audioResponse = false
+    }
 
     if (!message) {
       return await ctx.sendMessage({
@@ -147,10 +160,10 @@ export default class MahinaAI extends Command {
       .setDescription(`${this.getLoadingMessage()} Pensando...`)
       .setFooter({ text: 'Mahina AI • Powered by NVIDIA' })
 
-    await ctx.sendDeferMessage({ embeds: [loadingEmbed] }, ephemeral)
+    await ctx.sendDeferMessage({ embeds: [loadingEmbed] })
 
     try {
-      const userId = ctx.author.id
+      const userId = ctx.author?.id || 'unknown'
       const channelId = ctx.channel?.id || ''
       const guildId = ctx.guild?.id || 'DM'
 
@@ -329,7 +342,8 @@ export default class MahinaAI extends Command {
         analysis,
         memoryService,
         userId,
-        guildId
+        guildId,
+        client
       )
     } catch (error) {
       console.error('MahinaAI error:', error)
@@ -338,7 +352,9 @@ export default class MahinaAI extends Command {
           {
             title: '❌ Error',
             description: 'An error occurred while processing your request. Please try again.',
-            fields: [{ name: 'Error', value: (error as Error).message || 'Unknown error', inline: false }],
+            fields: [
+              { name: 'Error', value: (error as Error).message || 'Unknown error', inline: false },
+            ],
             color: client.config.color.red,
           },
         ],
@@ -411,7 +427,7 @@ export default class MahinaAI extends Command {
     prompt += `Modo: ${modeEnhancements[mode] || modeEnhancements.chat}\n\n`
 
     // Add user context
-    prompt += `Você está conversando com ${ctx.author.username} em ${ctx.guild?.name || 'uma DM'}.\n`
+    prompt += `Você está conversando com ${ctx.author?.username || 'Unknown'} em ${ctx.guild?.name || 'uma DM'}.\n`
 
     // Add memory insights
     if (memory.preferences.interests?.length > 0) {
@@ -485,7 +501,7 @@ export default class MahinaAI extends Command {
     insights: any,
     client: MahinaBot
   ): EmbedBuilder {
-    const personalityInfo = {
+    const personalityInfo: Record<string, { emoji: string; color: any }> = {
       friendly: { emoji: '😊', color: client.config.color.green },
       professional: { emoji: '💼', color: client.config.color.blue },
       playful: { emoji: '🎉', color: client.config.color.violet },
@@ -813,7 +829,8 @@ export default class MahinaAI extends Command {
     analysis: any,
     memoryService: any,
     userId: string,
-    guildId: string
+    guildId: string,
+    client: MahinaBot
   ): Promise<void> {
     // Only send suggestions for new users or specific intents
     if (memory.interactions.totalMessages > 20 && analysis.intent !== 'help') {
@@ -825,16 +842,16 @@ export default class MahinaAI extends Command {
       const recommendations = await memoryService.getRecommendations(userId, guildId)
 
       if (analysis.intent === 'music' && ctx.guild) {
-        await ctx.channel?.send({
+        await (ctx.channel as TextChannel)?.send({
           content: `💡 **Music Tip**: Try \`!play <song name>\` to start playing music, or \`!help music\` for all music commands!`,
         })
       } else if (memory.interactions.totalMessages === 1) {
-        await ctx.channel?.send({
+        await (ctx.channel as TextChannel)?.send({
           content: `👋 **Welcome!** I'm Mahina AI. I can help with music, answer questions, and chat! Try different personalities with the \`personality\` option.`,
         })
       } else if (recommendations.tips.length > 0 && Math.random() < 0.3) {
         // 30% chance to show a tip
-        await ctx.channel?.send({
+        await (ctx.channel as TextChannel)?.send({
           content: `💭 **Tip**: ${recommendations.tips[0]}`,
         })
       }
@@ -842,7 +859,7 @@ export default class MahinaAI extends Command {
   }
 
   private formatIntent(intent: string): string {
-    const intents = {
+    const intents: Record<string, string> = {
       help: '❓ Help Request',
       music: '🎵 Music Query',
       greeting: '👋 Greeting',
@@ -872,7 +889,7 @@ export default class MahinaAI extends Command {
       }
 
       // Choose voice based on personality
-      const voiceMap = {
+      const voiceMap: Record<string, string> = {
         friendly: 'multilingual_female_1',
         professional: 'portuguese_female_1',
         playful: 'multilingual_female_2',
@@ -901,7 +918,7 @@ export default class MahinaAI extends Command {
         })
 
         // Send audio as follow-up message
-        await ctx.channel?.send({
+        await (ctx.channel as TextChannel)?.send({
           content: `🎵 **Resposta em áudio** (${personality}):`,
           files: [attachment],
         })

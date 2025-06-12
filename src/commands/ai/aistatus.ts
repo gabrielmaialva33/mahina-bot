@@ -18,8 +18,6 @@ export default class AIStatus extends Command {
       args: false,
       vote: false,
       player: undefined,
-      inVoice: false,
-      sameVoice: false,
       permissions: {
         client: ['SendMessages', 'ViewChannel', 'EmbedLinks'],
         user: [],

@@ -58,7 +58,7 @@ export class AIMemoryService {
 
     // Try to load from database
     try {
-      const dbMemory = await this.prisma.aiMemory.findUnique({
+      const dbMemory = await this.prisma.aIMemory.findUnique({
         where: {
           userId_guildId: {
             userId,
@@ -68,7 +68,7 @@ export class AIMemoryService {
       })
 
       if (dbMemory) {
-        memory = JSON.parse(dbMemory.data) as UserMemory
+        memory = JSON.parse(dbMemory.data as string) as UserMemory
         this.memoryCache.set(key, memory)
         return memory
       }
@@ -295,7 +295,7 @@ export class AIMemoryService {
 
     for (const [key, memory] of memories) {
       try {
-        await this.prisma.aiMemory.upsert({
+        await this.prisma.aIMemory.upsert({
           where: {
             userId_guildId: {
               userId: memory.userId,

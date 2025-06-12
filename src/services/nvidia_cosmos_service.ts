@@ -200,8 +200,8 @@ export class NvidiaCosmosService {
       }
 
       const genreKey = musicInfo.genre.toLowerCase().replace(/[^a-z]/g, '_')
-      if (genreElements[genreKey]) {
-        prompt += genreElements[genreKey]
+      if (genreElements[genreKey as keyof typeof genreElements]) {
+        prompt += genreElements[genreKey as keyof typeof genreElements]
       }
     }
 
@@ -217,8 +217,8 @@ export class NvidiaCosmosService {
       }
 
       const moodKey = musicInfo.mood.toLowerCase().replace(/[^a-z]/g, '_')
-      if (moodElements[moodKey]) {
-        prompt += moodElements[moodKey]
+      if (moodElements[moodKey as keyof typeof moodElements]) {
+        prompt += moodElements[moodKey as keyof typeof moodElements]
       }
     }
 

@@ -241,7 +241,7 @@ export class AIService {
       // Call AI API
       const completion = await this.openai.chat.completions.create({
         model: process.env.NVIDIA_API_KEY ? 'meta/llama-3.1-405b-instruct' : 'gpt-3.5-turbo',
-        messages: apiMessages,
+        messages: apiMessages as any,
         temperature: selectedPersonality.temperature,
         max_tokens: 500,
         stream: false,

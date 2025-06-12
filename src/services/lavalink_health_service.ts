@@ -3,7 +3,7 @@ import { logger } from '#common/logger'
 
 export class LavalinkHealthService {
   private client: MahinaBot
-  private healthCheckInterval: NodeJS.Timer | null = null
+  private healthCheckInterval: NodeJS.Timeout | null = null
   private readonly CHECK_INTERVAL = 60 * 1000 // Check every minute
   private readonly MAX_RECONNECT_ATTEMPTS = 5
   private reconnectAttempts: Map<string, number> = new Map()
@@ -41,7 +41,7 @@ export class LavalinkHealthService {
     for (const [nodeId, node] of nodes.entries()) {
       try {
         // Check if node is alive and connected
-        if (!node.isAlive || !node.socket || node.socket.readyState !== 1) {
+        if (!node.isAlive || !node.connected) {
           logger.warn(`Lavalink node ${nodeId} is not healthy, attempting reconnection...`)
           await this.handleUnhealthyNode(nodeId, node)
         } else {
@@ -68,39 +68,16 @@ export class LavalinkHealthService {
 
     try {
       // Try to reconnect the node
-      if (node.socket) {
-        // Check WebSocket state:
-        // 0 = CONNECTING, 1 = OPEN, 2 = CLOSING, 3 = CLOSED
-        const socketState = node.socket.readyState
+      if (!node.connected) {
+        // Wait a bit before reconnecting
+        await new Promise((resolve) => setTimeout(resolve, 2000))
 
-        if (socketState === 0) {
-          // Socket is still connecting, wait for it to finish
-          logger.warn(`Socket for node ${nodeId} is still connecting, waiting...`)
-          await new Promise((resolve) => setTimeout(resolve, 5000))
-          return
-        } else if (socketState === 2 || socketState === 3) {
-          // Socket is already closing or closed, just wait a bit
-          await new Promise((resolve) => setTimeout(resolve, 1000))
-        } else if (socketState === 1) {
-          // Socket is open, try to close it properly
-          node.socket.removeAllListeners()
-          try {
-            node.socket.close()
-          } catch (closeError) {
-            // Ignore close errors as the socket might already be closed
-            logger.warn(`Socket close error for node ${nodeId}:`, closeError)
-          }
-        }
+        await node.connect()
+        logger.success(`Successfully reconnected Lavalink node ${nodeId}`)
+
+        // Reset attempts on successful reconnection
+        this.reconnectAttempts.delete(nodeId)
       }
-
-      // Wait a bit before reconnecting
-      await new Promise((resolve) => setTimeout(resolve, 2000))
-
-      await node.connect()
-      logger.success(`Successfully reconnected Lavalink node ${nodeId}`)
-
-      // Reset attempts on successful reconnection
-      this.reconnectAttempts.delete(nodeId)
     } catch (error) {
       logger.error(
         `Failed to reconnect Lavalink node ${nodeId} (attempt ${attempts + 1}/${this.MAX_RECONNECT_ATTEMPTS}):`,
@@ -126,7 +103,7 @@ export class LavalinkHealthService {
     let reconnecting = 0
 
     for (const node of nodes.values()) {
-      if (node.isAlive && node.socket && node.socket.readyState === 1) {
+      if (node.isAlive && node.connected) {
         healthy++
       } else if (this.reconnectAttempts.has(node.id)) {
         reconnecting++
@@ -152,9 +129,8 @@ export class LavalinkHealthService {
 
     for (const [nodeId, node] of nodes.entries()) {
       try {
-        if (node.socket) {
-          node.socket.removeAllListeners()
-          node.socket.close()
+        if (node.connected) {
+          await node.disconnect()
         }
 
         await node.connect()
@@ -172,7 +148,7 @@ export class LavalinkHealthService {
     const nodes = this.client.manager.nodeManager.nodes
 
     for (const node of nodes.values()) {
-      if (node.isAlive && node.socket && node.socket.readyState === 1) {
+      if (node.isAlive && node.connected) {
         return true
       }
     }

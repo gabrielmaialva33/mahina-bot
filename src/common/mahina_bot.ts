@@ -38,6 +38,8 @@ import { NvidiaTTSService } from '#src/services/nvidia_tts_service'
 import { NvidiaEmbeddingService } from '#src/services/nvidia_embedding_service'
 import { NvidiaCosmosService } from '#src/services/nvidia_cosmos_service'
 import { NvidiaGuardService } from '#src/services/nvidia_guard_service'
+import { NvidiaEnhancedService } from '#src/services/nvidia_enhanced_service'
+import { AIJobService } from '#src/services/ai_job_service'
 
 const dirname = path.dirname(fileURLToPath(import.meta.url))
 
@@ -58,10 +60,12 @@ export default class MahinaBot extends Client {
   animezey = new AnimeZey()
   services: {
     nvidia?: NvidiaAIService
+    nvidiaEnhanced?: NvidiaEnhancedService
     proactiveInteraction?: ProactiveInteractionService
     lavalinkHealth?: LavalinkHealthService
     aiContext?: AIContextService
     aiMemory?: AIMemoryService
+    aiJob?: AIJobService
     nvidiaTTS?: NvidiaTTSService
     nvidiaEmbedding?: NvidiaEmbeddingService
     nvidiaCosmos?: NvidiaCosmosService
@@ -91,13 +95,15 @@ export default class MahinaBot extends Client {
     // Initialize AI Manager with all AI services
     try {
       const prisma = await this.db.getPrismaClient()
-      this.aiManager = getAIManager(prisma)
+      this.aiManager = getAIManager(this, prisma)
       await this.aiManager.initialize()
 
-      // Map AI services for backward compatibility
+      // Map AI services for backward compatibility and easy access
       this.services.nvidia = this.aiManager.nvidia
+      this.services.nvidiaEnhanced = this.aiManager.nvidiaEnhanced
       this.services.aiContext = this.aiManager.context
       this.services.aiMemory = this.aiManager.memory
+      this.services.aiJob = this.aiManager.jobs
 
       this.logger.info('AI Manager and services initialized successfully')
     } catch (error) {

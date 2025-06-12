@@ -1,4 +1,6 @@
-import { Command, type Context, type MahinaBot } from '#common/index'
+import Command from '#common/command'
+import type Context from '#common/context'
+import type MahinaBot from '#common/mahina_bot'
 import { ApplicationCommandOptionType } from 'discord.js'
 
 export default class Reason extends Command {
@@ -18,9 +20,7 @@ export default class Reason extends Command {
       cooldown: 10,
       args: true,
       vote: false,
-      player: false,
-      inVoice: false,
-      sameVoice: false,
+      player: undefined,
       permissions: {
         client: ['SendMessages', 'ViewChannel', 'EmbedLinks'],
         user: [],
@@ -57,8 +57,16 @@ export default class Reason extends Command {
       })
     }
 
-    const problem = ctx.interaction?.options.getString('problem') || args.join(' ')
-    const context = ctx.interaction?.options.getString('context') || undefined
+    let problem: string
+    let context: string | undefined
+
+    if (ctx.isInteraction) {
+      problem = ctx.options.get('problem')?.value as string
+      context = (ctx.options.get('context')?.value as string) || undefined
+    } else {
+      problem = args.join(' ')
+      context = undefined
+    }
 
     if (!problem) {
       return await ctx.sendMessage({
@@ -74,7 +82,7 @@ export default class Reason extends Command {
     await ctx.sendDeferMessage('🧠 Analyzing your problem with advanced reasoning...')
 
     try {
-      const response = await nvidiaService.reasoning(ctx.author.id, problem, context)
+      const response = await nvidiaService.reasoning(ctx.author!.id, problem, context)
 
       // Split response if too long
       const chunks = response.match(/[\s\S]{1,1900}/g) || []
@@ -129,7 +137,7 @@ export default class Reason extends Command {
       await ctx.editMessage({
         embeds: [
           {
-            description: `❌ Failed to analyze problem: ${error.message}`,
+            description: `❌ Failed to analyze problem: ${(error as Error).message}`,
             color: 0xff0000,
           },
         ],

@@ -1,17 +1,16 @@
-import Discord, {
+import {
   ActionRowBuilder,
   ButtonBuilder,
   type ButtonInteraction,
   ButtonStyle,
   ComponentType,
+  MessageFlags,
   type Message,
   type TextChannel,
 } from 'discord.js'
 import Command from '#common/command'
 import type MahinaBot from '#common/mahina_bot'
 import type Context from '#common/context'
-
-const { InteractionResponseFlags } = Discord
 
 export default class Deploy extends Command {
   constructor(client: MahinaBot) {
@@ -70,7 +69,7 @@ export default class Deploy extends Command {
         interaction
           .reply({
             content: "You can't interact with this message",
-            flags: InteractionResponseFlags.Ephemeral,
+            flags: MessageFlags.Ephemeral,
           })
           .catch(client.logger.error)
         return false

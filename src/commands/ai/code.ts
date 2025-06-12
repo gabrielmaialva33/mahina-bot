@@ -21,8 +21,6 @@ export default class Code extends Command {
       args: true,
       vote: false,
       player: undefined,
-      inVoice: false,
-      sameVoice: false,
       permissions: {
         client: ['SendMessages', 'ViewChannel', 'EmbedLinks', 'AttachFiles'],
         user: [],
@@ -171,10 +169,10 @@ export default class Code extends Command {
     let language: string
     let code: string
 
-    if (ctx.interaction) {
-      task = ctx.interaction.options.getSubcommand() as any
-      language = ctx.interaction.options.getString('language', true)
-      code = ctx.interaction.options.getString('code', true)
+    if (ctx.isInteraction) {
+      task = ctx.options.getSubCommand() as any
+      language = ctx.options.get('language', true)?.value as string
+      code = ctx.options.get('code', true)?.value as string
     } else {
       // Parse text command
       const taskMatch = args[0]?.toLowerCase()
@@ -215,7 +213,12 @@ export default class Code extends Command {
     )
 
     try {
-      const response = await nvidiaService.analyzeCode(ctx.author.id, code, language, task)
+      const response = await nvidiaService.analyzeCode(
+        ctx.author?.id || 'unknown',
+        code,
+        language,
+        task
+      )
 
       // Split response if too long
       const chunks = response.match(/[\s\S]{1,1900}/g) || []

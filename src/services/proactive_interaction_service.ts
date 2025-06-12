@@ -18,7 +18,7 @@ interface InteractionPrompt {
 export class ProactiveInteractionService {
   private client: MahinaBot
   private channelActivity: Map<string, ChannelActivity> = new Map()
-  private interactionInterval: NodeJS.Timer | null = null
+  private interactionInterval: NodeJS.Timeout | null = null
   private readonly INACTIVITY_THRESHOLD = 3 * 60 * 60 * 1000 // 3 hours
   private readonly CHECK_INTERVAL = 30 * 60 * 1000 // Check every 30 minutes
 
@@ -119,18 +119,16 @@ export class ProactiveInteractionService {
 
   private async initializeChannelTracking(): Promise<void> {
     for (const guild of this.client.guilds.cache.values()) {
-      for (const channel of guild.channels.cache.values()) {
-        if (channel.isTextBased() && channel instanceof TextChannel) {
-          // Skip certain channels
-          if (this.shouldSkipChannel(channel)) continue
+      // Get the preferred channel for this guild
+      const preferredChannel = await this.getPreferredChannelForGuild(guild.id)
 
-          this.channelActivity.set(channel.id, {
-            lastMessageTime: new Date(),
-            lastInteractionTime: new Date(),
-            messageCount: 0,
-            topic: channel.topic || undefined,
-          })
-        }
+      if (preferredChannel) {
+        this.channelActivity.set(preferredChannel.id, {
+          lastMessageTime: new Date(),
+          lastInteractionTime: new Date(),
+          messageCount: 0,
+          topic: preferredChannel.topic || undefined,
+        })
       }
     }
   }
@@ -150,7 +148,76 @@ export class ProactiveInteractionService {
     return skipPatterns.some((pattern) => pattern.test(channelName))
   }
 
+  private async getPreferredChannelForGuild(guildId: string): Promise<TextChannel | null> {
+    try {
+      const guild = this.client.guilds.cache.get(guildId)
+      if (!guild) return null
+
+      // Get AI config for this guild
+      const guildData = await this.client.db.getGuild(guildId)
+      const aiConfig = await this.client.db.getAIConfig(guildId)
+
+      // If allowed channels are specified, use the first valid one
+      if (aiConfig?.allowedChannels && aiConfig.allowedChannels.length > 0) {
+        for (const channelId of aiConfig.allowedChannels) {
+          const channel = guild.channels.cache.get(channelId) as TextChannel
+          if (
+            channel &&
+            channel.isTextBased() &&
+            channel instanceof TextChannel &&
+            channel.permissionsFor(this.client.user!)?.has(['SendMessages', 'ViewChannel'])
+          ) {
+            return channel
+          }
+        }
+      }
+
+      // Otherwise, find the best general channel
+      const preferredNames = [
+        'general',
+        'geral',
+        'chat',
+        'bate-papo',
+        'conversa',
+        'lounge',
+        'social',
+        'main',
+        'principal',
+        'lobby',
+      ]
+
+      // First try to find channels with preferred names
+      for (const name of preferredNames) {
+        const channel = guild.channels.cache.find(
+          (ch) =>
+            ch.isTextBased() &&
+            ch instanceof TextChannel &&
+            ch.name.toLowerCase().includes(name) &&
+            !this.shouldSkipChannel(ch) &&
+            ch.permissionsFor(this.client.user!)?.has(['SendMessages', 'ViewChannel'])
+        ) as TextChannel
+
+        if (channel) return channel
+      }
+
+      // If no preferred channel found, get the first available text channel
+      const firstAvailable = guild.channels.cache.find(
+        (ch) =>
+          ch.isTextBased() &&
+          ch instanceof TextChannel &&
+          !this.shouldSkipChannel(ch) &&
+          ch.permissionsFor(this.client.user!)?.has(['SendMessages', 'ViewChannel'])
+      ) as TextChannel
+
+      return firstAvailable || null
+    } catch (error) {
+      logger.error(`Failed to get preferred channel for guild ${guildId}:`, error)
+      return null
+    }
+  }
+
   async updateActivity(channelId: string): Promise<void> {
+    // Only update if this channel is being tracked
     const activity = this.channelActivity.get(channelId)
     if (activity) {
       activity.lastMessageTime = new Date()
@@ -282,29 +349,20 @@ export class ProactiveInteractionService {
 
   // Method to handle new guilds
   async handleGuildCreate(guild: Guild): Promise<void> {
-    for (const channel of guild.channels.cache.values()) {
-      if (channel.isTextBased() && channel instanceof TextChannel) {
-        if (this.shouldSkipChannel(channel)) continue
+    // Get the preferred channel for this guild
+    const preferredChannel = await this.getPreferredChannelForGuild(guild.id)
 
-        this.channelActivity.set(channel.id, {
-          lastMessageTime: new Date(),
-          lastInteractionTime: new Date(0), // Allow immediate interaction in new guilds
-          messageCount: 0,
-          topic: channel.topic || undefined,
-        })
-      }
+    if (preferredChannel) {
+      this.channelActivity.set(preferredChannel.id, {
+        lastMessageTime: new Date(),
+        lastInteractionTime: new Date(0), // Allow immediate interaction in new guilds
+        messageCount: 0,
+        topic: preferredChannel.topic || undefined,
+      })
     }
 
-    // Send welcome message to general channel if exists and has permissions
-    const generalChannel = guild.channels.cache.find(
-      (ch) =>
-        ch.isTextBased() &&
-        ch instanceof TextChannel &&
-        (ch.name.includes('general') || ch.name.includes('geral') || ch.name.includes('chat')) &&
-        ch.permissionsFor(this.client.user!)?.has(['SendMessages', 'ViewChannel'])
-    ) as TextChannel
-
-    if (generalChannel) {
+    // Send welcome message to the preferred channel
+    if (preferredChannel) {
       try {
         const welcomeEmbed = new EmbedBuilder()
           .setTitle('🎵 Olá! Eu sou a Mahina!')
@@ -333,20 +391,20 @@ export class ProactiveInteractionService {
             }
           )
           .setColor(0x9b59b6)
-          .setThumbnail(this.client.user?.displayAvatarURL())
+          .setThumbnail(this.client.user?.displayAvatarURL() || null)
           .setFooter({
             text: 'Use /help para ver todos os comandos disponíveis!',
             iconURL: this.client.user?.displayAvatarURL(),
           })
 
-        await generalChannel.send({ embeds: [welcomeEmbed] })
+        await preferredChannel.send({ embeds: [welcomeEmbed] })
 
         // Update activity to prevent immediate proactive message
-        this.channelActivity.set(generalChannel.id, {
+        this.channelActivity.set(preferredChannel.id, {
           lastMessageTime: new Date(),
           lastInteractionTime: new Date(),
           messageCount: 1,
-          topic: generalChannel.topic || undefined,
+          topic: preferredChannel.topic || undefined,
         })
       } catch (error) {
         logger.error(`Failed to send welcome message to guild ${guild.id}:`, error)
@@ -356,14 +414,8 @@ export class ProactiveInteractionService {
 
   // Method to handle channel creation
   async handleChannelCreate(channel: TextChannel): Promise<void> {
-    if (this.shouldSkipChannel(channel)) return
-
-    this.channelActivity.set(channel.id, {
-      lastMessageTime: new Date(),
-      lastInteractionTime: new Date(0),
-      messageCount: 0,
-      topic: channel.topic || undefined,
-    })
+    // Don't automatically track new channels
+    // The bot will only track one preferred channel per guild
   }
 
   // Get statistics

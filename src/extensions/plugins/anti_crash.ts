@@ -30,7 +30,7 @@ const AntiCrash: BotPlugin = {
       client.logger.error('Uncaught Exception thrown:', err)
 
       // Handle specific Lavalink errors
-      if (err.code === 'ERR_UNHANDLED_ERROR' && err.message.includes('LavalinkNode')) {
+      if ((err as any).code === 'ERR_UNHANDLED_ERROR' && err.message.includes('LavalinkNode')) {
         client.logger.warn('Lavalink node exception detected, attempting to handle gracefully...')
         return // Don't crash on Lavalink errors
       }

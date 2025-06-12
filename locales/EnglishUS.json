@@ -561,6 +561,19 @@
     },
     "stream": {
       "description": "cmd.stream.description"
+    },
+    "aichannel": {
+      "description": "Set the channel where AI will send proactive messages",
+      "options": {
+        "channel": "The channel for AI proactive messages",
+        "action": "Action to perform"
+      },
+      "cleared": "✅ AI proactive messages channel has been cleared. AI will now choose a suitable channel automatically.",
+      "set": "✅ AI proactive messages will now be sent to {channel}",
+      "current_none": "No specific channel is set for AI proactive messages. AI will choose a suitable channel automatically.",
+      "current": "AI proactive messages are currently sent to: {channels}",
+      "invalid_channel": "❌ Please provide a valid text channel.",
+      "usage": "❌ Usage: aichannel <#channel|clear>"
     }
   },
   "buttons": {
@@ -782,5 +795,46 @@
   "Estilo visual da animação": "Estilo visual da animação",
   "Número de frames (8-48, padrão": "Número de frames (8-48, padrão",
   "Incluir texto na visualização": "Incluir texto na visualização",
-  "Imagem base para predição física (opcional)": "Imagem base para predição física (opcional)"
+  "Imagem base para predição física (opcional)": "Imagem base para predição física (opcional)",
+  "Analise dados de IA e métricas com TimescaleDB": "Analise dados de IA e métricas com TimescaleDB",
+  "Análise detalhada do seu uso de IA": "Análise detalhada do seu uso de IA",
+  "Performance e uso dos modelos de IA": "Performance e uso dos modelos de IA",
+  "Análise de sentimento ao longo do tempo": "Análise de sentimento ao longo do tempo",
+  "Buscar conversas similares usando embeddings": "Buscar conversas similares usando embeddings",
+  "Padrões de uso e comportamento": "Padrões de uso e comportamento",
+  "Exportar dados de analytics": "Exportar dados de analytics",
+  "Período de análise": "Período de análise",
+  "Texto para buscar": "Texto para buscar",
+  "Número de resultados": "Número de resultados",
+  "Formato de exportação": "Formato de exportação",
+  "Gerencie e monitore trabalhos de IA em segundo plano": "Gerencie e monitore trabalhos de IA em segundo plano",
+  "Adicionar um trabalho à fila": "Adicionar um trabalho à fila",
+  "Verificar status de um trabalho": "Verificar status de um trabalho",
+  "Ver estatísticas da fila de trabalhos": "Ver estatísticas da fila de trabalhos",
+  "Listar trabalhos recentes": "Listar trabalhos recentes",
+  "Cancelar um trabalho": "Cancelar um trabalho",
+  "Tipo de trabalho": "Tipo de trabalho",
+  "Dados para processar": "Dados para processar",
+  "Prioridade do trabalho (0-10)": "Prioridade do trabalho (0-10)",
+  "ID do trabalho": "ID do trabalho",
+  "Filtrar por status": "Filtrar por status",
+  "ID do trabalho para cancelar": "ID do trabalho para cancelar",
+  "Modelo de IA a usar": "Modelo de IA a usar",
+  "URL da imagem para análise (modo vision)": "URL da imagem para análise (modo vision)",
+  "Manage AI background jobs and processing tasks": "Manage AI background jobs and processing tasks",
+  "Action to perform": "Action to perform",
+  "Type of job to queue": "Type of job to queue",
+  "Content for the job": "Content for the job",
+  "Job ID for details/cancel": "Job ID for details/cancel",
+  "Job priority (0-10, higher = more priority)": "Job priority (0-10, higher = more priority)",
+  "Gerencie modelos de IA da NVIDIA - incluindo Llama 4 Maverick e outros modelos avançados": "Gerencie modelos de IA da NVIDIA - incluindo Llama 4 Maverick e outros modelos avançados",
+  "Listar todos os modelos de IA disponíveis": "Listar todos os modelos de IA disponíveis",
+  "Selecionar um modelo de IA": "Selecionar um modelo de IA",
+  "Obter informações sobre um modelo específico": "Obter informações sobre um modelo específico",
+  "Mostrar seu modelo de IA atual": "Mostrar seu modelo de IA atual",
+  "Ver estatísticas de uso dos modelos": "Ver estatísticas de uso dos modelos",
+  "Filtrar por categoria": "Filtrar por categoria",
+  "O modelo para selecionar": "O modelo para selecionar",
+  "O modelo para obter informações": "O modelo para obter informações",
+  "Período de tempo": "Período de tempo"
 }

@@ -1,6 +1,7 @@
 import { ApplicationCommandOptionType, EmbedBuilder } from 'discord.js'
 import Command from '#common/command'
-import type { Context, MahinaBot } from '#common/index'
+import type Context from '#common/context'
+import type MahinaBot from '#common/mahina_bot'
 
 export default class ProactiveCommand extends Command {
   constructor(client: MahinaBot) {
@@ -42,7 +43,9 @@ export default class ProactiveCommand extends Command {
   }
 
   async run(client: MahinaBot, ctx: Context, args: string[]): Promise<any> {
-    const subcommand = ctx.interaction?.options.getSubcommand() || args[0] || 'stats'
+    const subcommand = ctx.isInteraction
+      ? ctx.options.getSubCommand() || 'stats'
+      : args[0] || 'stats'
 
     if (!client.services.proactiveInteraction) {
       return await ctx.sendMessage({
@@ -117,7 +120,7 @@ export default class ProactiveCommand extends Command {
 
         // Force a proactive interaction in current channel
         try {
-          await client.services.proactiveInteraction.sendTestMessage(ctx.channel)
+          await client.services.proactiveInteraction.sendTestMessage(ctx.channel as any)
 
           return await ctx.sendMessage({
             embeds: [
@@ -131,7 +134,7 @@ export default class ProactiveCommand extends Command {
           return await ctx.sendMessage({
             embeds: [
               {
-                description: `❌ Failed to send test message: ${error.message}`,
+                description: `❌ Failed to send test message: ${(error as Error).message}`,
                 color: 0xff0000,
               },
             ],
@@ -156,7 +159,7 @@ export default class ProactiveCommand extends Command {
           return await ctx.sendMessage({
             embeds: [
               {
-                description: `❌ Failed to force check: ${error.message}`,
+                description: `❌ Failed to force check: ${(error as Error).message}`,
                 color: 0xff0000,
               },
             ],

@@ -1,16 +1,15 @@
-import Discord, {
+import {
   ActionRowBuilder,
   ActivityType,
   ButtonBuilder,
   ButtonStyle,
   CommandInteraction,
   Message,
+  MessageFlags,
   type TextChannel,
 } from 'discord.js'
 import type Context from '#common/context'
 import MahinaBot from '#common/mahina_bot'
-
-const { InteractionResponseFlags } = Discord
 
 export class Utils {
   public static formatTime(ms: number): string {
@@ -180,7 +179,7 @@ export class Utils {
       } else {
         await interaction.reply({
           content: ctx.locale('buttons.errors.not_author'),
-          flags: InteractionResponseFlags.Ephemeral,
+          flags: MessageFlags.Ephemeral,
         })
       }
     })

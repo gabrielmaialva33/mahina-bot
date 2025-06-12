@@ -374,7 +374,7 @@ export class PersonalityRLService {
   ): Promise<void> {
     try {
       // Save personality analysis
-      await this.client.db.prisma.personalityAnalysis.create({
+      await this.client.db?.prisma.personalityAnalysis.create({
         data: {
           userId,
           guildId,
@@ -395,7 +395,7 @@ export class PersonalityRLService {
   async getUserStats(userId: string, guildId: string): Promise<PersonalityState> {
     try {
       // Busca histórico de chat do usuário
-      const chatHistories = await this.client.db.prisma.chatHistory.findMany({
+      const chatHistories = await this.client.db?.prisma.chatHistory.findMany({
         where: {
           guildId,
         },

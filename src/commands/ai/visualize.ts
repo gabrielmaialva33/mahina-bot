@@ -1,7 +1,12 @@
-import { Command, type Context, type MahinaBot } from '#common/index'
-import Discord, { ApplicationCommandOptionType, AttachmentBuilder, EmbedBuilder } from 'discord.js'
-
-const { InteractionResponseFlags } = Discord
+import Command from '#common/command'
+import type Context from '#common/context'
+import type MahinaBot from '#common/mahina_bot'
+import {
+  ApplicationCommandOptionType,
+  AttachmentBuilder,
+  EmbedBuilder,
+  MessageFlags,
+} from 'discord.js'
 
 export default class VisualizeCommand extends Command {
   constructor(client: MahinaBot) {
@@ -17,9 +22,7 @@ export default class VisualizeCommand extends Command {
       cooldown: 30,
       args: false,
       vote: false,
-      player: false,
-      inVoice: false,
-      sameVoice: false,
+      player: undefined,
       permissions: {
         client: ['SendMessages', 'ViewChannel', 'EmbedLinks', 'AttachFiles'],
         user: [],
@@ -82,12 +85,28 @@ export default class VisualizeCommand extends Command {
 
   async run(client: MahinaBot, ctx: Context, args: string[]): Promise<any> {
     // Parse arguments
-    const type = ctx.interaction?.options.getString('tipo') || 'custom'
-    const prompt = ctx.interaction?.options.getString('prompt') || args.join(' ')
-    const style = ctx.interaction?.options.getString('estilo') || 'abstract'
-    const frames = ctx.interaction?.options.getInteger('frames') || 16
-    const includeText = ctx.interaction?.options.getBoolean('incluir_texto') || false
-    const imageAttachment = ctx.interaction?.options.getAttachment('imagem')
+    let type: string
+    let prompt: string
+    let style: string
+    let frames: number
+    let includeText: boolean
+    let imageAttachment: any
+
+    if (ctx.isInteraction) {
+      type = (ctx.options.get('tipo')?.value as string) || 'custom'
+      prompt = (ctx.options.get('prompt')?.value as string) || ''
+      style = (ctx.options.get('estilo')?.value as string) || 'abstract'
+      frames = (ctx.options.get('frames')?.value as number) || 16
+      includeText = (ctx.options.get('incluir_texto')?.value as boolean) || false
+      imageAttachment = ctx.options.get('imagem')?.attachment
+    } else {
+      type = 'custom'
+      prompt = args.join(' ')
+      style = 'abstract'
+      frames = 16
+      includeText = false
+      imageAttachment = undefined
+    }
 
     // Validate input based on type
     if (type === 'custom' && !prompt) {
@@ -98,7 +117,7 @@ export default class VisualizeCommand extends Command {
             color: client.config.color.red,
           },
         ],
-        flags: InteractionResponseFlags.Ephemeral,
+        flags: MessageFlags.Ephemeral,
       })
     }
 
@@ -112,7 +131,7 @@ export default class VisualizeCommand extends Command {
               color: client.config.color.red,
             },
           ],
-          flags: InteractionResponseFlags.Ephemeral,
+          flags: MessageFlags.Ephemeral,
         })
       }
     }
@@ -127,7 +146,7 @@ export default class VisualizeCommand extends Command {
             color: client.config.color.red,
           },
         ],
-        flags: InteractionResponseFlags.Ephemeral,
+        flags: MessageFlags.Ephemeral,
       })
     }
 
@@ -139,7 +158,7 @@ export default class VisualizeCommand extends Command {
             color: client.config.color.red,
           },
         ],
-        flags: InteractionResponseFlags.Ephemeral,
+        flags: MessageFlags.Ephemeral,
       })
     }
 
@@ -157,7 +176,7 @@ export default class VisualizeCommand extends Command {
               color: client.config.color.red,
             },
           ],
-          flags: InteractionResponseFlags.Ephemeral,
+          flags: MessageFlags.Ephemeral,
         })
       }
     }
@@ -243,8 +262,8 @@ export default class VisualizeCommand extends Command {
           { name: '🎞️ Frames', value: `${frames} frames`, inline: true }
         )
         .setFooter({
-          text: `Solicitado por ${ctx.author.username} • NVIDIA Cosmos`,
-          iconURL: ctx.author.avatarURL() || undefined,
+          text: `Solicitado por ${ctx.author!.username} • NVIDIA Cosmos`,
+          iconURL: ctx.author!.avatarURL() || undefined,
         })
         .setTimestamp()
 
@@ -310,7 +329,7 @@ export default class VisualizeCommand extends Command {
             fields: [
               {
                 name: 'Detalhes do erro',
-                value: error.message || 'Erro desconhecido',
+                value: (error as Error).message || 'Erro desconhecido',
                 inline: false,
               },
             ],
@@ -322,7 +341,7 @@ export default class VisualizeCommand extends Command {
   }
 
   private getTypeName(type: string): string {
-    const names = {
+    const names: Record<string, string> = {
       nowplaying: '🎵 Música Atual',
       custom: '🎨 Prompt Customizado',
       physics: '🌊 Predição Física',
@@ -331,7 +350,7 @@ export default class VisualizeCommand extends Command {
   }
 
   private getStyleName(style: string): string {
-    const names = {
+    const names: Record<string, string> = {
       abstract: '🎭 Abstrato',
       realistic: '🎬 Realista',
       cyberpunk: '🌃 Cyberpunk',

@@ -92,58 +92,112 @@
 
 ## :rocket: NVIDIA AI Integration
 
-Mahina Bot leverages NVIDIA's powerful AI models through their API to provide intelligent assistance:
+Mahina Bot leverages NVIDIA's cutting-edge AI models through their API to provide intelligent assistance:
 
-### Available Models
+### 🆕 Featured Models
 
-| Model              | Use Case                            | Context Length | Features                    |
-| ------------------ | ----------------------------------- | -------------- | --------------------------- |
-| **DeepSeek R1**    | Advanced reasoning, problem-solving | 8,192 tokens   | Step-by-step analysis       |
-| **Qwen 2.5 Coder** | Programming, code review            | 32,768 tokens  | Code generation & debugging |
-| **Llama 3.3 70B**  | General conversations               | 128,000 tokens | Balanced performance        |
-| **Llama 3.1 70B**  | Streaming chat                      | 128,000 tokens | Real-time responses         |
+| Model                    | Use Case                                | Context | Highlights                        |
+| ------------------------ | --------------------------------------- | ------- | --------------------------------- |
+| **Llama 4 Maverick 17B** | Multimodal AI with image & text support | 128K    | 🌟 Latest model, MoE architecture |
+| **Nemotron Ultra 253B**  | Scientific reasoning & complex math     | 128K    | 🚀 Highest accuracy, enterprise   |
+| **DeepSeek R1**          | Advanced reasoning, problem-solving     | 8K      | 🧠 Step-by-step analysis          |
+| **Qwen 2.5 Coder 32B**   | Programming, code review & optimization | 32K     | 💻 Specialized for developers     |
+| **Phi 4 Multimodal**     | Audio, image & text understanding       | 16K     | 🎙️ Multi-input processing         |
+| **Cosmos Predict 7B**    | Physics simulations & world modeling    | 4K      | 🌍 Physical AI applications       |
 
 ### AI Commands
 
 ```bash
 # Chat with AI
-!chat <message>                  # General AI chat
-!mahinai <message>               # Enhanced AI with memory and context
-!reason <problem>                # Advanced reasoning for complex problems
+!chat <message>                  # General AI chat with context
+!chat vision <image> <question>  # Analyze images with AI
+!chat reasoning <problem>        # Advanced step-by-step reasoning
+!mahinai <message>               # Enhanced AI with memory, personality & learning
 !code <task> <language>          # Code generation and analysis
-!stream <message>                # Streaming AI responses
-!model list                      # View available AI models
-!model select <model>            # Switch AI model
-!aistatus                        # View your AI usage stats
+!model list                      # View all 14+ available models
+!model select llama-4-maverick   # Switch to specific AI model
+!model stats                     # View usage statistics
+!aistatus                        # View your personal AI stats
 ```
 
-### Example AI Usage
+### 🔥 New Features
+
+#### TimescaleDB Integration
+
+- **Time-Series AI Analytics** - Track model performance over time
+- **Vector Search with pgvector** - Semantic search through conversation history
+- **pgai Extensions** - Direct AI model calls from database
+- **Continuous Aggregates** - Real-time metrics and insights
+
+#### Job Queue System (pg-boss)
+
+- **Async AI Processing** - Handle long-running AI tasks
+- **Batch Operations** - Process multiple requests efficiently
+- **Scheduled Jobs** - Recurring AI tasks and analysis
+- **Priority Queue** - Important requests processed first
+
+#### Enhanced AI Capabilities
+
+- **RAG (Retrieval Augmented Generation)** - Context-aware responses using vector search
+- **Multi-Model Support** - 14+ specialized models for different tasks
+- **Streaming Responses** - Real-time AI output for better UX
+- **Image Analysis** - Vision models for image understanding
+- **Code Intelligence** - Advanced code analysis, debugging, and generation
+
+### Example Usage
 
 ```javascript
-// Code generation example
-const invokeUrl = 'https://integrate.api.nvidia.com/v1/chat/completions'
+// Using the new Llama 4 Maverick model
+const response = await nvidiaService.chat(userId, 'Analyze this image and explain what you see', {
+  model: 'llama-4-maverick',
+  images: ['https://example.com/image.jpg'],
+  stream: true,
+})
 
-const payload = {
-  model: 'meta/llama-4-maverick-17b-128e-instruct',
-  messages: [{ role: 'user', content: 'Your message here' }],
-  max_tokens: 512,
-  temperature: 1.0,
-  stream: false,
-}
+// Queue an AI job for background processing
+const jobId = await aiJobService.queueJob({
+  type: 'embedding',
+  userId: '123',
+  guildId: '456',
+  data: {
+    content: 'Generate embeddings for this text',
+    contentType: 'message',
+  },
+  priority: 1,
+})
 ```
 
 <br>
 
 ## :computer: Technologies
 
+### Core Stack
+
 - **[TypeScript](https://www.typescriptlang.org/)** - Type-safe JavaScript
 - **[Node.js](https://nodejs.org/)** - JavaScript runtime
 - **[Discord.js](https://discord.js.org/)** - Discord API wrapper
 - **[Lavalink](https://github.com/lavalink-devs/Lavalink)** - Audio streaming server
+
+### Database & Storage
+
+- **[TimescaleDB](https://www.timescale.com/)** - Time-series PostgreSQL
+- **[pgvector](https://github.com/pgvector/pgvector)** - Vector similarity search
+- **[pgai](https://github.com/timescale/pgai)** - AI functions in PostgreSQL
+- **[pg-boss](https://github.com/timgit/pg-boss)** - Job queue for Node.js
+- **[Redis](https://redis.io/)** - Caching and pub/sub
 - **[Prisma](https://www.prisma.io/)** - Modern database ORM
-- **[MongoDB](https://www.mongodb.com/)** - NoSQL database
-- **[NVIDIA AI](https://www.nvidia.com/en-us/ai/)** - AI models and inference
+
+### AI & ML
+
+- **[NVIDIA AI](https://build.nvidia.com/)** - 14+ AI models including Llama 4
+- **[OpenAI](https://openai.com/)** - Fallback AI provider
+- **[pg_cron](https://github.com/citusdata/pg_cron)** - Scheduled jobs in PostgreSQL
+
+### Infrastructure
+
 - **[Docker](https://www.docker.com/)** - Containerization
+- **[Grafana](https://grafana.com/)** - Monitoring dashboards
+- **[PostgREST](https://postgrest.org/)** - REST API for database
 
 <br>
 

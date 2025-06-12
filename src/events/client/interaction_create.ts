@@ -1,4 +1,4 @@
-import Discord, {
+import {
   ActionRowBuilder,
   type AutocompleteInteraction,
   ButtonBuilder,
@@ -9,6 +9,7 @@ import Discord, {
   EmbedBuilder,
   type GuildMember,
   InteractionType,
+  MessageFlags,
   PermissionFlagsBits,
   type TextChannel,
 } from 'discord.js'
@@ -16,8 +17,6 @@ import Event from '#common/event'
 import Context from '#common/context'
 import type MahinaBot from '#common/mahina_bot'
 import { T } from '#common/i18n'
-
-const { InteractionResponseFlags } = Discord
 
 export default class InteractionCreate extends Event {
   constructor(client: MahinaBot, file: string) {
@@ -41,7 +40,7 @@ export default class InteractionCreate extends Event {
       ) {
         return await interaction.reply({
           content: T(locale, 'event.interaction.setup_channel'),
-          flags: InteractionResponseFlags.Ephemeral,
+          flags: MessageFlags.Ephemeral,
         })
       }
 
@@ -95,7 +94,7 @@ export default class InteractionCreate extends Event {
                   .map((perm: string) => `\`${perm}\``)
                   .join(', '),
               }),
-              flags: InteractionResponseFlags.Ephemeral,
+              flags: MessageFlags.Ephemeral,
             })
           }
         }
@@ -106,7 +105,7 @@ export default class InteractionCreate extends Event {
         ) {
           await interaction.reply({
             content: T(locale, 'event.interaction.no_user_permission'),
-            flags: InteractionResponseFlags.Ephemeral,
+            flags: MessageFlags.Ephemeral,
           })
           return
         }
@@ -129,7 +128,7 @@ export default class InteractionCreate extends Event {
           return await interaction.reply({
             content: T(locale, 'event.interaction.vote_message'),
             components: [voteBtn],
-            flags: InteractionResponseFlags.Ephemeral,
+            flags: MessageFlags.Ephemeral,
           })
         }
       }
@@ -214,7 +213,7 @@ export default class InteractionCreate extends Event {
             ) {
               return await interaction.reply({
                 content: T(locale, 'event.interaction.no_dj_permission'),
-                flags: InteractionResponseFlags.Ephemeral,
+                flags: MessageFlags.Ephemeral,
               })
             }
           }

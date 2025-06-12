@@ -1,18 +1,17 @@
-import Discord, {
+import {
   ActionRowBuilder,
   ApplicationCommandOptionType,
   ButtonBuilder,
   ButtonStyle,
   ComponentType,
   EmbedBuilder,
+  MessageFlags,
   StringSelectMenuBuilder,
 } from 'discord.js'
 import Command from '#common/command'
 import { AIService } from '#src/services/ai_service'
 import MahinaBot from '#common/mahina_bot'
-import { Context } from 'node:vm'
-
-const { InteractionResponseFlags } = Discord
+import Context from '#common/context'
 
 export default class AIConfigCommand extends Command {
   private aiService: AIService
@@ -160,10 +159,10 @@ export default class AIConfigCommand extends Command {
         customId: any
         deferUpdate: () => any
       }) => {
-        if (interaction.user.id !== ctx.author.id) {
+        if (interaction.user.id !== ctx.author?.id) {
           return interaction.reply({
             content: 'Apenas o autor do comando pode usar esses botões!',
-            flags: InteractionResponseFlags.Ephemeral,
+            flags: MessageFlags.Ephemeral,
           })
         }
 
@@ -230,10 +229,10 @@ export default class AIConfigCommand extends Command {
         values: any[]
         update: (arg0: { content: string; embeds: never[]; components: never[] }) => any
       }) => {
-        if (interaction.user.id !== ctx.author.id) {
+        if (interaction.user.id !== ctx.author?.id) {
           return interaction.reply({
             content: 'Apenas o autor do comando pode usar este menu!',
-            flags: InteractionResponseFlags.Ephemeral,
+            flags: MessageFlags.Ephemeral,
           })
         }
 
@@ -344,10 +343,10 @@ export default class AIConfigCommand extends Command {
         customId: string
         update: (arg0: { embeds: EmbedBuilder[]; components: never[] }) => any
       }) => {
-        if (interaction.user.id !== ctx.author.id) {
+        if (interaction.user.id !== ctx.author?.id) {
           return interaction.reply({
             content: 'Apenas o autor do comando pode confirmar!',
-            flags: InteractionResponseFlags.Ephemeral,
+            flags: MessageFlags.Ephemeral,
           })
         }
 

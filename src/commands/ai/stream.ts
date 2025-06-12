@@ -1,4 +1,6 @@
-import { Command, type Context, type MahinaBot } from '#common/index'
+import Command from '#common/command'
+import type Context from '#common/context'
+import type MahinaBot from '#common/mahina_bot'
 import { ApplicationCommandOptionType } from 'discord.js'
 
 export default class Stream extends Command {
@@ -15,9 +17,7 @@ export default class Stream extends Command {
       cooldown: 5,
       args: true,
       vote: false,
-      player: false,
-      inVoice: false,
-      sameVoice: false,
+      player: undefined,
       permissions: {
         client: ['SendMessages', 'ViewChannel', 'EmbedLinks'],
         user: [],
@@ -35,7 +35,9 @@ export default class Stream extends Command {
   }
 
   async run(client: MahinaBot, ctx: Context, args: string[]): Promise<any> {
-    const message = ctx.interaction?.options.getString('message') || args.join(' ')
+    const message = ctx.isInteraction
+      ? (ctx.options.get('message')?.value as string)
+      : args.join(' ')
     const nvidiaService = client.services.nvidia
 
     if (!nvidiaService) {
@@ -61,7 +63,7 @@ export default class Stream extends Command {
     }
 
     // Check if current model supports streaming
-    const modelKey = nvidiaService.getUserModel(ctx.author.id)
+    const modelKey = nvidiaService.getUserModel(ctx.author!.id)
     const model = nvidiaService.getModelInfo(modelKey)
 
     if (!model?.streaming) {
@@ -85,7 +87,7 @@ export default class Stream extends Command {
       const updateInterval = 1500 // Update every 1.5 seconds
       const maxLength = 1900 // Leave room for formatting
 
-      for await (const chunk of nvidiaService.chatStream(ctx.author.id, message)) {
+      for await (const chunk of nvidiaService.chatStream(ctx.author!.id, message)) {
         chunks.push(chunk)
         currentMessage += chunk
 

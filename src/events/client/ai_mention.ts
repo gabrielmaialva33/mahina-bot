@@ -52,7 +52,9 @@ export default class AIMention extends Event {
       }
 
       // Start typing indicator
-      await message.channel.sendTyping()
+      if ('sendTyping' in message.channel) {
+        await message.channel.sendTyping()
+      }
 
       // Get user's personality preference or guild default
       const userPersonality =
@@ -60,7 +62,11 @@ export default class AIMention extends Event {
 
       // Get chat history from database
       const chatHistory = await this.client.db.getChatHistory(message.channelId)
-      let messages: ChatMessage[] = (chatHistory?.messages as ChatMessage[]) || []
+      let messages: ChatMessage[] = chatHistory?.messages
+        ? Array.isArray(chatHistory.messages)
+          ? (chatHistory.messages as unknown as ChatMessage[])
+          : []
+        : []
 
       // Add current message to history
       const userMessage: ChatMessage = {
@@ -88,7 +94,7 @@ export default class AIMention extends Event {
       const response = await this.aiService.generateResponse(
         messages.slice(-aiConfig.contextWindow), // Use configured context window
         message.author.username,
-        message.channel.name || 'geral',
+        'name' in message.channel ? message.channel.name || 'geral' : 'geral',
         userPersonality,
         message.guildId!
       )
@@ -210,12 +216,14 @@ export default class AIMention extends Event {
           case 'ai_stats':
             // Get conversation stats
             const history = await this.client.db.getChatHistory(message.channelId)
-            const messageCount = (history?.messages as ChatMessage[])?.length || 0
-            const userMessages =
-              (history?.messages as ChatMessage[])?.filter((m) => m.role === 'user').length || 0
-            const aiMessages =
-              (history?.messages as ChatMessage[])?.filter((m) => m.role === 'assistant').length ||
-              0
+            const historyMessages = history?.messages
+              ? Array.isArray(history.messages)
+                ? (history.messages as unknown as ChatMessage[])
+                : []
+              : []
+            const messageCount = historyMessages.length
+            const userMessages = historyMessages.filter((m) => m.role === 'user').length
+            const aiMessages = historyMessages.filter((m) => m.role === 'assistant').length
 
             await interaction.reply({
               content:

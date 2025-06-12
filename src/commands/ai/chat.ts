@@ -7,16 +7,16 @@ import {
   ComponentType,
   EmbedBuilder,
   Message,
+  MessageFlags,
 } from 'discord.js'
 
-import OpenAI from 'openai'
 import Command from '#common/command'
 import MahinaBot from '#common/mahina_bot'
 import Context from '#common/context'
 
 export default class ChatCommand extends Command {
-  private openai: OpenAI
-  private conversations: Map<string, Array<{ role: string; content: string }>> = new Map()
+  private conversations: Map<string, Array<{ role: 'user' | 'assistant'; content: string }>> =
+    new Map()
 
   constructor(client: MahinaBot) {
     super(client, {
@@ -27,6 +27,7 @@ export default class ChatCommand extends Command {
           'chat Explique o que é React',
           'chat code Crie uma API REST em Python',
           'chat analyze {código}',
+          'chat vision {imagem} O que você vê?',
         ],
         usage: 'chat [mode] <mensagem>',
       },
@@ -59,6 +60,8 @@ export default class ChatCommand extends Command {
             { name: '📚 Tutorial/Explicação', value: 'explain' },
             { name: '🐛 Debug de Código', value: 'debug' },
             { name: '🎨 UI/UX Helper', value: 'design' },
+            { name: '👁️ Análise de Imagem', value: 'vision' },
+            { name: '🧠 Raciocínio Avançado', value: 'reasoning' },
           ],
         },
         {
@@ -83,38 +86,85 @@ export default class ChatCommand extends Command {
             { name: 'HTML/CSS', value: 'web' },
           ],
         },
+        {
+          name: 'model',
+          description: 'Modelo de IA a usar',
+          type: ApplicationCommandOptionType.String,
+          required: false,
+          choices: [
+            { name: '🌟 Llama 4 Maverick (Multimodal)', value: 'llama-4-maverick' },
+            { name: '🧠 DeepSeek R1 (Raciocínio)', value: 'deepseek-r1' },
+            { name: '💻 Qwen Coder (Código)', value: 'qwen-coder' },
+            { name: '🚀 Nemotron Ultra (Premium)', value: 'nemotron-ultra' },
+            { name: '⚡ Nemotron Nano (Rápido)', value: 'nemotron-nano' },
+          ],
+        },
+        {
+          name: 'image',
+          description: 'URL da imagem para análise (modo vision)',
+          type: ApplicationCommandOptionType.String,
+          required: false,
+        },
       ],
-    })
-
-    // Initialize NVIDIA API
-    this.openai = new OpenAI({
-      apiKey:
-        process.env.NVIDIA_API_KEY ||
-        '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',
-      baseURL: 'https://integrate.api.nvidia.com/v1',
     })
   }
 
   public async run(client: MahinaBot, ctx: Context, args: string[]): Promise<any> {
-    const mode =
-      args[0]?.toLowerCase() === 'code' ||
-      args[0]?.toLowerCase() === 'analyze' ||
-      args[0]?.toLowerCase() === 'explain' ||
-      args[0]?.toLowerCase() === 'debug' ||
-      args[0]?.toLowerCase() === 'design'
-        ? args[0].toLowerCase()
-        : 'chat'
+    let mode: string
+    let prompt: string
+    let language: string | undefined
+    let modelKey: string | undefined
+    let imageUrl: string | undefined
 
-    const actualArgs = mode === 'chat' ? args : args.slice(1)
-    const prompt = actualArgs.join(' ')
+    if (ctx.isInteraction) {
+      mode = (ctx.options.get('mode')?.value as string) || 'chat'
+      prompt = ctx.options.get('prompt')?.value as string
+      language = ctx.options.get('language')?.value as string
+      modelKey = ctx.options.get('model')?.value as string
+      imageUrl = ctx.options.get('image')?.value as string
+    } else {
+      mode =
+        args[0]?.toLowerCase() === 'code' ||
+        args[0]?.toLowerCase() === 'analyze' ||
+        args[0]?.toLowerCase() === 'explain' ||
+        args[0]?.toLowerCase() === 'debug' ||
+        args[0]?.toLowerCase() === 'design' ||
+        args[0]?.toLowerCase() === 'vision' ||
+        args[0]?.toLowerCase() === 'reasoning'
+          ? args[0].toLowerCase()
+          : 'chat'
+
+      const actualArgs = mode === 'chat' ? args : args.slice(1)
+      prompt = actualArgs.join(' ')
+    }
 
     if (!prompt) {
       return await ctx.sendMessage('Por favor, forneça uma mensagem ou pergunta!')
     }
 
+    // Check for vision mode requirements
+    if (mode === 'vision' && !imageUrl) {
+      return await ctx.sendMessage('Por favor, forneça uma URL de imagem para análise!')
+    }
+
+    // Get enhanced NVIDIA service
+    const nvidiaService = client.services.nvidiaEnhanced || client.services.nvidia
+
+    if (!nvidiaService) {
+      return await ctx.sendMessage({
+        embeds: [
+          {
+            description:
+              '❌ Serviço de IA não está configurado. Configure NVIDIA_API_KEY no ambiente.',
+            color: client.config.color.red,
+          },
+        ],
+      })
+    }
+
     const loadingEmbed = new EmbedBuilder()
       .setColor(this.client.config.color.violet)
-      .setDescription('🤖 **Processando sua solicitação...**')
+      .setDescription(`🤖 **Processando com ${modelKey ? `modelo ${modelKey}` : 'IA NVIDIA'}...**`)
       .setFooter({ text: 'Powered by NVIDIA AI' })
 
     const msg = await ctx.sendMessage({ embeds: [loadingEmbed] })
@@ -130,35 +180,63 @@ export default class ChatCommand extends Command {
 
       const conversation = this.conversations.get(conversationKey)!
 
-      // Build system prompt based on mode
-      const systemPrompt = this.getSystemPrompt(mode, ctx.args?.language)
-
-      // Add a user message
-      conversation.push({ role: 'user', content: prompt })
-
-      // Keep conversation history limited
-      if (conversation.length > 10) {
-        conversation.splice(0, conversation.length - 10)
+      // Set user model if specified
+      if (modelKey && nvidiaService.setUserModel) {
+        nvidiaService.setUserModel(userId, modelKey)
       }
 
-      // Create message array with system prompt
-      const messages = [{ role: 'system', content: systemPrompt }, ...conversation]
+      // Build system prompt based on mode
+      const systemPrompt = this.getSystemPrompt(mode, language)
 
-      // Call NVIDIA API
-      const completion = await this.openai.chat.completions.create({
-        model: 'meta/llama-3.1-405b-instruct',
-        messages,
-        temperature: mode === 'code' ? 0.2 : 0.7,
-        top_p: 0.9,
-        max_tokens: 2048,
-        stream: false,
-      })
+      // Add conversation context
+      const context = conversation
+        .slice(-5)
+        .map((msg) => `${msg.role}: ${msg.content}`)
+        .join('\n')
 
-      const response =
-        completion.choices[0]?.message?.content || 'Desculpe, não consegui gerar uma resposta.'
+      // Prepare options for enhanced service
+      const options: any = {
+        temperature: mode === 'code' ? 0.2 : mode === 'reasoning' ? 0.6 : 0.7,
+        maxTokens: mode === 'reasoning' ? 4096 : 2048,
+      }
 
-      // Add assistant response to conversation
+      if (imageUrl) {
+        options.images = [imageUrl]
+      }
+
+      // Use appropriate method based on mode
+      let response: string
+
+      if (mode === 'reasoning' && nvidiaService.reasoning) {
+        // Use specialized reasoning method
+        response = await nvidiaService.reasoning(userId, prompt, context)
+      } else if (
+        (mode === 'code' || mode === 'analyze' || mode === 'debug') &&
+        nvidiaService.analyzeCode
+      ) {
+        // Use code analysis method
+        response = await nvidiaService.analyzeCode(
+          userId,
+          prompt,
+          language || 'javascript',
+          mode as any
+        )
+      } else if (nvidiaService.generateWithRAG && conversation.length > 0) {
+        // Use RAG for better context
+        response = await nvidiaService.generateWithRAG(userId, prompt)
+      } else {
+        // Default chat method
+        response = await nvidiaService.chat(userId, prompt, context, systemPrompt, options)
+      }
+
+      // Add to conversation history
+      conversation.push({ role: 'user', content: prompt })
       conversation.push({ role: 'assistant', content: response })
+
+      // Keep conversation history limited
+      if (conversation.length > 20) {
+        conversation.splice(0, conversation.length - 20)
+      }
 
       // Format and send response
       await this.sendFormattedResponse(ctx, msg, response, mode)
@@ -180,7 +258,7 @@ export default class ChatCommand extends Command {
           .setLabel('Formatar Código')
           .setEmoji('📝')
           .setStyle(ButtonStyle.Secondary)
-          .setDisabled(mode !== 'code' && mode !== 'analyze'),
+          .setDisabled(mode !== 'code' && mode !== 'analyze' && mode !== 'debug'),
         new ButtonBuilder()
           .setCustomId('ai_export')
           .setLabel('Exportar')
@@ -203,10 +281,10 @@ export default class ChatCommand extends Command {
           reply: (arg0: { content: string; flags: any }) => any
           customId: any
         }) => {
-          if (interaction.user.id !== ctx.author.id) {
+          if (interaction.user.id !== ctx.author?.id) {
             return interaction.reply({
               content: 'Apenas o autor do comando pode usar esses botões!',
-              flags: InteractionResponseFlags.Ephemeral,
+              flags: MessageFlags.Ephemeral,
             })
           }
 
@@ -215,14 +293,14 @@ export default class ChatCommand extends Command {
               this.conversations.delete(conversationKey)
               await interaction.reply({
                 content: '✅ Conversa reiniciada! Use o comando novamente para começar.',
-                flags: InteractionResponseFlags.Ephemeral,
+                flags: MessageFlags.Ephemeral,
               })
               break
 
             case 'ai_continue':
               await interaction.reply({
                 content: '💬 Digite sua próxima mensagem usando o comando!',
-                flags: InteractionResponseFlags.Ephemeral,
+                flags: MessageFlags.Ephemeral,
               })
               break
 
@@ -284,9 +362,24 @@ export default class ChatCommand extends Command {
                Forneça sugestões de design, melhores práticas de interface,
                e código para componentes visuais modernos e acessíveis.
                Considere responsividade e experiência do usuário.`,
+
+      vision: `Você é um especialista em análise de imagens e visão computacional.
+               Analise imagens fornecidas e:
+               - Descreva o que vê em detalhes
+               - Identifique objetos, pessoas, texto ou elementos importantes
+               - Forneça insights sobre composição, cores e contexto
+               - Responda perguntas específicas sobre a imagem`,
+
+      reasoning: `Você é um especialista em raciocínio lógico e resolução de problemas complexos.
+                  Analise problemas passo a passo:
+                  - Decomponha o problema em partes menores
+                  - Identifique padrões e relações
+                  - Use lógica dedutiva e indutiva
+                  - Forneça soluções bem fundamentadas
+                  - Considere múltiplas perspectivas`,
     }
 
-    return basePrompts[mode] || basePrompts.chat
+    return basePrompts[mode as keyof typeof basePrompts] || basePrompts.chat
   }
 
   private async sendFormattedResponse(ctx: Context, msg: Message, response: string, mode: string) {
@@ -334,25 +427,29 @@ export default class ChatCommand extends Command {
   }
 
   private getModeColor(mode: string): number {
-    const colors = {
+    const colors: Record<string, number> = {
       chat: this.client.config.color.main,
       code: this.client.config.color.green,
       analyze: this.client.config.color.yellow,
       explain: this.client.config.color.blue,
       debug: this.client.config.color.red,
       design: this.client.config.color.violet,
+      vision: this.client.config.color.green,
+      reasoning: this.client.config.color.main,
     }
     return colors[mode] || this.client.config.color.main
   }
 
   private getModeEmoji(mode: string): string {
-    const emojis = {
+    const emojis: Record<string, string> = {
       chat: '💬',
       code: '💻',
       analyze: '🔍',
       explain: '📚',
       debug: '🐛',
       design: '🎨',
+      vision: '👁️',
+      reasoning: '🧠',
     }
     return emojis[mode] || '🤖'
   }
@@ -364,7 +461,7 @@ export default class ChatCommand extends Command {
     if (codeBlocks.length === 0) {
       return interaction.reply({
         content: 'Nenhum bloco de código encontrado na resposta!',
-        flags: InteractionResponseFlags.Ephemeral,
+        flags: MessageFlags.Ephemeral,
       })
     }
 
@@ -379,7 +476,7 @@ export default class ChatCommand extends Command {
     await interaction.reply({
       content: '📝 Código extraído e formatado:',
       files: [attachment],
-      flags: InteractionResponseFlags.Ephemeral,
+      flags: MessageFlags.Ephemeral,
     })
   }
 
@@ -390,7 +487,7 @@ export default class ChatCommand extends Command {
     await interaction.reply({
       content: `📤 Resposta exportada como **${filename}**`,
       files: [attachment],
-      flags: InteractionResponseFlags.Ephemeral,
+      flags: MessageFlags.Ephemeral,
     })
   }
 }

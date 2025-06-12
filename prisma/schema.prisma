@@ -10,17 +10,17 @@ generator client {
 }
 
 datasource db {
-  provider = "mongodb"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
 model Bot {
-  botId         String @id @map("_id")
+  botId         String @id
   totalPlaySong Int
 }
 
 model Guild {
-  guildId  String    @id @map("_id")
+  guildId  String    @id
   prefix   String
   language String?   @default("PortugueseBR")
   stay     Stay?
@@ -31,20 +31,21 @@ model Guild {
 }
 
 model Stay {
-  guildId String @id @map("_id")
+  guildId String @id
   textId  String
   voiceId String
   Guild   Guild  @relation(fields: [guildId], references: [guildId])
 }
 
 model Dj {
-  guildId String  @id @map("_id")
+  guildId String  @id
   mode    Boolean
   Guild   Guild   @relation(fields: [guildId], references: [guildId])
 }
 
 model Role {
-  guildId String @id @map("_id")
+  id      String @id @default(uuid())
+  guildId String
   roleId  String
   Guild   Guild  @relation(fields: [guildId], references: [guildId])
 
@@ -52,7 +53,7 @@ model Role {
 }
 
 model Playlist {
-  id     String  @id @default(uuid()) @map("_id")
+  id     String  @id @default(uuid())
   userId String
   name   String
   tracks String? // Store the array of encoded tracks as a JSON string
@@ -61,14 +62,14 @@ model Playlist {
 }
 
 model Setup {
-  guildId   String @id @map("_id")
+  guildId   String @id
   textId    String
   messageId String
   Guild     Guild  @relation(fields: [guildId], references: [guildId])
 }
 
 model ChatHistory {
-  id         String   @id @default(uuid()) @map("_id")
+  id         String   @id @default(uuid())
   userId     String
   guildId    String
   channelId  String
@@ -81,7 +82,7 @@ model ChatHistory {
 }
 
 model AIConfig {
-  guildId            String   @id @map("_id")
+  guildId            String   @id
   enabled            Boolean  @default(true)
   defaultPersonality String   @default("friendly")
   rateLimit          Int      @default(10)
@@ -98,7 +99,7 @@ model AIConfig {
 }
 
 model PersonalityAnalysis {
-  id           String   @id @default(uuid()) @map("_id")
+  id           String   @id @default(uuid())
   userId       String
   guildId      String
   animalKey    String   // Key do animal espiritual
@@ -112,7 +113,7 @@ model PersonalityAnalysis {
 }
 
 model RLQTable {
-  id       String   @id @default(uuid()) @map("_id")
+  id       String   @id @default(uuid())
   state    String   // Estado codificado
   action   String   // Ação (animal key)
   value    Float    // Q-value
@@ -124,10 +125,11 @@ model RLQTable {
 }
 
 model AIMemory {
-  id        String   @id @default(uuid()) @map("_id")
+  id        String   @id @default(uuid())
   userId    String
   guildId   String
   data      Json     // UserMemory object serialized
+  embedding Float[]  // For vector similarity search
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   

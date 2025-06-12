@@ -1,4 +1,4 @@
-import Discord, {
+import {
   ActionRowBuilder,
   ApplicationCommandOptionType,
   AttachmentBuilder,
@@ -7,12 +7,12 @@ import Discord, {
   ComponentType,
   EmbedBuilder,
   Message,
+  MessageFlags,
 } from 'discord.js'
 import OpenAI from 'openai'
 import Command from '#common/command'
-import type { Context, MahinaBot } from '#common/index'
-
-const { InteractionResponseFlags } = Discord
+import type Context from '#common/context'
+import type MahinaBot from '#common/mahina_bot'
 
 export default class VisionCommand extends Command {
   private openai: OpenAI
@@ -138,7 +138,7 @@ export default class VisionCommand extends Command {
   }
 
   private getSystemPrompt(mode: string): string {
-    const prompts = {
+    const prompts: Record<string, string> = {
       analyze: `Você é um analisador de imagens especialista. Forneça uma análise detalhada incluindo:
       - Conteúdo principal da imagem
       - Elementos visuais importantes
@@ -181,7 +181,7 @@ export default class VisionCommand extends Command {
   }
 
   private getDefaultPrompt(mode: string): string {
-    const prompts = {
+    const prompts: Record<string, string> = {
       analyze: 'Faça uma análise completa desta imagem.',
       describe: 'Descreva o que você vê nesta imagem.',
       ocr: 'Extraia todo o texto presente nesta imagem.',
@@ -200,7 +200,7 @@ export default class VisionCommand extends Command {
     mode: string,
     attachment: any
   ) {
-    const modeInfo = {
+    const modeInfo: Record<string, { emoji: string; title: string }> = {
       analyze: { emoji: '🔍', title: 'Análise Detalhada' },
       describe: { emoji: '📝', title: 'Descrição da Imagem' },
       ocr: { emoji: '📄', title: 'Texto Extraído' },
@@ -260,17 +260,17 @@ export default class VisionCommand extends Command {
     })
 
     collector.on('collect', async (interaction) => {
-      if (interaction.user.id !== ctx.author.id) {
+      if (interaction.user.id !== ctx.author?.id) {
         return interaction.reply({
           content: 'Apenas o autor pode usar esses botões!',
-          flags: InteractionResponseFlags.Ephemeral,
+          flags: MessageFlags.Ephemeral,
         })
       }
 
       switch (interaction.customId) {
         case 'vision_reanalyze':
           await interaction.deferUpdate()
-          await this.run(this.client, ctx, args)
+          await this.run(this.client, ctx, [])
           break
 
         case 'vision_export':
@@ -288,7 +288,7 @@ export default class VisionCommand extends Command {
 
           await interaction.reply({
             files: [exportFile],
-            flags: InteractionResponseFlags.Ephemeral,
+            flags: MessageFlags.Ephemeral,
           })
           break
 
@@ -308,7 +308,7 @@ export default class VisionCommand extends Command {
 
           await interaction.reply({
             embeds: [modesEmbed],
-            flags: InteractionResponseFlags.Ephemeral,
+            flags: MessageFlags.Ephemeral,
           })
           break
       }

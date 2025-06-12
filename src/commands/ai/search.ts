@@ -1,7 +1,7 @@
-import { Command, type Context, type MahinaBot } from '#common/index'
-import Discord, { ApplicationCommandOptionType, EmbedBuilder } from 'discord.js'
-
-const { InteractionResponseFlags } = Discord
+import Command from '#common/command'
+import type Context from '#common/context'
+import type MahinaBot from '#common/mahina_bot'
+import { ApplicationCommandOptionType, EmbedBuilder, MessageFlags } from 'discord.js'
 
 export default class SearchCommand extends Command {
   constructor(client: MahinaBot) {
@@ -17,9 +17,7 @@ export default class SearchCommand extends Command {
       cooldown: 5,
       args: true,
       vote: false,
-      player: false,
-      inVoice: false,
-      sameVoice: false,
+      player: undefined,
       permissions: {
         client: ['SendMessages', 'ViewChannel', 'EmbedLinks'],
         user: [],
@@ -59,9 +57,19 @@ export default class SearchCommand extends Command {
 
   async run(client: MahinaBot, ctx: Context, args: string[]): Promise<any> {
     // Parse arguments
-    const query = ctx.interaction?.options.getString('pergunta') || args.join(' ')
-    const category = ctx.interaction?.options.getString('categoria')
-    const threshold = ctx.interaction?.options.getNumber('precisao') || 0.5
+    let query: string
+    let category: string | undefined
+    let threshold: number
+
+    if (ctx.isInteraction) {
+      query = ctx.options.get('pergunta')?.value as string
+      category = (ctx.options.get('categoria')?.value as string) || undefined
+      threshold = (ctx.options.get('precisao')?.value as number) || 0.5
+    } else {
+      query = args.join(' ')
+      category = undefined
+      threshold = 0.5
+    }
 
     if (!query) {
       return await ctx.sendMessage({
@@ -71,7 +79,7 @@ export default class SearchCommand extends Command {
             color: client.config.color.red,
           },
         ],
-        flags: InteractionResponseFlags.Ephemeral,
+        flags: MessageFlags.Ephemeral,
       })
     }
 
@@ -85,7 +93,7 @@ export default class SearchCommand extends Command {
             color: client.config.color.red,
           },
         ],
-        flags: InteractionResponseFlags.Ephemeral,
+        flags: MessageFlags.Ephemeral,
       })
     }
 
@@ -97,7 +105,7 @@ export default class SearchCommand extends Command {
             color: client.config.color.red,
           },
         ],
-        flags: InteractionResponseFlags.Ephemeral,
+        flags: MessageFlags.Ephemeral,
       })
     }
 
@@ -128,7 +136,7 @@ export default class SearchCommand extends Command {
       // Filter by category if specified
       if (category) {
         knowledgeBase = knowledgeBase.filter(
-          (item) => item.metadata?.category === category || item.metadata?.type === category
+          (item: any) => item.metadata?.category === category || item.metadata?.type === category
         )
       }
 
@@ -165,13 +173,13 @@ export default class SearchCommand extends Command {
         .setTitle('🔍 Resultados da Busca')
         .setDescription(`Encontrei **${results.length}** resultado(s) para: **${query}**`)
         .setFooter({
-          text: `Solicitado por ${ctx.author.username} • Busca com IA`,
-          iconURL: ctx.author.avatarURL() || undefined,
+          text: `Solicitado por ${ctx.author!.username} • Busca com IA`,
+          iconURL: ctx.author!.avatarURL() || undefined,
         })
         .setTimestamp()
 
       // Add results as fields
-      results.forEach((result, index) => {
+      results.forEach((result: any, index: number) => {
         const similarity = Math.round(result.similarity * 100)
         const categoryIcon = this.getCategoryIcon(
           result.metadata?.category || result.metadata?.type
@@ -205,7 +213,7 @@ export default class SearchCommand extends Command {
             fields: [
               {
                 name: 'Detalhes do erro',
-                value: error.message || 'Erro desconhecido',
+                value: (error as Error).message || 'Erro desconhecido',
                 inline: false,
               },
             ],
@@ -217,7 +225,7 @@ export default class SearchCommand extends Command {
   }
 
   private getCategoryName(category: string): string {
-    const names = {
+    const names: Record<string, string> = {
       music: '🎵 Música',
       filters: '🎚️ Filtros',
       playlist: '📋 Playlist',
@@ -228,7 +236,7 @@ export default class SearchCommand extends Command {
   }
 
   private getCategoryIcon(category: string): string {
-    const icons = {
+    const icons: Record<string, string> = {
       music: '🎵',
       filters: '🎚️',
       playlist: '📋',

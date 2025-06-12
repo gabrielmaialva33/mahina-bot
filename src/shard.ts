@@ -1,6 +1,6 @@
 import { ShardingManager } from 'discord.js'
 import { env } from '#src/env'
-import type Logger from '#common/logger'
+import { type Logger } from '#common/logger'
 
 export async function shardStart(logger: Logger) {
   const manager = new ShardingManager('./dist/mahina_client.js', {
