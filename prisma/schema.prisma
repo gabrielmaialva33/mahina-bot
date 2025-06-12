@@ -10,17 +10,17 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "mongodb"
   url      = env("DATABASE_URL")
 }
 
 model Bot {
-  botId         String @id
+  botId         String @id @map("_id")
   totalPlaySong Int
 }
 
 model Guild {
-  guildId  String    @id
+  guildId  String    @id @map("_id")
   prefix   String
   language String?   @default("PortugueseBR")
   stay     Stay?
@@ -31,21 +31,20 @@ model Guild {
 }
 
 model Stay {
-  guildId String @id
+  guildId String @id @map("_id")
   textId  String
   voiceId String
   Guild   Guild  @relation(fields: [guildId], references: [guildId])
 }
 
 model Dj {
-  guildId String  @id
+  guildId String  @id @map("_id")
   mode    Boolean
   Guild   Guild   @relation(fields: [guildId], references: [guildId])
 }
 
 model Role {
-  id      String @id @default(uuid())
-  guildId String
+  guildId String @id @map("_id")
   roleId  String
   Guild   Guild  @relation(fields: [guildId], references: [guildId])
 
@@ -53,7 +52,7 @@ model Role {
 }
 
 model Playlist {
-  id     String  @id @default(uuid())
+  id     String  @id @default(uuid()) @map("_id")
   userId String
   name   String
   tracks String? // Store the array of encoded tracks as a JSON string
@@ -62,27 +61,27 @@ model Playlist {
 }
 
 model Setup {
-  guildId   String @id
+  guildId   String @id @map("_id")
   textId    String
   messageId String
   Guild     Guild  @relation(fields: [guildId], references: [guildId])
 }
 
 model ChatHistory {
-  id         String   @id @default(uuid())
-  userId     String
-  guildId    String
-  channelId  String
-  messages   Json     // Array of {role, content, timestamp}
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-  
+  id        String   @id @default(uuid()) @map("_id")
+  userId    String
+  guildId   String
+  channelId String
+  messages  Json // Array of {role, content, timestamp}
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
   @@index([userId, guildId])
   @@index([channelId])
 }
 
 model AIConfig {
-  guildId            String   @id
+  guildId            String   @id @map("_id")
   enabled            Boolean  @default(true)
   defaultPersonality String   @default("friendly")
   rateLimit          Int      @default(10)
@@ -90,49 +89,48 @@ model AIConfig {
   contextWindow      Int      @default(10)
   allowedChannels    String[] @default([]) // Empty means all channels
   blockedUsers       String[] @default([])
-  customPrompts      Json?    // Custom prompts per guild
-  stats              Json?    // Usage statistics
+  customPrompts      Json? // Custom prompts per guild
+  stats              Json? // Usage statistics
   createdAt          DateTime @default(now())
   updatedAt          DateTime @updatedAt
-  
+
   Guild Guild @relation(fields: [guildId], references: [guildId])
 }
 
 model PersonalityAnalysis {
-  id           String   @id @default(uuid())
-  userId       String
-  guildId      String
-  animalKey    String   // Key do animal espiritual
-  animalData   Json     // Dados completos do animal
-  userStats    Json     // Estatísticas do usuário no momento da análise
-  qValue       Float    // Valor Q da análise (para RL)
-  createdAt    DateTime @default(now())
-  
+  id         String   @id @default(uuid()) @map("_id")
+  userId     String
+  guildId    String
+  animalKey  String // Key do animal espiritual
+  animalData Json // Dados completos do animal
+  userStats  Json // Estatísticas do usuário no momento da análise
+  qValue     Float // Valor Q da análise (para RL)
+  createdAt  DateTime @default(now())
+
   @@index([userId, guildId])
   @@index([createdAt])
 }
 
 model RLQTable {
-  id       String   @id @default(uuid())
-  state    String   // Estado codificado
-  action   String   // Ação (animal key)
-  value    Float    // Q-value
-  visits   Int      @default(1)
+  id        String   @id @default(uuid()) @map("_id")
+  state     String // Estado codificado
+  action    String // Ação (animal key)
+  value     Float // Q-value
+  visits    Int      @default(1)
   updatedAt DateTime @updatedAt
-  
+
   @@unique([state, action])
   @@index([state])
 }
 
 model AIMemory {
-  id        String   @id @default(uuid())
+  id        String   @id @default(uuid()) @map("_id")
   userId    String
   guildId   String
-  data      Json     // UserMemory object serialized
-  embedding Float[]  // For vector similarity search
+  data      Json // UserMemory object serialized
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  
+
   @@unique([userId, guildId])
   @@index([userId])
   @@index([guildId])
