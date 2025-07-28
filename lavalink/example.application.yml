@@ -118,7 +118,7 @@ plugins:
       qobuz: false # Enabled qobuz source
       ytdlp: false # Enable yt-dlp source
     lyrics-sources:
-      spotify: false # Enable Spotify lyrics source
+      spotify: true # Enable Spotify lyrics source
       deezer: false # Enable Deezer lyrics source
       youtube: true # Enable YouTube lyrics source
       yandexmusic: false # Enable Yandex Music lyrics source
