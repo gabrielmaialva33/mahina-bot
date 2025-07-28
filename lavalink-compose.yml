@@ -3,7 +3,7 @@ services:
   # Lavalink Audio Server
   mahina-lavalink:
     container_name: mahina-lavalink
-    image: ghcr.io/lavalink-devs/lavalink:4-alpine
+    image: ghcr.io/lavalink-devs/lavalink:1d9d64f-distroless
     restart: unless-stopped
     environment:
       - SERVER_PORT=2333
