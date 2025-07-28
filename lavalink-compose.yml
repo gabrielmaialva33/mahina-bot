@@ -10,7 +10,7 @@ services:
       - LAVALINK_SERVER_PASSWORD=${LAVALINK_PASSWORD:-Mahina@551238}
       - _JAVA_OPTIONS=-Xmx6G
     volumes:
-      - ./config/application.yml:/opt/Lavalink/application.yml:ro
+      - ./application.yml:/opt/Lavalink/application.yml:ro
       - ./lavalink/plugins/:/opt/Lavalink/plugins/:ro
       - lavalink-logs:/opt/Lavalink/logs
     networks:
