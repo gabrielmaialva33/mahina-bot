@@ -3,12 +3,12 @@ services:
   # Lavalink Audio Server
   mahina-lavalink:
     container_name: mahina-lavalink
-    image: ghcr.io/lavalink-devs/lavalink:1d9d64f-distroless
+    image: ghcr.io/lavalink-devs/lavalink:latest
     restart: unless-stopped
     environment:
       - SERVER_PORT=2333
       - LAVALINK_SERVER_PASSWORD=${LAVALINK_PASSWORD:-Mahina@551238}
-      - JAVA_OPTS=-Xmx2G -Xms1G
+      - _JAVA_OPTIONS=-Xmx6G
     volumes:
       - ./config/application.yml:/opt/Lavalink/application.yml:ro
       - ./lavalink/plugins/:/opt/Lavalink/plugins/:ro
@@ -29,12 +29,6 @@ services:
       timeout: 10s
       retries: 3
       start_period: 40s
-    deploy:
-      resources:
-        limits:
-          memory: 2.5G
-        reservations:
-          memory: 1G
     logging:
       driver: 'json-file'
       options:

@@ -1,9 +1,10 @@
 services:
   lavalink:
     container_name: lavalink
-    image: ghcr.io/lavalink-devs/lavalink
+    image: ghcr.io/lavalink-devs/lavalink:latest
     restart: on-failure
     environment:
+      - _JAVA_OPTIONS=-Xmx6G
       - SERVER_PORT=2333
     volumes:
       - ./application.yml:/opt/Lavalink/application.yml
