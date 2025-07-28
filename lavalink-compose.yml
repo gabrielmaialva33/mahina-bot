@@ -108,10 +108,6 @@ services:
       - '5436:5432'
     volumes:
       - mahina-db-data:/var/lib/postgresql/data
-      - ./scripts/init-db.sql:/docker-entrypoint-initdb.d/00-init.sql:ro
-      - ./scripts/init-pgai.sql:/docker-entrypoint-initdb.d/01-pgai.sql:ro
-      - ./scripts/init-pgboss.sql:/docker-entrypoint-initdb.d/02-pgboss.sql:ro
-      - ./scripts/init-roles.sql:/docker-entrypoint-initdb.d/03-roles.sql:ro
     networks:
       - mahina-internal
     healthcheck:
