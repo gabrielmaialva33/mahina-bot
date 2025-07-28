@@ -8,7 +8,7 @@ services:
     environment:
       - SERVER_PORT=2333
       - LAVALINK_SERVER_PASSWORD=${LAVALINK_PASSWORD:-Mahina@551238}
-      - _JAVA_OPTIONS=-Xmx6G
+      - JAVA_OPTIONS=-Xmx6G
     volumes:
       - ./application.yml:/opt/Lavalink/application.yml:ro
       - ./lavalink/plugins/:/opt/Lavalink/plugins/:ro
