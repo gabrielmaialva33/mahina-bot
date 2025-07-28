@@ -31,6 +31,16 @@ export default class MahinaLinkClient extends LavalinkManager {
       },
     })
     this.client = client
+
+    // Setup error handlers for Lavalink nodes
+    this.setupErrorHandlers()
+  }
+
+  private setupErrorHandlers(): void {
+    // Handle node manager errors
+    this.nodeManager.on('error', (node, error) => {
+      this.client.logger.error(`Lavalink Node Error (${node.id}):`, error)
+    })
   }
 
   /**
@@ -43,7 +53,6 @@ export default class MahinaLinkClient extends LavalinkManager {
   async search(query: string, user: unknown, source?: SearchPlatform): Promise<SearchResult> {
     const nodes = this.nodeManager.leastUsedNodes()
     const node = nodes[Math.floor(Math.random() * nodes.length)]
-    const result = await node.search({ query, source }, user, false)
-    return result
+    return await node.search({ query, source }, user, false)
   }
 }

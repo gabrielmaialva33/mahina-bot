@@ -1,28 +1,276 @@
+---
 services:
-  lava:
-    container_name: lava
-    image: ghcr.io/lavalink-devs/lavalink
-    restart: on-failure
+  # Lavalink Audio Server
+  mahina-lavalink:
+    container_name: mahina-lavalink
+    image: ghcr.io/lavalink-devs/lavalink:4-alpine
+    restart: unless-stopped
     environment:
-      _JAVA_OPTIONS: -Xmx6G
-      SERVER_PORT: 2333
-      SERVER_ADDRESS: 0.0.0.0
-      LAVALINK_SERVER_PASSWORD: 'Mahina@551238'
+      - SERVER_PORT=2333
+      - LAVALINK_SERVER_PASSWORD=${LAVALINK_PASSWORD:-Mahina@551238}
+      - JAVA_OPTS=-Xmx2G -Xms1G
     volumes:
-      - ./application.yml:/opt/Lavalink/application.yml
-      - ./lavalink/plugins/:/opt/Lavalink/plugins/
-    healthcheck:
-      test: 'curl -H "Authorization: Mahina@551238" -s http://localhost:2333/version'
-      interval: 10s
-      timeout: 10s
-      retries: 5
-      start_period: 10s
+      - ./config/application.yml:/opt/Lavalink/application.yml:ro
+      - ./lavalink/plugins/:/opt/Lavalink/plugins/:ro
+      - lavalink-logs:/opt/Lavalink/logs
     networks:
-      - lava
+      - mahina-internal
     expose:
       - 2333
     ports:
       - '2333:2333'
+    healthcheck:
+      test:
+        [
+          'CMD-SHELL',
+          'wget --no-verbose --tries=1 --spider http://localhost:2333/version || exit 1',
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    deploy:
+      resources:
+        limits:
+          memory: 2.5G
+        reservations:
+          memory: 1G
+    logging:
+      driver: 'json-file'
+      options:
+        max-size: '10m'
+        max-file: '3'
+
+  # TimescaleDB with pgvector and pgai extensions
+  mahina-database:
+    image: timescale/timescaledb-ha:pg17
+    container_name: mahina-database
+    restart: unless-stopped
+    user: postgres
+    shm_size: 256mb
+    command:
+      - postgres
+      - -c
+      - shared_preload_libraries=timescaledb,pg_stat_statements,pg_cron
+      - -c
+      - timescaledb.telemetry_level=off
+      - -c
+      - cron.database_name=${POSTGRES_DB:-mahina}
+      - -c
+      - max_connections=200
+      - -c
+      - shared_buffers=2GB
+      - -c
+      - effective_cache_size=6GB
+      - -c
+      - work_mem=32MB
+      - -c
+      - maintenance_work_mem=1GB
+      - -c
+      - random_page_cost=1.1
+      - -c
+      - effective_io_concurrency=200
+      - -c
+      - wal_buffers=32MB
+      - -c
+      - max_wal_size=8GB
+      - -c
+      - min_wal_size=2GB
+      - -c
+      - checkpoint_completion_target=0.9
+      - -c
+      - wal_compression=on
+      - -c
+      - log_checkpoints=on
+      - -c
+      - log_connections=on
+      - -c
+      - log_disconnections=on
+      - -c
+      - log_lock_waits=on
+      - -c
+      - log_statement=mod
+      - -c
+      - logging_collector=on
+      - -c
+      - log_filename=postgresql-%Y%m%d_%H%M%S.log
+      - -c
+      - log_rotation_age=1d
+      - -c
+      - log_rotation_size=100MB
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-mahina}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-mahina}
+      POSTGRES_DB: ${POSTGRES_DB:-mahina}
+      POSTGRES_EXTENSIONS: timescaledb,vector,pg_trgm,pg_stat_statements,pgai,pg_cron,pgcrypto,uuid-ossp
+      POSTGRES_INITDB_ARGS: --auth-host=scram-sha-256 --auth-local=trust --data-checksums
+    ports:
+      - '5436:5432'
+    volumes:
+      - mahina-db-data:/var/lib/postgresql/data
+      - ./scripts/init-db.sql:/docker-entrypoint-initdb.d/00-init.sql:ro
+      - ./scripts/init-pgai.sql:/docker-entrypoint-initdb.d/01-pgai.sql:ro
+      - ./scripts/init-pgboss.sql:/docker-entrypoint-initdb.d/02-pgboss.sql:ro
+      - ./scripts/init-roles.sql:/docker-entrypoint-initdb.d/03-roles.sql:ro
+    networks:
+      - mahina-internal
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U ${POSTGRES_USER:-mahina} -d ${POSTGRES_DB:-mahina}']
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    deploy:
+      resources:
+        limits:
+          memory: 8G
+        reservations:
+          memory: 4G
+    logging:
+      driver: 'json-file'
+      options:
+        max-size: '50m'
+        max-file: '5'
+
+  # PostgREST API Gateway
+  mahina-postgrest:
+    image: postgrest/postgrest:v12.0.2
+    container_name: mahina-postgrest
+    restart: unless-stopped
+    environment:
+      PGRST_DB_URI: postgres://${DB_USER:-mahina}:${DB_PASSWORD:-mahina}@mahina-database:5432/${DB_NAME:-mahina}?sslmode=prefer
+      PGRST_DB_SCHEMA: ${POSTGREST_SCHEMA:-api}
+      PGRST_DB_ANON_ROLE: ${POSTGREST_ANON_ROLE:-web_anon}
+      PGRST_JWT_SECRET: ${JWT_SECRET:-mahina_jwt_secret_2025}
+      PGRST_JWT_AUD: ${KEYCLOAK_CLIENT_ID:-mahina}
+      PGRST_SERVER_PORT: 3010
+      PGRST_SERVER_HOST: 0.0.0.0
+      PGRST_OPENAPI_SERVER_PROXY_URI: ${POSTGREST_PROXY_URI:-http://localhost:3010}
+      PGRST_DB_PRE_REQUEST: ${POSTGREST_PRE_REQUEST:-api.pre_request}
+      PGRST_ROLE_CLAIM_KEY: ${POSTGREST_ROLE_CLAIM:-.resource_access."mahina".roles[0]}
+      PGRST_DB_MAX_ROWS: ${POSTGREST_MAX_ROWS:-1000}
+      PGRST_DB_POOL: ${POSTGREST_DB_POOL:-20}
+      PGRST_DB_POOL_TIMEOUT: ${POSTGREST_DB_POOL_TIMEOUT:-10}
+      PGRST_LOG_LEVEL: ${POSTGREST_LOG_LEVEL:-warn}
+    ports:
+      - '3010:3010'
+    depends_on:
+      mahina-database:
+        condition: service_healthy
+    networks:
+      - mahina-internal
+    healthcheck:
+      test: ['CMD-SHELL', 'wget --no-verbose --tries=1 --spider http://localhost:3010/ || exit 1']
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+        reservations:
+          memory: 256M
+    logging:
+      driver: 'json-file'
+      options:
+        max-size: '10m'
+        max-file: '3'
+
+  # Redis Cache & Pub/Sub
+  mahina-redis:
+    image: redis:7.4-alpine
+    container_name: mahina-redis
+    restart: unless-stopped
+    command: >
+      redis-server
+      --requirepass ${REDIS_PASSWORD:-mahina_redis_2024}
+      --appendonly yes
+      --appendfsync everysec
+      --save 900 1
+      --save 300 10
+      --save 60 10000
+      --maxmemory 2gb
+      --maxmemory-policy allkeys-lru
+      --tcp-keepalive 300
+      --timeout 0
+      --tcp-backlog 511
+      --databases 16
+      --stop-writes-on-bgsave-error yes
+      --rdbcompression yes
+      --rdbchecksum yes
+      --dir /data
+    ports:
+      - '6380:6379'
+    volumes:
+      - mahina-redis-data:/data
+    networks:
+      - mahina-internal
+    healthcheck:
+      test:
+        [
+          'CMD-SHELL',
+          'redis-cli --no-auth-warning -a ${REDIS_PASSWORD:-mahina_redis_2024} ping | grep PONG',
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    deploy:
+      resources:
+        limits:
+          memory: 2.5G
+        reservations:
+          memory: 512M
+    logging:
+      driver: 'json-file'
+      options:
+        max-size: '10m'
+        max-file: '3'
+
+  # Redis Commander (Interface Web para Redis)
+  redis-commander:
+    image: rediscommander/redis-commander:latest
+    container_name: redis-commander
+    restart: unless-stopped
+    environment:
+      - REDIS_HOSTS=mahina-redis:mahina-redis:6379:0:${REDIS_PASSWORD:-mahina_redis_2024}
+      - HTTP_USER=${REDIS_COMMANDER_USER:-admin}
+      - HTTP_PASSWORD=${REDIS_COMMANDER_PASSWORD:-admin123}
+      - PORT=8081
+    ports:
+      - '8081:8081'
+    depends_on:
+      mahina-redis:
+        condition: service_healthy
+    networks:
+      - mahina-internal
+    profiles:
+      - tools
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+        reservations:
+          memory: 128M
+    logging:
+      driver: 'json-file'
+      options:
+        max-size: '5m'
+        max-file: '2'
+
 networks:
-  lava:
-    name: lava
+  mahina-internal:
+    name: mahina-internal
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
+
+volumes:
+  mahina-db-data:
+    name: mahina-db-data
+  mahina-redis-data:
+    name: mahina-redis-data
+  lavalink-logs:
+    name: lavalink-logs

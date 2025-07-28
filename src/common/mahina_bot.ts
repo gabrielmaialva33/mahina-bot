@@ -20,7 +20,7 @@ import {
 
 import config from '#src/config'
 import ServerData from '#src/database/server'
-import Logger from '#common/logger'
+import { Logger } from '#common/logger'
 import MahinaLinkClient from '#common/mahina_link_client'
 import { i18n, initI18n, localization, T } from '#common/i18n'
 import loadPlugins from '#src/extensions/index'
@@ -28,6 +28,18 @@ import { Utils } from '#utils/utils'
 import { env } from '#src/env'
 import SelfBot from '#common/selfbot'
 import { AnimeZey } from '#src/platforms/animezey'
+import { NvidiaAIService } from '#src/services/nvidia_ai_service'
+import { ProactiveInteractionService } from '#src/services/proactive_interaction_service'
+import { LavalinkHealthService } from '#src/services/lavalink_health_service'
+import { AIContextService } from '#src/services/ai_context_service'
+import { AIMemoryService } from '#src/services/ai_memory_service'
+import { AIManager, getAIManager } from '#src/services/ai_manager'
+import { NvidiaTTSService } from '#src/services/nvidia_tts_service'
+import { NvidiaEmbeddingService } from '#src/services/nvidia_embedding_service'
+import { NvidiaCosmosService } from '#src/services/nvidia_cosmos_service'
+import { NvidiaGuardService } from '#src/services/nvidia_guard_service'
+import { NvidiaEnhancedService } from '#src/services/nvidia_enhanced_service'
+import { AIJobService } from '#src/services/ai_job_service'
 
 const dirname = path.dirname(fileURLToPath(import.meta.url))
 
@@ -46,6 +58,20 @@ export default class MahinaBot extends Client {
   manager!: MahinaLinkClient
   selfbot: SelfBot
   animezey = new AnimeZey()
+  services: {
+    nvidia?: NvidiaAIService
+    nvidiaEnhanced?: NvidiaEnhancedService
+    proactiveInteraction?: ProactiveInteractionService
+    lavalinkHealth?: LavalinkHealthService
+    aiContext?: AIContextService
+    aiMemory?: AIMemoryService
+    aiJob?: AIJobService
+    nvidiaTTS?: NvidiaTTSService
+    nvidiaEmbedding?: NvidiaEmbeddingService
+    nvidiaCosmos?: NvidiaCosmosService
+    nvidiaGuard?: NvidiaGuardService
+  } = {}
+  aiManager?: AIManager
   private body: RESTPostAPIChatInputApplicationCommandsJSONBody[] = []
 
   constructor(options: ClientOptions) {
@@ -65,6 +91,44 @@ export default class MahinaBot extends Client {
     } else {
       this.logger.warn('Top.gg token not found!')
     }
+
+    // Initialize AI Manager with all AI services
+    try {
+      const prisma = await this.db.getPrismaClient()
+      this.aiManager = getAIManager(this, prisma)
+      await this.aiManager.initialize()
+
+      // Map AI services for backward compatibility and easy access
+      this.services.nvidia = this.aiManager.nvidia
+      this.services.nvidiaEnhanced = this.aiManager.nvidiaEnhanced
+      this.services.aiContext = this.aiManager.context
+      this.services.aiMemory = this.aiManager.memory
+      this.services.aiJob = this.aiManager.jobs
+
+      this.logger.info('AI Manager and services initialized successfully')
+    } catch (error) {
+      this.logger.error('Failed to initialize AI Manager:', error)
+      this.logger.warn('AI features will be disabled')
+    }
+
+    // Initialize Proactive Interaction Service
+    this.services.proactiveInteraction = new ProactiveInteractionService(this)
+
+    // Initialize Lavalink Health Service
+    this.services.lavalinkHealth = new LavalinkHealthService(this)
+
+    // Initialize NVIDIA TTS Service
+    this.services.nvidiaTTS = new NvidiaTTSService(this)
+
+    // Initialize NVIDIA Embedding Service
+    this.services.nvidiaEmbedding = new NvidiaEmbeddingService(this)
+
+    // Initialize NVIDIA Cosmos Service
+    this.services.nvidiaCosmos = new NvidiaCosmosService(this)
+
+    // Initialize NVIDIA Guard Service
+    this.services.nvidiaGuard = new NvidiaGuardService(this)
+
     this.manager = new MahinaLinkClient(this)
 
     await this.loadCommands().finally(() => this.logger.info('Successfully loaded commands!'))

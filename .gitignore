@@ -75,6 +75,7 @@ web_modules/
 # dotenv environment variable files
 .env
 .env.mahina
+.env.winx
 .env.development.local
 .env.test.local
 .env.production.local
@@ -539,3 +540,5 @@ cache
 # MacOSX
 .DS_Store
 .AppleDouble
+
+.claude

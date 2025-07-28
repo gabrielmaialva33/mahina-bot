@@ -40,5 +40,17 @@ export default class Ready extends Event {
       username: normalizedUsername,
       shards: 'auto',
     })
+
+    // Start proactive interaction service
+    if (this.client.services.proactiveInteraction) {
+      await this.client.services.proactiveInteraction.start()
+      this.client.logger.info('Proactive Interaction Service started')
+    }
+
+    // Start Lavalink health monitoring service
+    if (this.client.services.lavalinkHealth) {
+      this.client.services.lavalinkHealth.start()
+      this.client.logger.info('Lavalink Health Service started')
+    }
   }
 }

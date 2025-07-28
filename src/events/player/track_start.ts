@@ -6,6 +6,7 @@ import {
   type ChannelSelectMenuInteraction,
   GuildMember,
   type MentionableSelectMenuInteraction,
+  MessageFlags,
   PermissionFlagsBits,
   type RoleSelectMenuInteraction,
   type StringSelectMenuInteraction,
@@ -145,7 +146,7 @@ function createCollector(
         content: T(locale, 'player.trackStart.not_connected_to_voice_channel', {
           channel: b.guild?.members.me?.voice.channelId ?? 'None',
         }),
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral,
       })
       return false
     },
@@ -155,7 +156,7 @@ function createCollector(
     if (!(await checkDj(client, interaction))) {
       await interaction.reply({
         content: T(locale, 'player.trackStart.need_dj_role'),
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral,
       })
       return
     }
@@ -189,7 +190,7 @@ function createCollector(
         } else {
           await interaction.reply({
             content: T(locale, 'player.trackStart.no_previous_song'),
-            ephemeral: true,
+            flags: MessageFlags.Ephemeral,
           })
         }
         break
@@ -229,7 +230,7 @@ function createCollector(
         } else {
           await interaction.reply({
             content: T(locale, 'player.trackStart.no_more_songs_in_queue'),
-            ephemeral: true,
+            flags: MessageFlags.Ephemeral,
           })
         }
         break

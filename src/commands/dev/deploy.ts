@@ -4,6 +4,7 @@ import {
   type ButtonInteraction,
   ButtonStyle,
   ComponentType,
+  MessageFlags,
   type Message,
   type TextChannel,
 } from 'discord.js'
@@ -68,7 +69,7 @@ export default class Deploy extends Command {
         interaction
           .reply({
             content: "You can't interact with this message",
-            ephemeral: true,
+            flags: MessageFlags.Ephemeral,
           })
           .catch(client.logger.error)
         return false

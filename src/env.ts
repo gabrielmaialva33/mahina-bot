@@ -58,6 +58,21 @@ const envSchema = z.object({
     return val
   }, z.number().default(0)),
   DATABASE_URL: z.string().optional(),
+  POSTGRES_USER: z.string().default('mahina'),
+  POSTGRES_PASSWORD: z.string().default('mahina'),
+  POSTGRES_DB: z.string().default('mahina'),
+  DB_USER: z.string().default('mahina'),
+  DB_PASSWORD: z.string().default('mahina'),
+  DB_NAME: z.string().default('mahina'),
+  DB_HOST: z.string().default('mahina-database'),
+  DB_PORT: z.string().default('5432'),
+  JWT_SECRET: z.string().optional(),
+  KEYCLOAK_CLIENT_ID: z.string().optional(),
+  POSTGREST_URL: z.string().default('http://localhost:3010'),
+  PGBOSS_ENABLED: z.preprocess((val) => val === 'true', z.boolean().default(true)),
+  AI_JOB_QUEUE_ENABLED: z.preprocess((val) => val === 'true', z.boolean().default(true)),
+  REDIS_URL: z.string().optional(),
+  REDIS_PASSWORD: z.string().default('mahina_redis_2024'),
   SEARCH_ENGINE: z.preprocess(
     (val) => {
       if (typeof val === 'string') {
@@ -87,8 +102,10 @@ const envSchema = z.object({
   YTDL_BIN_PATH: z.string().optional().default(''),
   PORT: z
     .string()
-    .default('3000')
+    .default('3050')
     .transform((val) => Number.parseInt(val, 10)),
+  NVIDIA_API_KEY: z.string().optional(),
+  OPENAI_API_KEY: z.string().optional(),
 })
 
 type Env = z.infer<typeof envSchema>

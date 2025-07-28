@@ -114,10 +114,11 @@ export default class Context {
   }
 
   async sendDeferMessage(
-    content: string | MessagePayload | MessageCreateOptions
+    content: string | MessagePayload | MessageCreateOptions,
+    ephemeral = false
   ): Promise<Message> {
     if (this.isInteraction) {
-      this.msg = await this.interaction?.deferReply({ fetchReply: true })
+      this.msg = await this.interaction?.deferReply({ fetchReply: true, ephemeral })
       return this.msg
     }
 

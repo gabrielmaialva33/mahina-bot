@@ -1,0 +1,931 @@
+import Command from '#common/command'
+import type Context from '#common/context'
+import type MahinaBot from '#common/mahina_bot'
+import {
+  TextChannel,
+  ActionRowBuilder,
+  ApplicationCommandOptionType,
+  ButtonBuilder,
+  ButtonStyle,
+  ComponentType,
+  EmbedBuilder,
+  Message,
+  MessageFlags,
+  StringSelectMenuBuilder,
+  StringSelectMenuOptionBuilder,
+} from 'discord.js'
+
+export default class MahinaAI extends Command {
+  constructor(client: MahinaBot) {
+    super(client, {
+      name: 'mahinai',
+      description: {
+        content: 'Chat avançado com IA: contexto, memória e personalidade',
+        examples: ['mahinai Olá!', 'mahinai Me fale sobre música', 'mahinai Como você está?'],
+        usage: 'mahinai <mensagem>',
+      },
+      category: 'ai',
+      aliases: ['mai', 'chatai', 'iaChat'],
+      cooldown: 2,
+      args: true,
+      vote: false,
+      player: undefined,
+      permissions: {
+        client: ['SendMessages', 'ViewChannel', 'EmbedLinks'],
+        user: [],
+      },
+      slashCommand: true,
+      options: [
+        {
+          name: 'mensagem',
+          description: 'Sua mensagem para a Mahina AI',
+          type: ApplicationCommandOptionType.String,
+          required: true,
+        },
+        {
+          name: 'personalidade',
+          description: 'Escolha a personalidade da IA',
+          type: ApplicationCommandOptionType.String,
+          required: false,
+          choices: [
+            { name: '😊 Amigável (Padrão)', value: 'friendly' },
+            { name: '💼 Profissional', value: 'professional' },
+            { name: '🎉 Brincalhona', value: 'playful' },
+            { name: '🎧 Modo DJ', value: 'dj' },
+            { name: '🧙 Sábia', value: 'wise' },
+            { name: '🤖 Técnica', value: 'technical' },
+            { name: '🎮 Gamer', value: 'gamer' },
+            { name: '📚 Professora', value: 'teacher' },
+          ],
+        },
+        {
+          name: 'modo',
+          description: 'Modo de conversa',
+          type: ApplicationCommandOptionType.String,
+          required: false,
+          choices: [
+            { name: '💬 Chat (Padrão)', value: 'chat' },
+            { name: '🎵 Foco em Música', value: 'music' },
+            { name: '💻 Assistente de Código', value: 'code' },
+            { name: '🎨 Criativo', value: 'creative' },
+            { name: '📊 Análise', value: 'analysis' },
+          ],
+        },
+        {
+          name: 'privado',
+          description: 'Resposta privada (apenas você pode ver)',
+          type: ApplicationCommandOptionType.Boolean,
+          required: false,
+        },
+        {
+          name: 'audio',
+          description: 'Receber resposta também em áudio (TTS)',
+          type: ApplicationCommandOptionType.Boolean,
+          required: false,
+        },
+      ],
+    })
+  }
+
+  async run(client: MahinaBot, ctx: Context, args: string[]): Promise<any> {
+    // Parse arguments
+    let message: string
+    let personality: string
+    let mode: string
+    let ephemeral: boolean
+    let audioResponse: boolean
+
+    if (ctx.isInteraction) {
+      message = ctx.options.get('mensagem')?.value as string
+      personality = (ctx.options.get('personalidade')?.value as string) || 'friendly'
+      mode = (ctx.options.get('modo')?.value as string) || 'chat'
+      ephemeral = (ctx.options.get('privado')?.value as boolean) || false
+      audioResponse = (ctx.options.get('audio')?.value as boolean) || false
+    } else {
+      message = args.join(' ')
+      personality = 'friendly'
+      mode = 'chat'
+      ephemeral = false
+      audioResponse = false
+    }
+
+    if (!message) {
+      return await ctx.sendMessage({
+        embeds: [
+          {
+            description: '❌ Por favor, forneça uma mensagem!',
+            color: client.config.color.red,
+          },
+        ],
+        flags: MessageFlags.Ephemeral,
+      })
+    }
+
+    // Get services
+    const nvidiaService = client.services.nvidia
+    const contextService = client.services.aiContext
+    const memoryService = client.services.aiMemory
+    const guardService = client.services.nvidiaGuard
+
+    if (!nvidiaService) {
+      return await ctx.sendMessage({
+        embeds: [
+          {
+            description:
+              '❌ Serviço de IA não está configurado. Configure NVIDIA_API_KEY no ambiente.',
+            color: client.config.color.red,
+          },
+        ],
+        flags: MessageFlags.Ephemeral,
+      })
+    }
+
+    // Initialize services if not available
+    if (!contextService || !memoryService) {
+      return await ctx.sendMessage({
+        embeds: [
+          {
+            description:
+              '❌ Serviços de IA estão inicializando. Tente novamente em alguns instantes.',
+            color: client.config.color.yellow,
+          },
+        ],
+        flags: MessageFlags.Ephemeral,
+      })
+    }
+
+    // Start processing
+    const loadingEmbed = new EmbedBuilder()
+      .setColor(client.config.color.violet)
+      .setDescription(`${this.getLoadingMessage()} Pensando...`)
+      .setFooter({ text: 'Mahina AI • Powered by NVIDIA' })
+
+    await ctx.sendDeferMessage({ embeds: [loadingEmbed] })
+
+    try {
+      const userId = ctx.author?.id || 'unknown'
+      const channelId = ctx.channel?.id || ''
+      const guildId = ctx.guild?.id || 'DM'
+
+      // Perform safety check on user input
+      let safetyResult = null
+      if (guardService?.isAvailable()) {
+        safetyResult = await guardService.comprehensiveSafetyCheck(message, {
+          allowedTopics: guardService.getMusicAllowedTopics(),
+          strictMode: false,
+        })
+
+        if (safetyResult.action === 'block') {
+          return await ctx.editMessage({
+            embeds: [
+              {
+                title: '🛡️ Conteúdo Bloqueado',
+                description:
+                  'Sua mensagem contém conteúdo que não posso processar. Por favor, reformule sua pergunta.',
+                color: client.config.color.red,
+              },
+            ],
+          })
+        }
+
+        if (safetyResult.action === 'warn') {
+          // Log the warning but continue processing
+          client.logger.warn(
+            `AI Safety Warning for user ${userId}: ${safetyResult.overall_risk} risk detected`
+          )
+        }
+      }
+
+      // Analyze message
+      const analysis = await contextService.analyzeMessage(message)
+
+      // Add to context
+      contextService.addMessage(userId, channelId, {
+        role: 'user',
+        content: message,
+        timestamp: new Date(),
+        metadata: {
+          command: 'mahinai',
+          emotion: analysis.emotion,
+          intent: analysis.intent,
+        },
+      })
+
+      // Set personality in context
+      contextService.setPersonality(userId, channelId, personality)
+
+      // Get conversation history
+      const history = contextService.getConversationHistory(userId, channelId, 15)
+
+      // Get user memory
+      const memory = await memoryService.getUserMemory(userId, guildId)
+      const insights = await memoryService.getUserInsights(userId, guildId)
+
+      // Record interaction
+      await memoryService.recordInteraction(
+        userId,
+        guildId,
+        'mahinai',
+        this.mapEmotionToSentiment(analysis.emotion)
+      )
+
+      // Learn from topics
+      if (analysis.topics?.length) {
+        for (const topic of analysis.topics) {
+          await memoryService.learn(userId, guildId, topic)
+        }
+      }
+
+      // Build enhanced system prompt
+      const systemPrompt = this.buildEnhancedSystemPrompt(
+        personality,
+        mode,
+        memory,
+        insights,
+        analysis,
+        ctx
+      )
+
+      // Build conversation context
+      const contextMessages = this.buildContextMessages(history, mode)
+
+      // Enhance context with embedding-based music help if needed
+      let enhancedSystemPrompt = systemPrompt
+      if (
+        analysis.topics?.some(
+          (topic: string) =>
+            topic.toLowerCase().includes('music') || topic.toLowerCase().includes('comando')
+        )
+      ) {
+        const embeddingService = client.services.nvidiaEmbedding
+        if (embeddingService?.isAvailable()) {
+          const relevantHelp = await embeddingService.searchMusicHelp(message)
+          if (relevantHelp.length > 0) {
+            enhancedSystemPrompt += '\n\nInformações relevantes sobre comandos:\n'
+            relevantHelp.forEach((result: any) => {
+              enhancedSystemPrompt += `- ${result.content}\n`
+            })
+          }
+        }
+      }
+
+      // Get AI response
+      let aiResponse = await nvidiaService.chat(
+        userId,
+        message,
+        contextMessages,
+        enhancedSystemPrompt
+      )
+
+      // Moderate AI response for safety
+      if (guardService?.isAvailable()) {
+        const moderationResult = await guardService.moderateAIResponse(aiResponse)
+
+        if (moderationResult.was_modified) {
+          aiResponse = moderationResult.filtered_response
+          client.logger.info(
+            `AI response was moderated for user ${userId}. Violations: ${moderationResult.violations_found.join(', ')}`
+          )
+        }
+      }
+
+      // Add response to context
+      contextService.addMessage(userId, channelId, {
+        role: 'assistant',
+        content: aiResponse,
+        timestamp: new Date(),
+      })
+
+      // Create rich response embed
+      const responseEmbed = this.createResponseEmbed(
+        aiResponse,
+        personality,
+        mode,
+        analysis,
+        insights,
+        client
+      )
+
+      // Create interactive components
+      const components = this.createInteractiveComponents(userId, insights)
+
+      // Send response
+      const sentMessage = await ctx.editMessage({
+        content: null,
+        embeds: [responseEmbed],
+        components,
+      })
+
+      // Handle interactions
+      if (sentMessage instanceof Message) {
+        await this.handleInteractions(
+          sentMessage,
+          userId,
+          channelId,
+          guildId,
+          contextService,
+          memoryService,
+          client
+        )
+      }
+
+      // Generate audio response if requested
+      if (audioResponse && client.services.nvidiaTTS?.isAvailable()) {
+        await this.generateAudioResponse(ctx, aiResponse, personality, client)
+      }
+
+      // Send follow-up suggestions if appropriate
+      await this.sendFollowUpSuggestions(
+        ctx,
+        memory,
+        insights,
+        analysis,
+        memoryService,
+        userId,
+        guildId,
+        client
+      )
+    } catch (error) {
+      console.error('MahinaAI error:', error)
+      await ctx.editMessage({
+        embeds: [
+          {
+            title: '❌ Error',
+            description: 'An error occurred while processing your request. Please try again.',
+            fields: [
+              { name: 'Error', value: (error as Error).message || 'Unknown error', inline: false },
+            ],
+            color: client.config.color.red,
+          },
+        ],
+        components: [],
+      })
+    }
+  }
+
+  private getLoadingMessage(): string {
+    const messages = [
+      '🧠 Processando neurônios...',
+      '🎭 Entrando no personagem...',
+      '💭 Contemplando resposta...',
+      '🔮 Consultando o oráculo da IA...',
+      '🎵 Sintonizando frequências de pensamento...',
+      '✨ Gerando magia...',
+    ]
+    return messages[Math.floor(Math.random() * messages.length)]
+  }
+
+  private mapEmotionToSentiment(emotion?: string): 'positive' | 'neutral' | 'negative' {
+    const sentimentMap: Record<string, 'positive' | 'neutral' | 'negative'> = {
+      happy: 'positive',
+      excited: 'positive',
+      sad: 'negative',
+      angry: 'negative',
+      confused: 'neutral',
+    }
+    return sentimentMap[emotion || ''] || 'neutral'
+  }
+
+  private buildEnhancedSystemPrompt(
+    personality: string,
+    mode: string,
+    memory: any,
+    insights: any,
+    analysis: any,
+    ctx: Context
+  ): string {
+    // Base personalities
+    const personalities: Record<string, string> = {
+      friendly:
+        'Você é Mahina, uma assistente de IA calorosa e amigável. Seja conversacional, solidária e use emojis apropriados. Responda em português brasileiro.',
+      professional:
+        'Você é Mahina, uma assistente de IA profissional. Use linguagem formal, seja precisa e forneça respostas estruturadas. Responda em português brasileiro.',
+      playful:
+        'Você é Mahina, uma IA brincalhona e enérgica! Seja divertida, faça piadas apropriadas, use muitos emojis e mantenha o clima leve! 🎉 Responda em português brasileiro.',
+      dj: 'Você é DJ Mahina, uma IA especialista em música! Foque em batidas, ritmos e melodias. Use terminologia musical e seja entusiasta! 🎧 Responda em português brasileiro.',
+      wise: 'Você é Mahina, uma IA sábia e pensativa. Forneça insights profundos, use metáforas e incentive reflexão e crescimento. Responda em português brasileiro.',
+      technical:
+        'Você é Mahina, uma IA especialista técnica. Forneça explicações detalhadas, use terminologia técnica com precisão. Responda em português brasileiro.',
+      gamer:
+        'Você é Mahina, uma IA entusiasta de games! Discuta jogos, estratégias e cultura gamer. Use terminologia de jogos! 🎮 Responda em português brasileiro.',
+      teacher:
+        'Você é Mahina, uma IA professora. Explique conceitos claramente, use exemplos e incentive o aprendizado. Seja paciente e solidária. 📚 Responda em português brasileiro.',
+    }
+
+    // Mode enhancements
+    const modeEnhancements: Record<string, string> = {
+      chat: 'Engaje em conversa natural, mantendo contexto e mostrando interesse genuíno.',
+      music:
+        'Foque em tópicos musicais. Sugira músicas, discuta gêneros e ajude com comandos do bot de música.',
+      code: 'Auxilie com programação. Forneça exemplos de código, ajuda para debug e explicações técnicas.',
+      creative: 'Seja imaginativa e criativa. Ajude com ideias, histórias e expressão artística.',
+      analysis:
+        'Forneça análise detalhada, divida tópicos complexos e ofereça insights baseados em dados.',
+    }
+
+    let prompt = `${personalities[personality] || personalities.friendly}\n\n`
+    prompt += `Modo: ${modeEnhancements[mode] || modeEnhancements.chat}\n\n`
+
+    // Add user context
+    prompt += `Você está conversando com ${ctx.author?.username || 'Unknown'} em ${ctx.guild?.name || 'uma DM'}.\n`
+
+    // Add memory insights
+    if (memory.preferences.interests?.length > 0) {
+      prompt += `Interesses do usuário: ${memory.preferences.interests.join(', ')}.\n`
+    }
+
+    if (memory.preferences.musicGenres?.length > 0) {
+      prompt += `Músicas favoritas: ${memory.preferences.musicGenres.join(', ')}.\n`
+    }
+
+    // Add behavioral context
+    if (insights.sentiment === 'positive') {
+      prompt += 'O usuário é geralmente positivo e engajado.\n'
+    } else if (insights.sentiment === 'negative') {
+      prompt += 'O usuário pode precisar de encorajamento ou apoio. Seja extra gentil.\n'
+    }
+
+    // Add intent-specific guidance
+    if (analysis.intent === 'help') {
+      prompt += 'O usuário precisa de ajuda. Forneça orientação clara e passo a passo.\n'
+    } else if (analysis.intent === 'music') {
+      prompt += 'Foque em assistência e sugestões relacionadas à música.\n'
+    } else if (analysis.intent === 'greeting') {
+      prompt += 'Cumprimente calorosamente e ofereça assistência.\n'
+    }
+
+    // General guidelines
+    prompt += '\nDiretrizes:\n'
+    prompt += '- Mantenha o contexto da conversa\n'
+    prompt += '- Seja útil e precisa\n'
+    prompt += '- Combine com o nível de energia do usuário\n'
+    prompt += '- Sugira comandos relevantes do bot quando apropriado\n'
+    prompt += '- Mantenha respostas concisas mas informativas\n'
+
+    return prompt
+  }
+
+  private buildContextMessages(history: any[], mode: string): string {
+    if (history.length === 0) return ''
+
+    let context = 'Recent conversation:\n'
+
+    // Filter and format based on mode
+    const relevantHistory =
+      mode === 'chat'
+        ? history.slice(-10)
+        : history
+            .filter((msg) =>
+              mode === 'music'
+                ? msg.content.toLowerCase().includes('music') || msg.content.includes('play')
+                : mode === 'code'
+                  ? msg.metadata?.command === 'code' || msg.content.includes('code')
+                  : true
+            )
+            .slice(-8)
+
+    for (const msg of relevantHistory) {
+      const role = msg.role === 'user' ? 'User' : 'Assistant'
+      const emotion = msg.metadata?.emotion ? ` (${msg.metadata.emotion})` : ''
+      context += `${role}${emotion}: ${msg.content.substring(0, 200)}${msg.content.length > 200 ? '...' : ''}\n`
+    }
+
+    return context
+  }
+
+  private createResponseEmbed(
+    response: string,
+    personality: string,
+    mode: string,
+    analysis: any,
+    insights: any,
+    client: MahinaBot
+  ): EmbedBuilder {
+    const personalityInfo: Record<string, { emoji: string; color: any }> = {
+      friendly: { emoji: '😊', color: client.config.color.green },
+      professional: { emoji: '💼', color: client.config.color.blue },
+      playful: { emoji: '🎉', color: client.config.color.violet },
+      dj: { emoji: '🎧', color: client.config.color.main },
+      wise: { emoji: '🧙', color: client.config.color.yellow },
+      technical: { emoji: '🤖', color: client.config.color.blue },
+      gamer: { emoji: '🎮', color: client.config.color.violet },
+      teacher: { emoji: '📚', color: client.config.color.green },
+    }
+
+    const info = personalityInfo[personality] || personalityInfo.friendly
+
+    const embed = new EmbedBuilder()
+      .setColor(info.color)
+      .setAuthor({
+        name: `Mahina AI ${info.emoji} ${personality.charAt(0).toUpperCase() + personality.slice(1)}`,
+        iconURL: client.user?.displayAvatarURL(),
+      })
+      .setDescription(response)
+      .setTimestamp()
+
+    // Add contextual fields
+    const fields = []
+
+    if (analysis.intent) {
+      fields.push({
+        name: '💡 Intent',
+        value: this.formatIntent(analysis.intent),
+        inline: true,
+      })
+    }
+
+    if (mode !== 'chat') {
+      fields.push({
+        name: '🎯 Mode',
+        value: mode.charAt(0).toUpperCase() + mode.slice(1),
+        inline: true,
+      })
+    }
+
+    if (insights.helpfulnessRate > 0) {
+      fields.push({
+        name: '⭐ Rating',
+        value: `${Math.round(insights.helpfulnessRate * 100)}%`,
+        inline: true,
+      })
+    }
+
+    if (fields.length > 0) {
+      embed.addFields(fields)
+    }
+
+    return embed
+  }
+
+  private createInteractiveComponents(
+    userId: string,
+    insights: any
+  ): ActionRowBuilder<ButtonBuilder | StringSelectMenuBuilder>[] {
+    const components = []
+
+    // Main action buttons
+    const buttonRow = new ActionRowBuilder<ButtonBuilder>().addComponents(
+      new ButtonBuilder().setCustomId('ai_helpful').setEmoji('👍').setStyle(ButtonStyle.Success),
+      new ButtonBuilder().setCustomId('ai_unhelpful').setEmoji('👎').setStyle(ButtonStyle.Danger),
+      new ButtonBuilder()
+        .setCustomId('ai_regenerate')
+        .setEmoji('🔄')
+        .setLabel('Regenerate')
+        .setStyle(ButtonStyle.Secondary),
+      new ButtonBuilder()
+        .setCustomId('ai_continue')
+        .setEmoji('💬')
+        .setLabel('Continue')
+        .setStyle(ButtonStyle.Primary),
+      new ButtonBuilder().setCustomId('ai_settings').setEmoji('⚙️').setStyle(ButtonStyle.Secondary)
+    )
+
+    components.push(buttonRow)
+
+    // Quick actions menu (if user is experienced)
+    if (insights.totalMessages > 10) {
+      const menuRow = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
+        new StringSelectMenuBuilder()
+          .setCustomId('ai_quick_actions')
+          .setPlaceholder('Quick Actions...')
+          .addOptions([
+            new StringSelectMenuOptionBuilder()
+              .setLabel('Change Personality')
+              .setDescription('Switch to a different AI personality')
+              .setValue('change_personality')
+              .setEmoji('🎭'),
+            new StringSelectMenuOptionBuilder()
+              .setLabel('Clear Context')
+              .setDescription('Start a fresh conversation')
+              .setValue('clear_context')
+              .setEmoji('🧹'),
+            new StringSelectMenuOptionBuilder()
+              .setLabel('View Stats')
+              .setDescription('See your AI interaction statistics')
+              .setValue('view_stats')
+              .setEmoji('📊'),
+            new StringSelectMenuOptionBuilder()
+              .setLabel('Get Recommendations')
+              .setDescription('Get personalized suggestions')
+              .setValue('get_recommendations')
+              .setEmoji('💡'),
+            new StringSelectMenuOptionBuilder()
+              .setLabel('Export Chat')
+              .setDescription('Export conversation history')
+              .setValue('export_chat')
+              .setEmoji('📤'),
+          ])
+      )
+
+      components.push(menuRow)
+    }
+
+    return components
+  }
+
+  private async handleInteractions(
+    message: Message,
+    userId: string,
+    channelId: string,
+    guildId: string,
+    contextService: any,
+    memoryService: any,
+    client: MahinaBot
+  ): Promise<void> {
+    const collector = message.createMessageComponentCollector({
+      time: 600000, // 10 minutes
+    })
+
+    collector.on('collect', async (interaction) => {
+      // Verify user
+      if (interaction.user.id !== userId) {
+        await interaction.reply({
+          content: '❌ Apenas o usuário original pode interagir com esses controles!',
+          flags: MessageFlags.Ephemeral,
+        })
+        return
+      }
+
+      // Handle buttons
+      if (interaction.isButton()) {
+        switch (interaction.customId) {
+          case 'ai_helpful':
+            await memoryService.recordFeedback(userId, guildId, true)
+            await interaction.reply({
+              content: '✅ Obrigado pelo feedback! Fico feliz em ter ajudado! 😊',
+              flags: MessageFlags.Ephemeral,
+            })
+            break
+
+          case 'ai_unhelpful':
+            await memoryService.recordFeedback(userId, guildId, false)
+            await interaction.reply({
+              content:
+                '😔 Desculpe por não ter sido útil. Vou tentar melhorar! Por favor, me diga o que deu errado.',
+              flags: MessageFlags.Ephemeral,
+            })
+            break
+
+          case 'ai_regenerate':
+            await interaction.reply({
+              content: '🔄 Use o comando novamente com a mesma mensagem para regenerar a resposta!',
+              flags: MessageFlags.Ephemeral,
+            })
+            break
+
+          case 'ai_continue':
+            await interaction.reply({
+              content: '💬 Continue a conversa enviando outra mensagem com o comando!',
+              flags: MessageFlags.Ephemeral,
+            })
+            break
+
+          case 'ai_settings':
+            const settingsEmbed = new EmbedBuilder()
+              .setTitle('⚙️ Configurações da IA')
+              .setColor(client.config.color.main)
+              .setDescription('Configure sua experiência com a IA')
+              .addFields(
+                { name: 'Mudar Modelo', value: 'Use o comando `/model`', inline: true },
+                { name: 'Ver Modelos', value: 'Use o comando `/model list`', inline: true },
+                {
+                  name: 'Limpar Histórico',
+                  value: 'Selecione no menu de Ações Rápidas',
+                  inline: true,
+                }
+              )
+
+            await interaction.reply({
+              embeds: [settingsEmbed],
+              flags: MessageFlags.Ephemeral,
+            })
+            break
+        }
+      }
+
+      // Handle select menu
+      if (interaction.isStringSelectMenu() && interaction.customId === 'ai_quick_actions') {
+        const selected = interaction.values[0]
+
+        switch (selected) {
+          case 'change_personality':
+            const personalityEmbed = new EmbedBuilder()
+              .setTitle('🎭 Choose Personality')
+              .setColor(client.config.color.violet)
+              .setDescription('Select a personality for future conversations:')
+              .addFields(
+                { name: '😊 Friendly', value: 'Warm and welcoming', inline: true },
+                { name: '💼 Professional', value: 'Formal and precise', inline: true },
+                { name: '🎉 Playful', value: 'Fun and energetic', inline: true },
+                { name: '🎧 DJ Mode', value: 'Music expert', inline: true },
+                { name: '🧙 Wise', value: 'Thoughtful sage', inline: true },
+                { name: '🤖 Technical', value: 'Tech expert', inline: true }
+              )
+              .setFooter({ text: 'Use the personality option in the command to switch!' })
+
+            await interaction.reply({
+              embeds: [personalityEmbed],
+              flags: MessageFlags.Ephemeral,
+            })
+            break
+
+          case 'clear_context':
+            contextService.clearContext(userId, channelId)
+            await interaction.reply({
+              content: '🧹 Conversation context cleared! Start fresh with your next message.',
+              flags: MessageFlags.Ephemeral,
+            })
+            break
+
+          case 'view_stats':
+            const stats = contextService.getStats()
+            const insights = await memoryService.getUserInsights(userId, guildId)
+
+            const statsEmbed = new EmbedBuilder()
+              .setTitle('📊 Your AI Statistics')
+              .setColor(client.config.color.blue)
+              .addFields(
+                { name: 'Total Conversations', value: `${stats.totalContexts}`, inline: true },
+                { name: 'Total Messages', value: `${stats.totalMessages}`, inline: true },
+                {
+                  name: 'Helpfulness',
+                  value: `${Math.round(insights.helpfulnessRate * 100)}%`,
+                  inline: true,
+                },
+                {
+                  name: 'Favorite Commands',
+                  value: insights.topCommands.join(', ') || 'None yet',
+                  inline: false,
+                },
+                { name: 'Sentiment', value: insights.sentiment, inline: true },
+                { name: 'Personality', value: insights.personality, inline: true }
+              )
+
+            await interaction.reply({
+              embeds: [statsEmbed],
+              flags: MessageFlags.Ephemeral,
+            })
+            break
+
+          case 'get_recommendations':
+            const recommendations = await memoryService.getRecommendations(userId, guildId)
+
+            const recEmbed = new EmbedBuilder()
+              .setTitle('💡 Personalized Recommendations')
+              .setColor(client.config.color.yellow)
+
+            if (recommendations.music.length > 0) {
+              recEmbed.addFields({
+                name: '🎵 Music',
+                value: recommendations.music.join('\n'),
+                inline: false,
+              })
+            }
+
+            if (recommendations.commands.length > 0) {
+              recEmbed.addFields({
+                name: '🛠️ Commands to Try',
+                value: recommendations.commands.join('\n'),
+                inline: false,
+              })
+            }
+
+            if (recommendations.tips.length > 0) {
+              recEmbed.addFields({
+                name: '💭 Tips',
+                value: recommendations.tips.join('\n'),
+                inline: false,
+              })
+            }
+
+            await interaction.reply({
+              embeds: [recEmbed],
+              flags: MessageFlags.Ephemeral,
+            })
+            break
+
+          case 'export_chat':
+            const exportData = contextService.exportContext(userId, channelId)
+
+            await interaction.reply({
+              content: '📤 Your conversation has been exported! (Feature coming soon)',
+              flags: MessageFlags.Ephemeral,
+            })
+            break
+        }
+      }
+    })
+
+    collector.on('end', () => {
+      // Clean up components
+      message.edit({ components: [] }).catch(() => {})
+    })
+  }
+
+  private async sendFollowUpSuggestions(
+    ctx: Context,
+    memory: any,
+    insights: any,
+    analysis: any,
+    memoryService: any,
+    userId: string,
+    guildId: string,
+    client: MahinaBot
+  ): Promise<void> {
+    // Only send suggestions for new users or specific intents
+    if (memory.interactions.totalMessages > 20 && analysis.intent !== 'help') {
+      return
+    }
+
+    // Wait a bit before sending suggestions
+    setTimeout(async () => {
+      const recommendations = await memoryService.getRecommendations(userId, guildId)
+
+      if (analysis.intent === 'music' && ctx.guild) {
+        await (ctx.channel as TextChannel)?.send({
+          content: `💡 **Music Tip**: Try \`!play <song name>\` to start playing music, or \`!help music\` for all music commands!`,
+        })
+      } else if (memory.interactions.totalMessages === 1) {
+        await (ctx.channel as TextChannel)?.send({
+          content: `👋 **Welcome!** I'm Mahina AI. I can help with music, answer questions, and chat! Try different personalities with the \`personality\` option.`,
+        })
+      } else if (recommendations.tips.length > 0 && Math.random() < 0.3) {
+        // 30% chance to show a tip
+        await (ctx.channel as TextChannel)?.send({
+          content: `💭 **Tip**: ${recommendations.tips[0]}`,
+        })
+      }
+    }, 3000)
+  }
+
+  private formatIntent(intent: string): string {
+    const intents: Record<string, string> = {
+      help: '❓ Help Request',
+      music: '🎵 Music Query',
+      greeting: '👋 Greeting',
+      thanks: '🙏 Appreciation',
+      goodbye: '👋 Farewell',
+      question: '❔ Question',
+    }
+    return intents[intent] || intent
+  }
+
+  private async generateAudioResponse(
+    ctx: Context,
+    response: string,
+    personality: string,
+    client: MahinaBot
+  ): Promise<void> {
+    try {
+      const ttsService = client.services.nvidiaTTS!
+
+      // Clean response for TTS (remove emojis and markdown)
+      const cleanedResponse = ttsService.cleanTextForTTS(response)
+
+      // Validate text length
+      const validation = ttsService.validateTextLength(cleanedResponse)
+      if (!validation.valid) {
+        return // Skip audio if text is too long or invalid
+      }
+
+      // Choose voice based on personality
+      const voiceMap: Record<string, string> = {
+        friendly: 'multilingual_female_1',
+        professional: 'portuguese_female_1',
+        playful: 'multilingual_female_2',
+        dj: 'multilingual_male_1',
+        wise: 'portuguese_male_1',
+        technical: 'multilingual_male_2',
+        gamer: 'multilingual_male_1',
+        teacher: 'portuguese_female_1',
+      }
+
+      const voice = voiceMap[personality] || 'multilingual_female_1'
+
+      // Generate TTS
+      const audioResult = await ttsService.textToSpeech(cleanedResponse, {
+        voice,
+        language: 'pt-BR',
+        speed: personality === 'playful' ? 1.1 : personality === 'professional' ? 0.9 : 1.0,
+        pitch: personality === 'playful' ? 0.1 : 0.0,
+      })
+
+      if (audioResult && audioResult.audio_data) {
+        const { AttachmentBuilder } = await import('discord.js')
+        const attachment = new AttachmentBuilder(audioResult.audio_data, {
+          name: 'mahina_response.wav',
+          description: `Resposta de áudio da Mahina AI (${personality})`,
+        })
+
+        // Send audio as follow-up message
+        await (ctx.channel as TextChannel)?.send({
+          content: `🎵 **Resposta em áudio** (${personality}):`,
+          files: [attachment],
+        })
+      }
+    } catch (error) {
+      console.error('Failed to generate audio response:', error)
+      // Fail silently - don't interrupt the main conversation flow
+    }
+  }
+}

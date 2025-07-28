@@ -1,0 +1,1083 @@
+{
+  "cmd": {
+    "247": {
+      "description": "Set the bot to stay in the voice channel",
+      "errors": {
+        "not_playing": "I'm not playing anything right now",
+        "not_in_voice": "You need to be in a voice channel to use this command",
+        "not_in_same_voice": "You're not in the same voice channel as me"
+      },
+      "messages": {
+        "disabled": "**24/7 mode** has been **disabled**",
+        "enabled": "**24/7 mode** has been **enabled**"
+      }
+    },
+    "8d": {
+      "description": "on/off 8d filter",
+      "errors": {
+        "not_playing": "I'm not playing anything right now",
+        "not_in_voice": "You need to be in a voice channel to use this command",
+        "not_in_same_voice": "You're not in the same voice channel as me"
+      },
+      "messages": {
+        "filter_disabled": "**8D filter** has been **disabled**",
+        "filter_enabled": "**8D filter** has been **enabled**"
+      }
+    },
+    "about": {
+      "author": "Author",
+      "bot_desc": "MahinaBot is a feature-rich Discord bot optimized for music playback, bringing you an exceptional audio experience. Supporting multiple platforms, MahinaBot enables seamless music streaming from YouTube, Spotify, SoundCloud, and more.\n\nKey features include a robust queue system, customizable filters, 24/7 mode, and comprehensive DJ controls. The bot is designed for reliability and high performance, ensuring uninterrupted music enjoyment for your Discord community.",
+      "bot_info": "Bot Info",
+      "bot_stats": "Bot Stats",
+      "description": "Shows information about the bot",
+      "dev": "Developer",
+      "guilds": "Guilds",
+      "links": "Links",
+      "ram": "RAM Usage",
+      "support": "Support",
+      "uptime": "Uptime",
+      "users": "Users",
+      "version": "Version"
+    },
+    "addsong": {
+      "description": "Add a song from the queue to a playlist",
+      "errors": {
+        "no_playlist": "Please provide a playlist name",
+        "no_song": "Please provide a song name",
+        "playlist_not_found": "That playlist doesn't exist",
+        "no_songs_found": "No songs found",
+        "no_permission": "You can't add songs to this playlist",
+        "song_not_found": "That song is not in the queue",
+        "already_in_playlist": "That song is already in the playlist",
+        "too_many_songs": "You can't add more than **{{max}}** songs to this playlist"
+      },
+      "messages": {
+        "added": "Added **{{song}}** to **{{playlist}}**"
+      }
+    },
+    "autoplay": {
+      "description": "Toggle autoplay mode",
+      "errors": {
+        "not_playing": "I'm not playing anything right now",
+        "not_in_voice": "You need to be in a voice channel to use this command",
+        "not_in_same_voice": "You're not in the same voice channel as me"
+      },
+      "messages": {
+        "disabled": "**Autoplay** has been **disabled**",
+        "enabled": "**Autoplay** has been **enabled**"
+      }
+    },
+    "bassboost": {
+      "description": "on/off bassboost filter",
+      "errors": {
+        "not_playing": "I'm not playing anything right now",
+        "not_in_voice": "You need to be in a voice channel to use this command",
+        "not_in_same_voice": "You're not in the same voice channel as me"
+      },
+      "messages": {
+        "filter_disabled": "**Bassboost filter** has been **disabled**",
+        "filter_enabled": "**Bassboost filter** has been **enabled**"
+      }
+    },
+    "chat": {
+      "description": "Chat with AI using NVIDIA models for code generation, analysis, and more!",
+      "errors": {
+        "no_message": "Please provide a message",
+        "api_error": "An error occurred while communicating with AI"
+      }
+    },
+    "clearqueue": {
+      "description": "Clear the queue",
+      "errors": {
+        "not_playing": "I'm not playing anything right now",
+        "not_in_voice": "You need to be in a voice channel to use this command",
+        "not_in_same_voice": "You're not in the same voice channel as me",
+        "no_dj_permission": "You need to have the DJ role to use this command"
+      },
+      "messages": {
+        "cleared": "The queue has been cleared"
+      }
+    },
+    "code": {
+      "description": "Analyze, review, optimize, or debug code using AI",
+      "errors": {
+        "no_code": "Please provide code to analyze",
+        "invalid_task": "Please specify a valid task: explain, review, optimize, or debug"
+      }
+    },
+    "config": {
+      "description": "Shows the bot's configuration",
+      "invalid": "Invalid Option",
+      "options": {
+        "247": "24/7 in VC",
+        "ai": "AI Settings",
+        "autoplay": "Autoplay",
+        "bass": "BassBoost",
+        "buttons": "Buttons",
+        "dj": "DJ",
+        "embed": "Embed",
+        "lyrics": "Lyrics",
+        "music": "Music",
+        "player": "Player",
+        "prefix": "Prefix",
+        "server": "Server",
+        "setup": "Setup",
+        "volume": "Volume"
+      },
+      "title": "Bot Configuration"
+    },
+    "config_ai": {
+      "description": "Configure AI settings for your server",
+      "errors": {
+        "invalid_provider": "Invalid AI provider. Available: nvidia, openai, anthropic, gemini",
+        "no_permission": "You need Administrator permission to change AI settings"
+      },
+      "fields": {
+        "provider": "AI Provider",
+        "model": "Model",
+        "personality": "Personality Mode",
+        "language": "Response Language",
+        "max_tokens": "Max Response Length",
+        "temperature": "Creativity (0-1)"
+      },
+      "messages": {
+        "provider_set": "AI provider set to **{{provider}}**",
+        "model_set": "AI model set to **{{model}}**",
+        "personality_set": "AI personality set to **{{personality}}**",
+        "settings_reset": "AI settings have been reset to defaults"
+      }
+    },
+    "create": {
+      "description": "Creates a new playlist",
+      "errors": {
+        "no_name": "Please provide a playlist name",
+        "already_exists": "A playlist with that name already exists",
+        "invalid_name": "Please provide a valid playlist name",
+        "too_many": "You can't create more than **{{max}}** playlists"
+      },
+      "messages": {
+        "created": "Created playlist **{{playlist}}**"
+      }
+    },
+    "createinvite": {
+      "description": "Creates an invite for the server",
+      "errors": {
+        "no_permission": "I don't have permission to create invites",
+        "failed": "Failed to create invite"
+      },
+      "messages": {
+        "success": "Created invite: {{invite}}"
+      }
+    },
+    "debug": {
+      "description": "Shows debug information",
+      "fields": {
+        "bot_version": "Bot Version",
+        "cache_stats": "Cache Stats",
+        "commands": "Commands",
+        "database": "Database",
+        "guilds": "Guilds",
+        "latency": "Latency",
+        "lavalink": "Lavalink",
+        "music_players": "Music Players",
+        "node_version": "Node Version",
+        "os": "Operating System",
+        "ram": "RAM Usage",
+        "shard": "Shard",
+        "shards_status": "Shards Status",
+        "uptime": "Uptime",
+        "users": "Users"
+      },
+      "title": "Debug Information"
+    },
+    "delete": {
+      "description": "Deletes a playlist",
+      "errors": {
+        "no_playlist": "Please provide a playlist name",
+        "playlist_not_found": "That playlist doesn't exist",
+        "no_permission": "You don't have permission to delete this playlist"
+      },
+      "messages": {
+        "deleted": "Deleted playlist **{{playlist}}**"
+      }
+    },
+    "deleteinvites": {
+      "description": "Deletes all invites for the server",
+      "errors": {
+        "no_permission": "I don't have permission to manage invites",
+        "failed": "Failed to delete invites"
+      },
+      "messages": {
+        "success": "Deleted **{{count}}** invites"
+      }
+    },
+    "deploy": {
+      "description": "Deploy slash commands",
+      "errors": {
+        "no_permission": "You don't have permission to use this command",
+        "failed": "Failed to deploy commands"
+      },
+      "messages": {
+        "global": "Successfully deployed **{{count}}** global commands",
+        "guild": "Successfully deployed **{{count}}** guild commands"
+      }
+    },
+    "dj": {
+      "description": "Manage the DJ role and commands",
+      "errors": {
+        "no_permission": "You need Administrator permission to manage DJ settings",
+        "invalid_option": "Invalid option. Use: add, remove, toggle, or clear",
+        "no_command": "Please provide a command name",
+        "already_added": "That command is already a DJ command",
+        "not_dj_command": "That command is not a DJ command",
+        "invalid_command": "That's not a valid command"
+      },
+      "messages": {
+        "role_set": "DJ role set to <@&{{role}}>",
+        "role_removed": "DJ role has been removed",
+        "toggled_on": "DJ mode has been **enabled**",
+        "toggled_off": "DJ mode has been **disabled**",
+        "command_added": "Added **{{command}}** to DJ commands",
+        "command_removed": "Removed **{{command}}** from DJ commands",
+        "all_commands_cleared": "All DJ commands have been cleared"
+      }
+    },
+    "eval": {
+      "description": "Evaluate JavaScript code",
+      "errors": {
+        "no_permission": "You don't have permission to use this command",
+        "no_code": "Please provide code to evaluate"
+      }
+    },
+    "grab": {
+      "description": "Grabs the current playing song and DMs it to you",
+      "errors": {
+        "not_playing": "I'm not playing anything right now",
+        "no_song": "There's no song playing right now"
+      },
+      "messages": {
+        "grabbed": "📮 | Check your DMs!",
+        "dm_failed": "I couldn't DM you. Please make sure your DMs are open"
+      },
+      "embed": {
+        "title": "Song Saved",
+        "description": "**[{{title}}]({{uri}})**",
+        "fields": {
+          "duration": "Duration",
+          "requested_by": "Requested By",
+          "saved_at": "Saved At"
+        }
+      }
+    },
+    "guildleave": {
+      "description": "Leave a server",
+      "errors": {
+        "no_permission": "You don't have permission to use this command",
+        "no_guild": "Please provide a guild ID",
+        "not_found": "I'm not in that guild"
+      },
+      "messages": {
+        "left": "Left guild **{{guild}}**"
+      }
+    },
+    "guildlist": {
+      "description": "List all servers the bot is in",
+      "errors": {
+        "no_permission": "You don't have permission to use this command"
+      },
+      "title": "Guild List",
+      "page": "Page {{page}} of {{total}}"
+    },
+    "help": {
+      "description": "Shows the help menu",
+      "embed": {
+        "title": "Help Menu",
+        "description": "Choose a category from the dropdown menu below to view commands",
+        "footer": "Use {{prefix}}help <command> for more info on a command",
+        "fields": {
+          "usage": "Usage",
+          "examples": "Examples",
+          "aliases": "Aliases",
+          "cooldown": "Cooldown",
+          "permissions": "Permissions",
+          "dj_only": "DJ Only",
+          "vote_required": "Vote Required",
+          "player_required": "Player Required",
+          "voice_required": "Voice Channel Required"
+        }
+      },
+      "errors": {
+        "command_not_found": "Command not found"
+      },
+      "category": {
+        "music": "🎵 Music",
+        "filters": "🎛️ Filters",
+        "config": "⚙️ Config",
+        "info": "📚 Information",
+        "playlist": "📁 Playlist",
+        "stream": "🎙️ Stream",
+        "dev": "👤 Developer",
+        "ai": "🤖 AI"
+      }
+    },
+    "invite": {
+      "description": "Get the bot invite link",
+      "embed": {
+        "title": "Invite MahinaBot",
+        "description": "[Click here]({{invite}}) to invite the bot to your server!"
+      }
+    },
+    "join": {
+      "description": "Join the voice channel",
+      "errors": {
+        "not_in_voice": "You need to be in a voice channel",
+        "already_connected": "I'm already connected to a voice channel",
+        "no_permission": "I don't have permission to connect to that channel"
+      },
+      "messages": {
+        "joined": "Successfully joined <#{{channel}}>"
+      }
+    },
+    "karaoke": {
+      "description": "on/off karaoke filter",
+      "errors": {
+        "not_playing": "I'm not playing anything right now",
+        "not_in_voice": "You need to be in a voice channel to use this command",
+        "not_in_same_voice": "You're not in the same voice channel as me"
+      },
+      "messages": {
+        "filter_disabled": "**Karaoke filter** has been **disabled**",
+        "filter_enabled": "**Karaoke filter** has been **enabled**"
+      }
+    },
+    "language": {
+      "description": "Set the bot language",
+      "errors": {
+        "no_permission": "You need Administrator permission to change the language",
+        "invalid_language": "Invalid language. Available languages: {{languages}}"
+      },
+      "messages": {
+        "changed": "Language changed to **{{language}}**"
+      }
+    },
+    "lavalink": {
+      "description": "Shows Lavalink node information",
+      "title": "Lavalink Nodes",
+      "fields": {
+        "status": "Status",
+        "players": "Players",
+        "uptime": "Uptime",
+        "memory": "Memory",
+        "cpu": "CPU",
+        "system_load": "System Load",
+        "lavalink_load": "Lavalink Load"
+      },
+      "status": {
+        "connected": "Connected",
+        "disconnected": "Disconnected",
+        "reconnecting": "Reconnecting"
+      }
+    },
+    "leave": {
+      "description": "Leave the voice channel",
+      "errors": {
+        "not_in_voice": "I'm not in a voice channel",
+        "not_in_same_voice": "You're not in the same voice channel as me"
+      },
+      "messages": {
+        "left": "Successfully left the voice channel"
+      }
+    },
+    "list": {
+      "description": "Shows all your playlists",
+      "errors": {
+        "no_playlists": "You don't have any playlists"
+      },
+      "embed": {
+        "title": "Your Playlists",
+        "footer": "Total: {{count}} playlists"
+      }
+    },
+    "load": {
+      "description": "Loads a playlist",
+      "errors": {
+        "no_playlist": "Please provide a playlist name",
+        "not_found": "That playlist doesn't exist",
+        "empty": "That playlist is empty",
+        "not_in_voice": "You need to be in a voice channel",
+        "not_in_same_voice": "You're not in the same voice channel as me"
+      },
+      "messages": {
+        "loaded": "Loaded **{{count}}** songs from **{{playlist}}**"
+      }
+    },
+    "loop": {
+      "description": "Loop the current song or queue",
+      "errors": {
+        "not_playing": "I'm not playing anything right now",
+        "not_in_voice": "You need to be in a voice channel to use this command",
+        "not_in_same_voice": "You're not in the same voice channel as me"
+      },
+      "messages": {
+        "track": "Loop mode set to **track**",
+        "queue": "Loop mode set to **queue**",
+        "disabled": "Loop mode **disabled**"
+      }
+    },
+    "lowpass": {
+      "description": "on/off lowpass filter",
+      "errors": {
+        "not_playing": "I'm not playing anything right now",
+        "not_in_voice": "You need to be in a voice channel to use this command",
+        "not_in_same_voice": "You're not in the same voice channel as me"
+      },
+      "messages": {
+        "filter_disabled": "**Lowpass filter** has been **disabled**",
+        "filter_enabled": "**Lowpass filter** has been **enabled**"
+      }
+    },
+    "lyrics": {
+      "description": "Get lyrics for the current song or search",
+      "errors": {
+        "not_playing": "I'm not playing anything right now",
+        "no_lyrics": "No lyrics found for this song",
+        "search_failed": "Failed to search for lyrics"
+      },
+      "searching": "Searching for lyrics...",
+      "embed": {
+        "title": "Lyrics for {{song}}",
+        "footer": "Lyrics provided by Genius"
+      }
+    },
+    "mlist": {
+      "description": "List all available streams",
+      "errors": {
+        "no_streams": "No streams available"
+      },
+      "embed": {
+        "title": "Available Streams",
+        "description": "Choose a stream to play"
+      }
+    },
+    "model": {
+      "description": "Select, list, or get info about AI models",
+      "errors": {
+        "no_model": "Please specify a model",
+        "invalid_model": "Invalid model selected"
+      }
+    },
+    "mpause": {
+      "description": "Pause the current stream",
+      "errors": {
+        "not_playing": "I'm not playing anything right now",
+        "not_in_voice": "You need to be in a voice channel to use this command",
+        "not_in_same_voice": "You're not in the same voice channel as me",
+        "already_paused": "The stream is already paused"
+      },
+      "messages": {
+        "paused": "Stream paused"
+      }
+    },
+    "mplay": {
+      "description": "Play a stream",
+      "errors": {
+        "no_stream": "Please provide a stream name or URL",
+        "not_in_voice": "You need to be in a voice channel",
+        "not_found": "Stream not found",
+        "failed": "Failed to play stream"
+      },
+      "messages": {
+        "playing": "Now playing: **{{stream}}**"
+      }
+    },
+    "mresume": {
+      "description": "Resume the current stream",
+      "errors": {
+        "not_playing": "I'm not playing anything right now",
+        "not_in_voice": "You need to be in a voice channel to use this command",
+        "not_in_same_voice": "You're not in the same voice channel as me",
+        "not_paused": "The stream is not paused"
+      },
+      "messages": {
+        "resumed": "Stream resumed"
+      }
+    },
+    "msearch": {
+      "description": "Search for streams",
+      "errors": {
+        "no_query": "Please provide a search query",
+        "no_results": "No streams found"
+      },
+      "embed": {
+        "title": "Stream Search Results",
+        "footer": "Use {{prefix}}mplay <number> to play a stream"
+      }
+    },
+    "mstop": {
+      "description": "Stop the current stream",
+      "errors": {
+        "not_playing": "I'm not playing anything right now",
+        "not_in_voice": "You need to be in a voice channel to use this command",
+        "not_in_same_voice": "You're not in the same voice channel as me"
+      },
+      "messages": {
+        "stopped": "Stream stopped"
+      }
+    },
+    "nightcore": {
+      "description": "on/off nightcore filter",
+      "errors": {
+        "not_playing": "I'm not playing anything right now",
+        "not_in_voice": "You need to be in a voice channel to use this command",
+        "not_in_same_voice": "You're not in the same voice channel as me"
+      },
+      "messages": {
+        "filter_disabled": "**Nightcore filter** has been **disabled**",
+        "filter_enabled": "**Nightcore filter** has been **enabled**"
+      }
+    },
+    "nowplaying": {
+      "description": "Shows the currently playing song",
+      "errors": {
+        "not_playing": "I'm not playing anything right now"
+      },
+      "embed": {
+        "title": "Now Playing",
+        "duration": "Duration",
+        "requested": "Requested by",
+        "author": "Author",
+        "queue_length": "Queue Length"
+      }
+    },
+    "pause": {
+      "description": "Pause the current song",
+      "errors": {
+        "not_playing": "I'm not playing anything right now",
+        "not_in_voice": "You need to be in a voice channel to use this command",
+        "not_in_same_voice": "You're not in the same voice channel as me",
+        "already_paused": "The player is already paused"
+      },
+      "messages": {
+        "paused": "Paused the player"
+      }
+    },
+    "personality": {
+      "description": "Configure AI personality settings for your server",
+      "errors": {
+        "no_permission": "You need Administrator permission to change personality settings",
+        "invalid_mode": "Invalid personality mode",
+        "invalid_tone": "Invalid tone setting"
+      },
+      "embed": {
+        "title": "AI Personality Settings",
+        "current_mode": "Current Mode",
+        "available_modes": "Available Modes",
+        "description": "Use `/personality set <mode>` to change the AI's personality"
+      },
+      "messages": {
+        "mode_set": "AI personality mode set to **{{mode}}**",
+        "settings_reset": "AI personality settings have been reset to defaults"
+      },
+      "modes": {
+        "assistant": "Professional Assistant - Helpful and formal",
+        "friend": "Friendly Companion - Casual and warm",
+        "teacher": "Patient Teacher - Educational and detailed",
+        "comedian": "Comedian - Humorous and entertaining",
+        "philosopher": "Philosopher - Deep and thoughtful",
+        "developer": "Developer - Technical and precise",
+        "creative": "Creative Writer - Imaginative and artistic",
+        "analyst": "Data Analyst - Analytical and fact-based"
+      }
+    },
+    "ping": {
+      "description": "Shows the bot's ping",
+      "embed": {
+        "title": "🏓 Pong!",
+        "fields": {
+          "bot_latency": "Bot Latency",
+          "api_latency": "API Latency",
+          "database": "Database"
+        }
+      }
+    },
+    "pitch": {
+      "description": "Sets the pitch of the player",
+      "errors": {
+        "not_playing": "I'm not playing anything right now",
+        "not_in_voice": "You need to be in a voice channel to use this command",
+        "not_in_same_voice": "You're not in the same voice channel as me",
+        "invalid_pitch": "Please provide a valid pitch value between 0.1 and 5"
+      },
+      "messages": {
+        "changed": "Pitch set to **{{pitch}}**",
+        "reset": "Pitch has been reset"
+      }
+    },
+    "play": {
+      "description": "Play a song from YouTube, Spotify, or other platforms",
+      "errors": {
+        "no_query": "Please provide a song name or URL",
+        "not_in_voice": "You need to be in a voice channel",
+        "not_in_same_voice": "You're not in the same voice channel as me",
+        "no_results": "No results found",
+        "failed": "Failed to play the song"
+      },
+      "messages": {
+        "added_to_queue": "Added [{{title}}]({{uri}}) to the queue",
+        "playlist_loaded": "Added **{{count}}** songs from playlist **{{name}}**",
+        "now_playing": "Now playing [{{title}}]({{uri}})"
+      }
+    },
+    "playnext": {
+      "description": "Add a song to play next in the queue",
+      "errors": {
+        "no_query": "Please provide a song name or URL",
+        "not_in_voice": "You need to be in a voice channel",
+        "not_in_same_voice": "You're not in the same voice channel as me",
+        "no_results": "No results found",
+        "failed": "Failed to add the song"
+      },
+      "messages": {
+        "added": "Added [{{title}}]({{uri}}) to play next"
+      }
+    },
+    "prefix": {
+      "description": "Shows or changes the bot prefix",
+      "errors": {
+        "no_permission": "You need Administrator permission to change the prefix",
+        "invalid_prefix": "Please provide a valid prefix (max 3 characters)"
+      },
+      "messages": {
+        "current": "Current prefix: `{{prefix}}`",
+        "changed": "Prefix changed to `{{prefix}}`",
+        "reset": "Prefix reset to default: `{{prefix}}`"
+      }
+    },
+    "queue": {
+      "description": "Shows the current queue",
+      "errors": {
+        "not_playing": "I'm not playing anything right now",
+        "empty_queue": "The queue is empty"
+      },
+      "embed": {
+        "title": "Queue",
+        "now_playing": "Now Playing",
+        "up_next": "Up Next",
+        "songs_in_queue": "{{count}} songs in queue",
+        "total_duration": "Total Duration",
+        "page": "Page {{current}} of {{total}}"
+      }
+    },
+    "rate": {
+      "description": "Sets the rate of the player",
+      "errors": {
+        "not_playing": "I'm not playing anything right now",
+        "not_in_voice": "You need to be in a voice channel to use this command",
+        "not_in_same_voice": "You're not in the same voice channel as me",
+        "invalid_rate": "Please provide a valid rate value between 0.5 and 5"
+      },
+      "messages": {
+        "changed": "Rate set to **{{rate}}**",
+        "reset": "Rate has been reset"
+      }
+    },
+    "reason": {
+      "description": "Analyze complex problems using advanced AI reasoning",
+      "errors": {
+        "no_problem": "Please provide a problem or question to analyze"
+      }
+    },
+    "remove": {
+      "description": "Remove a song from the queue",
+      "errors": {
+        "not_playing": "I'm not playing anything right now",
+        "not_in_voice": "You need to be in a voice channel to use this command",
+        "not_in_same_voice": "You're not in the same voice channel as me",
+        "invalid_number": "Please provide a valid song number",
+        "no_dj_permission": "You need the DJ role to remove songs"
+      },
+      "messages": {
+        "removed": "Removed **{{title}}** from the queue"
+      }
+    },
+    "removesong": {
+      "description": "Remove a song from a playlist",
+      "errors": {
+        "no_playlist": "Please provide a playlist name",
+        "no_song": "Please provide a song number",
+        "playlist_not_found": "That playlist doesn't exist",
+        "no_permission": "You can't remove songs from this playlist",
+        "invalid_number": "Please provide a valid song number",
+        "song_not_found": "That song is not in the playlist"
+      },
+      "messages": {
+        "removed": "Removed **{{song}}** from **{{playlist}}**"
+      }
+    },
+    "replay": {
+      "description": "Replay the current song",
+      "errors": {
+        "not_playing": "I'm not playing anything right now",
+        "not_in_voice": "You need to be in a voice channel to use this command",
+        "not_in_same_voice": "You're not in the same voice channel as me"
+      },
+      "messages": {
+        "replaying": "Replaying the current song"
+      }
+    },
+    "reset": {
+      "description": "Reset all filters",
+      "errors": {
+        "not_playing": "I'm not playing anything right now",
+        "not_in_voice": "You need to be in a voice channel to use this command",
+        "not_in_same_voice": "You're not in the same voice channel as me"
+      },
+      "messages": {
+        "reset": "All filters have been reset"
+      }
+    },
+    "restart": {
+      "description": "Restart the bot",
+      "errors": {
+        "no_permission": "You don't have permission to use this command"
+      },
+      "messages": {
+        "restarting": "Restarting..."
+      }
+    },
+    "resume": {
+      "description": "Resume the current song",
+      "errors": {
+        "not_playing": "I'm not playing anything right now",
+        "not_in_voice": "You need to be in a voice channel to use this command",
+        "not_in_same_voice": "You're not in the same voice channel as me",
+        "not_paused": "The player is not paused"
+      },
+      "messages": {
+        "resumed": "Resumed the player"
+      }
+    },
+    "rotation": {
+      "description": "on/off rotation filter",
+      "errors": {
+        "not_playing": "I'm not playing anything right now",
+        "not_in_voice": "You need to be in a voice channel to use this command",
+        "not_in_same_voice": "You're not in the same voice channel as me"
+      },
+      "messages": {
+        "filter_disabled": "**Rotation filter** has been **disabled**",
+        "filter_enabled": "**Rotation filter** has been **enabled**"
+      }
+    },
+    "search": {
+      "description": "Search for songs",
+      "errors": {
+        "no_query": "Please provide a search query",
+        "not_in_voice": "You need to be in a voice channel",
+        "no_results": "No results found",
+        "cancelled": "Search cancelled",
+        "invalid_selection": "Invalid selection"
+      },
+      "embed": {
+        "title": "Search Results",
+        "footer": "Type the number of the song you want to play or 'cancel' to cancel"
+      }
+    },
+    "seek": {
+      "description": "Seek to a specific time in the song",
+      "errors": {
+        "not_playing": "I'm not playing anything right now",
+        "not_in_voice": "You need to be in a voice channel to use this command",
+        "not_in_same_voice": "You're not in the same voice channel as me",
+        "invalid_time": "Please provide a valid time (e.g., 1:30 or 90)",
+        "too_long": "Cannot seek beyond the song duration"
+      },
+      "messages": {
+        "seeked": "Seeked to **{{time}}**"
+      }
+    },
+    "setup": {
+      "description": "Setup the music request channel",
+      "errors": {
+        "no_permission": "You need Administrator permission to use this command",
+        "already_setup": "Music channel is already setup in <#{{channel}}>",
+        "failed": "Failed to setup the music channel"
+      },
+      "messages": {
+        "success": "Successfully setup the music channel in <#{{channel}}>",
+        "deleted": "Music channel setup has been deleted"
+      },
+      "embed": {
+        "title": "No song playing currently",
+        "description": "[Invite MahinaBot]({{invite}}) | [Support Server]({{support}})",
+        "footer": "Thanks for using MahinaBot!"
+      }
+    },
+    "shuffle": {
+      "description": "Shuffle the queue",
+      "errors": {
+        "not_playing": "I'm not playing anything right now",
+        "not_in_voice": "You need to be in a voice channel to use this command",
+        "not_in_same_voice": "You're not in the same voice channel as me",
+        "nothing_to_shuffle": "Nothing to shuffle"
+      },
+      "messages": {
+        "shuffled": "Shuffled the queue"
+      }
+    },
+    "skip": {
+      "description": "Skip the current song",
+      "errors": {
+        "not_playing": "I'm not playing anything right now",
+        "not_in_voice": "You need to be in a voice channel to use this command",
+        "not_in_same_voice": "You're not in the same voice channel as me"
+      },
+      "messages": {
+        "skipped": "Skipped **{{title}}**",
+        "vote_skip": "Voted to skip the current song ({{current}}/{{required}})"
+      }
+    },
+    "skipto": {
+      "description": "Skip to a specific song in the queue",
+      "errors": {
+        "not_playing": "I'm not playing anything right now",
+        "not_in_voice": "You need to be in a voice channel to use this command",
+        "not_in_same_voice": "You're not in the same voice channel as me",
+        "invalid_number": "Please provide a valid song number",
+        "no_dj_permission": "You need the DJ role to use this command"
+      },
+      "messages": {
+        "skipped": "Skipped to song #{{number}}"
+      }
+    },
+    "speed": {
+      "description": "Sets the speed of the player",
+      "errors": {
+        "not_playing": "I'm not playing anything right now",
+        "not_in_voice": "You need to be in a voice channel to use this command",
+        "not_in_same_voice": "You're not in the same voice channel as me",
+        "invalid_speed": "Please provide a valid speed value between 0.5 and 5"
+      },
+      "messages": {
+        "changed": "Speed set to **{{speed}}**",
+        "reset": "Speed has been reset"
+      }
+    },
+    "steal": {
+      "description": "Steal a playlist from another user",
+      "errors": {
+        "no_playlist": "Please provide a playlist code",
+        "invalid_code": "Invalid playlist code",
+        "not_found": "Playlist not found",
+        "no_songs": "That playlist has no songs",
+        "already_exists": "You already have a playlist with that name"
+      },
+      "messages": {
+        "stolen": "Successfully stole playlist **{{playlist}}** with **{{count}}** songs"
+      }
+    },
+    "stop": {
+      "description": "Stop the music and clear the queue",
+      "errors": {
+        "not_playing": "I'm not playing anything right now",
+        "not_in_voice": "You need to be in a voice channel to use this command",
+        "not_in_same_voice": "You're not in the same voice channel as me"
+      },
+      "messages": {
+        "stopped": "Stopped the music and cleared the queue"
+      }
+    },
+    "stream": {
+      "description": "Stream AI responses in real-time",
+      "errors": {
+        "no_message": "Please provide a message",
+        "streaming_not_supported": "Your current model does not support streaming"
+      }
+    },
+    "tools": {
+      "description": "Use AI to generate images, analyze photos, and create content",
+      "errors": {
+        "no_tool": "Please specify a tool to use",
+        "invalid_tool": "Invalid tool. Available: imagine, analyze, create",
+        "no_prompt": "Please provide a prompt or description",
+        "no_image": "Please attach an image to analyze",
+        "generation_failed": "Failed to generate content"
+      },
+      "messages": {
+        "generating": "Generating your request...",
+        "analyzing": "Analyzing the image...",
+        "creating": "Creating content..."
+      }
+    },
+    "tremolo": {
+      "description": "on/off tremolo filter",
+      "errors": {
+        "not_playing": "I'm not playing anything right now",
+        "not_in_voice": "You need to be in a voice channel to use this command",
+        "not_in_same_voice": "You're not in the same voice channel as me"
+      },
+      "messages": {
+        "filter_disabled": "**Tremolo filter** has been **disabled**",
+        "filter_enabled": "**Tremolo filter** has been **enabled**"
+      }
+    },
+    "vibrato": {
+      "description": "on/off vibrato filter",
+      "errors": {
+        "not_playing": "I'm not playing anything right now",
+        "not_in_voice": "You need to be in a voice channel to use this command",
+        "not_in_same_voice": "You're not in the same voice channel as me"
+      },
+      "messages": {
+        "filter_disabled": "**Vibrato filter** has been **disabled**",
+        "filter_enabled": "**Vibrato filter** has been **enabled**"
+      }
+    },
+    "vision": {
+      "description": "Analyze images using AI vision capabilities",
+      "errors": {
+        "no_image": "Please attach an image or provide an image URL",
+        "invalid_image": "Invalid image format or URL",
+        "analysis_failed": "Failed to analyze the image"
+      },
+      "messages": {
+        "analyzing": "Analyzing the image..."
+      }
+    },
+    "volume": {
+      "description": "Set the player volume",
+      "errors": {
+        "not_playing": "I'm not playing anything right now",
+        "not_in_voice": "You need to be in a voice channel to use this command",
+        "not_in_same_voice": "You're not in the same voice channel as me",
+        "invalid_volume": "Please provide a valid volume between 0 and 200"
+      },
+      "messages": {
+        "changed": "Volume set to **{{volume}}%**"
+      }
+    },
+    "vplay": {
+      "description": "Play a video stream",
+      "errors": {
+        "no_query": "Please provide a video URL or search query",
+        "not_in_voice": "You need to be in a voice channel",
+        "not_supported": "Video streaming is not supported yet"
+      }
+    }
+  },
+  "event": {
+    "guild": {
+      "join": {
+        "title": "Thanks for adding me!",
+        "description": "Hi! I'm **{{bot}}**, a music bot made with ❤️ by **{{author}}**.\n\nTo get started, use `/help` to see all available commands.\n\nJoin our [support server]({{support}}) if you need help!"
+      },
+      "leave": {
+        "title": "Removed from Server",
+        "description": "I was removed from **{{guild}}** ({{id}})",
+        "fields": {
+          "owner": "Owner",
+          "members": "Members",
+          "created": "Created"
+        }
+      }
+    },
+    "setup": {
+      "placeholder": "Search for a song...",
+      "buttons": {
+        "pause": "Pause",
+        "resume": "Resume",
+        "skip": "Skip",
+        "stop": "Stop",
+        "loop": "Loop"
+      }
+    }
+  },
+  "player": {
+    "errors": {
+      "no_player": "There is no player in this server",
+      "no_channel": "I'm not in a voice channel",
+      "no_song": "There is no song playing",
+      "no_queue": "There are no songs in the queue"
+    },
+    "events": {
+      "track_start": "Now playing **[{{title}}]({{uri}})**",
+      "track_end": "Finished playing **{{title}}**",
+      "queue_end": "Queue has ended",
+      "player_destroy": "Player destroyed",
+      "player_disconnect": "Disconnected from voice channel"
+    },
+    "trackStart": {
+      "nowPlaying": "Now Playing",
+      "requestedBy": "Requested By",
+      "duration": "Duration",
+      "author": "Author",
+      "position": "Queue Position"
+    },
+    "trackEnd": {
+      "trackEnded": "Track Ended"
+    }
+  },
+  "permissions": {
+    "AddReactions": "Add Reactions",
+    "Administrator": "Administrator",
+    "AttachFiles": "Attach Files",
+    "BanMembers": "Ban Members",
+    "ChangeNickname": "Change Nickname",
+    "Connect": "Connect",
+    "CreateInstantInvite": "Create Instant Invite",
+    "CreatePrivateThreads": "Create Private Threads",
+    "CreatePublicThreads": "Create Public Threads",
+    "DeafenMembers": "Deafen Members",
+    "EmbedLinks": "Embed Links",
+    "KickMembers": "Kick Members",
+    "ManageChannels": "Manage Channels",
+    "ManageEmojisAndStickers": "Manage Emojis and Stickers",
+    "ManageEvents": "Manage Events",
+    "ManageGuild": "Manage Server",
+    "ManageMessages": "Manage Messages",
+    "ManageNicknames": "Manage Nicknames",
+    "ManageRoles": "Manage Roles",
+    "ManageThreads": "Manage Threads",
+    "ManageWebhooks": "Manage Webhooks",
+    "MentionEveryone": "Mention Everyone",
+    "ModerateMembers": "Moderate Members",
+    "MoveMembers": "Move Members",
+    "MuteMembers": "Mute Members",
+    "PrioritySpeaker": "Priority Speaker",
+    "ReadMessageHistory": "Read Message History",
+    "RequestToSpeak": "Request to Speak",
+    "SendMessages": "Send Messages",
+    "SendMessagesInThreads": "Send Messages in Threads",
+    "SendTTSMessages": "Send TTS Messages",
+    "Speak": "Speak",
+    "Stream": "Video",
+    "UseApplicationCommands": "Use Application Commands",
+    "UseEmbeddedActivities": "Use Activities",
+    "UseExternalEmojis": "Use External Emojis",
+    "UseExternalStickers": "Use External Stickers",
+    "UseVAD": "Use Voice Activity",
+    "ViewAuditLog": "View Audit Log",
+    "ViewChannel": "View Channel",
+    "ViewGuildInsights": "View Server Insights"
+  },
+  "common": {
+    "na": "N/A",
+    "yes": "Yes",
+    "no": "No",
+    "enabled": "Enabled",
+    "disabled": "Disabled",
+    "error": "Error",
+    "success": "Success",
+    "warning": "Warning",
+    "info": "Info",
+    "loading": "Loading...",
+    "unknown": "Unknown",
+    "cooldown": "Please wait {{time}} seconds before using this command again",
+    "no_permission": "You don't have permission to use this command",
+    "bot_no_permission": "I don't have the required permissions: {{permissions}}",
+    "not_found": "Not found",
+    "invalid_args": "Invalid arguments",
+    "dj_only": "Only DJs can use this command",
+    "vote_required": "You need to vote for the bot to use this command. [Vote here]({{link}})"
+  }
+}

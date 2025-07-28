@@ -26,6 +26,21 @@ export default class MessageCreate extends Event {
   async run(message: Message): Promise<any> {
     if (message.author.bot) return
     if (!(message.guild && message.guildId)) return
+
+    // Update channel activity for proactive interaction tracking
+    if (this.client.services.proactiveInteraction && message.channel.isTextBased()) {
+      await this.client.services.proactiveInteraction.updateActivity(message.channelId)
+    }
+
+    // Check for Mahina mention in message content or direct bot mention
+    const botMention = message.mentions.has(this.client.user?.id!)
+    const mahinaMention = /mahina/i.test(message.content)
+    const prefix = await this.client.db.getPrefix(message.guildId)
+
+    if ((mahinaMention || botMention) && !message.content.startsWith(prefix)) {
+      return this.client.emit('aiMention', message)
+    }
+
     const setup = await this.client.db.getSetup(message.guildId)
     if (setup && setup.textId === message.channelId) {
       return this.client.emit('setupSystem', message)
