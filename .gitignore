@@ -526,7 +526,6 @@ FodyWeavers.xsd
 
 # MahinaBot
 lavalink/logs
-lavalink/plugins
 lavalink/application.yml
 lavalink/Lavalink.jar
 prisma/migrations
