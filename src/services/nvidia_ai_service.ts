@@ -258,8 +258,9 @@ export class NvidiaAIService {
     userId: string,
     message: string,
     context?: string,
-    systemPrompt?: string
-  ): Promise<string> {
+    systemPrompt?: string,
+    imageUrl?: string
+  ): Promise<{ content: string; usage?: any }> {
     const modelKey = this.getUserModel(userId)
     const model = NVIDIA_MODELS[modelKey]
 
@@ -278,7 +279,18 @@ export class NvidiaAIService {
         messages.push({ role: 'system', content: `Context: ${context}` })
       }
 
-      messages.push({ role: 'user', content: message })
+      // Support for vision models with images
+      if (imageUrl && model.category === 'vision') {
+        messages.push({
+          role: 'user',
+          content: [
+            { type: 'text', text: message },
+            { type: 'image_url', image_url: { url: imageUrl } }
+          ]
+        })
+      } else {
+        messages.push({ role: 'user', content: message })
+      }
 
       const completion = await this.client.chat.completions.create({
         model: model.id,
@@ -289,10 +301,25 @@ export class NvidiaAIService {
         stream: false,
       })
 
-      return completion.choices[0]?.message?.content || 'No response generated'
-    } catch (error) {
+      return {
+        content: completion.choices[0]?.message?.content || 'No response generated',
+        usage: completion.usage
+      }
+    } catch (error: any) {
       logger.error('NVIDIA AI chat error:', error)
-      throw new Error('Failed to generate AI response')
+      
+      // Enhanced error handling for specific NVIDIA API errors
+      if (error.response?.status === 401) {
+        throw new Error('Invalid API key. Please check your NVIDIA API configuration.')
+      } else if (error.response?.status === 429) {
+        throw new Error('Rate limit exceeded. Please try again in a moment.')
+      } else if (error.response?.status === 503) {
+        throw new Error('Model temporarily unavailable. Please try a different model.')
+      } else if (error.message?.includes('context_length_exceeded')) {
+        throw new Error(`Context length exceeded for ${model.name}. Try a shorter message or use a model with larger context.`)
+      }
+      
+      throw new Error(`Failed to generate AI response: ${error.message || 'Unknown error'}`)
     }
   }
 
