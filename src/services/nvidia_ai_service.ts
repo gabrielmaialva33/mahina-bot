@@ -226,6 +226,7 @@ export class NvidiaAIService {
   private client: OpenAI
   private activeModel: string = 'llama-70b'
   private userModels: Map<string, string> = new Map()
+  private usageStats: Map<string, { totalTokens: number; totalRequests: number; totalCost: number }> = new Map()
 
   constructor(apiKey: string) {
     this.client = new OpenAI({
@@ -300,6 +301,12 @@ export class NvidiaAIService {
         max_tokens: model.maxTokens,
         stream: false,
       })
+
+      // Track usage stats
+      const usage = completion.usage
+      if (usage) {
+        this.trackUsage(userId, usage.total_tokens || 0, modelKey)
+      }
 
       return {
         content: completion.choices[0]?.message?.content || 'No response generated',
