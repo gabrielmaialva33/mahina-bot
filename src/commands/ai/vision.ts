@@ -66,9 +66,7 @@ export default class VisionCommand extends Command {
     })
 
     this.openai = new OpenAI({
-      apiKey:
-        process.env.NVIDIA_API_KEY ||
-        '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',
+      apiKey: process.env.NVIDIA_API_KEY,
       baseURL: 'https://integrate.api.nvidia.com/v1',
     })
   }
