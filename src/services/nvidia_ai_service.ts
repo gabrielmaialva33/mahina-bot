@@ -447,8 +447,9 @@ export class NvidiaAIService {
   createModelStatusEmbed(userId: string): EmbedBuilder {
     const currentModel = this.getUserModel(userId)
     const model = NVIDIA_MODELS[currentModel]
+    const stats = this.usageStats.get(userId)
 
-    return new EmbedBuilder()
+    const embed = new EmbedBuilder()
       .setTitle('🎯 Your AI Model')
       .setColor('#76B900')
       .addFields(
@@ -460,5 +461,124 @@ export class NvidiaAIService {
         { name: 'Max Tokens', value: `${model?.maxTokens || 0}`, inline: true }
       )
       .setTimestamp()
+
+    if (stats) {
+      embed.addFields(
+        { name: '📊 Usage Stats', value: '\u200b', inline: false },
+        { name: 'Total Requests', value: `${stats.totalRequests}`, inline: true },
+        { name: 'Total Tokens', value: `${stats.totalTokens.toLocaleString()}`, inline: true },
+        { name: 'Estimated Cost', value: `$${stats.totalCost.toFixed(4)}`, inline: true }
+      )
+    }
+
+    return embed
+  }
+
+  private trackUsage(userId: string, tokens: number, modelKey: string): void {
+    const model = NVIDIA_MODELS[modelKey]
+    if (!model) return
+
+    const stats = this.usageStats.get(userId) || { totalTokens: 0, totalRequests: 0, totalCost: 0 }
+    
+    stats.totalTokens += tokens
+    stats.totalRequests += 1
+    // Rough cost estimation (actual costs may vary)
+    const costPer1000Tokens = 0.002 // Approximate cost for most models
+    stats.totalCost += (tokens / 1000) * costPer1000Tokens
+
+    this.usageStats.set(userId, stats)
+  }
+
+  getUserUsageStats(userId: string): { totalTokens: number; totalRequests: number; totalCost: number } | null {
+    return this.usageStats.get(userId) || null
+  }
+
+  clearUserUsage(userId: string): void {
+    this.usageStats.delete(userId)
+  }
+
+  getAllUsageStats(): Map<string, { totalTokens: number; totalRequests: number; totalCost: number }> {
+    return new Map(this.usageStats)
+  }
+
+  // Function calling support for compatible models
+  async chatWithFunctions(
+    userId: string,
+    message: string,
+    functions: any[],
+    systemPrompt?: string
+  ): Promise<{ content: string; functionCall?: any; usage?: any }> {
+    const modelKey = this.getUserModel(userId)
+    const model = NVIDIA_MODELS[modelKey]
+
+    if (!model) {
+      throw new Error('Invalid model selected')
+    }
+
+    // Check if model supports function calling (mainly newer models)
+    const supportsFunctions = ['deepseek-r1', 'mistral-large-2', 'mixtral-8x22b'].includes(modelKey)
+    
+    if (!supportsFunctions) {
+      throw new Error(`Model ${model.name} does not support function calling. Try using DeepSeek R1 or Mistral Large 2.`)
+    }
+
+    try {
+      const messages: any[] = []
+
+      if (systemPrompt) {
+        messages.push({ role: 'system', content: systemPrompt })
+      }
+
+      messages.push({ role: 'user', content: message })
+
+      const completion = await this.client.chat.completions.create({
+        model: model.id,
+        messages,
+        functions,
+        function_call: 'auto',
+        temperature: model.temperature,
+        top_p: model.topP,
+        max_tokens: model.maxTokens,
+        stream: false,
+      })
+
+      // Track usage stats
+      const usage = completion.usage
+      if (usage) {
+        this.trackUsage(userId, usage.total_tokens || 0, modelKey)
+      }
+
+      const choice = completion.choices[0]
+      return {
+        content: choice?.message?.content || 'No response generated',
+        functionCall: choice?.message?.function_call,
+        usage: completion.usage
+      }
+    } catch (error: any) {
+      logger.error('NVIDIA AI function call error:', error)
+      throw new Error(`Failed to execute function call: ${error.message || 'Unknown error'}`)
+    }
+  }
+
+  // Helper method to get models that support specific features
+  getModelsByFeature(feature: 'vision' | 'streaming' | 'function-calling' | 'coding' | 'reasoning'): NvidiaModel[] {
+    return Object.values(NVIDIA_MODELS).filter(model => {
+      switch (feature) {
+        case 'vision':
+          return model.category === 'vision'
+        case 'streaming':
+          return model.streaming
+        case 'function-calling':
+          return ['deepseek-r1', 'mistral-large-2', 'mixtral-8x22b'].includes(
+            Object.keys(NVIDIA_MODELS).find(key => NVIDIA_MODELS[key] === model) || ''
+          )
+        case 'coding':
+          return model.category === 'coding'
+        case 'reasoning':
+          return model.category === 'reasoning'
+        default:
+          return false
+      }
+    })
   }
 }
