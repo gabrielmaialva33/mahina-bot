@@ -41,11 +41,11 @@ export default class Ready extends Event {
       shards: 'auto',
     })
 
-    // Start proactive interaction service
-    if (this.client.services.proactiveInteraction) {
-      await this.client.services.proactiveInteraction.start()
-      this.client.logger.info('Proactive Interaction Service started')
-    }
+    // Start proactive interaction service - DISABLED to reduce spam messages
+    // if (this.client.services.proactiveInteraction) {
+    //   await this.client.services.proactiveInteraction.start()
+    //   this.client.logger.info('Proactive Interaction Service started')
+    // }
 
     // Start Lavalink health monitoring service
     if (this.client.services.lavalinkHealth) {
