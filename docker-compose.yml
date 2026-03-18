@@ -60,8 +60,7 @@ services:
       NODES: '[{"id":"Docker-Node","host":"lavalink","port":2333,"authorization":"Mahina@551238","retryAmount":5,"retryDelay":60000,"secure":false}]'
       NVIDIA_API_KEY: ${NVIDIA_API_KEY}
       REDIS_URL: redis://:${REDIS_PASSWORD:-mahina_redis_2024}@mahina-redis:6379
-      PGBOSS_ENABLED: ${PGBOSS_ENABLED:-false}
-      AI_JOB_QUEUE_ENABLED: ${AI_JOB_QUEUE_ENABLED:-false}
+      AI_QUEUE_ENABLED: ${AI_QUEUE_ENABLED:-true}
     networks:
       - lavalink-net
 
@@ -82,87 +81,6 @@ services:
       timeout: 5s
       retries: 5
 
-  # Optional PostgreSQL/Timescale stack for experimental integrations
-  mahina-timescale:
-    image: timescale/timescaledb-ha:pg17
-    container_name: mahina-timescale
-    restart: always
-    profiles:
-      - postgres-extras
-    command:
-      - postgres
-      - -c
-      - shared_preload_libraries=timescaledb,pg_stat_statements,pg_cron
-      - -c
-      - timescaledb.telemetry_level=basic
-      - -c
-      - cron.database_name=${POSTGRES_DB:-mahina}
-      - -c
-      - max_connections=200
-      - -c
-      - shared_buffers=2GB
-      - -c
-      - effective_cache_size=6GB
-      - -c
-      - work_mem=16MB
-      - -c
-      - maintenance_work_mem=512MB
-      - -c
-      - random_page_cost=1.1
-      - -c
-      - effective_io_concurrency=200
-      - -c
-      - wal_buffers=16MB
-      - -c
-      - max_wal_size=4GB
-      - -c
-      - checkpoint_completion_target=0.9
-    environment:
-      POSTGRES_USER: ${POSTGRES_USER:-mahina}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-mahina}
-      POSTGRES_DB: ${POSTGRES_DB:-mahina}
-      POSTGRES_EXTENSIONS: timescaledb,vector,pg_trgm,pg_stat_statements,pgai,pg_cron,pgcrypto
-      POSTGRES_INITDB_ARGS: --auth-host=scram-sha-256 --auth-local=trust
-    ports:
-      - '5436:5432'
-    volumes:
-      - mahina-timescale-data:/var/lib/postgresql/data
-      - ./scripts/init-db.sql:/docker-entrypoint-initdb.d/00-init.sql:ro
-      - ./scripts/init-pgai.sql:/docker-entrypoint-initdb.d/01-pgai.sql:ro
-      - ./scripts/init-pgboss.sql:/docker-entrypoint-initdb.d/02-pgboss.sql:ro
-    networks:
-      - lavalink-net
-    healthcheck:
-      test: ['CMD-SHELL', 'pg_isready -U ${POSTGRES_USER:-mahina}']
-      interval: 10s
-      timeout: 5s
-      retries: 5
-
-  # Optional PostgREST for the PostgreSQL/Timescale stack
-  mahina-postgrest:
-    image: postgrest/postgrest:latest
-    container_name: mahina-postgrest
-    restart: always
-    profiles:
-      - postgres-extras
-    environment:
-      PGRST_DB_URI: postgres://${DB_USER:-mahina}:${DB_PASSWORD:-mahina}@mahina-timescale:5432/${DB_NAME:-mahina}
-      PGRST_DB_SCHEMA: public
-      PGRST_DB_ANON_ROLE: web_anon
-      PGRST_JWT_SECRET: ${JWT_SECRET}
-      PGRST_JWT_AUD: ${KEYCLOAK_CLIENT_ID}
-      PGRST_SERVER_PORT: 3010
-      PGRST_OPENAPI_SERVER_PROXY_URI: http://localhost:3002
-      PGRST_DB_PRE_REQUEST: public.pre_request
-      PGRST_ROLE_CLAIM_KEY: .resource_access."mahina".roles[0]
-      PGRST_DB_MAX_ROWS: 1000
-    ports:
-      - '3010:3010'
-    depends_on:
-      - mahina-timescale
-    networks:
-      - lavalink-net
-
   # Redis for caching and pub/sub
   mahina-redis:
     image: redis:7-alpine
@@ -181,54 +99,10 @@ services:
       timeout: 5s
       retries: 5
 
-  # pgAdmin for database management
-  mahina-pgadmin:
-    image: dpage/pgadmin4:latest
-    container_name: mahina-pgadmin
-    restart: always
-    profiles:
-      - postgres-extras
-    environment:
-      PGADMIN_DEFAULT_EMAIL: admin@mahina.bot
-      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD:-admin}
-      PGADMIN_CONFIG_SERVER_MODE: 'False'
-      PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED: 'False'
-    ports:
-      - '5050:80'
-    depends_on:
-      - mahina-timescale
-    networks:
-      - lavalink-net
-
-  # Optional Grafana for the PostgreSQL/Timescale stack
-  mahina-grafana:
-    image: grafana/grafana:latest
-    container_name: mahina-grafana
-    restart: always
-    profiles:
-      - postgres-extras
-      - monitoring
-    environment:
-      GF_SECURITY_ADMIN_USER: admin
-      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_PASSWORD:-admin}
-      GF_INSTALL_PLUGINS: grafana-clock-panel,grafana-simple-json-datasource,grafana-postgresql-datasource
-    ports:
-      - '3030:3000'
-    volumes:
-      - mahina-grafana-data:/var/lib/grafana
-      - ./grafana/dashboards:/etc/grafana/provisioning/dashboards
-      - ./grafana/datasources:/etc/grafana/provisioning/datasources
-    depends_on:
-      - mahina-timescale
-    networks:
-      - lavalink-net
-
 networks:
   lavalink-net:
     name: lavalink-net
 
 volumes:
   mahina-mongo-data:
-  mahina-timescale-data:
   mahina-redis-data:
-  mahina-grafana-data:
