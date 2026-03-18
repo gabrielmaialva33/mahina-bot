@@ -52,6 +52,9 @@ export default class MahinaLinkClient extends LavalinkManager {
    */
   async search(query: string, user: unknown, source?: SearchPlatform): Promise<SearchResult> {
     const nodes = this.nodeManager.leastUsedNodes()
+    if (nodes.length === 0) {
+      return { loadType: 'empty', tracks: [], playlist: null } as unknown as SearchResult
+    }
     const node = nodes[Math.floor(Math.random() * nodes.length)]
     return await node.search({ query, source }, user, false)
   }
