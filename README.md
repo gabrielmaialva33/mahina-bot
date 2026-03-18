@@ -223,7 +223,7 @@ cp .env.example .env
 4. **Start services with Docker**
 
 ```bash
-docker-compose up -d
+docker compose up -d
 ```
 
 5. **Run database migrations**
@@ -257,7 +257,7 @@ CLIENT_ID=your_discord_client_id
 DATABASE_URL=mongodb://localhost:27017/mahina
 
 # Lavalink Nodes
-NODES=[{"id":"main","host":"localhost","port":2333,"authorization":"youshallnotpass"}]
+NODES=[{"id":"main","host":"localhost","port":2333,"authorization":"your_lavalink_password_here"}]
 
 # AI Configuration
 NVIDIA_API_KEY=your_nvidia_api_key  # Get from build.nvidia.com
@@ -281,7 +281,9 @@ The included `docker-compose.yml` provides:
 
 - Lavalink server
 - MongoDB database
-- Optional: Bot container
+- Redis queue/cache
+- Lavalink audio node
+- Bot container
 
 <br>
 
