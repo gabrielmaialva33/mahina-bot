@@ -4,10 +4,11 @@ import {
   type TextChannel,
   type VoiceChannel,
 } from 'discord.js'
-import type { SearchResult, Track } from 'lavalink-client'
+import type { Player, SearchResult, Track } from 'lavalink-client'
 import Command from '#common/command'
 import type MahinaBot from '#common/mahina_bot'
 import type Context from '#common/context'
+import { enqueueTrack, ensureConnectedPlayer } from '#common/player_runtime'
 
 export default class Search extends Command {
   constructor(client: MahinaBot) {
@@ -46,32 +47,20 @@ export default class Search extends Command {
     })
   }
 
-  async run(client: MahinaBot, ctx: Context, args: string[]): Promise<any> {
-    const embed = this.client.embed().setColor(this.client.color.main)
-    let player = client.manager.getPlayer(ctx.guild!.id)
-    const query = args.join(' ')
-    const memberVoiceChannel = (ctx.member as any).voice.channel as VoiceChannel
+  private async ensurePlayer(client: MahinaBot, ctx: Context, memberVoiceChannel: VoiceChannel) {
+    return ensureConnectedPlayer(client, ctx, memberVoiceChannel)
+  }
 
-    if (!player)
-      player = client.manager.createPlayer({
-        guildId: ctx.guild!.id,
-        voiceChannelId: memberVoiceChannel.id,
-        textChannelId: ctx.channel.id,
-        selfMute: false,
-        selfDeaf: true,
-        vcRegion: memberVoiceChannel.rtcRegion!,
+  private buildTrackAddedEmbed(ctx: Context, title: string, uri?: string | null) {
+    return this.client.embed().setColor(this.client.color.main).setDescription(
+      ctx.locale('cmd.search.messages.added_to_queue', {
+        title,
+        uri,
       })
-    if (!player.connected) await player.connect()
-    const response = (await player.search({ query: query }, ctx.author)) as SearchResult
-    if (!response || response.tracks?.length === 0) {
-      return await ctx.sendMessage({
-        embeds: [
-          embed
-            .setDescription(ctx.locale('cmd.search.errors.no_results'))
-            .setColor(this.client.color.red),
-        ],
-      })
-    }
+    )
+  }
+
+  private buildSearchMenu(response: SearchResult, ctx: Context) {
     const selectMenu = new StringSelectMenuBuilder()
       .setCustomId('select-track')
       .setPlaceholder(ctx.locale('cmd.search.select'))
@@ -82,18 +71,53 @@ export default class Search extends Command {
           value: index.toString(),
         }))
       )
-    const row = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(selectMenu)
 
-    if (response.loadType === 'search' && response.tracks.length > 5) {
-      const embeds = response.tracks.map(
-        (track: Track, index: number) =>
-          `${index + 1}. [${track.info.title}](${track.info.uri}) - \`${track.info.author}\``
-      )
-      await ctx.sendMessage({
-        embeds: [embed.setDescription(embeds.join('\n'))],
-        components: [row],
+    return new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(selectMenu)
+  }
+
+  private async enqueueTrack(player: Player, track: Track): Promise<void> {
+    await enqueueTrack(player, track)
+  }
+
+  async run(client: MahinaBot, ctx: Context, args: string[]): Promise<any> {
+    const embed = this.client.embed().setColor(this.client.color.main)
+    const query = args.join(' ')
+    const memberVoiceChannel = (ctx.member as any).voice.channel as VoiceChannel
+    const player = await this.ensurePlayer(client, ctx, memberVoiceChannel)
+
+    const response = (await player.search({ query: query }, ctx.author)) as SearchResult
+
+    if (!response || response.tracks?.length === 0) {
+      return await ctx.sendMessage({
+        embeds: [
+          embed
+            .setDescription(ctx.locale('cmd.search.errors.no_results'))
+            .setColor(this.client.color.red),
+        ],
       })
     }
+
+    const row = this.buildSearchMenu(response, ctx)
+
+    if (response.loadType !== 'search' || response.tracks.length <= 5) {
+      const track = response.tracks[0]
+      if (!track) return
+      await this.enqueueTrack(player, track)
+
+      return await ctx.sendMessage({
+        embeds: [this.buildTrackAddedEmbed(ctx, track.info.title, track.info.uri)],
+      })
+    }
+
+    const embeds = response.tracks.map(
+      (track: Track, index: number) =>
+        `${index + 1}. [${track.info.title}](${track.info.uri}) - \`${track.info.author}\``
+    )
+    await ctx.sendMessage({
+      embeds: [embed.setDescription(embeds.join('\n'))],
+      components: [row],
+    })
+
     const collector = (ctx.channel as TextChannel).createMessageComponentCollector({
       filter: (f: any) => f.user.id === ctx.author?.id,
       max: 1,
@@ -104,17 +128,10 @@ export default class Search extends Command {
       const track = response.tracks[Number.parseInt(int.values[0])]
       await int.deferUpdate()
       if (!track) return
-      player.queue.add(track)
-      if (!player.playing && player.queue.tracks.length > 0) await player.play({ paused: false })
+      await this.enqueueTrack(player, track)
+
       await ctx.editMessage({
-        embeds: [
-          embed.setDescription(
-            ctx.locale('cmd.search.messages.added_to_queue', {
-              title: track.info.title,
-              uri: track.info.uri,
-            })
-          ),
-        ],
+        embeds: [this.buildTrackAddedEmbed(ctx, track.info.title, track.info.uri)],
         components: [],
       })
       return collector.stop()

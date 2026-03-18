@@ -7,6 +7,7 @@ import type { SearchResult } from 'lavalink-client'
 import Command from '#common/command'
 import type MahinaBot from '#common/mahina_bot'
 import type Context from '#common/context'
+import { ensureConnectedPlayer, startPlayerIfIdle } from '#common/player_runtime'
 
 export default class Play extends Command {
   constructor(client: MahinaBot) {
@@ -61,19 +62,8 @@ export default class Play extends Command {
   async run(client: MahinaBot, ctx: Context, args: string[]): Promise<any> {
     const query = args.join(' ')
     await ctx.sendDeferMessage(ctx.locale('cmd.play.loading'))
-    let player = client.manager.getPlayer(ctx.guild!.id)
     const memberVoiceChannel = (ctx.member as any).voice.channel as VoiceChannel
-
-    if (!player)
-      player = client.manager.createPlayer({
-        guildId: ctx.guild!.id,
-        voiceChannelId: memberVoiceChannel.id,
-        textChannelId: ctx.channel.id,
-        selfMute: false,
-        selfDeaf: true,
-        vcRegion: memberVoiceChannel.rtcRegion!,
-      })
-    if (!player.connected) await player.connect()
+    const player = await ensureConnectedPlayer(client, ctx, memberVoiceChannel)
 
     const response = (await player.search({ query: query }, ctx.author)) as SearchResult
     const embed = this.client.embed()
@@ -115,7 +105,7 @@ export default class Play extends Command {
         ],
       })
     }
-    if (!player.playing && player.queue.tracks.length > 0) await player.play({ paused: false })
+    await startPlayerIfIdle(player)
   }
 
   async autocomplete(interaction: AutocompleteInteraction): Promise<void> {

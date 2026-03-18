@@ -67,7 +67,7 @@ export default class VPlay extends Command {
 
     const query = args.join(' ').trim()
     if (!ytdl.validateURL(query)) {
-      await ctx.sendMessage(ctx.locale('cmd.vplay.errors.invalid_url'))
+      return await ctx.sendMessage(ctx.locale('cmd.vplay.errors.invalid_url'))
     }
 
     await ctx.sendMessage(ctx.locale('cmd.vplay.loading'))
@@ -92,9 +92,11 @@ export default class VPlay extends Command {
       const files = fs.readdirSync(downloadsPath)
 
       const matchedFile = files.find((file) => path.parse(file).name === safeTitle)
-      if (!matchedFile) await ctx.editMessage(ctx.locale('cmd.vplay.errors.download_failed'))
+      if (!matchedFile) {
+        return await ctx.editMessage(ctx.locale('cmd.vplay.errors.download_failed'))
+      }
 
-      const filePath = path.join(downloadsPath, matchedFile!)
+      const filePath = path.join(downloadsPath, matchedFile)
 
       const locale = await client.db.getLanguage(ctx.guild.id)
       const embed = client
