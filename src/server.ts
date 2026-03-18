@@ -1,6 +1,5 @@
 import path from 'node:path'
 import fs from 'node:fs'
-import https from 'node:https'
 
 import express from 'express'
 import multer from 'multer'
@@ -8,10 +7,19 @@ import axios from 'axios'
 import ffmpeg from 'fluent-ffmpeg'
 
 const app = express()
-const agent = new https.Agent({ rejectUnauthorized: false })
 
-const downloadFolder = path.join(process.cwd() + '/downloads')
-const cacheFolder = path.join(process.cwd() + '/cache')
+const downloadFolder = path.join(process.cwd(), 'downloads')
+const cacheFolder = path.join(process.cwd(), 'cache')
+
+function escapeHtml(str: string): string {
+  return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
+}
+
+function safePath(base: string, userInput: string): string | null {
+  const resolved = path.resolve(base, path.basename(userInput))
+  if (!resolved.startsWith(path.resolve(base))) return null
+  return resolved
+}
 
 const storage = multer.diskStorage({
   destination: (_req, _file, cb) => cb(null, downloadFolder),
@@ -21,15 +29,16 @@ const storage = multer.diskStorage({
 const upload = multer({ storage: storage })
 
 app.use((req, res, next) => {
-  const auth = { name: 'admin', password: 'admin' }
+  const authName = process.env.FILE_MANAGER_USER || 'admin'
+  const authPass = process.env.FILE_MANAGER_PASS || 'admin'
 
   const b64auth = (req.headers.authorization || '').split(' ')[1] || ''
   const [username, password] = Buffer.from(b64auth, 'base64').toString().split(':')
 
-  if (username === auth.name && password === auth.password) {
+  if (username === authName && password === authPass) {
     next()
   } else {
-    res.set('WWW-Authenticate', 'Basic realm="My Realm"')
+    res.set('WWW-Authenticate', 'Basic realm="Mahina File Manager"')
     res.status(401).send('Invalid credentials')
   }
 })
@@ -50,11 +59,30 @@ app.post('/api/upload', upload.single('file'), (_req, res) => {
 // remote upload
 app.post('/api/remote_upload', upload.single('link'), async (req, res) => {
   const link = req.body.link
-  const filename = link.substring(link.lastIndexOf('/') + 1)
-  const filepath = path.join(downloadFolder, filename)
+  try {
+    const url = new URL(link)
+    if (!['http:', 'https:'].includes(url.protocol)) {
+      res.status(400).send('Invalid URL protocol')
+      return
+    }
+    const blockedHosts = ['169.254.169.254', 'metadata.google.internal', 'localhost', '127.0.0.1', '0.0.0.0']
+    if (blockedHosts.includes(url.hostname)) {
+      res.status(400).send('Blocked host')
+      return
+    }
+  } catch {
+    res.status(400).send('Invalid URL')
+    return
+  }
+  const filename = path.basename(new URL(link).pathname) || 'download'
+  const filepath = safePath(downloadFolder, filename)
+  if (!filepath) {
+    res.status(400).send('Invalid filename')
+    return
+  }
 
   try {
-    const response = await axios.get(link, { responseType: 'stream', httpsAgent: agent })
+    const response = await axios.get(link, { responseType: 'stream', timeout: 60000 })
     const writer = fs.createWriteStream(filepath)
 
     response.data.pipe(writer)
@@ -232,7 +260,7 @@ app.get('/', (_req, res) => {
                         const stats = fs.statSync(path.join(downloadFolder, file))
                         return `
                         <tr>
-                          <td>${file}</td>
+                          <td>${escapeHtml(file)}</td>
                           <td>${prettySize(stats.size)}</td>
                           <td><a href="/preview/${file}">Preview</a></td>
                           <td>
@@ -459,9 +487,8 @@ app.get('/preview/:file', (req, res) => {
 })
 
 app.get('/api/video/:file', (req, res) => {
-  const file = req.params.file
-  const videoPath = path.join(downloadFolder, file)
-  if (!fs.existsSync(videoPath)) {
+  const videoPath = safePath(downloadFolder, req.params.file)
+  if (!videoPath || !fs.existsSync(videoPath)) {
     res.status(404).send('Not Found')
     return
   }
@@ -472,19 +499,19 @@ app.get('/api/video/:file', (req, res) => {
 // page to delete file
 app.get('/delete/:file', (req, res) => {
   const file = req.params.file
-  // check if file exists
-  if (!fs.existsSync(path.join(downloadFolder, file))) {
+  const filePath = safePath(downloadFolder, file)
+  if (!filePath || !fs.existsSync(filePath)) {
     res.status(404).send('Not Found')
     return
   }
 
-  fs.unlink(path.join(downloadFolder, file), function (err) {
+  fs.unlink(filePath, function (err) {
     if (err) return console.log(err)
     console.log('file ( ' + file + ' ) deleted successfully')
     const template = `
             ${TemplateStyle}
             <div class="container">
-                <h1>Aquivo deletado com sucesso: ${file}</h1>
+                <h1>Arquivo deletado com sucesso: ${escapeHtml(file)}</h1>
                 <a href="/" class="btn btn-primary">Voltar</a>
             </div>
         `

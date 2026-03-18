@@ -44,9 +44,10 @@ export class PersonalityRLService {
 
   constructor(client: MahinaBot) {
     this.client = client
-    this.webhookClient = new WebhookClient({
-      url: 'https://discord.com/api/webhooks/1324585759977771008/2NP_u8-b78TFetvi9p88sGKDIkzqRG_1Fd03HsNpAaOLWDOr_cy2R6eM3SaUfU1Qxb5K',
-    })
+    const webhookUrl = process.env.PERSONALITY_WEBHOOK_URL
+    if (webhookUrl) {
+      this.webhookClient = new WebhookClient({ url: webhookUrl })
+    }
 
     this.initializeWoWAnimals()
   }
@@ -354,13 +355,14 @@ export class PersonalityRLService {
     userAvatar?: string
   ): Promise<void> {
     try {
+      if (!this.webhookClient) return
       await this.webhookClient.send({
         username: 'Oráculo Espiritual WoW',
         avatarURL: 'https://i.imgur.com/wSTFkRM.png',
         embeds: [embed],
       })
     } catch (error) {
-      console.error('Erro ao enviar webhook:', error)
+      this.client.logger.error('Erro ao enviar webhook:', error)
     }
   }
 

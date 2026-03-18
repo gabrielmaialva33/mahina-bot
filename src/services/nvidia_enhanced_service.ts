@@ -528,7 +528,7 @@ Use the provided context to give more accurate and personalized responses.`
     try {
       const interval = this.parseTimeRange(timeRange)
       const result = await this.pgPool.query(
-        `SELECT 
+        `SELECT
           model_name,
           COUNT(*) as total_requests,
           SUM(total_tokens) as total_tokens,
@@ -536,9 +536,10 @@ Use the provided context to give more accurate and personalized responses.`
           SUM(error_count) as total_errors,
           AVG(success_rate) as success_rate
         FROM ai_model_metrics
-        WHERE created_at >= NOW() - INTERVAL '${interval}'
+        WHERE created_at >= NOW() - $1::interval
         GROUP BY model_name
-        ORDER BY total_requests DESC`
+        ORDER BY total_requests DESC`,
+        [interval]
       )
 
       return result.rows

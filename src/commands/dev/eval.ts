@@ -36,11 +36,13 @@ export default class Eval extends Command {
   }
 
   async run(client: MahinaBot, ctx: Context, args: string[]): Promise<any> {
+    if (!client.env.OWNER_IDS?.includes(ctx.author?.id!)) return
     const code = args.join(' ')
     try {
       // eslint-disable-next-line no-eval
       let evaled = eval(code)
-      if (evaled === client.config) evaled = 'Nice try'
+      if (evaled === client.config || evaled === client.env || evaled === process.env)
+        evaled = 'Nice try'
 
       if (typeof evaled !== 'string') evaled = util.inspect(evaled)
       if (evaled.length > 2000) {
