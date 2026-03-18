@@ -38,20 +38,20 @@ import { NvidiaTTSService } from '#src/services/nvidia_tts_service'
 import { NvidiaEmbeddingService } from '#src/services/nvidia_embedding_service'
 import { NvidiaCosmosService } from '#src/services/nvidia_cosmos_service'
 import { NvidiaGuardService } from '#src/services/nvidia_guard_service'
-import { NvidiaEnhancedService } from '#src/services/nvidia_enhanced_service'
-import { AIJobService } from '#src/services/ai_job_service'
+import { NvidiaMultimodalService } from '#src/services/nvidia_multimodal_service'
+import { AIQueueService } from '#src/services/ai_queue_service'
 import type { Command as CommandInstance } from '#common/command'
 
 const dirname = path.dirname(fileURLToPath(import.meta.url))
 
 interface BotServices {
   nvidia?: NvidiaAIService
-  nvidiaEnhanced?: NvidiaEnhancedService
+  nvidiaMultimodal?: NvidiaMultimodalService
   proactiveInteraction?: ProactiveInteractionService
   lavalinkHealth?: LavalinkHealthService
   aiContext?: AIContextService
   aiMemory?: AIMemoryService
-  aiJob?: AIJobService
+  aiQueue?: AIQueueService
   nvidiaTTS?: NvidiaTTSService
   nvidiaEmbedding?: NvidiaEmbeddingService
   nvidiaCosmos?: NvidiaCosmosService
@@ -150,10 +150,10 @@ export default class MahinaBot extends Client {
       await this.aiManager.initialize()
 
       this.services.nvidia = this.aiManager.nvidia
-      this.services.nvidiaEnhanced = this.aiManager.nvidiaEnhanced
+      this.services.nvidiaMultimodal = this.aiManager.nvidiaMultimodal
       this.services.aiContext = this.aiManager.context
       this.services.aiMemory = this.aiManager.memory
-      this.services.aiJob = this.aiManager.jobs
+      this.services.aiQueue = this.aiManager.queue
 
       this.logger.info('AI Manager and services initialized successfully')
     } catch (error) {
