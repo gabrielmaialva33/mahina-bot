@@ -1,5 +1,5 @@
 import { Client, StageChannel } from 'discord.js-selfbot-v13'
-import { NewApi, Streamer, Utils } from '@gabrielmaialva33/discord-video-stream'
+import { NewApi, Streamer, Utils } from '@dank074/discord-video-stream'
 import type MahinaBot from '#common/mahina_bot'
 
 let current: ReturnType<typeof NewApi.prepareStream>['command']
