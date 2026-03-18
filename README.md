@@ -122,21 +122,14 @@ Mahina Bot leverages NVIDIA's cutting-edge AI models through their API to provid
 
 ### 🔥 New Features
 
-#### TimescaleDB Integration
+#### MongoDB + Redis Runtime
 
-- **Time-Series AI Analytics** - Track model performance over time
-- **Vector Search with pgvector** - Semantic search through conversation history
-- **pgai Extensions** - Direct AI model calls from database
-- **Continuous Aggregates** - Real-time metrics and insights
+- **MongoDB Memory Layer** - Persist guild, playlist, memory, and chat history data
+- **Redis Queue System** - Handle async AI tasks without Postgres-only infrastructure
+- **Searchable Local Context** - Reuse recent conversation history for RAG-style prompts
+- **Lean Local Stack** - Fewer moving parts in Docker for development
 
-#### Job Queue System (pg-boss)
-
-- **Async AI Processing** - Handle long-running AI tasks
-- **Batch Operations** - Process multiple requests efficiently
-- **Scheduled Jobs** - Recurring AI tasks and analysis
-- **Priority Queue** - Important requests processed first
-
-#### Enhanced AI Capabilities
+#### Multimodal AI Capabilities
 
 - **RAG (Retrieval Augmented Generation)** - Context-aware responses using vector search
 - **Multi-Model Support** - 14+ specialized models for different tasks
@@ -155,7 +148,7 @@ const response = await nvidiaService.chat(userId, 'Analyze this image and explai
 })
 
 // Queue an AI job for background processing
-const jobId = await aiJobService.queueJob({
+const jobId = await aiQueueService.queueJob({
   type: 'embedding',
   userId: '123',
   guildId: '456',
@@ -180,10 +173,7 @@ const jobId = await aiJobService.queueJob({
 
 ### Database & Storage
 
-- **[TimescaleDB](https://www.timescale.com/)** - Time-series PostgreSQL
-- **[pgvector](https://github.com/pgvector/pgvector)** - Vector similarity search
-- **[pgai](https://github.com/timescale/pgai)** - AI functions in PostgreSQL
-- **[pg-boss](https://github.com/timgit/pg-boss)** - Job queue for Node.js
+- **[MongoDB](https://www.mongodb.com/)** - Primary application database
 - **[Redis](https://redis.io/)** - Caching and pub/sub
 - **[Prisma](https://www.prisma.io/)** - Modern database ORM
 
@@ -191,13 +181,9 @@ const jobId = await aiJobService.queueJob({
 
 - **[NVIDIA AI](https://build.nvidia.com/)** - 14+ AI models including Llama 4
 - **[OpenAI](https://openai.com/)** - Fallback AI provider
-- **[pg_cron](https://github.com/citusdata/pg_cron)** - Scheduled jobs in PostgreSQL
-
 ### Infrastructure
 
 - **[Docker](https://www.docker.com/)** - Containerization
-- **[Grafana](https://grafana.com/)** - Monitoring dashboards
-- **[PostgREST](https://postgrest.org/)** - REST API for database
 
 <br>
 
