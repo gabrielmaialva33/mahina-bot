@@ -2,10 +2,8 @@ import OpenAI from 'openai'
 import { EmbedBuilder } from 'discord.js'
 import { logger } from '#common/logger'
 import type MahinaBot from '#common/mahina_bot'
-import { Pool } from 'pg'
-import { env } from '#src/env'
 
-export interface EnhancedNvidiaModel {
+export interface NvidiaMultimodalModel {
   id: string
   name: string
   description: string
@@ -16,12 +14,27 @@ export interface EnhancedNvidiaModel {
   topP: number
   maxTokens: number
   features: string[]
-  costPerMillion: number // Cost per million tokens
+  costPerMillion: number
   latency: 'low' | 'medium' | 'high'
 }
 
-export const ENHANCED_NVIDIA_MODELS: Record<string, EnhancedNvidiaModel> = {
-  // New Llama 4 Models
+interface ModelMetricSnapshot {
+  model_name: string
+  total_requests: number
+  total_tokens: number
+  avg_response_time: number
+  total_errors: number
+  success_rate: number
+}
+
+interface ModelMetricAccumulator {
+  totalRequests: number
+  totalTokens: number
+  totalResponseTime: number
+  totalErrors: number
+}
+
+export const NVIDIA_MULTIMODAL_MODELS: Record<string, NvidiaMultimodalModel> = {
   'llama-4-maverick': {
     id: 'meta/llama-4-maverick-17b-128e-instruct',
     name: 'Llama 4 Maverick 17B',
@@ -50,7 +63,6 @@ export const ENHANCED_NVIDIA_MODELS: Record<string, EnhancedNvidiaModel> = {
     costPerMillion: 0.45,
     latency: 'medium',
   },
-  // Nemotron Models
   'nemotron-ultra': {
     id: 'nvidia/llama-3.1-nemotron-ultra-253b-v1',
     name: 'Nemotron Ultra 253B',
@@ -94,7 +106,6 @@ export const ENHANCED_NVIDIA_MODELS: Record<string, EnhancedNvidiaModel> = {
     costPerMillion: 0.2,
     latency: 'low',
   },
-  // Other Advanced Models
   'deepseek-r1': {
     id: 'deepseek-ai/deepseek-r1',
     name: 'DeepSeek R1',
@@ -140,8 +151,7 @@ export const ENHANCED_NVIDIA_MODELS: Record<string, EnhancedNvidiaModel> = {
   'gemma-3-27b': {
     id: 'google/gemma-3-27b-it',
     name: 'Gemma 3 27B',
-    description:
-      'Cutting-edge open multimodal model exceling in high-quality reasoning from images',
+    description: 'Cutting-edge open multimodal model exceling in high-quality reasoning from images',
     category: 'vision',
     contextLength: 8192,
     streaming: true,
@@ -166,7 +176,6 @@ export const ENHANCED_NVIDIA_MODELS: Record<string, EnhancedNvidiaModel> = {
     costPerMillion: 0.7,
     latency: 'medium',
   },
-  // Physical AI Models
   'cosmos-predict-7b': {
     id: 'nvidia/cosmos-predict1-7b',
     name: 'Cosmos Predict 7B',
@@ -197,12 +206,11 @@ export const ENHANCED_NVIDIA_MODELS: Record<string, EnhancedNvidiaModel> = {
   },
 }
 
-export class NvidiaEnhancedService {
+export class NvidiaMultimodalService {
   private client: OpenAI
-  private activeModel: string = 'llama-4-maverick'
-  private userModels: Map<string, string> = new Map()
-  private modelUsageStats: Map<string, any> = new Map()
-  private pgPool: Pool | null = null
+  private activeModel = 'llama-4-maverick'
+  private userModels = new Map<string, string>()
+  private modelUsageStats = new Map<string, ModelMetricAccumulator>()
   private bot: MahinaBot
 
   constructor(bot: MahinaBot, apiKey: string) {
@@ -211,31 +219,17 @@ export class NvidiaEnhancedService {
       apiKey,
       baseURL: 'https://integrate.api.nvidia.com/v1',
     })
-
-    // Initialize PostgreSQL connection for TimescaleDB
-    if (env.DATABASE_URL) {
-      this.pgPool = new Pool({
-        connectionString: env.DATABASE_URL,
-      })
-    }
   }
 
   async initialize(): Promise<void> {
-    // Test connection
-    try {
-      if (this.pgPool) {
-        await this.pgPool.query('SELECT 1')
-        logger.info('NVIDIA Enhanced Service connected to TimescaleDB')
-      }
-    } catch (error) {
-      logger.error('Failed to connect to TimescaleDB:', error)
-    }
+    logger.info('NVIDIA multimodal service ready')
   }
 
   setUserModel(userId: string, modelKey: string): boolean {
-    if (!ENHANCED_NVIDIA_MODELS[modelKey]) {
+    if (!NVIDIA_MULTIMODAL_MODELS[modelKey]) {
       return false
     }
+
     this.userModels.set(userId, modelKey)
     return true
   }
@@ -244,16 +238,16 @@ export class NvidiaEnhancedService {
     return this.userModels.get(userId) || this.activeModel
   }
 
-  getModelInfo(modelKey: string): EnhancedNvidiaModel | null {
-    return ENHANCED_NVIDIA_MODELS[modelKey] || null
+  getModelInfo(modelKey: string): NvidiaMultimodalModel | null {
+    return NVIDIA_MULTIMODAL_MODELS[modelKey] || null
   }
 
-  getAllModels(): EnhancedNvidiaModel[] {
-    return Object.values(ENHANCED_NVIDIA_MODELS)
+  getAllModels(): NvidiaMultimodalModel[] {
+    return Object.values(NVIDIA_MULTIMODAL_MODELS)
   }
 
-  getModelsByCategory(category: string): EnhancedNvidiaModel[] {
-    return Object.values(ENHANCED_NVIDIA_MODELS).filter((model) => model.category === category)
+  getModelsByCategory(category: string): NvidiaMultimodalModel[] {
+    return Object.values(NVIDIA_MULTIMODAL_MODELS).filter((model) => model.category === category)
   }
 
   async chat(
@@ -269,7 +263,7 @@ export class NvidiaEnhancedService {
     }
   ): Promise<string> {
     const modelKey = this.getUserModel(userId)
-    const model = ENHANCED_NVIDIA_MODELS[modelKey]
+    const model = NVIDIA_MULTIMODAL_MODELS[modelKey]
 
     if (!model) {
       throw new Error('Invalid model selected')
@@ -278,7 +272,7 @@ export class NvidiaEnhancedService {
     const startTime = Date.now()
 
     try {
-      const messages: any[] = []
+      const messages: Array<Record<string, unknown>> = []
 
       if (systemPrompt) {
         messages.push({ role: 'system', content: systemPrompt })
@@ -288,7 +282,6 @@ export class NvidiaEnhancedService {
         messages.push({ role: 'system', content: `Context: ${context}` })
       }
 
-      // Handle multimodal input if images are provided
       if (options?.images && model.features.includes('image-to-text')) {
         messages.push({
           role: 'user',
@@ -314,22 +307,12 @@ export class NvidiaEnhancedService {
       })
 
       const response = completion.choices[0]?.message?.content || 'No response generated'
-      const endTime = Date.now()
-
-      // Store interaction in TimescaleDB
-      await this.storeInteraction({
-        userId,
-        message,
-        response,
-        model: model.id,
-        tokensUsed: completion.usage?.total_tokens || 0,
-        responseTime: endTime - startTime,
-      })
+      this.recordModelMetric(model.id, completion.usage?.total_tokens || 0, Date.now() - startTime, true)
 
       return response
     } catch (error) {
-      logger.error('NVIDIA Enhanced chat error:', error)
-      await this.storeError(userId, model.id, error)
+      logger.error('NVIDIA multimodal chat error:', error)
+      this.recordModelMetric(model.id, 0, Date.now() - startTime, false)
       throw new Error('Failed to generate AI response')
     }
   }
@@ -341,7 +324,7 @@ export class NvidiaEnhancedService {
     systemPrompt?: string
   ): AsyncGenerator<string, void, unknown> {
     const modelKey = this.getUserModel(userId)
-    const model = ENHANCED_NVIDIA_MODELS[modelKey]
+    const model = NVIDIA_MULTIMODAL_MODELS[modelKey]
 
     if (!model || !model.streaming) {
       throw new Error('Model does not support streaming')
@@ -351,7 +334,7 @@ export class NvidiaEnhancedService {
     let fullResponse = ''
 
     try {
-      const messages: any[] = []
+      const messages: Array<Record<string, unknown>> = []
 
       if (systemPrompt) {
         messages.push({ role: 'system', content: systemPrompt })
@@ -380,45 +363,45 @@ export class NvidiaEnhancedService {
         }
       }
 
-      const endTime = Date.now()
-
-      // Store interaction after streaming completes
-      await this.storeInteraction({
-        userId,
-        message,
-        response: fullResponse,
-        model: model.id,
-        tokensUsed: Math.ceil(fullResponse.length / 4), // Approximate
-        responseTime: endTime - startTime,
-      })
+      this.recordModelMetric(model.id, Math.ceil(fullResponse.length / 4), Date.now() - startTime, true)
     } catch (error) {
-      logger.error('NVIDIA Enhanced stream error:', error)
-      await this.storeError(userId, model.id, error)
+      logger.error('NVIDIA multimodal stream error:', error)
+      this.recordModelMetric(model.id, 0, Date.now() - startTime, false)
       throw new Error('Failed to generate streaming response')
     }
   }
 
   async generateWithRAG(userId: string, message: string, retrievalQuery?: string): Promise<string> {
-    // Use vector search to find relevant context
     const relevantContext = await this.searchRelevantContext(retrievalQuery || message, userId)
-
-    // Generate response with context
     const systemPrompt = `You are an AI assistant with access to relevant context from previous conversations.
 Use the provided context to give more accurate and personalized responses.`
 
-    return await this.chat(userId, message, relevantContext, systemPrompt)
+    return this.chat(userId, message, relevantContext, systemPrompt)
   }
 
   private async searchRelevantContext(query: string, userId: string): Promise<string> {
-    if (!this.pgPool) return ''
-
     try {
-      const result = await this.pgPool.query(
-        `SELECT * FROM search_ai_interactions($1, $2, $3, $4, $5)`,
-        [query, userId, new Date(Date.now() - 30 * 24 * 60 * 60 * 1000), new Date(), 10]
-      )
+      const prisma = await this.bot.db.getPrismaClient()
+      const histories = await prisma.chatHistory.findMany({
+        where: { userId },
+        orderBy: { updatedAt: 'desc' },
+        take: 10,
+        select: { messages: true },
+      })
 
-      const contexts = result.rows.map((row) => `User: ${row.message}\nAssistant: ${row.response}`)
+      const searchTerms = query
+        .toLowerCase()
+        .split(/\s+/)
+        .filter((term) => term.length > 2)
+
+      const contexts = histories
+        .flatMap((history) => this.extractHistoryLines(history.messages))
+        .filter((line) =>
+          searchTerms.length === 0
+            ? true
+            : searchTerms.some((term) => line.toLowerCase().includes(term))
+        )
+        .slice(0, 8)
 
       return contexts.join('\n---\n')
     } catch (error) {
@@ -427,169 +410,100 @@ Use the provided context to give more accurate and personalized responses.`
     }
   }
 
-  private async storeInteraction(data: {
-    userId: string
-    message: string
-    response: string
-    model: string
-    tokensUsed: number
-    responseTime: number
-  }): Promise<void> {
-    if (!this.pgPool) return
-
-    try {
-      // Generate embedding for the interaction
-      const embedding = await this.generateEmbedding(`${data.message} ${data.response}`)
-
-      await this.pgPool.query(
-        `INSERT INTO ai_interactions (
-          user_id, guild_id, channel_id, interaction_type,
-          message, response, model_used, tokens_used,
-          response_time_ms, embedding, metadata
-        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10::vector, $11::jsonb)`,
-        [
-          data.userId,
-          'enhanced_service',
-          'chat',
-          'chat',
-          data.message,
-          data.response,
-          data.model,
-          data.tokensUsed,
-          data.responseTime,
-          embedding ? `[${embedding.join(',')}]` : null,
-          JSON.stringify({
-            timestamp: new Date().toISOString(),
-            service: 'enhanced',
-          }),
-        ]
-      )
-
-      // Update model metrics
-      await this.updateModelMetrics(data.model, data.tokensUsed, data.responseTime, true)
-    } catch (error) {
-      logger.error('Failed to store interaction:', error)
+  private extractHistoryLines(messages: unknown): string[] {
+    if (!Array.isArray(messages)) {
+      return []
     }
+
+    return messages
+      .map((message) => {
+        if (!message || typeof message !== 'object') {
+          return null
+        }
+
+        const role = 'role' in message ? String(message.role) : 'unknown'
+        const content = 'content' in message ? String(message.content) : ''
+        if (!content) {
+          return null
+        }
+
+        return `${role}: ${content}`
+      })
+      .filter((value): value is string => Boolean(value))
   }
 
-  private async storeError(userId: string, model: string, error: any): Promise<void> {
-    if (!this.pgPool) return
-
-    try {
-      await this.updateModelMetrics(model, 0, 0, false, error.message)
-    } catch (err) {
-      logger.error('Failed to store error:', err)
-    }
-  }
-
-  private async updateModelMetrics(
+  private recordModelMetric(
     modelName: string,
     tokensUsed: number,
     responseTime: number,
-    success: boolean,
-    errorMessage?: string
-  ): Promise<void> {
-    if (!this.pgPool) return
-
-    try {
-      await this.pgPool.query(
-        `INSERT INTO ai_model_metrics (
-          model_name, request_count, total_tokens,
-          avg_response_time_ms, error_count, success_rate, metadata
-        ) VALUES ($1, 1, $2, $3, $4, $5, $6::jsonb)`,
-        [
-          modelName,
-          tokensUsed,
-          responseTime,
-          success ? 0 : 1,
-          success ? 1.0 : 0.0,
-          JSON.stringify({ error: errorMessage }),
-        ]
-      )
-    } catch (error) {
-      logger.error('Failed to update model metrics:', error)
+    success: boolean
+  ): void {
+    const current = this.modelUsageStats.get(modelName) || {
+      totalRequests: 0,
+      totalTokens: 0,
+      totalResponseTime: 0,
+      totalErrors: 0,
     }
+
+    current.totalRequests += 1
+    current.totalTokens += tokensUsed
+    current.totalResponseTime += responseTime
+    if (!success) {
+      current.totalErrors += 1
+    }
+
+    this.modelUsageStats.set(modelName, current)
   }
 
-  private async generateEmbedding(text: string): Promise<number[] | null> {
-    try {
-      // This would use NVIDIA's embedding model
-      // For now, returning null as placeholder
-      return null
-    } catch (error) {
-      logger.error('Failed to generate embedding:', error)
-      return null
-    }
+  async getModelStats(_timeRange: string = '24h'): Promise<ModelMetricSnapshot[]> {
+    return [...this.modelUsageStats.entries()]
+      .map(([modelName, metric]) => ({
+        model_name: modelName,
+        total_requests: metric.totalRequests,
+        total_tokens: metric.totalTokens,
+        avg_response_time:
+          metric.totalRequests > 0 ? metric.totalResponseTime / metric.totalRequests : 0,
+        total_errors: metric.totalErrors,
+        success_rate:
+          metric.totalRequests > 0
+            ? (metric.totalRequests - metric.totalErrors) / metric.totalRequests
+            : 1,
+      }))
+      .sort((left, right) => right.total_requests - left.total_requests)
   }
 
-  async getModelStats(timeRange: string = '24h'): Promise<any> {
-    if (!this.pgPool) return {}
-
-    try {
-      const interval = this.parseTimeRange(timeRange)
-      const result = await this.pgPool.query(
-        `SELECT
-          model_name,
-          COUNT(*) as total_requests,
-          SUM(total_tokens) as total_tokens,
-          AVG(avg_response_time_ms) as avg_response_time,
-          SUM(error_count) as total_errors,
-          AVG(success_rate) as success_rate
-        FROM ai_model_metrics
-        WHERE created_at >= NOW() - $1::interval
-        GROUP BY model_name
-        ORDER BY total_requests DESC`,
-        [interval]
-      )
-
-      return result.rows
-    } catch (error) {
-      logger.error('Failed to get model stats:', error)
-      return []
-    }
-  }
-
-  private parseTimeRange(range: string): string {
-    const mappings: Record<string, string> = {
-      '1h': '1 hour',
-      '24h': '24 hours',
-      '7d': '7 days',
-      '30d': '30 days',
-    }
-    return mappings[range] || '24 hours'
-  }
-
-  createEnhancedModelEmbed(): EmbedBuilder {
+  createModelCatalogEmbed(): EmbedBuilder {
     const embed = new EmbedBuilder()
-      .setTitle('🚀 NVIDIA AI Models - Enhanced Edition')
+      .setTitle('🚀 NVIDIA AI Models')
       .setColor('#76B900')
-      .setDescription('Advanced AI models with multimodal capabilities')
+      .setDescription('Multimodal NVIDIA model catalog available in Mahina')
       .setTimestamp()
 
-    // Group models by category
-    const categories = ['multimodal', 'reasoning', 'vision', 'general', 'coding']
-
-    for (const category of categories) {
+    for (const category of ['multimodal', 'reasoning', 'vision', 'general', 'coding']) {
       const models = this.getModelsByCategory(category)
-      if (models.length === 0) continue
-
-      const fieldValue = models
-        .map((model) => {
-          const key = Object.entries(ENHANCED_NVIDIA_MODELS).find(
-            ([_, m]) => m.id === model.id
-          )?.[0]
-          return `\`${key}\` - ${model.name}`
-        })
-        .join('\n')
+      if (models.length === 0) {
+        continue
+      }
 
       embed.addFields({
         name: `${this.getCategoryEmoji(category)} ${category.toUpperCase()}`,
-        value: fieldValue || 'No models',
+        value: models
+          .map((model) => {
+            const key = Object.entries(NVIDIA_MULTIMODAL_MODELS).find(
+              ([, entry]) => entry.id === model.id
+            )?.[0]
+            return `\`${key}\` - ${model.name}`
+          })
+          .join('\n'),
         inline: true,
       })
     }
 
     return embed
+  }
+
+  createEnhancedModelEmbed(): EmbedBuilder {
+    return this.createModelCatalogEmbed()
   }
 
   private getCategoryEmoji(category: string): string {
@@ -600,26 +514,27 @@ Use the provided context to give more accurate and personalized responses.`
       general: '💬',
       coding: '💻',
     }
+
     return emojis[category] || '🤖'
   }
 
-  async queueAIJob(jobType: string, data: any): Promise<string> {
-    const jobService = this.bot.services.aiJob
+  async queueAIJob(jobType: string, data: Record<string, unknown>): Promise<string> {
+    const queueService = this.bot.services.aiQueue
 
-    if (!jobService?.isAvailable()) {
-      throw new Error('AI Job Service not available')
+    if (!queueService?.isAvailable()) {
+      throw new Error('AI queue service not available')
     }
 
-    return await jobService.queueJob({
-      type: jobType as any,
-      userId: data.userId,
-      guildId: data.guildId || 'enhanced_service',
+    return queueService.queueJob({
+      type: jobType as 'embedding' | 'analysis' | 'generation' | 'training' | 'batch_processing',
+      userId: String(data.userId || 'system'),
+      guildId: String(data.guildId || 'multimodal_service'),
       data,
-      priority: data.priority || 0,
+      priority: Number(data.priority || 0),
     })
   }
 
   isAvailable(): boolean {
-    return !!this.client
+    return true
   }
 }

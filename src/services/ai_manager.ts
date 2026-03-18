@@ -1,19 +1,19 @@
-import { NvidiaAIService } from './nvidia_ai_service.js'
-import { NvidiaEnhancedService } from './nvidia_enhanced_service.js'
-import { AIContextService } from './ai_context_service.js'
-import { AIMemoryService } from './ai_memory_service.js'
-import { AIJobService } from './ai_job_service.js'
 import { PrismaClient } from '@prisma/client'
 import { logger } from '#common/logger'
 import { env } from '#src/env'
 import type MahinaBot from '#common/mahina_bot'
+import { AIContextService } from './ai_context_service.js'
+import { AIMemoryService } from './ai_memory_service.js'
+import { AIQueueService } from './ai_queue_service.js'
+import { NvidiaAIService } from './nvidia_ai_service.js'
+import { NvidiaMultimodalService } from './nvidia_multimodal_service.js'
 
 export class AIManager {
   public nvidia?: NvidiaAIService
-  public nvidiaEnhanced?: NvidiaEnhancedService
+  public nvidiaMultimodal?: NvidiaMultimodalService
   public context?: AIContextService
   public memory?: AIMemoryService
-  public jobs?: AIJobService
+  public queue?: AIQueueService
 
   private prisma: PrismaClient
   private bot: MahinaBot
@@ -24,9 +24,6 @@ export class AIManager {
     this.prisma = prisma
   }
 
-  /**
-   * Initialize all AI services
-   */
   async initialize(): Promise<void> {
     if (this.initialized) {
       logger.warn('AI Manager already initialized')
@@ -34,41 +31,33 @@ export class AIManager {
     }
 
     try {
-      // Initialize NVIDIA Enhanced Service
       if (env.NVIDIA_API_KEY) {
-        this.nvidiaEnhanced = new NvidiaEnhancedService(this.bot, env.NVIDIA_API_KEY)
-        await this.nvidiaEnhanced.initialize()
-        logger.info('✅ NVIDIA Enhanced AI Service initialized')
+        this.nvidiaMultimodal = new NvidiaMultimodalService(this.bot, env.NVIDIA_API_KEY)
+        await this.nvidiaMultimodal.initialize()
+        logger.info('✅ NVIDIA multimodal AI service initialized')
 
-        // Also initialize legacy service for compatibility
         this.nvidia = new NvidiaAIService(env.NVIDIA_API_KEY)
         logger.info('✅ NVIDIA AI Service (legacy) initialized')
       } else if (env.OPENAI_API_KEY) {
-        // Fallback to OpenAI if available
         logger.warn('NVIDIA_API_KEY not found, OpenAI support not implemented yet')
       } else {
         logger.warn('No AI API keys found. AI features will be disabled.')
       }
 
-      // Initialize Context Service
       this.context = new AIContextService()
       logger.info('✅ AI Context Service initialized')
 
-      // Initialize Memory Service
       this.memory = new AIMemoryService(this.prisma)
       logger.info('✅ AI Memory Service initialized')
 
-      // Initialize Job Service if pg-boss is enabled
-      if (env.PGBOSS_ENABLED) {
-        this.jobs = new AIJobService(this.bot)
-        await this.jobs.initialize()
-        logger.info('✅ AI Job Service initialized with pg-boss')
+      if (env.AI_QUEUE_ENABLED) {
+        this.queue = new AIQueueService(this.bot)
+        await this.queue.initialize()
+        logger.info('✅ AI queue service initialized with Redis')
       }
 
       this.initialized = true
       logger.info('🤖 AI Manager fully initialized')
-
-      // Log available features
       this.logAvailableFeatures()
     } catch (error) {
       logger.error('Failed to initialize AI Manager:', error)
@@ -76,37 +65,29 @@ export class AIManager {
     }
   }
 
-  /**
-   * Check if AI services are available
-   */
   isAvailable(): boolean {
-    return this.initialized && (!!this.nvidiaEnhanced || !!this.nvidia)
+    return this.initialized && (!!this.nvidiaMultimodal || !!this.nvidia)
   }
 
-  /**
-   * Get service status
-   */
   getStatus(): {
     initialized: boolean
     services: {
       nvidia: boolean
-      nvidiaEnhanced: boolean
+      nvidiaMultimodal: boolean
       context: boolean
       memory: boolean
-      jobs: boolean
+      queue: boolean
     }
     features: string[]
   } {
     const features = []
 
-    if (this.nvidiaEnhanced) {
-      features.push('Enhanced Chat', 'Vision Analysis', 'Multimodal AI', 'RAG')
-      const models = this.nvidiaEnhanced.getAllModels()
-      features.push(`${models.length} Enhanced AI Models`)
+    if (this.nvidiaMultimodal) {
+      features.push('Multimodal Chat', 'Vision Analysis', 'RAG')
+      features.push(`${this.nvidiaMultimodal.getAllModels().length} Multimodal AI Models`)
     } else if (this.nvidia) {
       features.push('Chat', 'Code Analysis', 'Reasoning', 'Streaming')
-      const models = this.nvidia.getAllModels()
-      features.push(`${models.length} AI Models`)
+      features.push(`${this.nvidia.getAllModels().length} AI Models`)
     }
 
     if (this.context) {
@@ -117,26 +98,23 @@ export class AIManager {
       features.push('User Memory', 'Learning System', 'Personalization')
     }
 
-    if (this.jobs) {
-      features.push('Async Processing', 'Job Queue', 'Batch Operations')
+    if (this.queue) {
+      features.push('Redis Queue', 'Async Processing', 'Batch Operations')
     }
 
     return {
       initialized: this.initialized,
       services: {
         nvidia: !!this.nvidia,
-        nvidiaEnhanced: !!this.nvidiaEnhanced,
+        nvidiaMultimodal: !!this.nvidiaMultimodal,
         context: !!this.context,
         memory: !!this.memory,
-        jobs: !!this.jobs,
+        queue: !!this.queue,
       },
       features,
     }
   }
 
-  /**
-   * Log available AI features
-   */
   private logAvailableFeatures(): void {
     const status = this.getStatus()
 
@@ -144,49 +122,24 @@ export class AIManager {
     logger.info(`Initialized: ${status.initialized ? '✅' : '❌'}`)
     logger.info('Services:')
     logger.info(`  - NVIDIA AI: ${status.services.nvidia ? '✅' : '❌'}`)
-    logger.info(`  - NVIDIA Enhanced: ${status.services.nvidiaEnhanced ? '✅' : '❌'}`)
+    logger.info(`  - NVIDIA Multimodal: ${status.services.nvidiaMultimodal ? '✅' : '❌'}`)
     logger.info(`  - Context: ${status.services.context ? '✅' : '❌'}`)
     logger.info(`  - Memory: ${status.services.memory ? '✅' : '❌'}`)
-    logger.info(`  - Jobs: ${status.services.jobs ? '✅' : '❌'}`)
+    logger.info(`  - Queue: ${status.services.queue ? '✅' : '❌'}`)
 
-    if (status.features.length > 0) {
-      logger.info('Available Features:')
-      status.features.forEach((feature) => {
-        logger.info(`  - ${feature}`)
-      })
-    }
-
-    if (this.nvidiaEnhanced) {
-      logger.info('Available Enhanced AI Models:')
-      const models = this.nvidiaEnhanced.getAllModels()
-      models.slice(0, 5).forEach((model) => {
-        logger.info(`  - ${model.name} (${model.category}) - ${model.contextLength} tokens`)
-      })
-      if (models.length > 5) {
-        logger.info(`  ... and ${models.length - 5} more models`)
-      }
-    } else if (this.nvidia) {
-      logger.info('Available AI Models:')
-      const models = this.nvidia.getAllModels()
-      models.forEach((model) => {
-        logger.info(`  - ${model.name} (${model.category})`)
-      })
+    for (const feature of status.features) {
+      logger.info(`  - ${feature}`)
     }
   }
 
-  /**
-   * Shutdown AI services gracefully
-   */
   async shutdown(): Promise<void> {
     logger.info('Shutting down AI Manager...')
 
     try {
-      // Shutdown job service
-      if (this.jobs) {
-        await this.jobs.shutdown()
+      if (this.queue) {
+        await this.queue.shutdown()
       }
 
-      // Persist any pending memory data
       if (this.memory) {
         this.memory.destroy()
       }
@@ -198,9 +151,6 @@ export class AIManager {
     }
   }
 
-  /**
-   * Get AI statistics
-   */
   async getStatistics(): Promise<{
     contextStats: any
     modelUsage: Record<string, number>
@@ -212,97 +162,55 @@ export class AIManager {
       contextsByChannel: {},
     }
 
-    // TODO: Implement model usage tracking
-    const modelUsage = {}
-
-    // Count total AI interactions from database
     let totalInteractions = 0
     try {
-      const memories = await this.prisma.aIMemory.count()
-      totalInteractions = memories
+      totalInteractions = await this.prisma.aIMemory.count()
     } catch (error) {
       logger.error('Failed to get AI statistics:', error)
     }
 
     return {
       contextStats,
-      modelUsage,
+      modelUsage: {},
       totalInteractions,
     }
   }
 
-  /**
-   * Clear all AI data for a user
-   */
   async clearUserData(userId: string, guildId?: string): Promise<void> {
     logger.info(`Clearing AI data for user ${userId}${guildId ? ` in guild ${guildId}` : ''}`)
 
     try {
-      // Clear context
-      if (this.context) {
-        // Context service would need a method to clear by userId
-        // For now, this is a placeholder
-        logger.info('Context clearing not implemented yet')
-      }
-
-      // Clear memory from database
       if (guildId) {
         await this.prisma.aIMemory.deleteMany({
-          where: { userId, guildId },
+          where: {
+            userId,
+            guildId,
+          },
+        })
+
+        await this.prisma.chatHistory.deleteMany({
+          where: {
+            userId,
+            guildId,
+          },
         })
       } else {
-        await this.prisma.aIMemory.deleteMany({
-          where: { userId },
-        })
+        await this.prisma.aIMemory.deleteMany({ where: { userId } })
+        await this.prisma.chatHistory.deleteMany({ where: { userId } })
       }
-
-      logger.info(`AI data cleared for user ${userId}`)
     } catch (error) {
       logger.error('Failed to clear user AI data:', error)
       throw error
     }
   }
-
-  /**
-   * Export user AI data (for GDPR compliance)
-   */
-  async exportUserData(userId: string): Promise<{
-    memories: any[]
-    contexts: any[]
-  }> {
-    logger.info(`Exporting AI data for user ${userId}`)
-
-    try {
-      // Export memories
-      const memories = await this.prisma.aIMemory.findMany({
-        where: { userId },
-      })
-
-      // Export contexts (would need implementation in context service)
-      const contexts: any[] = []
-
-      return {
-        memories: memories.map((m) => ({
-          guildId: m.guildId,
-          data: JSON.parse(m.data as string),
-          createdAt: m.createdAt,
-          updatedAt: m.updatedAt,
-        })),
-        contexts,
-      }
-    } catch (error) {
-      logger.error('Failed to export user AI data:', error)
-      throw error
-    }
-  }
 }
 
-// Singleton instance
-let aiManager: AIManager | null = null
+let aiManagerInstance: AIManager | null = null
 
 export function getAIManager(bot: MahinaBot, prisma: PrismaClient): AIManager {
-  if (!aiManager) {
-    aiManager = new AIManager(bot, prisma)
+  if (!aiManagerInstance) {
+    aiManagerInstance = new AIManager(bot, prisma)
   }
-  return aiManager
+
+  return aiManagerInstance
 }
