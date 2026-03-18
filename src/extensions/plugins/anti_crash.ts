@@ -35,11 +35,9 @@ const AntiCrash: BotPlugin = {
         return // Don't crash on Lavalink errors
       }
 
-      // For other critical errors, still exit
-      if (err.name === 'TypeError' || err.name === 'ReferenceError') {
-        client.logger.error('Critical error detected, shutting down...')
-        process.exit(1)
-      }
+      // Exit on all uncaught exceptions — process may be in corrupt state
+      client.logger.error('Fatal uncaught exception, shutting down...')
+      process.exit(1)
     })
     process.on('SIGINT', handleExit)
     process.on('SIGTERM', handleExit)
