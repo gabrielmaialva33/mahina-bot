@@ -631,7 +631,7 @@
       "already_paused": "⏸️ A música já está pausada."
     },
     "trackStart": {
-      "now_playing": "▶️ **Tocando Agora**",
+      "now_playing": "▶️ Tocando Agora",
       "requested_by": "🎙️ Solicitado por {user}",
       "duration": "⏱️ Duração",
       "author": "🎵 Autor",
@@ -648,7 +648,7 @@
       "looping_off_by": "⏹️ Repetição Desativada por {user}"
     },
     "setupStart": {
-      "now_playing": "▶️ **Tocando Agora**",
+      "now_playing": "▶️ Tocando Agora",
       "description": "🎶 [{title}]({uri}) por {author} • `⏱️ [{length}]` - 🎙️ Solicitado por <@{requester}>",
       "error_searching": "❌ Ocorreu um erro durante a busca.",
       "no_results": "⚠️ Nenhum resultado encontrado.",
@@ -706,7 +706,7 @@
     "setupButton": {
       "no_voice_channel_button": "❌ Você não está conectado a um canal de voz para usar este botão.",
       "different_voice_channel_button": "❌ Você não está conectado a **{channel}** para usar esses botões.",
-      "now_playing": "▶️ **Tocando Agora**",
+      "now_playing": "▶️ Tocando Agora",
       "live": "🔴 **AO VIVO**",
       "requested_by": "🎙️ Solicitado por <@{requester}>",
       "no_dj_permission": "⚠️ Você precisa ter o papel de DJ para usar este botão.",
