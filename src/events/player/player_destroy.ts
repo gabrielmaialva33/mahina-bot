@@ -16,6 +16,12 @@ export default class PlayerDestroy extends Event {
   async run(player: Player, _reason: string): Promise<void> {
     const guild = this.client.guilds.cache.get(player.guildId)
     if (!guild) return
+
+    const voiceChannelId = player.voiceChannelId ?? player.options?.voiceChannelId
+    if (voiceChannelId) {
+      await this.client.utils.setVoiceStatus(this.client, voiceChannelId)
+    }
+
     const locale = await this.client.db.getLanguage(player.guildId)
     await updateSetup(this.client, guild, locale)
 

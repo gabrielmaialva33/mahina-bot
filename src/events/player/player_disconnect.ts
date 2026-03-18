@@ -13,9 +13,14 @@ export default class PlayerDisconnect extends Event {
     })
   }
 
-  async run(player: Player, _voiceChannelId: string): Promise<void> {
+  async run(player: Player, voiceChannelId: string): Promise<void> {
     const guild = this.client.guilds.cache.get(player.guildId)
     if (!guild) return
+
+    if (voiceChannelId) {
+      await this.client.utils.setVoiceStatus(this.client, voiceChannelId)
+    }
+
     const locale = await this.client.db.getLanguage(player.guildId)
     await updateSetup(this.client, guild, locale)
 

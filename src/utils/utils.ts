@@ -22,6 +22,16 @@ export class Utils {
     return `${Math.floor(ms / dayMs)}d ${Math.floor((ms % dayMs) / hourMs)}h`
   }
 
+  public static async setVoiceStatus(client: MahinaBot, channelId: string, status: string = ''): Promise<void> {
+    try {
+      await client.rest.put(`/channels/${channelId}/voice-status` as any, {
+        body: { status },
+      })
+    } catch {
+      // voice status not supported or missing permissions
+    }
+  }
+
   public static updateStatus(client: MahinaBot, guildId?: string): void {
     const { user } = client
     if (user && client.env.GUILD_ID && guildId === client.env.GUILD_ID) {

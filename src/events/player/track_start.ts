@@ -39,6 +39,14 @@ export default class TrackStart extends Event {
 
     this.client.utils.updateStatus(this.client, guild.id)
 
+    if (player.voiceChannelId) {
+      await this.client.utils.setVoiceStatus(
+        this.client,
+        player.voiceChannelId,
+        `🎶 ${track.info.title}`
+      )
+    }
+
     const locale = await this.client.db.getLanguage(guild.id)
 
     const embed = this.client
@@ -176,7 +184,7 @@ function createCollector(
     }
     switch (interaction.customId) {
       case 'previous':
-        if (player.queue.previous) {
+        if (player.queue.previous && player.queue.previous.length > 0) {
           await interaction.deferUpdate()
           const previousTrack = player.queue.previous[0]
           player.play({
