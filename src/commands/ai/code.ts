@@ -1,4 +1,10 @@
 import Command from '#common/command'
+import {
+  createAIErrorEmbed,
+  createAILoadingEmbed,
+  createAIResultEmbed,
+  splitDiscordMessage,
+} from '#common/ai_command_ui'
 import type Context from '#common/context'
 import type MahinaBot from '#common/mahina_bot'
 import { ApplicationCommandOptionType, AttachmentBuilder } from 'discord.js'
@@ -156,12 +162,7 @@ export default class Code extends Command {
 
     if (!nvidiaService) {
       return await ctx.sendMessage({
-        embeds: [
-          {
-            description: '❌ NVIDIA AI service is not configured',
-            color: 0xff0000,
-          },
-        ],
+        embeds: [createAIErrorEmbed(client, 'NVIDIA AI service is not configured')],
       })
     }
 
@@ -179,10 +180,7 @@ export default class Code extends Command {
       if (!['explain', 'review', 'optimize', 'debug'].includes(taskMatch)) {
         return await ctx.sendMessage({
           embeds: [
-            {
-              description: '❌ Please specify a task: explain, review, optimize, or debug',
-              color: 0xff0000,
-            },
+            createAIErrorEmbed(client, 'Please specify a task: explain, review, optimize, or debug'),
           ],
         })
       }
@@ -195,11 +193,10 @@ export default class Code extends Command {
       if (!codeBlockMatch) {
         return await ctx.sendMessage({
           embeds: [
-            {
-              description:
-                '❌ Please provide code in a code block with language\nExample: \\`\\`\\`js\nconst x = 1;\n\\`\\`\\`',
-              color: 0xff0000,
-            },
+            createAIErrorEmbed(
+              client,
+              'Please provide code in a code block with language\nExample: \\`\\`\\`js\nconst x = 1;\n\\`\\`\\`'
+            ),
           ],
         })
       }
@@ -208,9 +205,14 @@ export default class Code extends Command {
       code = codeBlockMatch[2].trim()
     }
 
-    await ctx.sendDeferMessage(
-      `🔍 ${task.charAt(0).toUpperCase() + task.slice(1)}ing your ${language} code...`
-    )
+    await ctx.sendDeferMessage({
+      embeds: [
+        createAILoadingEmbed(
+          client,
+          `🔍 ${task.charAt(0).toUpperCase() + task.slice(1)}ing your ${language} code...`
+        ),
+      ],
+    })
 
     try {
       const response = await nvidiaService.analyzeCode(
@@ -221,21 +223,15 @@ export default class Code extends Command {
       )
 
       // Split response if too long
-      const chunks = response.match(/[\s\S]{1,1900}/g) || []
+      const chunks = splitDiscordMessage(response)
 
       if (chunks.length === 1) {
         await ctx.editMessage({
           embeds: [
-            {
-              title: `📝 Code ${task.charAt(0).toUpperCase() + task.slice(1)}`,
-              description: chunks[0],
-              fields: [
-                { name: 'Language', value: language, inline: true },
-                { name: 'Model', value: 'Qwen 2.5 Coder', inline: true },
-              ],
-              color: 0x76b900,
-              timestamp: new Date().toISOString(),
-            },
+            createAIResultEmbed(client, `📝 Code ${task.charAt(0).toUpperCase() + task.slice(1)}`, chunks[0], [
+              { name: 'Language', value: language, inline: true },
+              { name: 'Model', value: 'Qwen 2.5 Coder', inline: true },
+            ]),
           ],
         })
       } else {
@@ -246,17 +242,16 @@ export default class Code extends Command {
         await ctx.editMessage({
           content: null,
           embeds: [
-            {
-              title: `📝 Code ${task.charAt(0).toUpperCase() + task.slice(1)}`,
-              description: `The analysis is too long for Discord. Please see the attached file.`,
-              fields: [
+            createAIResultEmbed(
+              client,
+              `📝 Code ${task.charAt(0).toUpperCase() + task.slice(1)}`,
+              'The analysis is too long for Discord. Please see the attached file.',
+              [
                 { name: 'Language', value: language, inline: true },
                 { name: 'Model', value: 'Qwen 2.5 Coder', inline: true },
                 { name: 'Response Length', value: `${response.length} characters`, inline: true },
-              ],
-              color: 0x76b900,
-              timestamp: new Date().toISOString(),
-            },
+              ]
+            ),
           ],
           files: [attachment],
         })
@@ -264,12 +259,7 @@ export default class Code extends Command {
     } catch (error) {
       console.error('Code analysis error:', error)
       await ctx.editMessage({
-        embeds: [
-          {
-            description: `❌ Failed to ${task} code: ${(error as Error).message}`,
-            color: 0xff0000,
-          },
-        ],
+        embeds: [createAIErrorEmbed(client, `Failed to ${task} code: ${(error as Error).message}`)],
       })
     }
   }

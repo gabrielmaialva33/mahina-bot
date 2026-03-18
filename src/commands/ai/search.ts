@@ -1,4 +1,5 @@
 import Command from '#common/command'
+import { createAIErrorEmbed, createAILoadingEmbed } from '#common/ai_command_ui'
 import type Context from '#common/context'
 import type MahinaBot from '#common/mahina_bot'
 import { ApplicationCommandOptionType, EmbedBuilder, MessageFlags } from 'discord.js'
@@ -73,12 +74,7 @@ export default class SearchCommand extends Command {
 
     if (!query) {
       return await ctx.sendMessage({
-        embeds: [
-          {
-            description: '❌ Por favor, forneça uma pergunta ou termo para buscar!',
-            color: client.config.color.red,
-          },
-        ],
+        embeds: [createAIErrorEmbed(client, 'Por favor, forneça uma pergunta ou termo para buscar!')],
         flags: MessageFlags.Ephemeral,
       })
     }
@@ -87,12 +83,7 @@ export default class SearchCommand extends Command {
     const embeddingService = client.services.nvidiaEmbedding
     if (!embeddingService) {
       return await ctx.sendMessage({
-        embeds: [
-          {
-            description: '❌ Serviço de busca semântica não está disponível.',
-            color: client.config.color.red,
-          },
-        ],
+        embeds: [createAIErrorEmbed(client, 'Serviço de busca semântica não está disponível.')],
         flags: MessageFlags.Ephemeral,
       })
     }
@@ -100,17 +91,14 @@ export default class SearchCommand extends Command {
     if (!embeddingService.isAvailable()) {
       return await ctx.sendMessage({
         embeds: [
-          {
-            description: '❌ Serviço de busca não está configurado. Configure NVIDIA_API_KEY.',
-            color: client.config.color.red,
-          },
+          createAIErrorEmbed(client, 'Serviço de busca não está configurado. Configure NVIDIA_API_KEY.'),
         ],
         flags: MessageFlags.Ephemeral,
       })
     }
 
     // Show loading message
-    const loadingEmbed = new EmbedBuilder()
+    const loadingEmbed = createAILoadingEmbed(client, '🔍 Buscando informações relevantes...')
       .setColor(client.config.color.main)
       .setDescription('🔍 Buscando informações relevantes...')
       .addFields(

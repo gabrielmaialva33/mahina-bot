@@ -1,4 +1,5 @@
 import Command from '#common/command'
+import { createAIErrorEmbed, createAILoadingEmbed } from '#common/ai_command_ui'
 import { chatWithPreferredAI, getPreferredAIService } from '#common/ai_runtime'
 import type Context from '#common/context'
 import type MahinaBot from '#common/mahina_bot'
@@ -15,6 +16,21 @@ import {
   StringSelectMenuBuilder,
   StringSelectMenuOptionBuilder,
 } from 'discord.js'
+
+interface MahinaAIRequest {
+  message: string
+  personality: string
+  mode: string
+  ephemeral: boolean
+  audioResponse: boolean
+}
+
+interface MahinaAIServices {
+  nvidiaService: NonNullable<ReturnType<typeof getPreferredAIService>>
+  contextService: NonNullable<MahinaBot['services']['aiContext']>
+  memoryService: NonNullable<MahinaBot['services']['aiMemory']>
+  guardService: MahinaBot['services']['nvidiaGuard']
+}
 
 export default class MahinaAI extends Command {
   constructor(client: MahinaBot) {
@@ -89,259 +105,126 @@ export default class MahinaAI extends Command {
   }
 
   async run(client: MahinaBot, ctx: Context, args: string[]): Promise<any> {
-    // Parse arguments
-    let message: string
-    let personality: string
-    let mode: string
-    let ephemeral: boolean
-    let audioResponse: boolean
-
-    if (ctx.isInteraction) {
-      message = ctx.options.get('mensagem')?.value as string
-      personality = (ctx.options.get('personalidade')?.value as string) || 'friendly'
-      mode = (ctx.options.get('modo')?.value as string) || 'chat'
-      ephemeral = (ctx.options.get('privado')?.value as boolean) || false
-      audioResponse = (ctx.options.get('audio')?.value as boolean) || false
-    } else {
-      message = args.join(' ')
-      personality = 'friendly'
-      mode = 'chat'
-      ephemeral = false
-      audioResponse = false
-    }
-
-    if (!message) {
+    const request = this.parseRequest(ctx, args)
+    if (!request.message) {
       return await ctx.sendMessage({
-        embeds: [
-          {
-            description: '❌ Por favor, forneça uma mensagem!',
-            color: client.config.color.red,
-          },
-        ],
+        embeds: [createAIErrorEmbed(client, 'Por favor, forneça uma mensagem!')],
         flags: MessageFlags.Ephemeral,
       })
     }
 
-    // Get services
-    const nvidiaService = getPreferredAIService(client)
-    const contextService = client.services.aiContext
-    const memoryService = client.services.aiMemory
-    const guardService = client.services.nvidiaGuard
-
-    if (!nvidiaService) {
+    const services = this.resolveServices(client)
+    if (!services) {
       return await ctx.sendMessage({
         embeds: [
-          {
-            description:
-              '❌ Serviço de IA não está configurado. Configure NVIDIA_API_KEY no ambiente.',
-            color: client.config.color.red,
-          },
+          createAIErrorEmbed(
+            client,
+            'Serviços de IA não estão prontos. Verifique NVIDIA_API_KEY e a inicialização do runtime.',
+            '⚠️ Serviços indisponíveis'
+          ),
         ],
-        flags: MessageFlags.Ephemeral,
+        flags: request.ephemeral ? MessageFlags.Ephemeral : undefined,
       })
     }
 
-    // Initialize services if not available
-    if (!contextService || !memoryService) {
-      return await ctx.sendMessage({
-        embeds: [
-          {
-            description:
-              '❌ Serviços de IA estão inicializando. Tente novamente em alguns instantes.',
-            color: client.config.color.yellow,
-          },
-        ],
-        flags: MessageFlags.Ephemeral,
-      })
-    }
-
-    // Start processing
-    const loadingEmbed = new EmbedBuilder()
-      .setColor(client.config.color.violet)
-      .setDescription(`${this.getLoadingMessage()} Pensando...`)
-      .setFooter({ text: 'Mahina AI • Powered by NVIDIA' })
-
-    await ctx.sendDeferMessage({ embeds: [loadingEmbed] })
+    await ctx.sendDeferMessage({
+      embeds: [createAILoadingEmbed(client, `${this.getLoadingMessage()} Pensando...`)],
+    })
 
     try {
       const userId = ctx.author?.id || 'unknown'
       const channelId = ctx.channel?.id || ''
       const guildId = ctx.guild?.id || 'DM'
 
-      // Perform safety check on user input
-      let safetyResult = null
-      if (guardService?.isAvailable()) {
-        safetyResult = await guardService.comprehensiveSafetyCheck(message, {
-          allowedTopics: guardService.getMusicAllowedTopics(),
-          strictMode: false,
-        })
-
-        if (safetyResult.action === 'block') {
-          return await ctx.editMessage({
-            embeds: [
-              {
-                title: '🛡️ Conteúdo Bloqueado',
-                description:
-                  'Sua mensagem contém conteúdo que não posso processar. Por favor, reformule sua pergunta.',
-                color: client.config.color.red,
-              },
-            ],
-          })
-        }
-
-        if (safetyResult.action === 'warn') {
-          // Log the warning but continue processing
-          client.logger.warn(
-            `AI Safety Warning for user ${userId}: ${safetyResult.overall_risk} risk detected`
-          )
-        }
+      const safetyBlocked = await this.handleInputSafety(
+        client,
+        ctx,
+        services.guardService,
+        request.message,
+        userId
+      )
+      if (safetyBlocked) {
+        return
       }
 
-      // Analyze message
-      const analysis = await contextService.analyzeMessage(message)
-
-      // Add to context
-      contextService.addMessage(userId, channelId, {
-        role: 'user',
-        content: message,
-        timestamp: new Date(),
-        metadata: {
-          command: 'mahinai',
-          emotion: analysis.emotion,
-          intent: analysis.intent,
-        },
-      })
-
-      // Set personality in context
-      contextService.setPersonality(userId, channelId, personality)
-
-      // Get conversation history
-      const history = contextService.getConversationHistory(userId, channelId, 15)
-
-      // Get user memory
-      const memory = await memoryService.getUserMemory(userId, guildId)
-      const insights = await memoryService.getUserInsights(userId, guildId)
-
-      // Record interaction
-      await memoryService.recordInteraction(
+      const analysis = await services.contextService.analyzeMessage(request.message)
+      const conversationState = await this.prepareConversationState(
+        services,
         userId,
+        channelId,
         guildId,
-        'mahinai',
-        this.mapEmotionToSentiment(analysis.emotion)
+        request,
+        analysis
       )
 
-      // Learn from topics
-      if (analysis.topics?.length) {
-        for (const topic of analysis.topics) {
-          await memoryService.learn(userId, guildId, topic)
-        }
-      }
-
-      // Build enhanced system prompt
       const systemPrompt = this.buildEnhancedSystemPrompt(
-        personality,
-        mode,
-        memory,
-        insights,
+        request.personality,
+        request.mode,
+        conversationState.memory,
+        conversationState.insights,
         analysis,
         ctx
       )
+      const contextMessages = this.buildContextMessages(conversationState.history, request.mode)
+      const enhancedSystemPrompt = await this.buildEnhancedPrompt(
+        client,
+        request.message,
+        systemPrompt,
+        analysis
+      )
 
-      // Build conversation context
-      const contextMessages = this.buildContextMessages(history, mode)
-
-      // Enhance context with embedding-based music help if needed
-      let enhancedSystemPrompt = systemPrompt
-      if (
-        analysis.topics?.some(
-          (topic: string) =>
-            topic.toLowerCase().includes('music') || topic.toLowerCase().includes('comando')
-        )
-      ) {
-        const embeddingService = client.services.nvidiaEmbedding
-        if (embeddingService?.isAvailable()) {
-          const relevantHelp = await embeddingService.searchMusicHelp(message)
-          if (relevantHelp.length > 0) {
-            enhancedSystemPrompt += '\n\nInformações relevantes sobre comandos:\n'
-            relevantHelp.forEach((result: any) => {
-              enhancedSystemPrompt += `- ${result.content}\n`
-            })
-          }
-        }
-      }
-
-      // Get AI response
       let aiResponse = await chatWithPreferredAI(client, {
         userId,
-        message,
+        message: request.message,
         context: contextMessages,
         systemPrompt: enhancedSystemPrompt,
       })
 
-      // Moderate AI response for safety
-      if (guardService?.isAvailable()) {
-        const moderationResult = await guardService.moderateAIResponse(aiResponse)
-
-        if (moderationResult.was_modified) {
-          aiResponse = moderationResult.filtered_response
-          client.logger.info(
-            `AI response was moderated for user ${userId}. Violations: ${moderationResult.violations_found.join(', ')}`
-          )
-        }
-      }
-
-      // Add response to context
-      contextService.addMessage(userId, channelId, {
+      aiResponse = await this.moderateOutput(client, services.guardService, aiResponse, userId)
+      services.contextService.addMessage(userId, channelId, {
         role: 'assistant',
         content: aiResponse,
         timestamp: new Date(),
       })
 
-      // Create rich response embed
       const responseEmbed = this.createResponseEmbed(
         aiResponse,
-        personality,
-        mode,
+        request.personality,
+        request.mode,
         analysis,
-        insights,
+        conversationState.insights,
         client
       )
+      const components = this.createInteractiveComponents(userId, conversationState.insights)
 
-      // Create interactive components
-      const components = this.createInteractiveComponents(userId, insights)
-
-      // Send response
       const sentMessage = await ctx.editMessage({
         content: null,
         embeds: [responseEmbed],
         components,
       })
 
-      // Handle interactions
       if (sentMessage instanceof Message) {
         await this.handleInteractions(
           sentMessage,
           userId,
           channelId,
           guildId,
-          contextService,
-          memoryService,
+          services.contextService,
+          services.memoryService,
           client
         )
       }
 
-      // Generate audio response if requested
-      if (audioResponse && client.services.nvidiaTTS?.isAvailable()) {
-        await this.generateAudioResponse(ctx, aiResponse, personality, client)
+      if (request.audioResponse && client.services.nvidiaTTS?.isAvailable()) {
+        await this.generateAudioResponse(ctx, aiResponse, request.personality, client)
       }
 
-      // Send follow-up suggestions if appropriate
       await this.sendFollowUpSuggestions(
         ctx,
-        memory,
-        insights,
+        conversationState.memory,
+        conversationState.insights,
         analysis,
-        memoryService,
+        services.memoryService,
         userId,
         guildId,
         client
@@ -362,6 +245,179 @@ export default class MahinaAI extends Command {
         components: [],
       })
     }
+  }
+
+  private parseRequest(ctx: Context, args: string[]): MahinaAIRequest {
+    if (ctx.isInteraction) {
+      return {
+        message: (ctx.options.get('mensagem')?.value as string) || '',
+        personality: (ctx.options.get('personalidade')?.value as string) || 'friendly',
+        mode: (ctx.options.get('modo')?.value as string) || 'chat',
+        ephemeral: (ctx.options.get('privado')?.value as boolean) || false,
+        audioResponse: (ctx.options.get('audio')?.value as boolean) || false,
+      }
+    }
+
+    return {
+      message: args.join(' '),
+      personality: 'friendly',
+      mode: 'chat',
+      ephemeral: false,
+      audioResponse: false,
+    }
+  }
+
+  private resolveServices(client: MahinaBot): MahinaAIServices | null {
+    const nvidiaService = getPreferredAIService(client)
+    const contextService = client.services.aiContext
+    const memoryService = client.services.aiMemory
+
+    if (!nvidiaService || !contextService || !memoryService) {
+      return null
+    }
+
+    return {
+      nvidiaService,
+      contextService,
+      memoryService,
+      guardService: client.services.nvidiaGuard,
+    }
+  }
+
+  private async handleInputSafety(
+    client: MahinaBot,
+    ctx: Context,
+    guardService: MahinaBot['services']['nvidiaGuard'],
+    message: string,
+    userId: string
+  ): Promise<boolean> {
+    if (!guardService?.isAvailable()) {
+      return false
+    }
+
+    const safetyResult = await guardService.comprehensiveSafetyCheck(message, {
+      allowedTopics: guardService.getMusicAllowedTopics(),
+      strictMode: false,
+    })
+
+    if (safetyResult.action === 'block') {
+      await ctx.editMessage({
+        embeds: [
+          createAIErrorEmbed(
+            client,
+            'Sua mensagem contém conteúdo que não posso processar. Por favor, reformule sua pergunta.',
+            '🛡️ Conteúdo bloqueado'
+          ),
+        ],
+      })
+      return true
+    }
+
+    if (safetyResult.action === 'warn') {
+      client.logger.warn(
+        `AI Safety Warning for user ${userId}: ${safetyResult.overall_risk} risk detected`
+      )
+    }
+
+    return false
+  }
+
+  private async prepareConversationState(
+    services: MahinaAIServices,
+    userId: string,
+    channelId: string,
+    guildId: string,
+    request: MahinaAIRequest,
+    analysis: any
+  ) {
+    services.contextService.addMessage(userId, channelId, {
+      role: 'user',
+      content: request.message,
+      timestamp: new Date(),
+      metadata: {
+        command: 'mahinai',
+        emotion: analysis.emotion,
+        intent: analysis.intent,
+      },
+    })
+
+    services.contextService.setPersonality(userId, channelId, request.personality)
+
+    const history = services.contextService.getConversationHistory(userId, channelId, 15)
+    const memory = await services.memoryService.getUserMemory(userId, guildId)
+    const insights = await services.memoryService.getUserInsights(userId, guildId)
+
+    await services.memoryService.recordInteraction(
+      userId,
+      guildId,
+      'mahinai',
+      this.mapEmotionToSentiment(analysis.emotion)
+    )
+
+    if (analysis.topics?.length) {
+      for (const topic of analysis.topics) {
+        await services.memoryService.learn(userId, guildId, topic)
+      }
+    }
+
+    return { history, memory, insights }
+  }
+
+  private async buildEnhancedPrompt(
+    client: MahinaBot,
+    message: string,
+    systemPrompt: string,
+    analysis: any
+  ): Promise<string> {
+    let enhancedPrompt = systemPrompt
+
+    if (
+      !analysis.topics?.some(
+        (topic: string) =>
+          topic.toLowerCase().includes('music') || topic.toLowerCase().includes('comando')
+      )
+    ) {
+      return enhancedPrompt
+    }
+
+    const embeddingService = client.services.nvidiaEmbedding
+    if (!embeddingService?.isAvailable()) {
+      return enhancedPrompt
+    }
+
+    const relevantHelp = await embeddingService.searchMusicHelp(message)
+    if (relevantHelp.length === 0) {
+      return enhancedPrompt
+    }
+
+    enhancedPrompt += '\n\nInformações relevantes sobre comandos:\n'
+    relevantHelp.forEach((result: any) => {
+      enhancedPrompt += `- ${result.content}\n`
+    })
+
+    return enhancedPrompt
+  }
+
+  private async moderateOutput(
+    client: MahinaBot,
+    guardService: MahinaBot['services']['nvidiaGuard'],
+    response: string,
+    userId: string
+  ): Promise<string> {
+    if (!guardService?.isAvailable()) {
+      return response
+    }
+
+    const moderationResult = await guardService.moderateAIResponse(response)
+    if (!moderationResult.was_modified) {
+      return response
+    }
+
+    client.logger.info(
+      `AI response was moderated for user ${userId}. Violations: ${moderationResult.violations_found.join(', ')}`
+    )
+
+    return moderationResult.filtered_response
   }
 
   private getLoadingMessage(): string {

@@ -1,4 +1,10 @@
 import Command from '#common/command'
+import {
+  createAIErrorEmbed,
+  createAILoadingEmbed,
+  createAIResultEmbed,
+  splitDiscordMessage,
+} from '#common/ai_command_ui'
 import type Context from '#common/context'
 import type MahinaBot from '#common/mahina_bot'
 import { ApplicationCommandOptionType } from 'discord.js'
@@ -48,12 +54,7 @@ export default class Reason extends Command {
 
     if (!nvidiaService) {
       return await ctx.sendMessage({
-        embeds: [
-          {
-            description: '❌ NVIDIA AI service is not configured',
-            color: 0xff0000,
-          },
-        ],
+        embeds: [createAIErrorEmbed(client, 'NVIDIA AI service is not configured')],
       })
     }
 
@@ -70,37 +71,28 @@ export default class Reason extends Command {
 
     if (!problem) {
       return await ctx.sendMessage({
-        embeds: [
-          {
-            description: '❌ Please provide a problem or question to analyze',
-            color: 0xff0000,
-          },
-        ],
+        embeds: [createAIErrorEmbed(client, 'Please provide a problem or question to analyze')],
       })
     }
 
-    await ctx.sendDeferMessage('🧠 Analyzing your problem with advanced reasoning...')
+    await ctx.sendDeferMessage({
+      embeds: [createAILoadingEmbed(client, '🧠 Analyzing your problem with advanced reasoning...')],
+    })
 
     try {
       const response = await nvidiaService.reasoning(ctx.author!.id, problem, context)
 
       // Split response if too long
-      const chunks = response.match(/[\s\S]{1,1900}/g) || []
+      const chunks = splitDiscordMessage(response)
 
       if (chunks.length <= 3) {
         // Send as multiple messages if fits within 3 messages
         await ctx.editMessage({
           embeds: [
-            {
-              title: '🧠 Analysis Result',
-              description: chunks[0],
-              fields: [
-                { name: 'Model', value: 'DeepSeek R1', inline: true },
-                { name: 'Type', value: 'Advanced Reasoning', inline: true },
-              ],
-              color: 0x76b900,
-              timestamp: new Date().toISOString(),
-            },
+            createAIResultEmbed(client, '🧠 Analysis Result', chunks[0], [
+              { name: 'Model', value: 'DeepSeek R1', inline: true },
+              { name: 'Type', value: 'Advanced Reasoning', inline: true },
+            ]),
           ],
         })
 
@@ -114,33 +106,22 @@ export default class Reason extends Command {
         // If response is very long, truncate and inform user
         await ctx.editMessage({
           embeds: [
-            {
-              title: '🧠 Analysis Result',
-              description: chunks[0] + '\n\n...(response truncated)',
-              fields: [
-                { name: 'Model', value: 'DeepSeek R1', inline: true },
-                { name: 'Response Length', value: `${response.length} characters`, inline: true },
-                {
-                  name: 'Note',
-                  value: 'Response was too long and has been truncated',
-                  inline: false,
-                },
-              ],
-              color: 0x76b900,
-              timestamp: new Date().toISOString(),
-            },
+            createAIResultEmbed(client, '🧠 Analysis Result', chunks[0] + '\n\n...(response truncated)', [
+              { name: 'Model', value: 'DeepSeek R1', inline: true },
+              { name: 'Response Length', value: `${response.length} characters`, inline: true },
+              {
+                name: 'Note',
+                value: 'Response was too long and has been truncated',
+                inline: false,
+              },
+            ]),
           ],
         })
       }
     } catch (error) {
       console.error('Reasoning error:', error)
       await ctx.editMessage({
-        embeds: [
-          {
-            description: `❌ Failed to analyze problem: ${(error as Error).message}`,
-            color: 0xff0000,
-          },
-        ],
+        embeds: [createAIErrorEmbed(client, `Failed to analyze problem: ${(error as Error).message}`)],
       })
     }
   }
