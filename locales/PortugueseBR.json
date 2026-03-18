@@ -7,8 +7,8 @@
         "generic": "❌ Ocorreu um erro ao tentar executar este comando."
       },
       "messages": {
-        "disabled": "`✅` | O modo 24/7 foi `DESATIVADO`.",
-        "enabled": "`✅` | O modo 24/7 foi `ATIVADO`."
+        "disabled": "✅ | O modo 24/7 foi DESATIVADO.",
+        "enabled": "✅ | O modo 24/7 foi ATIVADO."
       }
     },
     "ping": {
@@ -33,15 +33,15 @@
       "options": {
         "command": "🛠️ O comando sobre o qual você quer informações"
       },
-      "content": "Olá! Eu sou {bot}, um bot de música feito com [MahinaBot](https://github.com/gabrielmaialva33/mahina-bot) e Discord.js. Você pode usar `{prefix}help <comando>` para obter mais informações sobre um comando.",
+      "content": "Olá! Eu sou {bot}, um bot de música feito com [MahinaBot](https://github.com/gabrielmaialva33/mahina-bot) e Discord.js. Você pode usar {prefix}help <comando> para obter mais informações sobre um comando.",
       "title": "📘 Menu de Ajuda",
-      "not_found": "❌ O comando `{cmdName}` não existe.",
-      "help_cmd": "📝 **Descrição:** {description}\n**Uso:** {usage}\n**Exemplos:** {examples}\n**Aliases:** {aliases}\n**Categoria:** {category}\n**Cooldown:** {cooldown} segundos\n**Permissões:** {premUser}\n**Permissões do Bot:** {premBot}\n**Apenas Desenvolvedor:** {dev}\n**Comando Slash:** {slash}\n**Argumentos:** {args}\n**Player:** {player}\n**DJ:** {dj}\n**Permissões DJ:** {djPerm}\n**Voz:** {voice}",
+      "not_found": "❌ O comando {cmdName} não existe.",
+      "help_cmd": "📝 Descrição: {description}\nUso: {usage}\nExemplos: {examples}\nAliases: {aliases}\nCategoria: {category}\nCooldown: {cooldown} segundos\nPermissões: {premUser}\nPermissões do Bot: {premBot}\nApenas Desenvolvedor: {dev}\nComando Slash: {slash}\nArgumentos: {args}\nPlayer: {player}\nDJ: {dj}\nPermissões DJ: {djPerm}\nVoz: {voice}",
       "footer": "ℹ️ Use {prefix}help <comando> para mais informações sobre um comando"
     },
     "botinfo": {
       "description": "ℹ️ Informações sobre o bot",
-      "content": "🤖 **Informações do Bot:**\n- 💻 **Sistema Operacional**: {osInfo}\n- ⏳ **Tempo de Atividade**: {osUptime}\n- 🏠 **Hostname**: {osHostname}\n- 🔧 **Arquitetura da CPU**: {cpuInfo}\n- ⚙️ **Uso da CPU**: {cpuUsed}%\n- 📂 **Uso de Memória**: {memUsed}MB / {memTotal}GB\n- 🛠️ **Versão do Node**: {nodeVersion}\n- 📜 **Versão do Discord.js**: {discordJsVersion}\n- 🌐 **Conectado a** {guilds} servidores, {channels} canais e {users} usuários\n- 🎵 **Total de Comandos**: {commands}"
+      "content": "🤖 Informações do Bot:\n- 💻 Sistema Operacional: {osInfo}\n- ⏳ Tempo de Atividade: {osUptime}\n- 🏠 Hostname: {osHostname}\n- 🔧 Arquitetura da CPU: {cpuInfo}\n- ⚙️ Uso da CPU: {cpuUsed}%\n- 📂 Uso de Memória: {memUsed}MB / {memTotal}GB\n- 🛠️ Versão do Node: {nodeVersion}\n- 📜 Versão do Discord.js: {discordJsVersion}\n- 🌐 Conectado a {guilds} servidores, {channels} canais e {users} usuários\n- 🎵 Total de Comandos: {commands}"
     },
     "about": {
       "description": "❓ Mostra informações sobre o bot",
@@ -65,7 +65,7 @@
         "role_not_found": "❌ O papel de DJ <@&{roleId}> não foi encontrado.",
         "role_removed": "✅ O papel de DJ <@&{roleId}> foi removido.",
         "all_roles_cleared": "🧹 Todos os papéis de DJ foram removidos.",
-        "toggle": "🔄 O modo DJ foi alternado para **{status}**."
+        "toggle": "🔄 O modo DJ foi alternado para {status}."
       },
       "options": {
         "add": "➕ O papel de DJ que você deseja adicionar",
@@ -78,11 +78,11 @@
     },
     "language": {
       "description": "🌐 Define o idioma para o bot",
-      "invalid_language": "⚠️ Por favor, forneça um idioma válido. Exemplo: `PortugueseBR` para Português (Brasil)\n\n🌍 **Idiomas Disponíveis:**\n{languages}",
-      "already_set": "✅ O idioma já está definido como **{language}**.",
+      "invalid_language": "⚠️ Por favor, forneça um idioma válido. Exemplo: PortugueseBR para Português (Brasil)\n\n🌍 Idiomas Disponíveis:\n{languages}",
+      "already_set": "✅ O idioma já está definido como {language}.",
       "not_set": "❌ O idioma não está definido.",
-      "set": "`✅` | O idioma foi definido para **{language}**.",
-      "reset": "`✅` | O idioma foi redefinido para o padrão.",
+      "set": "✅ | O idioma foi definido para {language}.",
+      "reset": "✅ | O idioma foi redefinido para o padrão.",
       "options": {
         "set": "🌐 Define o idioma para o bot",
         "language": "🗣️ O idioma que você deseja definir",
@@ -95,9 +95,9 @@
         "prefix_too_long": "⚠️ O prefixo não pode ter mais de 3 caracteres."
       },
       "messages": {
-        "current_prefix": "🔍 O prefixo deste servidor é **{prefix}**.",
-        "prefix_set": "✅ O prefixo deste servidor agora é **{prefix}**.",
-        "prefix_reset": "🔄 O prefixo deste servidor agora é **{prefix}**."
+        "current_prefix": "🔍 O prefixo deste servidor é {prefix}.",
+        "prefix_set": "✅ O prefixo deste servidor agora é {prefix}.",
+        "prefix_reset": "🔄 O prefixo deste servidor agora é {prefix}."
       },
       "options": {
         "set": "🛠️ Define o prefixo",
@@ -126,48 +126,48 @@
     "8d": {
       "description": "🎧 Ativa/desativa o filtro 8D",
       "messages": {
-        "filter_enabled": "✅ O filtro **8D** foi `ATIVADO`.",
-        "filter_disabled": "✅ O filtro **8D** foi `DESATIVADO`."
+        "filter_enabled": "✅ O filtro 8D foi ATIVADO.",
+        "filter_disabled": "✅ O filtro 8D foi DESATIVADO."
       }
     },
     "bassboost": {
-      "description": "🎚️ Ativa/desativa o filtro **bassboost**",
+      "description": "🎚️ Ativa/desativa o filtro bassboost",
       "options": {
         "level": "📈 O nível de bassboost que você deseja definir"
       },
       "messages": {
-        "high": "✅ O filtro **bassboost alto** foi `ATIVADO`.",
-        "low": "✅ O filtro **bassboost baixo** foi `ATIVADO`.",
-        "medium": "✅ O filtro **bassboost médio** foi `ATIVADO`.",
-        "off": "✅ O filtro **bassboost** foi `DESATIVADO`."
+        "high": "✅ O filtro bassboost alto foi ATIVADO.",
+        "low": "✅ O filtro bassboost baixo foi ATIVADO.",
+        "medium": "✅ O filtro bassboost médio foi ATIVADO.",
+        "off": "✅ O filtro bassboost foi DESATIVADO."
       }
     },
     "distortion": {
-      "description": "🔊 Ativa/desativa o filtro **distortion**",
+      "description": "🔊 Ativa/desativa o filtro distortion",
       "messages": {
-        "filter_enabled": "✅ O filtro **distortion** foi `ATIVADO`.",
-        "filter_disabled": "✅ O filtro **distortion** foi `DESATIVADO`."
+        "filter_enabled": "✅ O filtro distortion foi ATIVADO.",
+        "filter_disabled": "✅ O filtro distortion foi DESATIVADO."
       }
     },
     "karaoke": {
-      "description": "🎤 Ativa/desativa o filtro **karaokê**",
+      "description": "🎤 Ativa/desativa o filtro karaokê",
       "messages": {
-        "filter_enabled": "✅ O filtro **karaokê** foi `ATIVADO`.",
-        "filter_disabled": "✅ O filtro **karaokê** foi `DESATIVADO`."
+        "filter_enabled": "✅ O filtro karaokê foi ATIVADO.",
+        "filter_disabled": "✅ O filtro karaokê foi DESATIVADO."
       }
     },
     "lowpass": {
-      "description": "🔈 Ativa/desativa o filtro **lowpass**",
+      "description": "🔈 Ativa/desativa o filtro lowpass",
       "messages": {
-        "filter_enabled": "✅ O filtro **lowpass** foi `ATIVADO`.",
-        "filter_disabled": "✅ O filtro **lowpass** foi `DESATIVADO`."
+        "filter_enabled": "✅ O filtro lowpass foi ATIVADO.",
+        "filter_disabled": "✅ O filtro lowpass foi DESATIVADO."
       }
     },
     "nightcore": {
-      "description": "🎶 Ativa/desativa o filtro **nightcore**",
+      "description": "🎶 Ativa/desativa o filtro nightcore",
       "messages": {
-        "filter_enabled": "✅ O filtro **nightcore** foi `ATIVADO`.",
-        "filter_disabled": "✅ O filtro **nightcore** foi `DESATIVADO`."
+        "filter_enabled": "✅ O filtro nightcore foi ATIVADO.",
+        "filter_disabled": "✅ O filtro nightcore foi DESATIVADO."
       }
     },
     "pitch": {
@@ -179,7 +179,7 @@
         "invalid_number": "⚠️ Por favor, forneça um número válido entre 0.5 e 5."
       },
       "messages": {
-        "pitch_set": "✅ A afinação foi definida para **{pitch}**."
+        "pitch_set": "✅ A afinação foi definida para {pitch}."
       }
     },
     "rate": {
@@ -191,7 +191,7 @@
         "invalid_number": "⚠️ Por favor, forneça um número válido entre 0.5 e 5."
       },
       "messages": {
-        "rate_set": "✅ A taxa foi definida para **{rate}**."
+        "rate_set": "✅ A taxa foi definida para {rate}."
       }
     },
     "reset": {
@@ -201,10 +201,10 @@
       }
     },
     "rotation": {
-      "description": "🔄 Ativa/desativa o filtro **rotation**",
+      "description": "🔄 Ativa/desativa o filtro rotation",
       "messages": {
-        "enabled": "✅ O filtro **rotation** foi `ATIVADO`.",
-        "disabled": "✅ O filtro **rotation** foi `DESATIVADO`."
+        "enabled": "✅ O filtro rotation foi ATIVADO.",
+        "disabled": "✅ O filtro rotation foi DESATIVADO."
       }
     },
     "speed": {
@@ -214,28 +214,28 @@
       },
       "messages": {
         "invalid_number": "⚠️ Por favor, forneça um número válido entre 0.5 e 5.",
-        "set_speed": "✅ A velocidade foi definida para **{speed}**."
+        "set_speed": "✅ A velocidade foi definida para {speed}."
       }
     },
     "tremolo": {
-      "description": "🎛️ Ativa/desativa o filtro **tremolo**",
+      "description": "🎛️ Ativa/desativa o filtro tremolo",
       "messages": {
-        "enabled": "✅ O filtro **tremolo** foi `ATIVADO`.",
-        "disabled": "✅ O filtro **tremolo** foi `DESATIVADO`."
+        "enabled": "✅ O filtro tremolo foi ATIVADO.",
+        "disabled": "✅ O filtro tremolo foi DESATIVADO."
       }
     },
     "vibrato": {
-      "description": "🎶 Ativa/desativa o filtro **vibrato**",
+      "description": "🎶 Ativa/desativa o filtro vibrato",
       "messages": {
-        "enabled": "✅ O filtro **vibrato** foi `ATIVADO`.",
-        "disabled": "✅ O filtro **vibrato** foi `DESATIVADO`."
+        "enabled": "✅ O filtro vibrato foi ATIVADO.",
+        "disabled": "✅ O filtro vibrato foi DESATIVADO."
       }
     },
     "autoplay": {
-      "description": "🔄 Ativa/desativa o **autoplay**",
+      "description": "🔄 Ativa/desativa o autoplay",
       "messages": {
-        "enabled": "✅ O **autoplay** foi `ATIVADO`.",
-        "disabled": "✅ O **autoplay** foi `DESATIVADO`."
+        "enabled": "✅ O autoplay foi ATIVADO.",
+        "disabled": "✅ O autoplay foi DESATIVADO."
       }
     },
     "clearqueue": {
@@ -245,10 +245,10 @@
       }
     },
     "grab": {
-      "description": "📥 Pega a música atual em reprodução no seu **DM**",
+      "description": "📥 Pega a música atual em reprodução no seu DM",
       "loading": "⏳ Carregando...",
-      "content": "**⏱️ Duração:** {length}\n**🎙️ Solicitado por:** <@{requester}>\n**🔗 Link:** [Clique aqui]({uri})",
-      "check_dm": "📬 Por favor, verifique seu **DM**.",
+      "content": "⏱️ Duração: {length}\n🎙️ Solicitado por: <@{requester}>\n🔗 Link: [Clique aqui]({uri})",
+      "check_dm": "📬 Por favor, verifique seu DM.",
       "dm_failed": "❌ Não consegui enviar uma mensagem direta para você. Certifique-se de que as mensagens diretas estão ativadas."
     },
     "join": {
@@ -264,14 +264,14 @@
     },
     "loop": {
       "description": "🔁 Repete a música atual ou a fila",
-      "looping_song": "🔂 **Repetindo a música atual.**",
-      "looping_queue": "🔁 **Repetindo a fila inteira.**",
-      "looping_off": "⏹️ **Repetição desativada.**"
+      "looping_song": "🔂 Repetindo a música atual.",
+      "looping_queue": "🔁 Repetindo a fila inteira.",
+      "looping_off": "⏹️ Repetição desativada."
     },
     "lyrics": {
       "description": "📜 Obtém a letra da música que está tocando atualmente",
-      "lyrics_track": "### 🎵 Letra de: [{trackTitle}]({trackUrl})\n**`{lyrics}`**",
-      "searching": "🔍 Procurando a letra de **{trackTitle}**...",
+      "lyrics_track": "🎵 Letra de: [{trackTitle}]({trackUrl})\n{lyrics}",
+      "searching": "🔍 Procurando a letra de {trackTitle}...",
       "errors": {
         "no_results": "❌ Nenhuma letra encontrada para a música atual.",
         "lyrics_error": "⚠️ Ocorreu um erro ao obter a letra."
@@ -280,7 +280,7 @@
     "nowplaying": {
       "description": "🎶 Mostra a música que está tocando atualmente",
       "now_playing": "▶️ Tocando Agora",
-      "track_info": "[{title}]({uri}) - 🎙️ Solicitado por: <@{requester}>\n\n`{bar}`"
+      "track_info": "[{title}]({uri}) - 🎙️ Solicitado por: <@{requester}>\n\n{bar}"
     },
     "pause": {
       "description": "⏸️ Pausa a música atual",
@@ -314,7 +314,7 @@
       },
       "info_fetching": "🔍 Obtendo informações do vídeo...",
       "downloading": "⬇️ Baixando o vídeo, aguarde...",
-      "progress": "📊 Progresso: **{percentage}%** | 🚀 Velocidade: **{speed}** | 📦 Tamanho: **{size}**",
+      "progress": "📊 Progresso: {percentage}% | 🚀 Velocidade: {speed} | 📦 Tamanho: {size}",
       "download_complete": "✅ Download concluído! 🎶 Preparando para tocar...",
       "loading": "⏳ Carregando...",
       "cleanup": "🧹 Limpando..."
@@ -336,9 +336,9 @@
     },
     "queue": {
       "description": "📃 Mostra a fila atual",
-      "now_playing": "▶️ Tocando agora: [{title}]({uri}) - 🎙️ Solicitado por: <@{requester}> - ⏱️ Duração: `{duration}`",
-      "live": "🔴 **AO VIVO**",
-      "track_info": "{index}. [{title}]({uri}) - 🎙️ Solicitado por: <@{requester}> - ⏱️ Duração: `{duration}`",
+      "now_playing": "▶️ Tocando agora: [{title}]({uri}) - 🎙️ Solicitado por: <@{requester}> - ⏱️ Duração: {duration}",
+      "live": "🔴 AO VIVO",
+      "track_info": "{index}. [{title}]({uri}) - 🎙️ Solicitado por: <@{requester}> - ⏱️ Duração: {duration}",
       "title": "🎵 Fila",
       "page_info": "📄 Página {index} de {total}"
     },
@@ -398,7 +398,7 @@
         "beyond_duration": "⚠️ Não é possível buscar além da duração da música de {length}."
       },
       "messages": {
-        "seeked_to": "✅ Buscado para **{duration}**."
+        "seeked_to": "✅ Buscado para {duration}."
       }
     },
     "shuffle": {
@@ -454,7 +454,7 @@
         "no_song": "⚠️ Por favor, forneça uma música.",
         "playlist_not_found": "❌ Essa playlist não existe.",
         "no_songs_found": "⚠️ Nenhuma música encontrada.",
-        "added": "✅ Adicionada(s) {count} música(s) à playlist **{playlist}**."
+        "added": "✅ Adicionada(s) {count} música(s) à playlist {playlist}."
       }
     },
     "create": {
@@ -465,7 +465,7 @@
       "messages": {
         "name_too_long": "⚠️ Os nomes das playlists podem ter no máximo 50 caracteres.",
         "playlist_exists": "❌ Uma playlist com esse nome já existe. Por favor, use um nome diferente.",
-        "playlist_created": "✅ A playlist **{name}** foi criada com sucesso!"
+        "playlist_created": "✅ A playlist {name} foi criada com sucesso!"
       }
     },
     "delete": {
@@ -475,7 +475,7 @@
       },
       "messages": {
         "playlist_not_found": "❌ Essa playlist não existe.",
-        "playlist_deleted": "✅ Playlist **{playlistName}** excluída com sucesso!"
+        "playlist_deleted": "✅ Playlist {playlistName} excluída com sucesso!"
       }
     },
     "list": {
@@ -498,7 +498,7 @@
       "messages": {
         "playlist_not_exist": "❌ Essa playlist não existe.",
         "playlist_empty": "⚠️ Essa playlist está vazia.",
-        "playlist_loaded": "✅ Playlist `{name}` carregada com **{count}** músicas."
+        "playlist_loaded": "✅ Playlist {name} carregada com {count} músicas."
       }
     },
     "removesong": {
@@ -512,7 +512,7 @@
         "provide_song": "⚠️ Por favor, forneça uma música.",
         "playlist_not_exist": "❌ Essa playlist não existe.",
         "song_not_found": "⚠️ Nenhuma música correspondente encontrada.",
-        "song_removed": "✅ Música **{song}** removida da playlist **{playlist}**.",
+        "song_removed": "✅ Música {song} removida da playlist {playlist}.",
         "error_occurred": "❌ Ocorreu um erro ao remover a música."
       }
     },
@@ -526,7 +526,7 @@
         "provide_playlist": "⚠️ Por favor, forneça um nome de playlist.",
         "provide_user": "⚠️ Por favor, mencione um usuário.",
         "playlist_not_exist": "❌ Essa playlist não existe para o usuário mencionado.",
-        "playlist_stolen": "✅ Playlist `{playlist}` roubada com sucesso de **{user}**.",
+        "playlist_stolen": "✅ Playlist {playlist} roubada com sucesso de {user}.",
         "error_occurred": "❌ Ocorreu um erro ao roubar a playlist."
       }
     },
@@ -534,7 +534,7 @@
       "description": "📁 Lista os downloads de vídeos",
       "messages": {
         "no_videos": "⚠️ Você não tem nenhum vídeo baixado.",
-        "available_movies": "🎥 **Vídeos Disponíveis**"
+        "available_movies": "🎥 Vídeos Disponíveis"
       }
     },
     "mplay": {
@@ -545,7 +545,7 @@
       },
       "messages": {
         "waiting": "⏳ Por favor, aguarde...",
-        "playing_movie": "🎬 Reproduzindo o vídeo **{movie}**."
+        "playing_movie": "🎬 Reproduzindo o vídeo {movie}."
       },
       "errors": {
         "movie_not_found": "❌ O vídeo não foi encontrado."
@@ -559,7 +559,7 @@
       },
       "messages": {
         "no_results": "⚠️ Nenhum resultado encontrado.",
-        "searching": "🔍 Procurando por **{query}**...",
+        "searching": "🔍 Procurando por {query}...",
         "select": "📋 Por favor, selecione o vídeo que você deseja baixar."
       }
     },
@@ -577,7 +577,7 @@
       "messages": {
         "paused": "✅ O streaming foi pausado com sucesso!",
         "title": "⏸️ Reprodução Pausada",
-        "paused_description": "ℹ️ O streaming foi pausado. Use `mresume` para retomar."
+        "paused_description": "ℹ️ O streaming foi pausado. Use mresume para retomar."
       }
     },
     "mresume": {
@@ -649,7 +649,7 @@
     },
     "setupStart": {
       "now_playing": "▶️ Tocando Agora",
-      "description": "🎶 [{title}]({uri}) por {author} • `⏱️ [{length}]` - 🎙️ Solicitado por <@{requester}>",
+      "description": "🎶 [{title}]({uri}) por {author} • ⏱️ [{length}] - 🎙️ Solicitado por <@{requester}>",
       "error_searching": "❌ Ocorreu um erro durante a busca.",
       "no_results": "⚠️ Nenhum resultado encontrado.",
       "nothing_playing": "🛑 Nada está tocando no momento.",
@@ -662,55 +662,55 @@
   "event": {
     "interaction": {
       "setup_channel": "⚠️ Você não pode usar este comando no canal de configuração.",
-      "no_send_message": "❌ Eu não tenho permissão para **`Enviar Mensagens`**, **`Visualizar Canal`**, **`Inserir Links`** ou **`Ler Histórico de Mensagens`**.",
+      "no_send_message": "❌ Eu não tenho permissão para Enviar Mensagens, Visualizar Canal, Inserir Links ou Ler Histórico de Mensagens.",
       "no_permission": "⚠️ Eu não tenho permissão {permissions}.",
       "no_user_permission": "❌ Você não tem permissões suficientes para usar este comando.",
-      "no_voice_channel": "⚠️ Você deve estar conectado a um canal de voz para usar o comando `{command}`.",
-      "no_connect_permission": "❌ Eu não tenho permissão **`CONECTAR`** para executar o comando `{command}`.",
-      "no_speak_permission": "❌ Eu não tenho permissão **`FALAR`** para executar o comando `{command}`.",
-      "no_request_to_speak": "⚠️ Eu não tenho permissão **`SOLICITAR PARA FALAR`** para executar o comando `{command}`.",
-      "different_voice_channel": "❌ Você não está conectado a {channel} para usar o comando `{command}`.",
+      "no_voice_channel": "⚠️ Você deve estar conectado a um canal de voz para usar o comando {command}.",
+      "no_connect_permission": "❌ Eu não tenho permissão CONECTAR para executar o comando {command}.",
+      "no_speak_permission": "❌ Eu não tenho permissão FALAR para executar o comando {command}.",
+      "no_request_to_speak": "⚠️ Eu não tenho permissão SOLICITAR PARA FALAR para executar o comando {command}.",
+      "different_voice_channel": "❌ Você não está conectado a {channel} para usar o comando {command}.",
       "no_music_playing": "🛑 Nada está tocando no momento.",
       "no_dj_role": "⚠️ O papel de DJ não está definido.",
       "no_dj_permission": "❌ Você precisa ter o papel de DJ para usar este comando.",
-      "cooldown": "⏳ Por favor, espere mais **{time} segundo(s)** antes de reutilizar o comando `{command}`.",
-      "error": "❌ Ocorreu um erro: `{error}`",
-      "vote_button": "🗳️ **Vote em mim!**",
+      "cooldown": "⏳ Por favor, espere mais {time} segundo(s) antes de reutilizar o comando {command}.",
+      "error": "❌ Ocorreu um erro: {error}",
+      "vote_button": "🗳️ Vote em mim!",
       "vote_message": "🚨 Espere! Você precisa votar no top.gg para usar este comando. Obrigado."
     },
     "message": {
-      "prefix_mention": "🔑 Ei, meu prefixo para este servidor é **`{prefix}`**. Quer mais informações? Use **`{prefix}help`**.\n✨ Fique Seguro, Fique Incrível!",
-      "no_send_message": "❌ Eu não tenho permissão para **`Enviar Mensagens`**, **`Visualizar Canal`**, **`Inserir Links`** ou **`Ler Histórico de Mensagens`**.",
-      "no_permission": "⚠️ Eu não tenho permissão **{permissions}**.",
+      "prefix_mention": "🔑 Ei, meu prefixo para este servidor é {prefix}. Quer mais informações? Use {prefix}help.\n✨ Fique Seguro, Fique Incrível!",
+      "no_send_message": "❌ Eu não tenho permissão para Enviar Mensagens, Visualizar Canal, Inserir Links ou Ler Histórico de Mensagens.",
+      "no_permission": "⚠️ Eu não tenho permissão {permissions}.",
       "no_user_permission": "❌ Você não tem permissões suficientes para usar este comando.",
-      "no_voice_channel": "⚠️ Você deve estar conectado a um canal de voz para usar o comando `{command}`.",
-      "no_connect_permission": "❌ Eu não tenho permissão **`CONECTAR`** para executar o comando `{command}`.",
-      "no_speak_permission": "❌ Eu não tenho permissão **`FALAR`** para executar o comando `{command}`.",
-      "no_request_to_speak": "⚠️ Eu não tenho permissão **`SOLICITAR PARA FALAR`** para executar o comando `{command}`.",
-      "different_voice_channel": "❌ Você não está conectado a {channel} para usar o comando `{command}`.",
+      "no_voice_channel": "⚠️ Você deve estar conectado a um canal de voz para usar o comando {command}.",
+      "no_connect_permission": "❌ Eu não tenho permissão CONECTAR para executar o comando {command}.",
+      "no_speak_permission": "❌ Eu não tenho permissão FALAR para executar o comando {command}.",
+      "no_request_to_speak": "⚠️ Eu não tenho permissão SOLICITAR PARA FALAR para executar o comando {command}.",
+      "different_voice_channel": "❌ Você não está conectado a {channel} para usar o comando {command}.",
       "no_music_playing": "🛑 Nada está tocando no momento.",
       "no_dj_role": "⚠️ O papel de DJ não está definido.",
       "no_dj_permission": "❌ Você precisa ter o papel de DJ para usar este comando.",
-      "missing_arguments": "⚠️ **Argumentos Faltando**",
-      "missing_arguments_description": "ℹ️ Por favor, forneça os argumentos necessários para o comando `{command}`.\n\n💡 Exemplos:\n{examples}",
-      "syntax_footer": "🔤 **Sintaxe:** [] = opcional, <> = obrigatório",
-      "cooldown": "⏳ Por favor, espere mais **{time} segundo(s)** antes de reutilizar o comando `{command}`.",
-      "no_mention_everyone": "⚠️ Você não pode usar este comando com **@everyone** ou **@here**. Por favor, use o comando **slash**.",
-      "error": "❌ Ocorreu um erro: `{error}`",
+      "missing_arguments": "⚠️ Argumentos Faltando",
+      "missing_arguments_description": "ℹ️ Por favor, forneça os argumentos necessários para o comando {command}.\n\n💡 Exemplos:\n{examples}",
+      "syntax_footer": "🔤 Sintaxe: [] = opcional, <> = obrigatório",
+      "cooldown": "⏳ Por favor, espere mais {time} segundo(s) antes de reutilizar o comando {command}.",
+      "no_mention_everyone": "⚠️ Você não pode usar este comando com @everyone ou @here. Por favor, use o comando slash.",
+      "error": "❌ Ocorreu um erro: {error}",
       "no_voice_channel_queue": "⚠️ Você não está conectado a um canal de voz para enfileirar músicas.",
-      "no_permission_connect_speak": "❌ Não tenho permissão suficiente para conectar/falar em **<#{channel}>**.",
-      "different_voice_channel_queue": "❌ Você não está conectado a **<#{channel}>** para enfileirar músicas.",
-      "vote_button": "🗳️ **Vote em mim!**",
+      "no_permission_connect_speak": "❌ Não tenho permissão suficiente para conectar/falar em <#{channel}>.",
+      "different_voice_channel_queue": "❌ Você não está conectado a <#{channel}> para enfileirar músicas.",
+      "vote_button": "🗳️ Vote em mim!",
       "vote_message": "🚨 Espere! Você precisa votar no top.gg para usar este comando. Obrigado."
     },
     "setupButton": {
       "no_voice_channel_button": "❌ Você não está conectado a um canal de voz para usar este botão.",
-      "different_voice_channel_button": "❌ Você não está conectado a **{channel}** para usar esses botões.",
+      "different_voice_channel_button": "❌ Você não está conectado a {channel} para usar esses botões.",
       "now_playing": "▶️ Tocando Agora",
-      "live": "🔴 **AO VIVO**",
+      "live": "🔴 AO VIVO",
       "requested_by": "🎙️ Solicitado por <@{requester}>",
       "no_dj_permission": "⚠️ Você precisa ter o papel de DJ para usar este botão.",
-      "volume_set": "🔊 Volume definido para **{vol}%**.",
+      "volume_set": "🔊 Volume definido para {vol}%.",
       "volume_footer": "🎚️ Volume: {vol}%",
       "paused": "⏸️ Pausado",
       "resumed": "▶️ Retomado",
@@ -722,7 +722,7 @@
       "stopped": "⏹️ Música parada.",
       "stopped_footer": "⏹️ Parado por {displayName}",
       "nothing_playing": "🛑 Nada está tocando no momento.",
-      "loop_set": "🔁 Repetição definida para **{loop}**.",
+      "loop_set": "🔁 Repetição definida para {loop}.",
       "loop_footer": "🔁 Repetição definida por {displayName}",
       "shuffled": "🔀 Fila embaralhada.",
       "no_previous_track": "⚠️ Não há faixa anterior.",
@@ -755,12 +755,12 @@
         "invalid_mode": "❌ Modo inválido. Use um dos modos disponíveis."
       },
       "messages": {
-        "processing": "🤖 **Processando sua solicitação...**",
+        "processing": "🤖 Processando sua solicitação...",
         "conversation_reset": "✅ Conversa reiniciada! Use o comando novamente para começar.",
         "continue_hint": "💬 Digite sua próxima mensagem usando o comando!",
         "no_code_blocks": "⚠️ Nenhum bloco de código encontrado na resposta!",
         "code_extracted": "📝 Código extraído e formatado:",
-        "response_exported": "📤 Resposta exportada como **{filename}**"
+        "response_exported": "📤 Resposta exportada como {filename}"
       },
       "buttons": {
         "new_chat": "🔄 Nova Conversa",
@@ -790,9 +790,9 @@
       },
       "messages": {
         "select_tool": "🛠️ Ferramentas de IA Disponíveis",
-        "select_description": "Selecione uma ferramenta no menu abaixo ou use:\n`!tools [ferramenta] [seu texto/código]`",
-        "tool_selected": "Você selecionou: **{emoji} {name}**\n\nAgora use: `!tools {key} [seu input]`",
-        "processing": "{emoji} **Processando com {name}...**",
+        "select_description": "Selecione uma ferramenta no menu abaixo ou use:\n!tools [ferramenta] [seu texto/código]",
+        "tool_selected": "Você selecionou: {emoji} {name}\n\nAgora use: !tools {key} [seu input]",
+        "processing": "{emoji} Processando com {name}...",
         "result_title": "{emoji} {name} - Resultado"
       },
       "sentiment": {
@@ -840,7 +840,7 @@
         "analysis_failed": "❌ Não foi possível analisar a imagem."
       },
       "messages": {
-        "analyzing": "🖼️ **Analisando imagem...**",
+        "analyzing": "🖼️ Analisando imagem...",
         "help_title": "🖼️ Comando Vision - Análise de Imagens com IA",
         "help_description": "Envie uma imagem junto com o comando para analisá-la!",
         "how_to_use": "📋 Como usar",
@@ -898,7 +898,7 @@
   "Modo de análise": "Modo de análise",
   "Pergunta específica sobre a imagem": "Pergunta específica sobre a imagem",
   "ai_mention": {
-    "thinking": "💭 **Mahina está pensando...**",
+    "thinking": "💭 Mahina está pensando...",
     "error": "❌ Erro ao processar mensagem",
     "error_description": "Ocorreu um erro ao processar sua mensagem.",
     "try_again": "Tente novamente mais tarde",
