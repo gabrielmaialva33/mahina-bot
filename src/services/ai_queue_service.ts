@@ -54,11 +54,11 @@ export interface TrainingQueueJobData extends AIQueueJobData {
 }
 
 type QueueName =
-  | 'ai:embedding'
-  | 'ai:analysis'
-  | 'ai:generation'
-  | 'ai:training'
-  | 'ai:batch'
+  | 'ai-embedding'
+  | 'ai-analysis'
+  | 'ai-generation'
+  | 'ai-training'
+  | 'ai-batch'
 
 type QueueStats = Record<
   QueueName,
@@ -71,19 +71,19 @@ type QueueStats = Record<
 >
 
 const QUEUE_NAMES: QueueName[] = [
-  'ai:embedding',
-  'ai:analysis',
-  'ai:generation',
-  'ai:training',
-  'ai:batch',
+  'ai-embedding',
+  'ai-analysis',
+  'ai-generation',
+  'ai-training',
+  'ai-batch',
 ]
 
 const JOB_TYPE_TO_QUEUE: Record<AIQueueJobData['type'], QueueName> = {
-  embedding: 'ai:embedding',
-  analysis: 'ai:analysis',
-  generation: 'ai:generation',
-  training: 'ai:training',
-  batch_processing: 'ai:batch',
+  embedding: 'ai-embedding',
+  analysis: 'ai-analysis',
+  generation: 'ai-generation',
+  training: 'ai-training',
+  batch_processing: 'ai-batch',
 }
 
 export class AIQueueService extends EventEmitter {
@@ -265,19 +265,19 @@ export class AIQueueService extends EventEmitter {
 
   private async processJob(queueName: QueueName, job: Job<AIQueueJobData>): Promise<unknown> {
     switch (queueName) {
-      case 'ai:embedding':
+      case 'ai-embedding':
         return this.processEmbeddingJob(job.data as EmbeddingQueueJobData)
 
-      case 'ai:analysis':
+      case 'ai-analysis':
         return this.processAnalysisJob(job.data as AnalysisQueueJobData)
 
-      case 'ai:generation':
+      case 'ai-generation':
         return this.processGenerationJob(job.data as GenerationQueueJobData)
 
-      case 'ai:training':
+      case 'ai-training':
         return this.processTrainingJob(job.data as TrainingQueueJobData)
 
-      case 'ai:batch':
+      case 'ai-batch':
         return this.processBatchJob(job.data)
 
       default:
