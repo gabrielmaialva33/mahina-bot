@@ -40,6 +40,7 @@
     "#utils/*": "./src/utils/*.js"
   },
   "private": true,
+  "packageManager": "pnpm@10.32.1",
   "type": "module",
   "engines": {
     "node": ">=22.11.0"
@@ -139,6 +140,7 @@
       "bufferutil",
       "es5-ext",
       "esbuild",
+      "msgpackr-extract",
       "node-av",
       "prisma",
       "sharp",
