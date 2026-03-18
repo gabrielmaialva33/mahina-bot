@@ -7,6 +7,7 @@ let current: ReturnType<typeof NewApi.prepareStream>['command']
 export default class SelfBot extends Client {
   streamer: Streamer
   mahinaBot: MahinaBot
+  private ready = false
 
   constructor(mahinaBot1: MahinaBot) {
     super({
@@ -18,11 +19,16 @@ export default class SelfBot extends Client {
 
   async start(token: string): Promise<void> {
     this.streamer.client.on('ready', async (client) => {
+      this.ready = true
       this.mahinaBot.logger.info(`${client.user.username} is ready`)
       this.updateStatus('🎥 𝘾𝙡𝙪𝙗𝙚 𝘽𝙖𝙠𝙠𝙤 🍷')
     })
 
     await this.streamer.client.login(token).catch(console.error)
+  }
+
+  isReady(): boolean {
+    return this.ready && Boolean(this.streamer.client.user)
   }
 
   /**
