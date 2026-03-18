@@ -1,4 +1,5 @@
 import Command from '#common/command'
+import { getPreferredAIService } from '#common/ai_runtime'
 import { EmbedBuilder } from 'discord.js'
 import MahinaBot from '#common/mahina_bot'
 import Context from '#common/context'
@@ -101,8 +102,9 @@ export default class AIStatus extends Command {
       }
 
       // Models info if NVIDIA is active
-      if (status.services.nvidia && client.services.nvidia) {
-        const models = client.services.nvidia.getAllModels()
+      const aiService = getPreferredAIService(client)
+      if (aiService) {
+        const models = aiService.getAllModels()
         statusEmbed.addFields({
           name: '🧠 Modelos Disponíveis',
           value: models

@@ -1,4 +1,5 @@
 import Command from '#common/command'
+import { chatWithPreferredAI, getPreferredAIService } from '#common/ai_runtime'
 import type Context from '#common/context'
 import type MahinaBot from '#common/mahina_bot'
 import {
@@ -122,7 +123,7 @@ export default class MahinaAI extends Command {
     }
 
     // Get services
-    const nvidiaService = client.services.nvidia
+    const nvidiaService = getPreferredAIService(client)
     const contextService = client.services.aiContext
     const memoryService = client.services.aiMemory
     const guardService = client.services.nvidiaGuard
@@ -270,12 +271,12 @@ export default class MahinaAI extends Command {
       }
 
       // Get AI response
-      let aiResponse = await nvidiaService.chat(
+      let aiResponse = await chatWithPreferredAI(client, {
         userId,
         message,
-        contextMessages,
-        enhancedSystemPrompt
-      )
+        context: contextMessages,
+        systemPrompt: enhancedSystemPrompt,
+      })
 
       // Moderate AI response for safety
       if (guardService?.isAvailable()) {

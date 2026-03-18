@@ -11,6 +11,7 @@ import {
 } from 'discord.js'
 
 import Command from '#common/command'
+import { chatWithPreferredAI, getPreferredAIService } from '#common/ai_runtime'
 import MahinaBot from '#common/mahina_bot'
 import Context from '#common/context'
 
@@ -148,7 +149,7 @@ export default class ChatCommand extends Command {
     }
 
     // Get enhanced NVIDIA service
-    const nvidiaService = client.services.nvidiaEnhanced || client.services.nvidia
+    const nvidiaService = getPreferredAIService(client)
 
     if (!nvidiaService) {
       return await ctx.sendMessage({
@@ -226,7 +227,14 @@ export default class ChatCommand extends Command {
         response = await nvidiaService.generateWithRAG(userId, prompt)
       } else {
         // Default chat method
-        response = await nvidiaService.chat(userId, prompt, context, systemPrompt, options)
+        response = await chatWithPreferredAI(client, {
+          userId,
+          message: prompt,
+          context,
+          systemPrompt,
+          imageUrl,
+          options,
+        })
       }
 
       // Add to conversation history

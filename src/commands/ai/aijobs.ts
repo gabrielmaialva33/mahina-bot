@@ -5,6 +5,7 @@ import {
   ButtonBuilder,
   ButtonStyle,
 } from 'discord.js'
+import { getPreferredAIService } from '#common/ai_runtime'
 import Command from '#common/command'
 import type Context from '#common/context'
 import type MahinaBot from '#common/mahina_bot'
@@ -127,7 +128,7 @@ export default class AIJobs extends Command {
       ? ctx.options.getSubCommand()
       : args[0]?.toLowerCase() || 'stats'
 
-    const jobService = client.services.aiJob
+    const jobService = client.services.aiQueue
 
     if (!jobService?.isAvailable()) {
       return await ctx.sendMessage({
@@ -140,7 +141,7 @@ export default class AIJobs extends Command {
               {
                 name: 'Solução',
                 value:
-                  'Certifique-se de que o TimescaleDB e pg-boss estão configurados corretamente.',
+                  'Certifique-se de que o Redis e a fila assíncrona estão configurados corretamente.',
               },
             ],
           },
@@ -194,7 +195,7 @@ export default class AIJobs extends Command {
     const msg = await ctx.sendMessage({ embeds: [loadingEmbed] })
 
     try {
-      const jobService = client.services.aiJob!
+      const jobService = client.services.aiQueue!
       let jobId: string
 
       // Prepare job data based on type
@@ -288,7 +289,7 @@ export default class AIJobs extends Command {
     }
 
     try {
-      const jobService = client.services.aiJob!
+      const jobService = client.services.aiQueue!
       const job = await jobService.getJobStatus(jobId)
 
       if (!job) {
@@ -361,7 +362,7 @@ export default class AIJobs extends Command {
 
   private async showStats(ctx: Context, client: MahinaBot): Promise<void> {
     try {
-      const jobService = client.services.aiJob!
+      const jobService = client.services.aiQueue!
       const stats = await jobService.getQueueStats()
 
       const embed = new EmbedBuilder()
@@ -405,7 +406,7 @@ export default class AIJobs extends Command {
       )
 
       // Add performance metrics if available
-      const nvidiaService = client.services.nvidiaEnhanced || client.services.nvidia
+      const nvidiaService = getPreferredAIService(client)
       if (nvidiaService?.getModelStats) {
         const modelStats = await nvidiaService.getModelStats('1h')
         if (modelStats.length > 0) {
@@ -470,7 +471,7 @@ export default class AIJobs extends Command {
     }
 
     try {
-      const jobService = client.services.aiJob!
+      const jobService = client.services.aiQueue!
       await jobService.cancelJob(jobId)
 
       await ctx.sendMessage({

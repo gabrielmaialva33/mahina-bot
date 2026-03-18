@@ -1,4 +1,5 @@
 import Command from '#common/command'
+import { getPreferredAIService } from '#common/ai_runtime'
 import type Context from '#common/context'
 import type MahinaBot from '#common/mahina_bot'
 import { ApplicationCommandOptionType, EmbedBuilder } from 'discord.js'
@@ -142,7 +143,7 @@ export default class Model extends Command {
       : args[0]?.toLowerCase() || 'current'
 
     // Try enhanced service first, fallback to regular
-    const nvidiaService = client.services.nvidiaEnhanced || client.services.nvidia
+    const nvidiaService = getPreferredAIService(client)
 
     if (!nvidiaService) {
       return await ctx.sendMessage({
