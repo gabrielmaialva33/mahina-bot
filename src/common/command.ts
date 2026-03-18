@@ -56,7 +56,6 @@ export class Command {
   slashCommand: boolean
   options: APIApplicationCommandOption[]
   category: string
-  autocomplete?: (interaction: AutocompleteInteraction) => Promise<void>
 
   constructor(client: MahinaBot, options: CommandOptions) {
     this.client = client
@@ -91,6 +90,8 @@ export class Command {
   async run(_client: MahinaBot, _message: Context, _args: string[]): Promise<unknown> {
     return await Promise.resolve()
   }
+
+  async autocomplete?(_interaction: AutocompleteInteraction): Promise<void>
 }
 
 export default Command

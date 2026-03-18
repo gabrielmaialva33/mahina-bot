@@ -1,4 +1,5 @@
 import type {
+  APIApplicationCommandOptionChoice,
   ApplicationCommandOptionChoiceData,
   AutocompleteInteraction,
   VoiceChannel,
@@ -8,6 +9,30 @@ import Command from '#common/command'
 import type MahinaBot from '#common/mahina_bot'
 import type Context from '#common/context'
 import { ensureConnectedPlayer, startPlayerIfIdle } from '#common/player_runtime'
+
+const AUTOCOMPLETE_TIMEOUT_MS = 2500
+
+function buildAutocompleteValue(track: {
+  info: { title: string; author: string; uri?: string | null; identifier?: string | null }
+}): string {
+  const candidates = [
+    track.info.uri?.trim(),
+    track.info.identifier?.trim(),
+    `${track.info.title} ${track.info.author}`.trim(),
+    track.info.title.trim(),
+  ].filter((value): value is string => Boolean(value && value.length > 0))
+
+  const safeValue = candidates.find((value) => value.length <= 100)
+  return safeValue ?? track.info.title.trim().slice(0, 100)
+}
+
+async function respondSafely(
+  interaction: AutocompleteInteraction,
+  choices: APIApplicationCommandOptionChoice<string>[]
+): Promise<void> {
+  if (interaction.responded) return
+  await interaction.respond(choices)
+}
 
 export default class Play extends Command {
   constructor(client: MahinaBot) {
@@ -110,24 +135,45 @@ export default class Play extends Command {
 
   async autocomplete(interaction: AutocompleteInteraction): Promise<void> {
     const focusedValue = interaction.options.getFocused(true)
+    const query = focusedValue?.value.trim()
 
-    if (!focusedValue?.value.trim()) {
-      return interaction.respond([])
+    if (!query || query.length < 2) {
+      return await respondSafely(interaction, [])
     }
 
-    const res = await this.client.manager.search(focusedValue.value.trim(), interaction.user)
-    const songs: ApplicationCommandOptionChoiceData[] = []
+    try {
+      this.client.logger.debug(`Play autocomplete query: ${query}`)
 
-    if (res.loadType === 'search') {
-      res.tracks.slice(0, 10).forEach((track: { info: { title: any; author: any; uri: any } }) => {
+      const res = (await Promise.race([
+        this.client.manager.search(query, interaction.user),
+        new Promise<null>((resolve) => {
+          setTimeout(() => resolve(null), AUTOCOMPLETE_TIMEOUT_MS)
+        }),
+      ])) as Awaited<ReturnType<typeof this.client.manager.search>> | null
+
+      if (!res) {
+        this.client.logger.warn(`Play autocomplete timed out for query: ${query}`)
+        return await respondSafely(interaction, [])
+      }
+
+      if (res.loadType !== 'search') {
+        this.client.logger.debug(`Play autocomplete empty/non-search result for query: ${query} (${res.loadType})`)
+        return await respondSafely(interaction, [])
+      }
+
+      const songs: ApplicationCommandOptionChoiceData[] = res.tracks.slice(0, 10).map((track) => {
         const name = `${track.info.title} by ${track.info.author}`
-        songs.push({
+        return {
           name: name.length > 100 ? `${name.substring(0, 97)}...` : name,
-          value: track.info.uri,
-        })
+          value: buildAutocompleteValue(track),
+        }
       })
-    }
 
-    return await interaction.respond(songs)
+      this.client.logger.debug(`Play autocomplete returned ${songs.length} option(s) for query: ${query}`)
+      return await respondSafely(interaction, songs)
+    } catch (error) {
+      this.client.logger.error('Play autocomplete failed:', error)
+      return await respondSafely(interaction, [])
+    }
   }
 }
