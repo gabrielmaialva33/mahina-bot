@@ -1,6 +1,7 @@
 import Command from '#common/command'
 import MahinaBot from '#common/mahina_bot'
 import Context from '#common/context'
+import { ensureStreamCommandReady } from '#common/stream_runtime'
 
 import { T } from '#common/i18n'
 
@@ -35,6 +36,7 @@ export default class MResume extends Command {
 
   async run(client: MahinaBot, ctx: Context): Promise<void> {
     if (!ctx.guild || !ctx.member || !ctx.author) return
+    if (!(await ensureStreamCommandReady(client, ctx))) return
 
     const locale = await client.db.getLanguage(ctx.guild.id)
 

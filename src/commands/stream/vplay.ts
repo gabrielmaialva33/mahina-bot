@@ -7,6 +7,7 @@ import ytdl from '@distube/ytdl-core'
 import Command from '#common/command'
 import MahinaBot from '#common/mahina_bot'
 import Context from '#common/context'
+import { ensureStreamCommandReady } from '#common/stream_runtime'
 import { T } from '#common/i18n'
 
 import { env } from '#src/env'
@@ -64,6 +65,7 @@ export default class VPlay extends Command {
 
   async run(client: MahinaBot, ctx: Context, args: string[]): Promise<void> {
     if (!ctx.guild || !ctx.member || !ctx.author) return
+    if (!(await ensureStreamCommandReady(client, ctx))) return
 
     const query = args.join(' ').trim()
     if (!ytdl.validateURL(query)) {

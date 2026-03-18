@@ -4,6 +4,7 @@ import path from 'node:path'
 import Command from '#common/command'
 import MahinaBot from '#common/mahina_bot'
 import Context from '#common/context'
+import { ensureStreamCommandReady } from '#common/stream_runtime'
 import { T } from '#common/i18n'
 import { ApplicationCommandOptionType } from 'discord.js'
 
@@ -51,6 +52,7 @@ export default class MPlay extends Command {
 
   async run(client: MahinaBot, ctx: Context, args: string[]): Promise<void> {
     if (!ctx.guild || !ctx.member || !ctx.author) return
+    if (!(await ensureStreamCommandReady(client, ctx))) return
     const locale = await client.db.getLanguage(ctx.guild.id)
 
     const downloadsFiles = fs.readdirSync(path.join(process.cwd(), 'downloads'))

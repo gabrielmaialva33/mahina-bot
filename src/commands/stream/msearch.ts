@@ -11,6 +11,7 @@ import {
 import Command from '#common/command'
 import MahinaBot from '#common/mahina_bot'
 import Context from '#common/context'
+import { ensureStreamCommandReady } from '#common/stream_runtime'
 
 import moment from 'moment'
 
@@ -65,6 +66,7 @@ export default class MSearch extends Command {
 
   async run(client: MahinaBot, ctx: Context, args: string[]): Promise<any> {
     if (!ctx.channel || !ctx.guild || !ctx.member || !ctx.author) return
+    if (!(await ensureStreamCommandReady(client, ctx))) return
 
     const search = args.join(' ').trim()
     const audioTrack = args[1] ? Number.parseInt(args[1], 10) : 0

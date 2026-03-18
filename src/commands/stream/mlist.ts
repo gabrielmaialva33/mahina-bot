@@ -4,6 +4,7 @@ import path from 'node:path'
 import Command from '#common/command'
 import MahinaBot from '#common/mahina_bot'
 import Context from '#common/context'
+import { ensureStreamCommandReady } from '#common/stream_runtime'
 
 import { T } from '#common/i18n'
 
@@ -36,11 +37,15 @@ export default class MList extends Command {
     })
   }
 
-  async run(client: MahinaBot, ctx: Context, args: string[]): Promise<void> {
+  async run(client: MahinaBot, ctx: Context, _args: string[]): Promise<void> {
     if (!ctx.guild || !ctx.member || !ctx.author) return
+    if (!(await ensureStreamCommandReady(client, ctx))) return
 
     const downloadsFiles = fs.readdirSync(path.join(process.cwd(), 'downloads'))
-    if (downloadsFiles.length === 0) await ctx.sendMessage('cmd.mlist.messages.no_movies')
+    if (downloadsFiles.length === 0) {
+      await ctx.sendMessage('cmd.mlist.messages.no_movies')
+      return
+    }
 
     let videos = downloadsFiles
       .map((file) => {
@@ -54,7 +59,10 @@ export default class MList extends Command {
 
     videos = videos.filter((movie) => movie!.name !== '.gitkeep')
 
-    if (videos.length === 0) await ctx.sendMessage('cmd.mlist.messages.no_movies')
+    if (videos.length === 0) {
+      await ctx.sendMessage('cmd.mlist.messages.no_movies')
+      return
+    }
 
     const locale = await client.db.getLanguage(ctx.guild.id)
     const embed = this.client
