@@ -12,17 +12,22 @@ import { env } from '#src/env'
 
 export default class ServerData {
   private prisma: PrismaClient | null = null
+  private connectPromise: Promise<PrismaClient> | null = null
 
   constructor() {
     // Delay initialization
   }
 
   private async ensurePrisma(): Promise<PrismaClient> {
-    if (!this.prisma) {
-      this.prisma = new PrismaClient()
-      await this.prisma.$connect()
+    if (!this.connectPromise) {
+      this.connectPromise = (async () => {
+        const prisma = new PrismaClient()
+        await prisma.$connect()
+        this.prisma = prisma
+        return prisma
+      })()
     }
-    return this.prisma
+    return this.connectPromise
   }
 
   async getPrismaClient(): Promise<PrismaClient> {
@@ -259,7 +264,8 @@ export default class ServerData {
   async removeSong(userId: string, playlistName: string, encodedSong: string): Promise<void> {
     const playlist = await this.getPlaylist(userId, playlistName)
     if (playlist) {
-      const tracks: string[] = JSON.parse(playlist?.tracks!)
+      if (!playlist.tracks) return
+      const tracks: string[] = JSON.parse(playlist.tracks)
 
       // Find the index of the song to remove
       const songIndex = tracks.indexOf(encodedSong)
@@ -301,7 +307,7 @@ export default class ServerData {
     }
 
     // Deserialize the tracks JSON string back into an array
-    return JSON.parse(playlist.tracks!)
+    return playlist.tracks ? JSON.parse(playlist.tracks) : []
   }
 
   private async createGuild(guildId: string): Promise<Guild> {
