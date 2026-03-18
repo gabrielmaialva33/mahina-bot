@@ -3,7 +3,7 @@ import Event from '#common/event'
 import type MahinaBot from '#common/mahina_bot'
 
 export default class VoiceStateUpdate extends Event {
-  handale = {
+  handle = {
     async join(newState: VoiceState, client: MahinaBot) {
       await new Promise((resolve) => setTimeout(resolve, 3000))
       const bot = newState.guild.voiceStates.cache.get(client.user!.id)
@@ -143,11 +143,11 @@ export default class VoiceStateUpdate extends Event {
     }
 
     if (type === 'join') {
-      this.handale.join(newState, this.client)
+      this.handle.join(newState, this.client)
     } else if (type === 'leave') {
-      this.handale.leave(newState, this.client)
+      this.handle.leave(newState, this.client)
     } else if (type === 'move') {
-      this.handale.move(newState, this.client)
+      this.handle.move(newState, this.client)
     }
   }
 }

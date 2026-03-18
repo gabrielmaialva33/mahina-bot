@@ -99,7 +99,7 @@ export default class SetupButtons extends Event {
     }
     if (message) {
       const handleVolumeChange = async (change: number) => {
-        const vol = player.volume + change
+        const vol = Math.max(0, Math.min(200, player.volume + change))
         player.setVolume(vol)
         await buttonReply(
           interaction,
@@ -120,7 +120,7 @@ export default class SetupButtons extends Event {
       }
       switch (interaction.customId) {
         case 'PREV_BUT': {
-          if (!player.queue.previous) {
+          if (!player.queue.previous || player.queue.previous.length === 0) {
             return await buttonReply(
               interaction,
               T(locale, 'event.setupButton.no_previous_track'),
