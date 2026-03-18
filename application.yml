@@ -125,8 +125,8 @@ plugins:
       vkmusic: false # Enable Vk Music lyrics source
     spotify:
       # clientId & clientSecret are required for using spsearch
-      clientId: "530a978df3084f8b916e3f512a8c8bb1"
-      clientSecret: "8a82bc47253a43beac406e0618297132"
+      clientId: "${SPOTIFY_CLIENT_ID:}"
+      clientSecret: "${SPOTIFY_CLIENT_SECRET:}"
       # spDc: "your sp dc cookie" # the sp dc cookie used for accessing the spotify lyrics api
       countryCode: "US" # the country code you want to use for filtering the artists top tracks. See https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2
       playlistLoadLimit: 6 # The number of pages at 100 tracks each
@@ -189,7 +189,7 @@ lavalink:
   # is unavailable. Prefer updating the local jars in lavalink/plugins instead.
   pluginsDir: './plugins'
   server:
-    password: "Mahina@551238"
+    password: "${LAVALINK_PASSWORD:change-me-lavalink-password}"
     sources:
       # The default Youtube source is now deprecated and won't receive further updates. Please use https://github.com/lavalink-devs/youtube-source#plugin instead.
       youtube: false # disable youtube on lavalink to use youtube-source

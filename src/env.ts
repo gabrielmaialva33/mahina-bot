@@ -62,8 +62,8 @@ const envSchema = z.object({
   ENABLE_SELFBOT: z.preprocess((val) => val === 'true', z.boolean().default(false)),
   DATABASE_URL: z.string().default('mongodb://localhost:27017/mahina'),
   AI_QUEUE_ENABLED: z.preprocess((val) => val !== 'false', z.boolean().default(true)),
-  REDIS_URL: z.string().optional().default('redis://:mahina_redis_2024@127.0.0.1:6380'),
-  REDIS_PASSWORD: z.string().default('mahina_redis_2024'),
+  REDIS_URL: z.string().optional().default('redis://:change-me-redis-password@127.0.0.1:6380'),
+  REDIS_PASSWORD: z.string().default('change-me-redis-password'),
   SEARCH_ENGINE: z.preprocess(
     (val) => {
       if (typeof val === 'string') {
