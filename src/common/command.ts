@@ -1,5 +1,10 @@
-import type { APIApplicationCommandOption, PermissionResolvable } from 'discord.js'
+import type {
+  APIApplicationCommandOption,
+  AutocompleteInteraction,
+  PermissionResolvable,
+} from 'discord.js'
 import type MahinaBot from '#common/mahina_bot'
+import type Context from '#common/context'
 
 interface CommandDescription {
   content: string
@@ -16,8 +21,8 @@ interface CommandPlayer {
 
 interface CommandPermissions {
   dev: boolean
-  client: string[] | PermissionResolvable
-  user: string[] | PermissionResolvable
+  client: PermissionResolvable[]
+  user: PermissionResolvable[]
 }
 
 interface CommandOptions {
@@ -51,6 +56,7 @@ export class Command {
   slashCommand: boolean
   options: APIApplicationCommandOption[]
   category: string
+  autocomplete?: (interaction: AutocompleteInteraction) => Promise<void>
 
   constructor(client: MahinaBot, options: CommandOptions) {
     this.client = client
@@ -82,7 +88,7 @@ export class Command {
     this.category = options.category ?? 'general'
   }
 
-  async run(_client: MahinaBot, _message: any, _args: string[]): Promise<any> {
+  async run(_client: MahinaBot, _message: Context, _args: string[]): Promise<unknown> {
     return await Promise.resolve()
   }
 }

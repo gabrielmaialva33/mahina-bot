@@ -1,5 +1,6 @@
 import {
   type APIInteractionGuildMember,
+  type APIInteractionDataResolvedGuildMember,
   ChatInputCommandInteraction,
   type CommandInteraction,
   type Guild,
@@ -32,9 +33,14 @@ export default class Context {
   guild: Guild
   createdAt: Date
   createdTimestamp: number
-  member: GuildMemberResolvable | GuildMember | APIInteractionGuildMember | null
-  args: any[]
-  msg: any
+  member:
+    | GuildMemberResolvable
+    | GuildMember
+    | APIInteractionGuildMember
+    | APIInteractionDataResolvedGuildMember
+    | null
+  args: string[]
+  msg: Message | null
   guildLocale: string | undefined
   options = {
     getRole: (name: string, required = true) => {
@@ -54,7 +60,7 @@ export default class Context {
     },
   }
 
-  constructor(ctx: ChatInputCommandInteraction | Message, args: any[]) {
+  constructor(ctx: ChatInputCommandInteraction | Message, args: unknown[]) {
     this.ctx = ctx
     this.interaction = ctx instanceof ChatInputCommandInteraction ? ctx : null
     this.message = ctx instanceof Message ? ctx : null
@@ -67,7 +73,8 @@ export default class Context {
     this.createdAt = ctx.createdAt
     this.createdTimestamp = ctx.createdTimestamp
     this.member = ctx.member
-    this.args = args
+    this.args = []
+    this.msg = null
     this.setArgs(args)
     this.setUpLocale()
   }
@@ -80,8 +87,12 @@ export default class Context {
     return this.isInteraction ? this.interaction?.deferred : !!this.msg
   }
 
-  setArgs(args: any[]): void {
-    this.args = this.isInteraction ? args.map((arg: { value: any }) => arg.value) : args
+  setArgs(args: unknown[]): void {
+    this.args = this.isInteraction
+      ? args
+          .map((arg) => (typeof arg === 'object' && arg !== null && 'value' in arg ? arg.value : arg))
+          .filter((value): value is string => typeof value === 'string')
+      : args.filter((value): value is string => typeof value === 'string')
   }
 
   async sendMessage(
@@ -140,7 +151,7 @@ export default class Context {
     return this.msg
   }
 
-  locale(key: string, ...args: any) {
+  locale(key: string, ...args: unknown[]) {
     if (!this.guildLocale) this.guildLocale = env.DEFAULT_LANGUAGE || 'PortugueseBR'
     return T(this.guildLocale, key, ...args)
   }
