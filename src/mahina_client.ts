@@ -28,7 +28,12 @@ const clientOptions: ClientOptions = {
 const client = new MahinaBot(clientOptions)
 
 client.start(env.TOKEN).catch(console.error)
-if (env.SELF_USER_TOKEN) client.selfbot.start(env.SELF_USER_TOKEN).catch(console.error)
+
+if (env.ENABLE_SELFBOT && env.SELF_USER_TOKEN) {
+  client.selfbot.start(env.SELF_USER_TOKEN).catch(console.error)
+} else if (env.ENABLE_SELFBOT) {
+  client.logger.warn('Selfbot runtime is enabled but SELF_USER_TOKEN is missing')
+}
 
 app.listen(env.PORT, () => {
   client.logger.info(`Server started on port ${env.PORT}`)

@@ -40,43 +40,58 @@ import { NvidiaCosmosService } from '#src/services/nvidia_cosmos_service'
 import { NvidiaGuardService } from '#src/services/nvidia_guard_service'
 import { NvidiaEnhancedService } from '#src/services/nvidia_enhanced_service'
 import { AIJobService } from '#src/services/ai_job_service'
+import type { Command as CommandInstance } from '#common/command'
 
 const dirname = path.dirname(fileURLToPath(import.meta.url))
 
+interface BotServices {
+  nvidia?: NvidiaAIService
+  nvidiaEnhanced?: NvidiaEnhancedService
+  proactiveInteraction?: ProactiveInteractionService
+  lavalinkHealth?: LavalinkHealthService
+  aiContext?: AIContextService
+  aiMemory?: AIMemoryService
+  aiJob?: AIJobService
+  nvidiaTTS?: NvidiaTTSService
+  nvidiaEmbedding?: NvidiaEmbeddingService
+  nvidiaCosmos?: NvidiaCosmosService
+  nvidiaGuard?: NvidiaGuardService
+}
+
+interface RuntimeFeatures {
+  ai: boolean
+  music: boolean
+  selfbot: boolean
+}
+
 export default class MahinaBot extends Client {
-  commands: Collection<string, any> = new Collection()
-  aliases: Collection<string, any> = new Collection()
+  commands: Collection<string, CommandInstance> = new Collection()
+  aliases: Collection<string, string> = new Collection()
   db = new ServerData()
-  cooldown: Collection<string, any> = new Collection()
+  cooldown: Collection<string, number> = new Collection()
   config = config
   logger: Logger = new Logger()
   readonly emoji = config.emoji
   readonly color = config.color
-  topGG!: Api
+  topGG?: Api
   utils = Utils
   env: typeof env = env
   manager!: MahinaLinkClient
   selfbot: SelfBot
   animezey = new AnimeZey()
-  services: {
-    nvidia?: NvidiaAIService
-    nvidiaEnhanced?: NvidiaEnhancedService
-    proactiveInteraction?: ProactiveInteractionService
-    lavalinkHealth?: LavalinkHealthService
-    aiContext?: AIContextService
-    aiMemory?: AIMemoryService
-    aiJob?: AIJobService
-    nvidiaTTS?: NvidiaTTSService
-    nvidiaEmbedding?: NvidiaEmbeddingService
-    nvidiaCosmos?: NvidiaCosmosService
-    nvidiaGuard?: NvidiaGuardService
-  } = {}
+  services: BotServices = {}
   aiManager?: AIManager
+  runtime: RuntimeFeatures
   private body: RESTPostAPIChatInputApplicationCommandsJSONBody[] = []
 
   constructor(options: ClientOptions) {
     super(options)
 
+    this.runtime = {
+      ai: env.ENABLE_AI,
+      music: env.ENABLE_MUSIC,
+      selfbot: env.ENABLE_SELFBOT,
+    }
     this.selfbot = new SelfBot(this)
   }
 
@@ -86,19 +101,54 @@ export default class MahinaBot extends Client {
 
   async start(token: string): Promise<void> {
     initI18n()
-    if (env.TOPGG) {
-      this.topGG = new Api(env.TOPGG)
+    this.setupTopGG()
+    await this.setupAIManager()
+    this.setupServices()
+
+    if (this.runtime.music) {
+      this.manager = new MahinaLinkClient(this)
     } else {
-      this.logger.warn('Top.gg token not found!')
+      this.logger.warn('Music runtime is disabled')
     }
 
-    // Initialize AI Manager with all AI services
+    await this.loadCommands()
+    this.logger.info('Successfully loaded commands!')
+
+    await this.loadEvents()
+    this.logger.info('Successfully loaded events!')
+
+    await this.login(token)
+    this.logger.info('Successfully logged in!')
+
+    loadPlugins(this)
+      .catch(console.error)
+      .finally(() => this.logger.info('Successfully loaded plugins!'))
+
+    // this.selfbot.start(env.SELF_USER_TOKEN).then(() => this.logger.info('Self bot 1 is ready'))
+
+    this.registerInteractionHandlers()
+  }
+
+  private setupTopGG(): void {
+    if (env.TOPGG) {
+      this.topGG = new Api(env.TOPGG)
+      return
+    }
+
+    this.logger.warn('Top.gg token not found!')
+  }
+
+  private async setupAIManager(): Promise<void> {
+    if (!this.runtime.ai) {
+      this.logger.warn('AI runtime is disabled')
+      return
+    }
+
     try {
       const prisma = await this.db.getPrismaClient()
       this.aiManager = getAIManager(this, prisma)
       await this.aiManager.initialize()
 
-      // Map AI services for backward compatibility and easy access
       this.services.nvidia = this.aiManager.nvidia
       this.services.nvidiaEnhanced = this.aiManager.nvidiaEnhanced
       this.services.aiContext = this.aiManager.context
@@ -110,38 +160,23 @@ export default class MahinaBot extends Client {
       this.logger.error('Failed to initialize AI Manager:', error)
       this.logger.warn('AI features will be disabled')
     }
+  }
 
-    // Initialize Proactive Interaction Service
-    this.services.proactiveInteraction = new ProactiveInteractionService(this)
+  private setupServices(): void {
+    if (this.runtime.ai) {
+      this.services.proactiveInteraction = new ProactiveInteractionService(this)
+      this.services.nvidiaTTS = new NvidiaTTSService(this)
+      this.services.nvidiaEmbedding = new NvidiaEmbeddingService(this)
+      this.services.nvidiaCosmos = new NvidiaCosmosService(this)
+      this.services.nvidiaGuard = new NvidiaGuardService(this)
+    }
 
-    // Initialize Lavalink Health Service
-    this.services.lavalinkHealth = new LavalinkHealthService(this)
+    if (this.runtime.music) {
+      this.services.lavalinkHealth = new LavalinkHealthService(this)
+    }
+  }
 
-    // Initialize NVIDIA TTS Service
-    this.services.nvidiaTTS = new NvidiaTTSService(this)
-
-    // Initialize NVIDIA Embedding Service
-    this.services.nvidiaEmbedding = new NvidiaEmbeddingService(this)
-
-    // Initialize NVIDIA Cosmos Service
-    this.services.nvidiaCosmos = new NvidiaCosmosService(this)
-
-    // Initialize NVIDIA Guard Service
-    this.services.nvidiaGuard = new NvidiaGuardService(this)
-
-    this.manager = new MahinaLinkClient(this)
-
-    await this.loadCommands().finally(() => this.logger.info('Successfully loaded commands!'))
-
-    await this.loadEvents().finally(() => this.logger.info('Successfully loaded events!'))
-    await this.login(token).finally(() => this.logger.info('Successfully logged in!'))
-
-    loadPlugins(this)
-      .catch(console.error)
-      .finally(() => this.logger.info('Successfully loaded plugins!'))
-
-    // this.selfbot.start(env.SELF_USER_TOKEN).then(() => this.logger.info('Self bot 1 is ready'))
-
+  private registerInteractionHandlers(): void {
     this.on(Events.InteractionCreate, async (interaction: Interaction) => {
       if (interaction.isButton() && interaction.guildId) {
         const setup = await this.db.getSetup(interaction.guildId)
@@ -205,19 +240,6 @@ export default class MahinaBot extends Client {
           i18n.getLocales().map((locale: any) => {
             localizations.push(localization(locale, command.name, command.description.content))
           })
-
-          for (const local of localizations) {
-            const [language, name] = local.name
-            const [language2, description] = local.description
-            data.name_localizations = {
-              ...data.name_localizations,
-              [language]: name,
-            }
-            data.description_localizations = {
-              ...data.description_localizations,
-              [language2]: description,
-            }
-          }
 
           for (const local of localizations) {
             const [language, name] = local.name
