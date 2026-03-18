@@ -6,6 +6,22 @@ import type MahinaBot from '#common/mahina_bot'
 
 type Period = '1h' | '24h' | '7d' | '30d' | 'all'
 
+function createPeriodOption() {
+  return {
+      name: 'period',
+      description: 'Período de análise',
+      type: ApplicationCommandOptionType.String,
+      required: false,
+      choices: [
+        { name: 'Última hora', value: '1h' },
+        { name: 'Últimas 24 horas', value: '24h' },
+        { name: 'Últimos 7 dias', value: '7d' },
+        { name: 'Últimos 30 dias', value: '30d' },
+        { name: 'Todos os tempos', value: 'all' },
+      ],
+    }
+}
+
 export default class AIAnalytics extends Command {
   constructor(client: MahinaBot) {
     super(client, {
@@ -35,7 +51,7 @@ export default class AIAnalytics extends Command {
           name: 'user',
           description: 'Resumo do seu uso de IA',
           type: ApplicationCommandOptionType.Subcommand,
-          options: [this.createPeriodOption()],
+          options: [createPeriodOption()],
         },
         {
           name: 'models',
@@ -115,21 +131,7 @@ export default class AIAnalytics extends Command {
     }
   }
 
-  private createPeriodOption() {
-    return {
-      name: 'period',
-      description: 'Período de análise',
-      type: ApplicationCommandOptionType.String,
-      required: false,
-      choices: [
-        { name: 'Última hora', value: '1h' },
-        { name: 'Últimas 24 horas', value: '24h' },
-        { name: 'Últimos 7 dias', value: '7d' },
-        { name: 'Últimos 30 dias', value: '30d' },
-        { name: 'Todos os tempos', value: 'all' },
-      ],
-    }
-  }
+
 
   private async userAnalytics(ctx: Context, client: MahinaBot, prisma: any): Promise<void> {
     const period = ctx.isInteraction ? ((ctx.options.get('period')?.value as Period) || '7d') : '7d'
