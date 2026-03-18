@@ -85,9 +85,16 @@ export default class TrackStart extends Event {
     if (setup?.textId) {
       const textChannel = guild.channels.cache.get(setup.textId) as TextChannel
       if (textChannel) {
-        await trackStart(setup.messageId, textChannel, player, track, this.client, locale)
+        try {
+          await trackStart(setup.messageId, textChannel, player, track, this.client, locale)
+          return
+        } catch (error) {
+          this.client.logger.error('Failed to update setup track message:', error)
+        }
       }
-    } else {
+    }
+
+    try {
       const message = await channel.send({
         embeds: [embed],
         components: [createButtonRow(player, this.client)],
@@ -95,6 +102,8 @@ export default class TrackStart extends Event {
 
       player.set('messageId', message.id)
       createCollector(message, player, track, embed, this.client, locale)
+    } catch (error) {
+      this.client.logger.error('Failed to send now playing message:', error)
     }
   }
 }

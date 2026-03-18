@@ -297,10 +297,19 @@ export default class InteractionCreate extends Event {
       const command = this.client.commands.get(interaction.commandName)
       if (!command) return
 
+      this.client.logger.debug(
+        `Autocomplete received: ${interaction.commandName} (${interaction.options.getFocused(true)?.value ?? ''})`
+      )
+
       try {
-        if (command.autocomplete) await command.autocomplete(interaction)
+        if (!command.autocomplete) {
+          this.client.logger.warn(`Autocomplete handler missing for command: ${interaction.commandName}`)
+          return
+        }
+
+        await command.autocomplete(interaction)
       } catch (error) {
-        this.client.logger.error(error)
+        this.client.logger.error(`Autocomplete failed for ${interaction.commandName}:`, error)
       }
     }
   }

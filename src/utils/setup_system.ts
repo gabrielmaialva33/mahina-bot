@@ -199,8 +199,8 @@ async function trackStart(
           return b
         }),
       })
-      .catch(() => {
-        null
+      .catch((error) => {
+        client.logger.error('Failed to update setup player message:', error)
       })
   } else {
     await channel
@@ -212,10 +212,10 @@ async function trackStart(
         }),
       })
       .then((msg) => {
-        client.db.setSetup(msg.guild.id, msg.id, msg.channel.id)
+        client.db.setSetup(msg.guild.id, msg.channel.id, msg.id)
       })
-      .catch(() => {
-        null
+      .catch((error) => {
+        client.logger.error('Failed to create setup player message:', error)
       })
   }
 }
