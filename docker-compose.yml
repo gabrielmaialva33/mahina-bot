@@ -1,7 +1,7 @@
 services:
   lavalink:
     container_name: lavalink
-    image: ghcr.io/lavalink-devs/lavalink:latest
+    image: ghcr.io/lavalink-devs/lavalink:4.2.2
     restart: on-failure
     environment:
       - _JAVA_OPTIONS=-Xmx6G
@@ -53,23 +53,42 @@ services:
       BOT_STATUS: ${BOT_STATUS}
       BOT_ACTIVITY_TYPE: ${BOT_ACTIVITY_TYPE}
       BOT_ACTIVITY: ${BOT_ACTIVITY}
-      DATABASE_URL: postgres://${POSTGRES_USER:-mahina}:${POSTGRES_PASSWORD:-mahina}@mahina-database:5432/${POSTGRES_DB:-mahina}
+      DATABASE_URL: ${DATABASE_URL:-mongodb://mahina-database:27017/mahina}
       AUTO_NODE: ${AUTO_NODE}
       SEARCH_ENGINE: ${SEARCH_ENGINE}
       GENIUS_API: ${GENIUS_API}
       NODES: '[{"id":"Docker-Node","host":"lavalink","port":2333,"authorization":"Mahina@551238","retryAmount":5,"retryDelay":60000,"secure":false}]'
       NVIDIA_API_KEY: ${NVIDIA_API_KEY}
       REDIS_URL: redis://:${REDIS_PASSWORD:-mahina_redis_2024}@mahina-redis:6379
-      PGBOSS_ENABLED: true
-      AI_JOB_QUEUE_ENABLED: true
+      PGBOSS_ENABLED: ${PGBOSS_ENABLED:-false}
+      AI_JOB_QUEUE_ENABLED: ${AI_JOB_QUEUE_ENABLED:-false}
     networks:
       - lavalink-net
 
-  # TimescaleDB with pgvector and pgai extensions
+  # Default database: MongoDB
   mahina-database:
-    image: timescale/timescaledb-ha:pg17
+    image: mongo:7
     container_name: mahina-database
     restart: always
+    ports:
+      - '27017:27017'
+    volumes:
+      - mahina-mongo-data:/data/db
+    networks:
+      - lavalink-net
+    healthcheck:
+      test: ['CMD-SHELL', 'echo "db.runCommand({ ping: 1 }).ok" | mongosh localhost:27017/test --quiet | grep 1']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Optional PostgreSQL/Timescale stack for experimental integrations
+  mahina-timescale:
+    image: timescale/timescaledb-ha:pg17
+    container_name: mahina-timescale
+    restart: always
+    profiles:
+      - postgres-extras
     command:
       - postgres
       - -c
@@ -107,7 +126,7 @@ services:
     ports:
       - '5436:5432'
     volumes:
-      - mahina-db-data:/var/lib/postgresql/data
+      - mahina-timescale-data:/var/lib/postgresql/data
       - ./scripts/init-db.sql:/docker-entrypoint-initdb.d/00-init.sql:ro
       - ./scripts/init-pgai.sql:/docker-entrypoint-initdb.d/01-pgai.sql:ro
       - ./scripts/init-pgboss.sql:/docker-entrypoint-initdb.d/02-pgboss.sql:ro
@@ -119,13 +138,15 @@ services:
       timeout: 5s
       retries: 5
 
-  # PostgREST for REST API
+  # Optional PostgREST for the PostgreSQL/Timescale stack
   mahina-postgrest:
     image: postgrest/postgrest:latest
     container_name: mahina-postgrest
     restart: always
+    profiles:
+      - postgres-extras
     environment:
-      PGRST_DB_URI: postgres://${DB_USER:-mahina}:${DB_PASSWORD:-mahina}@mahina-database:5432/${DB_NAME:-mahina}
+      PGRST_DB_URI: postgres://${DB_USER:-mahina}:${DB_PASSWORD:-mahina}@mahina-timescale:5432/${DB_NAME:-mahina}
       PGRST_DB_SCHEMA: public
       PGRST_DB_ANON_ROLE: web_anon
       PGRST_JWT_SECRET: ${JWT_SECRET}
@@ -138,7 +159,7 @@ services:
     ports:
       - '3010:3010'
     depends_on:
-      - mahina-database
+      - mahina-timescale
     networks:
       - lavalink-net
 
@@ -165,6 +186,8 @@ services:
     image: dpage/pgadmin4:latest
     container_name: mahina-pgadmin
     restart: always
+    profiles:
+      - postgres-extras
     environment:
       PGADMIN_DEFAULT_EMAIL: admin@mahina.bot
       PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD:-admin}
@@ -173,17 +196,18 @@ services:
     ports:
       - '5050:80'
     depends_on:
-      - mahina-database
+      - mahina-timescale
     networks:
       - lavalink-net
-    profiles:
-      - dev
 
-  # Grafana for monitoring
+  # Optional Grafana for the PostgreSQL/Timescale stack
   mahina-grafana:
     image: grafana/grafana:latest
     container_name: mahina-grafana
     restart: always
+    profiles:
+      - postgres-extras
+      - monitoring
     environment:
       GF_SECURITY_ADMIN_USER: admin
       GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_PASSWORD:-admin}
@@ -195,17 +219,16 @@ services:
       - ./grafana/dashboards:/etc/grafana/provisioning/dashboards
       - ./grafana/datasources:/etc/grafana/provisioning/datasources
     depends_on:
-      - mahina-database
+      - mahina-timescale
     networks:
       - lavalink-net
-    profiles:
-      - monitoring
 
 networks:
   lavalink-net:
     name: lavalink-net
 
 volumes:
-  mahina-db-data:
+  mahina-mongo-data:
+  mahina-timescale-data:
   mahina-redis-data:
   mahina-grafana-data:
