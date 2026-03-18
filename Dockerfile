@@ -1,67 +1,37 @@
-# Stage 1: Build TypeScript
-FROM node:23 AS builder
+ARG NODE_VERSION=25
+ARG PNPM_VERSION=10.32.1
 
-# Install pnpm
-RUN corepack enable && corepack prepare pnpm@latest --activate
+FROM node:${NODE_VERSION}-slim AS base
+ENV PNPM_HOME=/pnpm
+ENV PATH=$PNPM_HOME:$PATH
+WORKDIR /opt/mahina-bot
 
-WORKDIR /opt/mahina-bot/
+RUN apt-get update && apt-get install -y --no-install-recommends     ca-certificates     openssl     python3     python-is-python3     make     g++     && rm -rf /var/lib/apt/lists/*
 
-# Copy lockfile if it exists
+RUN npm config set update-notifier false && npm install -g pnpm@${PNPM_VERSION}
+
+FROM base AS deps
 COPY package.json pnpm-lock.yaml* ./
-
-# Install dependencies with pnpm
 RUN pnpm install --frozen-lockfile
 
-# Copy source code and configuration
+FROM deps AS build
 COPY . .
+RUN pnpm prisma generate && pnpm build && pnpm prune --prod
 
-# Generate Prisma client and build TypeScript
-RUN pnpm prisma generate && \
-    pnpm run build
-
-# Stage 2: Create production image
-FROM node:23-slim
-
+FROM node:${NODE_VERSION}-slim AS runtime
 ENV NODE_ENV=production
+WORKDIR /opt/mahina-bot
 
-# Install pnpm
-RUN corepack enable && corepack prepare pnpm@latest --activate
+RUN apt-get update && apt-get install -y --no-install-recommends     ca-certificates     openssl     && rm -rf /var/lib/apt/lists/*
 
-WORKDIR /opt/mahina-bot/
+COPY --from=build /opt/mahina-bot/package.json ./package.json
+COPY --from=build /opt/mahina-bot/node_modules ./node_modules
+COPY --from=build /opt/mahina-bot/dist ./dist
+COPY --from=build /opt/mahina-bot/prisma ./prisma
+COPY --from=build /opt/mahina-bot/locales ./locales
+COPY --from=build /opt/mahina-bot/src/utils/mahina_logo.txt ./src/utils/mahina_logo.txt
 
-# Install necessary tools and build dependencies for native modules
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    openssl \
-    python3 \
-    build-essential \
-    && rm -rf /var/lib/apt/lists/*
-
-# Copy compiled code and necessary files from the builder stage
-COPY --from=builder /opt/mahina-bot/dist ./dist
-COPY --from=builder /opt/mahina-bot/src/utils/mahina_logo.txt ./src/utils/mahina_logo.txt
-COPY --from=builder /opt/mahina-bot/prisma ./prisma
-COPY --from=builder /opt/mahina-bot/scripts ./scripts
-COPY --from=builder /opt/mahina-bot/locales ./locales
-
-# Copy package files, lockfile, and node_modules from builder
-COPY --from=builder /opt/mahina-bot/package.json ./
-COPY --from=builder /opt/mahina-bot/pnpm-lock.yaml* ./
-COPY --from=builder /opt/mahina-bot/node_modules ./node_modules
-
-# Prune dev dependencies (faster than reinstalling)
-RUN pnpm prune --prod
-
-# Copy the generated Prisma client from node_modules (already generated in builder)
-# No need to regenerate since we copied node_modules with the client already generated
-
-# Ensure application.yml is a file, not a directory
-RUN rm -rf /opt/mahina-bot/application.yml && \
-    touch /opt/mahina-bot/application.yml
-
-# Run as non-root user
-RUN addgroup --gid 322 --system mahina-bot && \
-    adduser --uid 322 --system mahina-bot && \
-    chown -R mahina-bot:mahina-bot /opt/mahina-bot/
+RUN addgroup --system --gid 322 mahina-bot     && adduser --system --uid 322 --ingroup mahina-bot mahina-bot     && chown -R mahina-bot:mahina-bot /opt/mahina-bot
 
 USER mahina-bot
 
