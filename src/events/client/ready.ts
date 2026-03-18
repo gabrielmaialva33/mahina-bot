@@ -1,6 +1,7 @@
 import { AutoPoster } from 'topgg-autoposter'
 
 import Event from '#common/event'
+import { getAIBootSummary } from '#common/ai_runtime'
 import type MahinaBot from '#common/mahina_bot'
 import { env } from '#src/env'
 
@@ -13,6 +14,7 @@ export default class Ready extends Event {
 
   async run(): Promise<void> {
     this.client.logger.success(`${this.client.user?.tag} is ready!`)
+    this.client.logger.info(`Runtime: ${getAIBootSummary(this.client).join(' | ')}`)
 
     this.client.user?.setPresence({
       activities: [
@@ -35,12 +37,19 @@ export default class Ready extends Event {
     } else {
       this.client.logger.warn('Top.gg token not found. Skipping auto poster.')
     }
-    const normalizedUsername = this.client.user?.username?.normalize('NFKD').replace(/[^\w]/g, '')
-    await this.client.manager.init({
-      ...this.client.user!,
-      username: normalizedUsername,
-      shards: 'auto',
-    })
+    if (this.client.runtime.music) {
+      const normalizedUsername = this.client.user?.username
+        ?.normalize('NFKD')
+        .replace(/[^\w]/g, '')
+
+      await this.client.manager.init({
+        ...this.client.user!,
+        username: normalizedUsername,
+        shards: 'auto',
+      })
+    } else {
+      this.client.logger.info('Skipping Lavalink manager initialization because music runtime is disabled')
+    }
 
     // Start proactive interaction service - DISABLED to reduce spam messages
     // if (this.client.services.proactiveInteraction) {
