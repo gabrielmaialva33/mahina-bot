@@ -27,13 +27,22 @@ const clientOptions: ClientOptions = {
 
 const client = new MahinaBot(clientOptions)
 
-client.start(env.TOKEN).catch(console.error)
+async function bootstrap(): Promise<void> {
+  try {
+    await client.start(env.TOKEN)
 
-if (env.ENABLE_SELFBOT && env.SELF_USER_TOKEN) {
-  client.selfbot.start(env.SELF_USER_TOKEN).catch(console.error)
-} else if (env.ENABLE_SELFBOT) {
-  client.logger.warn('Selfbot runtime is enabled but SELF_USER_TOKEN is missing')
+    if (env.ENABLE_SELFBOT && env.SELF_USER_TOKEN) {
+      await client.selfbot.start(env.SELF_USER_TOKEN)
+    } else if (env.ENABLE_SELFBOT) {
+      client.logger.warn('Selfbot runtime is enabled but SELF_USER_TOKEN is missing')
+    }
+  } catch (error) {
+    client.logger.error('Failed to bootstrap Mahina runtime:', error)
+    process.exitCode = 1
+  }
 }
+
+void bootstrap()
 
 app.listen(env.PORT, () => {
   client.logger.info(`Server started on port ${env.PORT}`)
