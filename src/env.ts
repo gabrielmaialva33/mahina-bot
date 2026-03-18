@@ -57,20 +57,23 @@ const envSchema = z.object({
     }
     return val
   }, z.number().default(0)),
-  DATABASE_URL: z.string().optional(),
+  ENABLE_MUSIC: z.preprocess((val) => val !== 'false', z.boolean().default(true)),
+  ENABLE_AI: z.preprocess((val) => val !== 'false', z.boolean().default(true)),
+  ENABLE_SELFBOT: z.preprocess((val) => val === 'true', z.boolean().default(false)),
+  DATABASE_URL: z.string().default('mongodb://localhost:27017/mahina'),
   POSTGRES_USER: z.string().default('mahina'),
   POSTGRES_PASSWORD: z.string().default('mahina'),
   POSTGRES_DB: z.string().default('mahina'),
   DB_USER: z.string().default('mahina'),
   DB_PASSWORD: z.string().default('mahina'),
   DB_NAME: z.string().default('mahina'),
-  DB_HOST: z.string().default('mahina-database'),
+  DB_HOST: z.string().default('localhost'),
   DB_PORT: z.string().default('5432'),
   JWT_SECRET: z.string().optional(),
   KEYCLOAK_CLIENT_ID: z.string().optional(),
   POSTGREST_URL: z.string().default('http://localhost:3010'),
-  PGBOSS_ENABLED: z.preprocess((val) => val === 'true', z.boolean().default(true)),
-  AI_JOB_QUEUE_ENABLED: z.preprocess((val) => val === 'true', z.boolean().default(true)),
+  PGBOSS_ENABLED: z.preprocess((val) => val === 'true', z.boolean().default(false)),
+  AI_JOB_QUEUE_ENABLED: z.preprocess((val) => val === 'true', z.boolean().default(false)),
   REDIS_URL: z.string().optional(),
   REDIS_PASSWORD: z.string().default('mahina_redis_2024'),
   SEARCH_ENGINE: z.preprocess(
@@ -112,7 +115,3 @@ const envSchema = z.object({
 type Env = z.infer<typeof envSchema>
 
 export const env: Env = envSchema.parse(process.env)
-
-for (const key in env)
-  if (!(key in env))
-    throw new Error(`Missing env variable: ${key}. Please check the .env file and try again.`)
