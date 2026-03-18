@@ -4,7 +4,6 @@ import {
   ButtonBuilder,
   ButtonStyle,
   ChannelType,
-  Collection,
   CommandInteraction,
   EmbedBuilder,
   type GuildMember,
@@ -17,6 +16,12 @@ import Event from '#common/event'
 import Context from '#common/context'
 import type MahinaBot from '#common/mahina_bot'
 import { T } from '#common/i18n'
+import {
+  getCooldownTimeLeft,
+  getMissingClientPermissions,
+  hasDjAccess,
+  isCommandCategoryEnabled,
+} from '#common/command_runtime'
 
 export default class InteractionCreate extends Event {
   constructor(client: MahinaBot, file: string) {
@@ -49,6 +54,15 @@ export default class InteractionCreate extends Event {
 
       const command = this.client.commands.get(commandName)
       if (!command) return
+
+      if (!isCommandCategoryEnabled(this.client, command.category)) {
+        return await interaction.reply({
+          content: T(locale, 'event.interaction.error', {
+            error: `${command.category} commands are currently disabled`,
+          }),
+          flags: MessageFlags.Ephemeral,
+        })
+      }
 
       const ctx = new Context(interaction as any, interaction.options.data as any)
       ctx.setArgs(interaction.options.data as any)
@@ -83,8 +97,9 @@ export default class InteractionCreate extends Event {
 
       if (command.permissions) {
         if (command.permissions?.client) {
-          const missingClientPermissions = command.permissions.client.filter(
-            (perm: any) => !clientMember.permissions.has(perm)
+          const missingClientPermissions = getMissingClientPermissions(
+            clientMember,
+            command.permissions.client
           )
 
           if (missingClientPermissions.length > 0) {
@@ -115,7 +130,7 @@ export default class InteractionCreate extends Event {
           if (!isDev) return
         }
       }
-      if (command.vote && this.client.env.TOPGG) {
+      if (command.vote && this.client.topGG) {
         const voted = await this.client.topGG.hasVoted(interaction.user.id)
         if (!voted) {
           const voteBtn = new ActionRowBuilder<ButtonBuilder>().addComponents(
@@ -182,6 +197,15 @@ export default class InteractionCreate extends Event {
         }
 
         if (command.player.active) {
+          if (!this.client.runtime.music) {
+            return await interaction.reply({
+              content: T(locale, 'event.interaction.error', {
+                error: 'Music runtime is disabled',
+              }),
+              flags: MessageFlags.Ephemeral,
+            })
+          }
+
           const queue = this.client.manager.getPlayer(interaction.guildId)
           if (!queue?.queue.current) {
             return await interaction.reply({
@@ -200,17 +224,8 @@ export default class InteractionCreate extends Event {
               })
             }
 
-            const hasDJRole = (interaction.member as GuildMember).roles.cache.some((role) =>
-              djRole.map((r) => r.roleId).includes(role.id)
-            )
-            if (
-              !(
-                hasDJRole &&
-                !(interaction.member as GuildMember).permissions.has(
-                  PermissionFlagsBits.ManageGuild
-                )
-              )
-            ) {
+            const member = interaction.member as GuildMember
+            if (!hasDjAccess(member, djRole.map((role) => role.roleId))) {
               return await interaction.reply({
                 content: T(locale, 'event.interaction.no_dj_permission'),
                 flags: MessageFlags.Ephemeral,
@@ -220,30 +235,19 @@ export default class InteractionCreate extends Event {
         }
       }
 
-      if (!this.client.cooldown.has(commandName)) {
-        this.client.cooldown.set(commandName, new Collection())
-      }
-
-      const now = Date.now()
-      const timestamps = this.client.cooldown.get(commandName)!
-      const cooldownAmount = (command.cooldown || 5) * 1000
-
-      if (timestamps.has(interaction.user.id)) {
-        const expirationTime = timestamps.get(interaction.user.id)! + cooldownAmount
-        const timeLeft = (expirationTime - now) / 1000
-        if (now < expirationTime && timeLeft > 0.9) {
-          return await interaction.reply({
-            content: T(locale, 'event.interaction.cooldown', {
-              time: timeLeft.toFixed(1),
-              command: commandName,
-            }),
-          })
-        }
-        timestamps.set(interaction.user.id, now)
-        setTimeout(() => timestamps.delete(interaction.user.id), cooldownAmount)
-      } else {
-        timestamps.set(interaction.user.id, now)
-        setTimeout(() => timestamps.delete(interaction.user.id), cooldownAmount)
+      const timeLeft = getCooldownTimeLeft(
+        this.client.cooldown,
+        commandName,
+        interaction.user.id,
+        command.cooldown || 5
+      )
+      if (timeLeft) {
+        return await interaction.reply({
+          content: T(locale, 'event.interaction.cooldown', {
+            time: timeLeft.toFixed(1),
+            command: commandName,
+          }),
+        })
       }
 
       try {

@@ -3,7 +3,6 @@ import {
   ButtonBuilder,
   ButtonStyle,
   ChannelType,
-  Collection,
   EmbedBuilder,
   type GuildMember,
   type Message,
@@ -15,6 +14,12 @@ import { T } from '#common/i18n'
 import Event from '#common/event'
 import Context from '#common/context'
 import type MahinaBot from '#common/mahina_bot'
+import {
+  getCooldownTimeLeft,
+  getMissingClientPermissions,
+  hasDjAccess,
+  isCommandCategoryEnabled,
+} from '#common/command_runtime'
 
 export default class MessageCreate extends Event {
   constructor(client: MahinaBot, file: string) {
@@ -74,6 +79,14 @@ export default class MessageCreate extends Event {
       this.client.commands.get(this.client.aliases.get(cmd) as string)
     if (!command) return
 
+    if (!isCommandCategoryEnabled(this.client, command.category)) {
+      return await message.reply({
+        content: T(locale, 'event.message.error', {
+          error: `${command.category} commands are currently disabled`,
+        }),
+      })
+    }
+
     const ctx = new Context(message, args)
     ctx.setArgs(args)
     ctx.guildLocale = locale
@@ -108,8 +121,9 @@ export default class MessageCreate extends Event {
 
     if (command.permissions) {
       if (command.permissions?.client) {
-        const missingClientPermissions = command.permissions.client.filter(
-          (perm: any) => !clientMember.permissions.has(perm)
+        const missingClientPermissions = getMissingClientPermissions(
+          clientMember,
+          command.permissions.client
         )
 
         if (missingClientPermissions.length > 0) {
@@ -134,7 +148,7 @@ export default class MessageCreate extends Event {
       }
     }
 
-    if (command.vote && this.client.env.TOPGG) {
+    if (command.vote && this.client.topGG) {
       const voted = await this.client.topGG.hasVoted(message.author.id)
       if (!(isDev || voted)) {
         const voteBtn = new ActionRowBuilder<ButtonBuilder>().addComponents(
@@ -194,6 +208,12 @@ export default class MessageCreate extends Event {
       }
 
       if (command.player.active) {
+        if (!this.client.runtime.music) {
+          return await message.reply({
+            content: T(locale, 'event.message.error', { error: 'Music runtime is disabled' }),
+          })
+        }
+
         const queue = this.client.manager.getPlayer(message.guildId)
         if (!queue?.queue.current) {
           return await message.reply({
@@ -212,16 +232,8 @@ export default class MessageCreate extends Event {
             })
           }
 
-          const hasDJRole = (message.member as GuildMember).roles.cache.some((role) =>
-            djRole.map((r) => r.roleId).includes(role.id)
-          )
-          if (
-            !(
-              isDev ||
-              (hasDJRole &&
-                !(message.member as GuildMember).permissions.has(PermissionFlagsBits.ManageGuild))
-            )
-          ) {
+          const member = message.member as GuildMember
+          if (!hasDjAccess(member, djRole.map((role) => role.roleId), isDev)) {
             return await message.reply({
               content: T(locale, 'event.message.no_dj_permission'),
             })
@@ -248,26 +260,16 @@ export default class MessageCreate extends Event {
       return
     }
 
-    if (!this.client.cooldown.has(cmd)) {
-      this.client.cooldown.set(cmd, new Collection())
-    }
-    const now = Date.now()
-    const timestamps = this.client.cooldown.get(cmd)!
-    const cooldownAmount = (command.cooldown || 5) * 1000
-
-    if (timestamps.has(message.author.id)) {
-      const expirationTime = timestamps.get(message.author.id)! + cooldownAmount
-      const timeLeft = (expirationTime - now) / 1000
-      if (now < expirationTime && timeLeft > 0.9) {
-        return await message.reply({
-          content: T(locale, 'event.message.cooldown', { time: timeLeft.toFixed(1), command: cmd }),
-        })
-      }
-      timestamps.set(message.author.id, now)
-      setTimeout(() => timestamps.delete(message.author.id), cooldownAmount)
-    } else {
-      timestamps.set(message.author.id, now)
-      setTimeout(() => timestamps.delete(message.author.id), cooldownAmount)
+    const timeLeft = getCooldownTimeLeft(
+      this.client.cooldown,
+      cmd,
+      message.author.id,
+      command.cooldown || 5
+    )
+    if (timeLeft) {
+      return await message.reply({
+        content: T(locale, 'event.message.cooldown', { time: timeLeft.toFixed(1), command: cmd }),
+      })
     }
 
     if (args.includes('@everyone') || args.includes('@here')) {
@@ -277,7 +279,7 @@ export default class MessageCreate extends Event {
     }
 
     try {
-      return command.run(this.client, ctx, ctx.args)
+      return await command.run(this.client, ctx, ctx.args)
     } catch (error: any) {
       this.client.logger.error(error)
       await message.reply({
