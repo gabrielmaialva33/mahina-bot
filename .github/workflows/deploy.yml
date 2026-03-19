@@ -15,8 +15,6 @@ jobs:
       - uses: actions/checkout@v4
 
       - uses: pnpm/action-setup@v4
-        with:
-          version: 10
 
       - uses: actions/setup-node@v4
         with:
@@ -92,18 +90,8 @@ jobs:
           script: |
             set -e
             cd /opt/mahina-bot
-
-            # Usa compose de prod como default
             cp -f docker-compose.prod.yml docker-compose.yml
-
-            # Pull da imagem nova
             docker compose pull mahina
-
-            # Deploy com zero downtime
             docker compose up -d --remove-orphans
-
-            # Limpa imagens antigas
             docker image prune -f
-
-            # Status
             docker compose ps
