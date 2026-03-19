@@ -200,8 +200,9 @@ export function createMahinaResponseEmbed(params: {
   insights: MahinaInsights
   client: MahinaBot
   translate: Translate
+  routeLabel?: string
 }): EmbedBuilder {
-  const { response, personality, mode, analysis, insights, client, translate } = params
+  const { response, personality, mode, analysis, insights, client, translate, routeLabel } = params
   const info = personalityVisuals[personality] || personalityVisuals.friendly
 
   const embed = new EmbedBuilder()
@@ -241,6 +242,10 @@ export function createMahinaResponseEmbed(params: {
 
   if (fields.length > 0) {
     embed.addFields(fields)
+  }
+
+  if (routeLabel) {
+    embed.setFooter({ text: routeLabel })
   }
 
   return embed

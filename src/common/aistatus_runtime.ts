@@ -26,13 +26,26 @@ interface AIModelLike {
   category: string
 }
 
+interface AIProviderLike {
+  provider: string
+  role: string
+  status: 'ready' | 'off'
+}
+
+interface AILastRouteLike {
+  provider: string
+  model: string
+}
+
 export function createAIStatusEmbed(
   color: number,
   translate: Translate,
   status: AIStatusLike,
   stats: AIStatisticsLike,
   models: AIModelLike[] = [],
-  capabilities: string[] = []
+  capabilities: string[] = [],
+  providers: AIProviderLike[] = [],
+  lastRoute?: AILastRouteLike | null
 ) {
   const embed = new EmbedBuilder()
     .setTitle(translate('cmd.aistatus.ui.title'))
@@ -123,6 +136,30 @@ export function createAIStatusEmbed(
     embed.addFields({
       name: translate('cmd.aistatus.ui.sections.capabilities'),
       value: capabilities.map((capability) => `• ${capability}`).join('\n'),
+      inline: false,
+    })
+  }
+
+  if (providers.length > 0) {
+    embed.addFields({
+      name: translate('cmd.aistatus.ui.sections.providers'),
+      value: providers
+        .map(
+          (provider) =>
+            `${provider.status === 'ready' ? '✅' : '⚪'} ${provider.provider} · ${provider.role}`
+        )
+        .join('\n'),
+      inline: false,
+    })
+  }
+
+  if (lastRoute) {
+    embed.addFields({
+      name: translate('cmd.aistatus.ui.sections.last_route'),
+      value: translate('cmd.aistatus.ui.last_route.item', {
+        provider: lastRoute.provider,
+        model: lastRoute.model,
+      }),
       inline: false,
     })
   }

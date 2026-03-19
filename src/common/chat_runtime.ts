@@ -108,19 +108,23 @@ export function createChatResponseEmbed(
   translate: Translate,
   mode: string,
   chunk: string,
-  includeTitle = false
+  includeTitle = false,
+  routeLabel?: string
 ) {
   const emoji = getChatModeEmoji(mode)
   const embed = new EmbedBuilder()
     .setColor(color)
     .setDescription(chunk)
     .setFooter({
-      text: translate('cmd.chat.ui.response.footer', {
-        emoji,
-        mode: mode.charAt(0).toUpperCase() + mode.slice(1),
-      }),
-      iconURL:
-        'https://upload.wikimedia.org/wikipedia/commons/thumb/2/21/Nvidia_logo.svg/1200px-Nvidia_logo.svg.png',
+      text: routeLabel
+        ? `${translate('cmd.chat.ui.response.footer', {
+            emoji,
+            mode: mode.charAt(0).toUpperCase() + mode.slice(1),
+          })} • ${routeLabel}`
+        : translate('cmd.chat.ui.response.footer', {
+            emoji,
+            mode: mode.charAt(0).toUpperCase() + mode.slice(1),
+          }),
     })
 
   if (includeTitle) {
