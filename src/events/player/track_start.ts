@@ -20,7 +20,7 @@ import Event from '#common/event'
 import type MahinaBot from '#common/mahina_bot'
 
 import { Requester } from '#src/types'
-import { trackStart } from '#utils/setup_system'
+import { createNowPlayingEmbed, trackStart } from '#utils/setup_system'
 
 export default class TrackStart extends Event {
   constructor(client: MahinaBot, file: string) {
@@ -49,36 +49,7 @@ export default class TrackStart extends Event {
 
     const locale = await this.client.db.getLanguage(guild.id)
 
-    const embed = this.client
-      .embed()
-      .setAuthor({
-        name: T(locale, 'player.trackStart.now_playing'),
-        iconURL:
-          this.client.config.icons[track.info.sourceName] ??
-          this.client.user?.displayAvatarURL({ extension: 'png' }),
-      })
-      .setColor(this.client.color.main)
-      .setDescription(`[${track.info.title}](${track.info.uri})`)
-      .setFooter({
-        text: T(locale, 'player.trackStart.requested_by', {
-          user: (track.requester as Requester).username,
-        }),
-        iconURL: (track.requester as Requester).avatarURL,
-      })
-      .setThumbnail(track.info.artworkUrl)
-      .addFields(
-        {
-          name: T(locale, 'player.trackStart.duration'),
-          value: track.info.isStream ? 'LIVE' : this.client.utils.formatTime(track.info.duration),
-          inline: true,
-        },
-        {
-          name: T(locale, 'player.trackStart.author'),
-          value: track.info.author,
-          inline: true,
-        }
-      )
-      .setTimestamp()
+    const embed = createNowPlayingEmbed(this.client, player, locale, track)
 
     const setup = await this.client.db.getSetup(guild.id)
 

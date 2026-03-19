@@ -14,6 +14,138 @@ import { T } from '#common/i18n'
 import { Requester } from '#src/types'
 import { getButtons } from '#utils/buttons'
 
+function getLoopLabel(player: Player, locale: string): string {
+  switch (player.repeatMode) {
+    case 'track':
+      return T(locale, 'player.trackPanel.loop.track')
+    case 'queue':
+      return T(locale, 'player.trackPanel.loop.queue')
+    default:
+      return T(locale, 'player.trackPanel.loop.off')
+  }
+}
+
+function getAutoplayLabel(player: Player, locale: string): string {
+  return player.get<boolean>('autoplay')
+    ? T(locale, 'player.trackPanel.autoplay.on')
+    : T(locale, 'player.trackPanel.autoplay.off')
+}
+
+function getProgressLabel(player: Player, client: MahinaBot, locale: string): string {
+  const current = player.queue.current
+
+  if (!current) {
+    return T(locale, 'player.trackPanel.queue.empty')
+  }
+
+  if (current.info.isStream) {
+    return T(locale, 'player.trackPanel.live')
+  }
+
+  const duration = current.info.duration
+  const position = Math.min(player.position, duration)
+  const bar = client.utils.progressBar(position, duration, 16)
+
+  return `${bar}\n\`${client.utils.formatTime(position)} / ${client.utils.formatTime(duration)}\``
+}
+
+function getQueuePreview(player: Player, locale: string): string {
+  if (player.queue.tracks.length === 0) {
+    return T(locale, 'player.trackPanel.queue.empty')
+  }
+
+  return player.queue.tracks
+    .slice(0, 3)
+    .map((track, index) =>
+      T(locale, 'player.trackPanel.queue.item', {
+        index: index + 1,
+        title: track.info.title,
+      })
+    )
+    .join('\n')
+}
+
+function getControlSummary(player: Player, client: MahinaBot, locale: string): string {
+  return [
+    T(locale, 'player.trackPanel.controls.loop', {
+      value: getLoopLabel(player, locale),
+    }),
+    T(locale, 'player.trackPanel.controls.autoplay', {
+      value: getAutoplayLabel(player, locale),
+    }),
+    T(locale, 'player.trackPanel.controls.volume', {
+      value: `${player.volume}%`,
+    }),
+    T(locale, 'player.trackPanel.controls.queue_size', {
+      value: String(player.queue.tracks.length),
+    }),
+  ].join('\n')
+}
+
+export function createNowPlayingEmbed(
+  client: MahinaBot,
+  player: Player,
+  locale: string,
+  track?: Track
+): EmbedBuilder {
+  const currentTrack = track || player.queue.current
+  const embed = client.embed().setColor(client.color.main)
+
+  if (!currentTrack) {
+    return embed.setDescription(T(locale, 'player.setupStart.nothing_playing'))
+  }
+
+  const requester = (currentTrack.requester || player.queue.current?.requester) as
+    | Requester
+    | undefined
+  const iconUrl =
+    client.config.icons[currentTrack.info.sourceName] ||
+    client.user?.displayAvatarURL({ extension: 'png' })
+  const artwork = currentTrack.info.artworkUrl || client.config.links.img
+
+  return embed
+    .setAuthor({
+      name: T(locale, 'player.trackStart.now_playing'),
+      iconURL: iconUrl,
+    })
+    .setDescription(`[${currentTrack.info.title}](${currentTrack.info.uri})`)
+    .setThumbnail(artwork)
+    .addFields(
+      {
+        name: T(locale, 'player.trackPanel.fields.progress'),
+        value: getProgressLabel(player, client, locale),
+        inline: false,
+      },
+      {
+        name: T(locale, 'player.trackPanel.fields.author'),
+        value: currentTrack.info.author,
+        inline: true,
+      },
+      {
+        name: T(locale, 'player.trackPanel.fields.requester'),
+        value: requester ? `<@${requester.id}>` : T(locale, 'player.trackPanel.requester.unknown'),
+        inline: true,
+      },
+      {
+        name: T(locale, 'player.trackPanel.fields.controls'),
+        value: getControlSummary(player, client, locale),
+        inline: true,
+      },
+      {
+        name: T(locale, 'player.trackPanel.fields.up_next'),
+        value: getQueuePreview(player, locale),
+        inline: false,
+      }
+    )
+    .setFooter({
+      text: T(locale, 'player.trackStart.requested_by', {
+        user: requester?.username || T(locale, 'player.trackPanel.requester.unknown_label'),
+      }),
+      iconURL: requester?.avatarURL,
+    })
+    .setTimestamp()
+}
+
 /**
  * A function that will generate an embed based on the player's current track.
  * @param embed The embed that will be modified.
@@ -24,25 +156,14 @@ import { getButtons } from '#utils/buttons'
  */
 function neb(embed: EmbedBuilder, player: Player, client: MahinaBot, locale: string): EmbedBuilder {
   if (!player?.queue.current?.info) return embed
-  const iconUrl =
-    client.config.icons[player.queue.current.info.sourceName] ||
-    client.user!.displayAvatarURL({ extension: 'png' })
-  const icon = player.queue.current.info.artworkUrl || client.config.links.img
 
-  const description = T(locale, 'player.setupStart.description', {
-    title: player.queue.current.info.title,
-    uri: player.queue.current.info.uri,
-    author: player.queue.current.info.author,
-    length: client.utils.formatTime(player.queue.current.info.duration),
-    requester: (player.queue.current.requester as Requester).id,
-  })
+  const panel = createNowPlayingEmbed(client, player, locale)
   return embed
-    .setAuthor({
-      name: T(locale, 'player.setupStart.now_playing'),
-      iconURL: iconUrl,
-    })
-    .setDescription(description)
-    .setImage(icon)
+    .setAuthor(panel.data.author || null)
+    .setDescription(panel.data.description || null)
+    .setThumbnail(panel.data.thumbnail?.url || null)
+    .setFields(panel.data.fields || [])
+    .setFooter(panel.data.footer || null)
     .setColor(client.color.main)
 }
 
@@ -153,14 +274,13 @@ async function setupStart(
  * @returns A promise that resolves when the function is done.
  */
 async function trackStart(
-  msgId: any,
+  msgId: string,
   channel: TextChannel,
   player: Player,
   track: Track,
   client: MahinaBot,
   locale: string
 ): Promise<void> {
-  const icon = player.queue.current ? player.queue.current.info.artworkUrl : client.config.links.img
   let m: Message | undefined
 
   try {
@@ -168,27 +288,7 @@ async function trackStart(
   } catch (error) {
     client.logger.error(error)
   }
-
-  const iconUrl =
-    client.config.icons[player.queue.current!.info.sourceName] ||
-    client.user!.displayAvatarURL({ extension: 'png' })
-  const description = T(locale, 'player.setupStart.description', {
-    title: track.info.title,
-    uri: track.info.uri,
-    author: track.info.author,
-    length: client.utils.formatTime(track.info.duration),
-    requester: (player.queue.current!.requester as Requester).id,
-  })
-
-  const embed = client
-    .embed()
-    .setAuthor({
-      name: T(locale, 'player.setupStart.now_playing'),
-      iconURL: iconUrl,
-    })
-    .setColor(client.color.main)
-    .setDescription(description)
-    .setImage(icon)
+  const embed = createNowPlayingEmbed(client, player, locale, track)
 
   if (m) {
     await m
@@ -238,26 +338,7 @@ async function updateSetup(client: MahinaBot, guild: Guild, locale: string): Pro
   if (m) {
     const player = client.manager.getPlayer(guild.id)
     if (player?.queue.current) {
-      const iconUrl =
-        client.config.icons[player.queue.current.info.sourceName] ||
-        client.user!.displayAvatarURL({ extension: 'png' })
-      const description = T(locale, 'player.setupStart.description', {
-        title: player.queue.current.info.title,
-        uri: player.queue.current.info.uri,
-        author: player.queue.current.info.author,
-        length: client.utils.formatTime(player.queue.current.info.duration),
-        requester: (player.queue.current.requester as Requester).id,
-      })
-
-      const embed = client
-        .embed()
-        .setAuthor({
-          name: T(locale, 'player.setupStart.now_playing'),
-          iconURL: iconUrl,
-        })
-        .setColor(client.color.main)
-        .setDescription(description)
-        .setImage(player.queue.current.info.artworkUrl)
+      const embed = createNowPlayingEmbed(client, player, locale)
       await m
         .edit({
           embeds: [embed],
