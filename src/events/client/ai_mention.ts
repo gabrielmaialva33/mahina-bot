@@ -9,12 +9,24 @@ import {
   StringSelectMenuBuilder,
 } from 'discord.js'
 import Event from '#common/event'
+import { logger } from '#common/logger'
 import type MahinaBot from '#common/mahina_bot'
 import type { ChatMessage } from '#src/services/ai_service'
 import type { MahinaBrain } from '#src/services/mahina_brain'
 
+const THINK_TIMEOUT = 30_000 // 30 seconds max
+
+const thinkWithTimeout = <T>(promise: Promise<T>): Promise<T> => {
+  return Promise.race([
+    promise,
+    new Promise<T>((_, reject) =>
+      setTimeout(() => reject(new Error('Think timeout')), THINK_TIMEOUT)
+    ),
+  ])
+}
+
 export default class AIMention extends Event {
-  private userPersonalities: Map<string, string> = new Map()
+  private personalityCache: Map<string, string> = new Map()
 
   constructor(client: MahinaBot, file: string) {
     super(client, file, {
@@ -24,6 +36,36 @@ export default class AIMention extends Event {
 
   private get brain(): MahinaBrain | undefined {
     return this.client.services.brain
+  }
+
+  private async getUserPersonality(userId: string, guildId: string): Promise<string> {
+    const key = `${userId}-${guildId}`
+    if (this.personalityCache.has(key)) return this.personalityCache.get(key)!
+
+    // Load from memory service
+    const memory = this.client.services.aiMemory
+    if (memory) {
+      const userMem = await memory.getUserMemory(userId, guildId)
+      if (userMem.preferences.aiPersonality) {
+        this.personalityCache.set(key, userMem.preferences.aiPersonality)
+        return userMem.preferences.aiPersonality
+      }
+    }
+
+    const aiConfig = await this.client.db.getAIConfig(guildId)
+    return aiConfig.defaultPersonality || 'humor_negro'
+  }
+
+  private async setUserPersonality(
+    userId: string,
+    guildId: string,
+    personality: string
+  ): Promise<void> {
+    this.personalityCache.set(`${userId}-${guildId}`, personality)
+    const memory = this.client.services.aiMemory
+    if (memory) {
+      await memory.updatePreferences(userId, guildId, { aiPersonality: personality })
+    }
   }
 
   async run(message: Message): Promise<any> {
@@ -42,7 +84,7 @@ export default class AIMention extends Event {
 
       if (aiConfig.blockedUsers.includes(message.author.id)) return
 
-      if (!this.brain.checkRateLimit(message.author.id, aiConfig.rateLimit)) {
+      if (!this.brain.checkRateLimit(message.author.id, message.guildId!, aiConfig.rateLimit)) {
         return await message.reply({
           content: 'calma aí mano, tá metralhando mensagem. espera uns segundos 💀',
         })
@@ -52,10 +94,7 @@ export default class AIMention extends Event {
         await message.channel.sendTyping()
       }
 
-      const userPersonality =
-        this.userPersonalities.get(message.author.id) ||
-        aiConfig.defaultPersonality ||
-        'humor_negro'
+      const userPersonality = await this.getUserPersonality(message.author.id, message.guildId!)
 
       // Load chat history
       const chatHistory = await this.client.db.getChatHistory(message.channelId)
@@ -84,37 +123,58 @@ export default class AIMention extends Event {
       const guildName = message.guild?.name ?? 'Server Desconhecido'
       const channelName = 'name' in message.channel ? message.channel.name || 'geral' : 'geral'
 
+      // Analyze image attachments if present
+      let imageContext: string | undefined
+      const imageAttachment = message.attachments.find(
+        (a) =>
+          a.contentType?.startsWith('image/') || /\.(png|jpg|jpeg|gif|webp)$/i.test(a.name || '')
+      )
+      if (imageAttachment && this.client.services.nvidiaMultimodal) {
+        try {
+          const analysis = await this.client.services.nvidiaMultimodal.analyzeImage(
+            imageAttachment.url,
+            cleanContent || 'Describe this image'
+          )
+          if (analysis) imageContext = `[User sent an image: ${analysis}]`
+        } catch {
+          /* ignore */
+        }
+      }
+
       // Streaming: send placeholder, edit as chunks arrive
       let reply: Message | null = null
 
-      const response = await this.brain.think(
-        recentHistory,
-        message.author.id,
-        message.guildId!,
-        channelName,
-        message.author.username,
-        guildName,
-        userPersonality,
-        {
-          onStart: async (content) => {
-            reply = await message.reply({ content: content + ' ▌' })
+      const response = await thinkWithTimeout(
+        this.brain.think(
+          recentHistory,
+          message.author.id,
+          message.guildId!,
+          channelName,
+          message.author.username,
+          guildName,
+          userPersonality,
+          {
+            onStart: async (content) => {
+              reply = await message.reply({ content: content + ' ▌' })
+            },
+            onUpdate: async (content) => {
+              if (reply) {
+                await reply.edit({ content: content + ' ▌' }).catch(() => {})
+              }
+            },
+            onEnd: async (content) => {
+              // Final edit with buttons — remove cursor
+              const buttons = this.buildButtons()
+              if (reply) {
+                await reply.edit({ content, components: [buttons] }).catch(() => {})
+              } else {
+                // Fallback if streaming never started
+                reply = await message.reply({ content, components: [buttons] })
+              }
+            },
           },
-          onUpdate: async (content) => {
-            if (reply) {
-              await reply.edit({ content: content + ' ▌' }).catch(() => {})
-            }
-          },
-          onEnd: async (content) => {
-            // Final edit with buttons — remove cursor
-            const buttons = this.buildButtons()
-            if (reply) {
-              await reply.edit({ content, components: [buttons] }).catch(() => {})
-            } else {
-              // Fallback if streaming never started
-              reply = await message.reply({ content, components: [buttons] })
-            }
-          },
-        }
+          imageContext
+        )
       )
 
       // If streaming callbacks never fired (non-streaming fallback)
@@ -144,7 +204,11 @@ export default class AIMention extends Event {
       // Collect button interactions
       this.setupCollector(reply, message, userPersonality)
     } catch (error: any) {
-      console.error('AI Mention Error:', error)
+      logger.error('AI mention failed', {
+        userId: message.author.id,
+        guildId: message.guildId,
+        error: (error as Error).message,
+      })
       await message.reply({
         content: 'deu ruim aqui nos meus circuitos. tenta dnv 💀',
       })
@@ -246,7 +310,7 @@ export default class AIMention extends Event {
 
           selectCollector?.on('collect', async (selectInteraction) => {
             const selected = selectInteraction.values[0]
-            this.userPersonalities.set(message.author.id, selected)
+            await this.setUserPersonality(message.author.id, message.guildId!, selected)
             const selectedP = this.brain!.getPersonality(selected)
             await selectInteraction.update({
               content: `${selectedP?.emoji} personalidade trocada pra **${selectedP?.name}**`,
