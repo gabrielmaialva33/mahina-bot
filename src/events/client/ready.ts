@@ -16,6 +16,8 @@ export default class Ready extends Event {
     this.client.logger.success(`${this.client.user?.tag} is ready!`)
     this.client.logger.info(`Runtime: ${getAIBootSummary(this.client).join(' | ')}`)
 
+    await this.client.deployCommands()
+
     this.client.user?.setPresence({
       activities: [
         {
