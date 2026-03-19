@@ -32,7 +32,7 @@ export default class MQueue extends Command {
     })
   }
 
-  async run(client: MahinaBot, ctx: Context): Promise<any> {
+  async run(client: MahinaBot, ctx: Context): Promise<void> {
     if (!ctx.guild || !ctx.member || !ctx.author) return
     if (!(await ensureStreamCommandReady(client, ctx))) return
 
@@ -86,6 +86,6 @@ export default class MQueue extends Command {
         text: `${queue.tracks.length} ${ctx.locale('cmd.mqueue.tracks_in_queue')}${loopLabel}`,
       })
 
-    return await ctx.sendMessage({ embeds: [embed] })
+    await ctx.sendMessage({ embeds: [embed] })
   }
 }

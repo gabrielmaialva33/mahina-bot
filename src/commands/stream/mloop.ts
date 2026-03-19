@@ -32,7 +32,7 @@ export default class MLoop extends Command {
     })
   }
 
-  async run(client: MahinaBot, ctx: Context): Promise<any> {
+  async run(client: MahinaBot, ctx: Context): Promise<void> {
     if (!ctx.guild || !ctx.member || !ctx.author) return
     if (!(await ensureStreamCommandReady(client, ctx))) return
 
@@ -54,6 +54,6 @@ export default class MLoop extends Command {
       .setColor(this.client.color.main)
       .setDescription(ctx.locale(modeKeys[newMode]))
 
-    return await ctx.sendMessage({ embeds: [embed] })
+    await ctx.sendMessage({ embeds: [embed] })
   }
 }

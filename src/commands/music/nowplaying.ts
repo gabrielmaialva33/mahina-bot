@@ -1,6 +1,7 @@
 import Command from '#common/command'
 import type MahinaBot from '#common/mahina_bot'
 import type Context from '#common/context'
+import type { Requester } from '#src/types'
 
 export default class Nowplaying extends Command {
   constructor(client: MahinaBot) {
@@ -32,13 +33,14 @@ export default class Nowplaying extends Command {
     })
   }
 
-  async run(client: MahinaBot, ctx: Context): Promise<any> {
+  async run(client: MahinaBot, ctx: Context): Promise<void> {
     const player = client.manager.getPlayer(ctx.guild!.id)
     if (!player) return await ctx.sendMessage(ctx.locale('event.message.no_music_playing'))
     const track = player.queue.current!
     const position = player.position
     const duration = track.info.duration
     const bar = client.utils.progressBar(position, duration, 20)
+    const requester = track.requester as Requester | undefined
 
     const embed = this.client
       .embed()
@@ -52,7 +54,7 @@ export default class Nowplaying extends Command {
         ctx.locale('cmd.nowplaying.track_info', {
           title: track.info.title,
           uri: track.info.uri,
-          requester: (track.requester as any).id,
+          requester: requester?.id ?? ctx.author?.id ?? '',
           bar: bar,
         })
       )
@@ -60,7 +62,6 @@ export default class Nowplaying extends Command {
         name: '\u200b',
         value: `\`${client.utils.formatTime(position)} / ${client.utils.formatTime(duration)}\``,
       })
-
-    return await ctx.sendMessage({ embeds: [embed] })
+    await ctx.sendMessage({ embeds: [embed] })
   }
 }

@@ -39,7 +39,7 @@ export default class Volume extends Command {
     })
   }
 
-  async run(client: MahinaBot, ctx: Context, args: string[]): Promise<any> {
+  async run(client: MahinaBot, ctx: Context, args: string[]): Promise<void> {
     const player = client.manager.getPlayer(ctx.guild!.id)
     const embed = this.client.embed()
     const number = Number(args[0])

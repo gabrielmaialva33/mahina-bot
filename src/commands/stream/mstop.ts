@@ -1,9 +1,7 @@
 import Command from '#common/command'
 import MahinaBot from '#common/mahina_bot'
 import Context from '#common/context'
-import { ensureStreamCommandReady } from '#common/stream_runtime'
-
-import { T } from '#common/i18n'
+import { createStreamStatusEmbed, ensureStreamCommandReady } from '#common/stream_runtime'
 
 export default class MStop extends Command {
   constructor(client: MahinaBot) {
@@ -33,24 +31,14 @@ export default class MStop extends Command {
     })
   }
 
-  async run(client: MahinaBot, ctx: Context, _args: string[]): Promise<any> {
+  async run(client: MahinaBot, ctx: Context, _args: string[]): Promise<void> {
     if (!ctx.guild || !ctx.member || !ctx.author) return
     if (!(await ensureStreamCommandReady(client, ctx))) return
 
-    const locale = await client.db.getLanguage(ctx.guild.id)
-
     client.selfbot.stopStream(ctx.guild.id)
 
-    const embed = this.client
-      .embed()
-      .setColor(client.color.main)
-      .setTitle(T(locale, 'cmd.mstop.messages.success'))
-      .setFooter({
-        text: T(locale, 'player.trackStart.requested_by', { user: ctx.author.username }),
-        iconURL: ctx.author.avatarURL() || ctx.author.defaultAvatarURL,
-      })
-      .setTimestamp()
+    const embed = createStreamStatusEmbed(client, ctx, ctx.locale('cmd.mstop.messages.success'))
 
-    return ctx.sendMessage({ embeds: [embed] })
+    await ctx.sendMessage({ embeds: [embed] })
   }
 }

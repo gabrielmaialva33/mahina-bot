@@ -4,8 +4,7 @@ import path from 'node:path'
 import Command from '#common/command'
 import MahinaBot from '#common/mahina_bot'
 import Context from '#common/context'
-import { ensureStreamCommandReady } from '#common/stream_runtime'
-import { T } from '#common/i18n'
+import { createStreamStatusEmbed, ensureStreamCommandReady } from '#common/stream_runtime'
 import type { StreamTrack } from '#common/stream_queue'
 import { ApplicationCommandOptionType } from 'discord.js'
 
@@ -54,11 +53,9 @@ export default class MPlay extends Command {
   async run(client: MahinaBot, ctx: Context, args: string[]): Promise<void> {
     if (!ctx.guild || !ctx.member || !ctx.author) return
     if (!(await ensureStreamCommandReady(client, ctx))) return
-    const locale = await client.db.getLanguage(ctx.guild.id)
-
     const downloadsFiles = fs.readdirSync(path.join(process.cwd(), 'downloads'))
     if (downloadsFiles.length === 0) {
-      await ctx.sendMessage('cmd.mlist.messages.no_movies')
+      await ctx.sendMessage(ctx.locale('cmd.mlist.messages.no_movies'))
       return
     }
 
@@ -74,17 +71,17 @@ export default class MPlay extends Command {
 
     const movieName = args.shift()
     if (!movieName) {
-      await ctx.sendMessage('Please specify a movie name.')
+      await ctx.sendMessage(ctx.locale('cmd.mplay.errors.missing_movie'))
       return
     }
 
     const movie = videos.find((m) => m!.name === movieName)
     if (!movie) {
-      await ctx.sendMessage(T(locale, 'cmd.mplay.errors.movie_not_found'))
+      await ctx.sendMessage(ctx.locale('cmd.mplay.errors.movie_not_found'))
       return
     }
 
-    await ctx.sendMessage(T(locale, 'cmd.mplay.messages.waiting'))
+    await ctx.sendMessage(ctx.locale('cmd.mplay.messages.waiting'))
 
     const track: StreamTrack = {
       type: 'local',
@@ -97,33 +94,24 @@ export default class MPlay extends Command {
     const position = await client.selfbot.enqueue(ctx.guild.id, ctx.member, track, ctx.channel!.id)
 
     if (position === 0) {
-      const embed = this.client
-        .embed()
-        .setColor(client.color.main)
-        .setTitle(T(locale, 'cmd.mplay.messages.playing_movie', { movie: movieName }))
-        .setFooter({
-          text: T(locale, 'player.trackStart.requested_by', { user: ctx.author.username }),
-          iconURL: ctx.author.avatarURL() || ctx.author.defaultAvatarURL,
-        })
-        .setTimestamp()
+      const embed = createStreamStatusEmbed(
+        client,
+        ctx,
+        ctx.locale('cmd.mplay.messages.playing_movie', { movie: movieName })
+      )
 
       await ctx.editMessage({ content: '', embeds: [embed] })
     } else {
-      const embed = this.client
-        .embed()
-        .setColor(client.color.main)
-        .setDescription(
-          T(locale, 'cmd.vplay.added_to_queue', {
-            title: movieName,
-            uri: '',
-            position: String(position),
-          })
-        )
-        .setFooter({
-          text: T(locale, 'player.trackStart.requested_by', { user: ctx.author.username }),
-          iconURL: ctx.author.avatarURL() || ctx.author.defaultAvatarURL,
+      const embed = createStreamStatusEmbed(
+        client,
+        ctx,
+        ctx.locale('cmd.mplay.messages.queued_title'),
+        ctx.locale('cmd.vplay.added_to_queue', {
+          title: movieName,
+          uri: '',
+          position: String(position),
         })
-        .setTimestamp()
+      )
 
       await ctx.editMessage({ content: '', embeds: [embed] })
     }

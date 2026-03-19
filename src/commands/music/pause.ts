@@ -32,7 +32,7 @@ export default class Pause extends Command {
     })
   }
 
-  async run(client: MahinaBot, ctx: Context): Promise<any> {
+  async run(client: MahinaBot, ctx: Context): Promise<void> {
     const player = client.manager.getPlayer(ctx.guild!.id)
     const embed = this.client.embed()
 

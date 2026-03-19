@@ -32,7 +32,7 @@ export default class Loop extends Command {
     })
   }
 
-  async run(client: MahinaBot, ctx: Context): Promise<any> {
+  async run(client: MahinaBot, ctx: Context): Promise<void> {
     const embed = this.client.embed().setColor(this.client.color.main)
     const player = client.manager.getPlayer(ctx.guild!.id)
     let loopMessage = ''

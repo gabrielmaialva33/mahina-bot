@@ -65,7 +65,7 @@ export default class MSearch extends Command {
     })
   }
 
-  async run(client: MahinaBot, ctx: Context, args: string[]): Promise<any> {
+  async run(client: MahinaBot, ctx: Context, args: string[]): Promise<void> {
     if (!ctx.channel || !ctx.guild || !ctx.member || !ctx.author) return
     if (!(await ensureStreamCommandReady(client, ctx))) return
 
@@ -117,25 +117,32 @@ export default class MSearch extends Command {
       const startIndex = itemPageIndex * itemsPerPage
       const paginatedData = pageData.slice(startIndex, startIndex + itemsPerPage)
 
-      const embed = new EmbedBuilder().setTitle(`**__Resultados da Pesquisa__**: ${search}`)
+      const embed = new EmbedBuilder().setTitle(
+        ctx.locale('cmd.msearch.messages.results_title', { query: search })
+      )
       if (paginatedData.length === 0)
-        return embed.setDescription('Nenhum resultado encontrado').setColor(client.color.red)
+        return embed
+          .setDescription(ctx.locale('cmd.msearch.messages.results_empty'))
+          .setColor(client.color.red)
 
       embed
         .setDescription(
           paginatedData
             .map(
-              (video, index) => `
-              **Número**: ${emojiNumbers[index]}
-              **Nome**: ${video.name}
-              **Tamanho**: ${(Number.parseInt(video.size) / 1024 / 1024 / 1024).toFixed(2)} GB
-              **Link**: [Download](${client.animezey.BASE_URL + video.link})
-              `
+              (video, index) =>
+                `${emojiNumbers[index]} ${video.name}\n` +
+                `Tamanho: ${(Number.parseInt(video.size) / 1024 / 1024 / 1024).toFixed(2)} GB\n` +
+                `[Download](${client.animezey.BASE_URL + video.link})`
             )
-            .join('\n')
+            .join('\n\n')
         )
         .setFooter({
-          text: `Página ${pageIndex + 1} | Itens ${startIndex + 1}-${startIndex + paginatedData.length} de ${totalItems}`,
+          text: ctx.locale('cmd.msearch.footer.page', {
+            page: String(pageIndex + 1),
+            start: String(startIndex + 1),
+            end: String(startIndex + paginatedData.length),
+            total: String(totalItems),
+          }),
           iconURL: ctx.author!.avatarURL() || undefined,
         })
         .setColor(client.color.violet)
@@ -151,7 +158,10 @@ export default class MSearch extends Command {
     ) => {
       const pageData = await fetchPage(pageIndex)
       if (!pageData)
-        return interaction.update({ content: 'Erro ao buscar informações', components: [] })
+        return interaction.update({
+          content: ctx.locale('cmd.msearch.messages.fetch_error'),
+          components: [],
+        })
 
       const totalItems = pageData.files.length
       const embed = createEmbed(pageData.files, pageIndex, itemPageIndex, totalItems)
@@ -162,22 +172,22 @@ export default class MSearch extends Command {
       const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
         new ButtonBuilder()
           .setCustomId('prevPage')
-          .setLabel('Página Anterior')
+          .setLabel(ctx.locale('cmd.msearch.buttons.previous_page'))
           .setStyle(ButtonStyle.Primary)
           .setDisabled(pageIndex === 0),
         new ButtonBuilder()
           .setCustomId('nextPage')
-          .setLabel('Próxima Página')
+          .setLabel(ctx.locale('cmd.msearch.buttons.next_page'))
           .setStyle(ButtonStyle.Primary)
           .setDisabled(!cache.nextPageTokens[pageIndex]),
         new ButtonBuilder()
           .setCustomId('prevItemPage')
-          .setLabel('Itens Anteriores')
+          .setLabel(ctx.locale('cmd.msearch.buttons.previous_items'))
           .setStyle(ButtonStyle.Secondary)
           .setDisabled(itemPageIndex === 0),
         new ButtonBuilder()
           .setCustomId('nextItemPage')
-          .setLabel('Próximos Itens')
+          .setLabel(ctx.locale('cmd.msearch.buttons.next_items'))
           .setStyle(ButtonStyle.Secondary)
           .setDisabled((itemPageIndex + 1) * itemsPerPage >= totalItems)
       )
@@ -187,7 +197,7 @@ export default class MSearch extends Command {
         downloadRow.addComponents(
           new ButtonBuilder()
             .setCustomId(`play_${i + 1}`)
-            .setLabel(`Assistir ${emojiNumbers[i]}`)
+            .setLabel(ctx.locale('cmd.msearch.buttons.watch', { number: emojiNumbers[i] }))
             .setStyle(ButtonStyle.Success)
         )
       }
@@ -197,18 +207,18 @@ export default class MSearch extends Command {
 
     // Perguntar ao usuário que tipo de conteúdo ele quer
     const contentSelectionEmbed = new EmbedBuilder()
-      .setTitle('Escolha o tipo de conteúdo')
-      .setDescription('Por favor, escolha o tipo de conteúdo que deseja buscar.')
+      .setTitle(ctx.locale('cmd.msearch.messages.choose_type_title'))
+      .setDescription(ctx.locale('cmd.msearch.messages.choose_type_description'))
       .setColor(client.color.blue)
 
     const contentSelectionRow = new ActionRowBuilder<ButtonBuilder>().addComponents(
       new ButtonBuilder()
         .setCustomId('search_anime')
-        .setLabel('Anime')
+        .setLabel(ctx.locale('cmd.msearch.buttons.anime'))
         .setStyle(ButtonStyle.Primary),
       new ButtonBuilder()
         .setCustomId('search_movie')
-        .setLabel('Filme')
+        .setLabel(ctx.locale('cmd.msearch.buttons.movie'))
         .setStyle(ButtonStyle.Primary)
     )
 
@@ -239,7 +249,7 @@ export default class MSearch extends Command {
       const initialItemPageIndex = 0
       const initialPageData = await fetchPage(initialPageIndex)
 
-      if (!initialPageData) return ctx.sendMessage('Erro ao buscar informações')
+      if (!initialPageData) return ctx.sendMessage(ctx.locale('cmd.msearch.messages.fetch_error'))
 
       const totalItems = initialPageData.files.length
       const initialEmbed = createEmbed(
@@ -252,22 +262,22 @@ export default class MSearch extends Command {
       const initialRow = new ActionRowBuilder<ButtonBuilder>().addComponents(
         new ButtonBuilder()
           .setCustomId('prevPage')
-          .setLabel('Página Anterior')
+          .setLabel(ctx.locale('cmd.msearch.buttons.previous_page'))
           .setStyle(ButtonStyle.Primary)
           .setDisabled(true),
         new ButtonBuilder()
           .setCustomId('nextPage')
-          .setLabel('Próxima Página')
+          .setLabel(ctx.locale('cmd.msearch.buttons.next_page'))
           .setStyle(ButtonStyle.Primary)
           .setDisabled(!cache.nextPageTokens[initialPageIndex]),
         new ButtonBuilder()
           .setCustomId('prevItemPage')
-          .setLabel('Itens Anteriores')
+          .setLabel(ctx.locale('cmd.msearch.buttons.previous_items'))
           .setStyle(ButtonStyle.Secondary)
           .setDisabled(true),
         new ButtonBuilder()
           .setCustomId('nextItemPage')
-          .setLabel('Próximos Itens')
+          .setLabel(ctx.locale('cmd.msearch.buttons.next_items'))
           .setStyle(ButtonStyle.Secondary)
           .setDisabled(totalItems <= 5)
       )
@@ -277,15 +287,15 @@ export default class MSearch extends Command {
         initialDownloadRow.addComponents(
           new ButtonBuilder()
             .setCustomId(`play_${i + 1}`)
-            .setLabel(`Assistir ${emojiNumbers[i]}`)
+            .setLabel(ctx.locale('cmd.msearch.buttons.watch', { number: emojiNumbers[i] }))
             .setStyle(ButtonStyle.Success)
         )
       }
 
       if (totalItems === 0) {
         const embed = new EmbedBuilder()
-          .setTitle(`**__Resultados da Pesquisa__**: ${search}`)
-          .setDescription('Nenhum resultado encontrado')
+          .setTitle(ctx.locale('cmd.msearch.messages.results_title', { query: search }))
+          .setDescription(ctx.locale('cmd.msearch.messages.results_empty'))
           .setColor(client.color.red)
 
         await interaction.update({ embeds: [embed] })
@@ -315,8 +325,8 @@ export default class MSearch extends Command {
             const file = cache.pages[currentPageIndex].files[startIndex + playIndex]
 
             const embed = new EmbedBuilder()
-              .setTitle(`**__Assistindo__**: ${file.name}`)
-              .setDescription(`O vídeo será reproduzido em instantes`)
+              .setTitle(ctx.locale('cmd.msearch.messages.watching_title'))
+              .setDescription(ctx.locale('cmd.msearch.messages.watching_description'))
               .setColor(client.color.yellow)
 
             await cInteraction.reply({ embeds: [embed] })
@@ -331,21 +341,24 @@ export default class MSearch extends Command {
 
             await client.selfbot.enqueue(ctx.guild.id, ctx.member, streamTrack, ctx.channel!.id)
 
-            embed.setAuthor({ name: 'Live Stream', iconURL: this.client.config.links.live })
-            embed.setTitle(`${file.name}`)
-            embed.setDescription(`O vídeo está sendo reproduzido`)
+            embed.setAuthor({
+              name: ctx.locale('cmd.msearch.messages.live_author'),
+              iconURL: this.client.config.links.live,
+            })
+            embed.setTitle(file.name)
+            embed.setDescription(ctx.locale('cmd.msearch.messages.playing_description'))
             embed.setColor(client.color.red)
 
             embed.addFields({
-              name: 'Tamanho',
+              name: ctx.locale('cmd.msearch.fields.size'),
               value: `${(Number.parseInt(file.size) / 1024 / 1024 / 1024).toFixed(2)} GB`,
             })
             embed.addFields({
-              name: 'Data de Modificação',
+              name: ctx.locale('cmd.msearch.fields.modified_at'),
               value: `${moment(file.modifiedTime).format('DD/MM/YYYY HH:mm:ss')}`,
             })
             embed.addFields({
-              name: 'Link',
+              name: ctx.locale('cmd.msearch.fields.download'),
               value: `[Download](${client.animezey.BASE_URL + file.link})`,
             })
 
@@ -369,8 +382,8 @@ export default class MSearch extends Command {
 
         collector.on('end', async () => {
           const embed = new EmbedBuilder()
-            .setTitle('**__Pesquisa Encerrada__**')
-            .setDescription('A pesquisa foi encerrada')
+            .setTitle(ctx.locale('cmd.msearch.messages.search_closed_title'))
+            .setDescription(ctx.locale('cmd.msearch.messages.search_closed_description'))
             .setColor(client.color.red)
 
           await message.edit({ components: [], embeds: [embed] })

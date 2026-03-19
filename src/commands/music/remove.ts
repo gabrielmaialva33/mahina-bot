@@ -39,7 +39,7 @@ export default class Remove extends Command {
     })
   }
 
-  async run(client: MahinaBot, ctx: Context, args: string[]): Promise<any> {
+  async run(client: MahinaBot, ctx: Context, args: string[]): Promise<void> {
     const player = client.manager.getPlayer(ctx.guild!.id)
     const embed = this.client.embed()
     if (!player) return await ctx.sendMessage(ctx.locale('event.message.no_music_playing'))

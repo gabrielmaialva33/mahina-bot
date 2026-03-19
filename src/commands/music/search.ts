@@ -8,7 +8,8 @@ import type { Player, SearchResult, Track } from 'lavalink-client'
 import Command from '#common/command'
 import type MahinaBot from '#common/mahina_bot'
 import type Context from '#common/context'
-import { enqueueTrack, ensureConnectedPlayer } from '#common/player_runtime'
+import { enqueueTrack, ensureConnectedPlayer, getMemberVoiceChannel } from '#common/player_runtime'
+import type { StringSelectMenuInteraction } from 'discord.js'
 
 export default class Search extends Command {
   constructor(client: MahinaBot) {
@@ -79,10 +80,11 @@ export default class Search extends Command {
     await enqueueTrack(player, track)
   }
 
-  async run(client: MahinaBot, ctx: Context, args: string[]): Promise<any> {
+  async run(client: MahinaBot, ctx: Context, args: string[]): Promise<void> {
     const embed = this.client.embed().setColor(this.client.color.main)
     const query = args.join(' ')
-    const memberVoiceChannel = (ctx.member as any).voice.channel as VoiceChannel
+    const memberVoiceChannel = getMemberVoiceChannel(ctx.member)
+    if (!memberVoiceChannel) return
     const player = await this.ensurePlayer(client, ctx, memberVoiceChannel)
 
     const response = (await player.search({ query: query }, ctx.author)) as SearchResult
@@ -119,12 +121,12 @@ export default class Search extends Command {
     })
 
     const collector = (ctx.channel as TextChannel).createMessageComponentCollector({
-      filter: (f: any) => f.user.id === ctx.author?.id,
+      filter: (f) => f.user.id === ctx.author?.id,
       max: 1,
       time: 60000,
       idle: 60000 / 2,
     })
-    collector.on('collect', async (int: any) => {
+    collector.on('collect', async (int: StringSelectMenuInteraction) => {
       const track = response.tracks[Number.parseInt(int.values[0])]
       await int.deferUpdate()
       if (!track) return

@@ -8,7 +8,11 @@ import type { SearchResult } from 'lavalink-client'
 import Command from '#common/command'
 import type MahinaBot from '#common/mahina_bot'
 import type Context from '#common/context'
-import { ensureConnectedPlayer, startPlayerIfIdle } from '#common/player_runtime'
+import {
+  ensureConnectedPlayer,
+  getMemberVoiceChannel,
+  startPlayerIfIdle,
+} from '#common/player_runtime'
 
 const AUTOCOMPLETE_TIMEOUT_MS = 2500
 
@@ -84,10 +88,11 @@ export default class Play extends Command {
     })
   }
 
-  async run(client: MahinaBot, ctx: Context, args: string[]): Promise<any> {
+  async run(client: MahinaBot, ctx: Context, args: string[]): Promise<void> {
     const query = args.join(' ')
     await ctx.sendDeferMessage(ctx.locale('cmd.play.loading'))
-    const memberVoiceChannel = (ctx.member as any).voice.channel as VoiceChannel
+    const memberVoiceChannel = getMemberVoiceChannel(ctx.member)
+    if (!memberVoiceChannel) return
     const player = await ensureConnectedPlayer(client, ctx, memberVoiceChannel)
 
     const response = (await player.search({ query: query }, ctx.author)) as SearchResult

@@ -32,7 +32,7 @@ export default class Skip extends Command {
     })
   }
 
-  async run(client: MahinaBot, ctx: Context): Promise<any> {
+  async run(client: MahinaBot, ctx: Context): Promise<void> {
     const player = client.manager.getPlayer(ctx.guild!.id)
     const embed = this.client.embed()
     if (!player) return await ctx.sendMessage(ctx.locale('event.message.no_music_playing'))
@@ -57,6 +57,6 @@ export default class Skip extends Command {
         ],
       })
     }
-    ctx.message?.react('👍')
+    await ctx.message?.react('👍')
   }
 }

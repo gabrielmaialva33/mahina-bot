@@ -58,7 +58,7 @@ export default class TrackStart extends Event {
           this.client.user?.displayAvatarURL({ extension: 'png' }),
       })
       .setColor(this.client.color.main)
-      .setDescription(`**[${track.info.title}](${track.info.uri})**`)
+      .setDescription(`[${track.info.title}](${track.info.uri})`)
       .setFooter({
         text: T(locale, 'player.trackStart.requested_by', {
           user: (track.requester as Requester).username,

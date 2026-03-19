@@ -126,7 +126,7 @@ export default class VPlay extends Command {
             iconURL: client.config.icons['youtube'],
           })
           .setColor(client.color.main)
-          .setDescription(`**[${title}](${webpage_url})**`)
+          .setDescription(`[${title}](${webpage_url})`)
           .setFooter({
             text: T(locale, 'player.trackStart.requested_by', { user: ctx.author.username }),
             iconURL: ctx.author.avatarURL() || ctx.author.defaultAvatarURL,

@@ -33,7 +33,7 @@ export default class Grab extends Command {
     })
   }
 
-  async run(client: MahinaBot, ctx: Context): Promise<any> {
+  async run(client: MahinaBot, ctx: Context): Promise<void> {
     const player = client.manager.getPlayer(ctx.guild!.id)
 
     await ctx.sendDeferMessage(ctx.locale('cmd.grab.loading'))
@@ -64,7 +64,7 @@ export default class Grab extends Command {
         embeds: [
           this.client
             .embed()
-            .setTitle(`**${song.info.title}**`)
+            .setTitle(song.info.title)
             .setURL(song.info.uri!)
             .setThumbnail(song.info.artworkUrl!)
             .setDescription(songInfo)

@@ -32,7 +32,7 @@ export default class Autoplay extends Command {
     })
   }
 
-  async run(client: MahinaBot, ctx: Context): Promise<any> {
+  async run(client: MahinaBot, ctx: Context): Promise<void> {
     const player = client.manager.getPlayer(ctx.guild!.id)
     if (!player) {
       return await ctx.sendMessage({

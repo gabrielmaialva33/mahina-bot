@@ -1,6 +1,8 @@
 import Command from '#common/command'
 import type MahinaBot from '#common/mahina_bot'
 import type Context from '#common/context'
+import type { Track } from 'lavalink-client'
+import type { Requester } from '#src/types'
 
 export default class Queue extends Command {
   constructor(client: MahinaBot) {
@@ -32,18 +34,19 @@ export default class Queue extends Command {
     })
   }
 
-  async run(client: MahinaBot, ctx: Context): Promise<any> {
+  async run(client: MahinaBot, ctx: Context): Promise<void> {
     const player = client.manager.getPlayer(ctx.guild!.id)
     if (!player) return await ctx.sendMessage(ctx.locale('event.message.no_music_playing'))
     const embed = this.client.embed()
     if (player.queue.current && player.queue.tracks.length === 0) {
+      const requester = player.queue.current.requester as Requester | undefined
       return await ctx.sendMessage({
         embeds: [
           embed.setColor(this.client.color.main).setDescription(
             ctx.locale('cmd.queue.now_playing', {
               title: player.queue.current.info.title,
               uri: player.queue.current.info.uri,
-              requester: (player.queue.current.requester as any).id,
+              requester: requester?.id ?? ctx.author?.id ?? '',
               duration: player.queue.current.info.isStream
                 ? ctx.locale('cmd.queue.live')
                 : client.utils.formatTime(player.queue.current.info.duration),
@@ -54,13 +57,14 @@ export default class Queue extends Command {
     }
     const songStrings: string[] = []
     for (let i = 0; i < player.queue.tracks.length; i++) {
-      const track = player.queue.tracks[i]
+      const track = player.queue.tracks[i] as Track
+      const requester = track.requester as Requester | undefined
       songStrings.push(
         ctx.locale('cmd.queue.track_info', {
           index: i + 1,
           title: track.info.title,
           uri: track.info.uri,
-          requester: (track.requester as any).id,
+          requester: requester?.id ?? ctx.author?.id ?? '',
           duration: track.info.isStream
             ? ctx.locale('cmd.queue.live')
             : client.utils.formatTime(track.info.duration!),
@@ -71,7 +75,7 @@ export default class Queue extends Command {
 
     if (chunks.length === 0) chunks = [songStrings]
 
-    const pages = chunks.map((chunk: any[], index: number) => {
+    const pages = chunks.map((chunk: string[], index: number) => {
       return this.client
         .embed()
         .setColor(this.client.color.main)

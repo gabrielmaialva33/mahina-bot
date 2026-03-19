@@ -41,7 +41,7 @@ export default class Lyrics extends Command {
     })
   }
 
-  async run(client: MahinaBot, ctx: Context): Promise<any> {
+  async run(client: MahinaBot, ctx: Context): Promise<void> {
     const player = client.manager.getPlayer(ctx.guild!.id)
     if (!player) return await ctx.sendMessage(ctx.locale('event.message.no_music_playing'))
     const embed = this.client.embed()
@@ -178,9 +178,9 @@ export default class Lyrics extends Command {
     }
   }
 
-  paginateLyrics(lyrics: string) {
+  paginateLyrics(lyrics: string): string[] {
     const lines = lyrics.split('\n')
-    const pages: any = []
+    const pages: string[] = []
     let page = ''
 
     for (const line of lines) {

@@ -7,6 +7,11 @@ import type { SearchResult } from 'lavalink-client'
 import Command from '#common/command'
 import type MahinaBot from '#common/mahina_bot'
 import type Context from '#common/context'
+import {
+  ensureConnectedPlayer,
+  getMemberVoiceChannel,
+  startPlayerIfIdle,
+} from '#common/player_runtime'
 
 export default class PlayNext extends Command {
   constructor(client: MahinaBot) {
@@ -58,21 +63,11 @@ export default class PlayNext extends Command {
     })
   }
 
-  async run(client: MahinaBot, ctx: Context, args: string[]): Promise<any> {
+  async run(client: MahinaBot, ctx: Context, args: string[]): Promise<void> {
     const query = args.join(' ')
-    let player = client.manager.getPlayer(ctx.guild!.id)
-    const memberVoiceChannel = (ctx.member as any).voice.channel as VoiceChannel
-
-    if (!player)
-      player = client.manager.createPlayer({
-        guildId: ctx.guild!.id,
-        voiceChannelId: memberVoiceChannel.id,
-        textChannelId: ctx.channel.id,
-        selfMute: false,
-        selfDeaf: true,
-        vcRegion: memberVoiceChannel.rtcRegion!,
-      })
-    if (!player.connected) await player.connect()
+    const memberVoiceChannel = getMemberVoiceChannel(ctx.member)
+    if (!memberVoiceChannel) return
+    const player = await ensureConnectedPlayer(client, ctx, memberVoiceChannel)
 
     await ctx.sendDeferMessage(ctx.locale('cmd.playnext.loading'))
 
@@ -119,7 +114,7 @@ export default class PlayNext extends Command {
         ],
       })
     }
-    if (!player.playing && player.queue.tracks.length > 0) await player.play({ paused: false })
+    await startPlayerIfIdle(player)
   }
 
   async autocomplete(interaction: AutocompleteInteraction): Promise<void> {
@@ -133,7 +128,7 @@ export default class PlayNext extends Command {
     const songs: ApplicationCommandOptionChoiceData[] = []
 
     if (res.loadType === 'search') {
-      res.tracks.slice(0, 10).forEach((track: { info: { title: any; author: any; uri: any } }) => {
+      res.tracks.slice(0, 10).forEach((track) => {
         const name = `${track.info.title} by ${track.info.author}`
         songs.push({
           name: name.length > 100 ? `${name.substring(0, 97)}...` : name,

@@ -4,9 +4,7 @@ import path from 'node:path'
 import Command from '#common/command'
 import MahinaBot from '#common/mahina_bot'
 import Context from '#common/context'
-import { ensureStreamCommandReady } from '#common/stream_runtime'
-
-import { T } from '#common/i18n'
+import { createStreamStatusEmbed, ensureStreamCommandReady } from '#common/stream_runtime'
 
 export default class MList extends Command {
   constructor(client: MahinaBot) {
@@ -43,7 +41,7 @@ export default class MList extends Command {
 
     const downloadsFiles = fs.readdirSync(path.join(process.cwd(), 'downloads'))
     if (downloadsFiles.length === 0) {
-      await ctx.sendMessage('cmd.mlist.messages.no_movies')
+      await ctx.sendMessage(ctx.locale('cmd.mlist.messages.no_movies'))
       return
     }
 
@@ -60,21 +58,16 @@ export default class MList extends Command {
     videos = videos.filter((movie) => movie!.name !== '.gitkeep')
 
     if (videos.length === 0) {
-      await ctx.sendMessage('cmd.mlist.messages.no_movies')
+      await ctx.sendMessage(ctx.locale('cmd.mlist.messages.no_movies'))
       return
     }
 
-    const locale = await client.db.getLanguage(ctx.guild.id)
-    const embed = this.client
-      .embed()
-      .setColor(client.color.main)
-      .setTitle(T(locale, 'cmd.mlist.messages.available_movies'))
-      .setDescription(videos.map((video) => `- ${video!.name}`).join('\n'))
-      .setFooter({
-        text: T(locale, 'player.trackStart.requested_by', { user: ctx.author.username }),
-        iconURL: ctx.author.avatarURL() || ctx.author.defaultAvatarURL,
-      })
-      .setTimestamp()
+    const embed = createStreamStatusEmbed(
+      client,
+      ctx,
+      ctx.locale('cmd.mlist.messages.available_movies'),
+      videos.map((video) => `- ${video!.name}`).join('\n')
+    )
 
     await ctx.sendMessage({ embeds: [embed] })
   }

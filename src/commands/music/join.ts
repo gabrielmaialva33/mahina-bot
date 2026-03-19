@@ -2,6 +2,7 @@ import type { VoiceChannel } from 'discord.js'
 import Command from '#common/command'
 import type MahinaBot from '#common/mahina_bot'
 import type Context from '#common/context'
+import { getMemberVoiceChannel } from '#common/player_runtime'
 
 export default class Join extends Command {
   constructor(client: MahinaBot) {
@@ -40,7 +41,7 @@ export default class Join extends Command {
     })
   }
 
-  async run(client: MahinaBot, ctx: Context): Promise<any> {
+  async run(client: MahinaBot, ctx: Context): Promise<void> {
     const embed = this.client.embed()
     let player = client.manager.getPlayer(ctx.guild!.id)
 
@@ -56,7 +57,7 @@ export default class Join extends Command {
       })
     }
 
-    const memberVoiceChannel = (ctx.member as any).voice.channel as VoiceChannel
+    const memberVoiceChannel = getMemberVoiceChannel(ctx.member)
     if (!memberVoiceChannel) {
       return await ctx.sendMessage({
         embeds: [
