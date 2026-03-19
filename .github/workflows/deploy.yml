@@ -9,7 +9,25 @@ env:
   IMAGE: ghcr.io/gabrielmaialva33/mahina-bot
 
 jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'pnpm'
+
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm lint
+
   build:
+    needs: lint
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -63,6 +81,7 @@ jobs:
           source: docker-compose.prod.yml,application.yml,lavalink/
           target: /opt/mahina-bot
           overwrite: true
+          strip_components: 0
 
       - name: Deploy
         uses: appleboy/ssh-action@v1
@@ -73,8 +92,18 @@ jobs:
           script: |
             set -e
             cd /opt/mahina-bot
+
+            # Usa compose de prod como default
             cp -f docker-compose.prod.yml docker-compose.yml
+
+            # Pull da imagem nova
             docker compose pull mahina
+
+            # Deploy com zero downtime
             docker compose up -d --remove-orphans
+
+            # Limpa imagens antigas
             docker image prune -f
-            echo "✅ deployed"
+
+            # Status
+            docker compose ps
