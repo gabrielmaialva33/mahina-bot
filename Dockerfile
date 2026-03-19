@@ -62,8 +62,8 @@ WORKDIR /opt/mahina-bot
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     ca-certificates openssl \
-    libglib2.0-0t64 libexpat1 libjpeg62-turbo libpng16-16t64 \
-    libwebp7t64 libexif12 libtiff6 libheif1 libcgif0 \
+    libglib2.0-0 libexpat1 libjpeg62-turbo libpng16-16 \
+    libwebp7 libexif12 libtiff6 libheif1 libcgif0 \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy libvips 8.18 shared libs for runtime
