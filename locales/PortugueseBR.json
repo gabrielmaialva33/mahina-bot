@@ -13,6 +13,7 @@
     },
     "ping": {
       "description": "🏓 Mostra o ping do bot.",
+      "title": "Pong",
       "content": "⏳ Calculando ping...",
       "bot_latency": "📶 Latência do Bot",
       "api_latency": "🌐 Latência da API",
@@ -21,11 +22,26 @@
     "lavalink": {
       "description": "📊 Mostra as estatísticas atuais do Lavalink.",
       "title": "📈 Estatísticas do Lavalink",
+      "runtime_overview": "Nós saudáveis: {healthy}/{total} · Players: {players} · Tocando: {playing} · Reconectando: {reconnecting}",
+      "node_title": "{id} · {status}",
+      "status": {
+        "healthy": "saudável",
+        "reconnecting": "reconectando",
+        "down": "fora"
+      },
+      "metrics": {
+        "players": "🎵 Players: {value} · Tocando agora: {active}",
+        "uptime": "⏱️ Uptime: {value}",
+        "memory": "💾 Memória: {used} / {total}",
+        "cpu": "🖥️ CPU: {cores} núcleo(s) · Sistema {system}% · Lavalink {lavalink}%",
+        "retries": "🔁 Tentativas de reconexão: {value}"
+      },
       "content": "🎵 Players: {players}\n🎶 Players Tocando: {playingPlayers}\n⏱️ Tempo de Atividade: {uptime}\n🖥️ Núcleos: {cores} Núcleo(s)\n📂 Uso de Memória: {used} / {reservable}\n⚙️ Carga do Sistema: {systemLoad}%\n🔧 Carga do Lavalink: {lavalinkLoad}%",
       "page_info": "📄 Página {index} de {total}"
     },
     "invite": {
       "description": "🔗 Obtenha o link de convite do bot.",
+      "title": "🔗 Convite e suporte",
       "content": "Você pode me convidar clicando no botão abaixo. Encontrou bugs ou problemas? Junte-se ao servidor de suporte! 🚀"
     },
     "help": {
@@ -33,22 +49,46 @@
       "options": {
         "command": "🛠️ O comando sobre o qual você quer informações"
       },
-      "content": "Olá! Eu sou {bot}, um bot de música feito com [MahinaBot](https://github.com/gabrielmaialva33/mahina-bot) e Discord.js. Você pode usar {prefix}help <comando> para obter mais informações sobre um comando.",
+      "content": "{bot} tá com {prefix} como prefixo aqui. Se quiser algo específico, manda {prefix}help <comando> e eu abro os detalhes.",
+      "quick_start": "Comandos disponíveis agora: {total}\nComeça por {prefix}play, {prefix}queue, {prefix}mahinai ou {prefix}help <comando>.",
       "title": "📘 Menu de Ajuda",
       "not_found": "❌ O comando {cmdName} não existe.",
-      "help_cmd": "📝 Descrição: {description}\nUso: {usage}\nExemplos: {examples}\nAliases: {aliases}\nCategoria: {category}\nCooldown: {cooldown} segundos\nPermissões: {premUser}\nPermissões do Bot: {premBot}\nApenas Desenvolvedor: {dev}\nComando Slash: {slash}\nArgumentos: {args}\nPlayer: {player}\nDJ: {dj}\nPermissões DJ: {djPerm}\nVoz: {voice}",
-      "footer": "ℹ️ Use {prefix}help <comando> para mais informações sobre um comando"
+      "help_cmd": "Aliases: {aliases}\nCategoria: {category}\nCooldown: {cooldown}s\nPermissões do user: {premUser}\nPermissões do bot: {premBot}\nDev only: {dev}\nSlash: {slash}\nArgs: {args}\nPrecisa de player: {player}\nPrecisa de DJ: {dj}\nPermissão DJ: {djPerm}\nPrecisa de voz: {voice}",
+      "meta": "Resumo: {description}",
+      "category_title": "{category} · {count} comando(s)",
+      "sections": {
+        "quick_start": "⚡ Começo rápido",
+        "usage": "🧩 Como usar",
+        "examples": "🧪 Exemplos",
+        "details": "📋 Detalhes"
+      },
+      "values": {
+        "yes": "sim",
+        "no": "não",
+        "none": "nenhum"
+      },
+      "footer": "ℹ️ Usa {prefix}help <comando> quando quiser abrir um comando em detalhes"
     },
     "botinfo": {
       "description": "ℹ️ Informações sobre o bot",
-      "content": "🤖 Informações do Bot:\n- 💻 Sistema Operacional: {osInfo}\n- ⏳ Tempo de Atividade: {osUptime}\n- 🏠 Hostname: {osHostname}\n- 🔧 Arquitetura da CPU: {cpuInfo}\n- ⚙️ Uso da CPU: {cpuUsed}%\n- 📂 Uso de Memória: {memUsed}MB / {memTotal}GB\n- 🛠️ Versão do Node: {nodeVersion}\n- 📜 Versão do Discord.js: {discordJsVersion}\n- 🌐 Conectado a {guilds} servidores, {channels} canais e {users} usuários\n- 🎵 Total de Comandos: {commands}"
+      "title": "🤖 Estado do bot",
+      "fields": {
+        "runtime": "🧠 Runtime",
+        "resources": "⚙️ Recursos",
+        "scale": "🌐 Alcance"
+      },
+      "runtime": "SO: {osInfo}\nUptime: {osUptime}\nHostname: {osHostname}\nNode: {nodeVersion}\nDiscord.js: {discordJsVersion}",
+      "resources": "CPU: {cpuInfo}\nUso CPU: {cpuUsed}%\nMemória: {memUsed}MB / {memTotal}GB",
+      "scale": "Servidores: {guilds}\nCanais: {channels}\nUsuários: {users}\nComandos: {commands}"
     },
     "about": {
       "description": "❓ Mostra informações sobre o bot",
+      "summary": "Mahina junta música, presença social e IA num bot que sente o clima do server em vez de só reagir igual NPC.",
       "fields": {
         "creator": "👤 Criador",
         "repository": "📂 Repositório",
         "support": "🔧 Suporte",
+        "project": "✨ Projeto",
         "description": "Ele realmente queria fazer seu primeiro projeto de código aberto para ganhar mais experiência em programação. Neste projeto, ele foi desafiado a fazer um projeto com menos bugs. Espero que você goste de usar o MahinaBot! 🎉"
       }
     },
@@ -339,6 +379,11 @@
       "description": "📃 Mostra a fila atual",
       "now_playing": "▶️ Tocando agora: [{title}]({uri}) - 🎙️ Solicitado por: <@{requester}> - ⏱️ Duração: {duration}",
       "live": "🔴 AO VIVO",
+      "sections": {
+        "summary": "📌 Resumo",
+        "up_next": "⏭️ Próximas da fila"
+      },
+      "summary": "Próximas faixas: {upcoming}\nTempo acumulado: {totalDuration}",
       "track_info": "{index}. [{title}]({uri}) - 🎙️ Solicitado por: <@{requester}> - ⏱️ Duração: {duration}",
       "title": "🎵 Fila",
       "page_info": "📄 Página {index} de {total}"
@@ -455,7 +500,11 @@
         "no_song": "⚠️ Por favor, forneça uma música.",
         "playlist_not_found": "❌ Essa playlist não existe.",
         "no_songs_found": "⚠️ Nenhuma música encontrada.",
-        "added": "✅ Adicionada(s) {count} música(s) à playlist {playlist}."
+        "added_title": "🎵 Música adicionada",
+        "added": "✅ Adicionada(s) {count} música(s) à playlist {playlist}.",
+        "fields": {
+          "song": "🔎 Busca usada"
+        }
       }
     },
     "create": {
@@ -466,7 +515,11 @@
       "messages": {
         "name_too_long": "⚠️ Os nomes das playlists podem ter no máximo 50 caracteres.",
         "playlist_exists": "❌ Uma playlist com esse nome já existe. Por favor, use um nome diferente.",
-        "playlist_created": "✅ A playlist {name} foi criada com sucesso!"
+        "playlist_created_title": "🆕 Playlist criada",
+        "playlist_created": "✅ A playlist {name} foi criada com sucesso!",
+        "fields": {
+          "name": "📝 Nome"
+        }
       }
     },
     "delete": {
@@ -476,7 +529,11 @@
       },
       "messages": {
         "playlist_not_found": "❌ Essa playlist não existe.",
-        "playlist_deleted": "✅ Playlist {playlistName} excluída com sucesso!"
+        "playlist_deleted_title": "🗑️ Playlist excluída",
+        "playlist_deleted": "✅ Playlist {playlistName} excluída com sucesso!",
+        "fields": {
+          "name": "📝 Nome"
+        }
       }
     },
     "list": {
@@ -485,9 +542,15 @@
         "user": "👤 O usuário cujas playlists você deseja recuperar"
       },
       "messages": {
+        "invalid_username": "❌ Não achei esse usuário por menção, ID ou username.",
+        "invalid_userid": "❌ Não consegui resolver um usuário válido para listar playlists.",
         "no_playlists": "⚠️ Este usuário não tem playlists.",
         "your": "📂 Suas",
         "playlists_title": "📂 Playlists de {username}",
+        "summary": "Total de playlists: {count}",
+        "section": "🗂️ Lista",
+        "item": "{index}. {name} · {count} faixa(s)",
+        "page_info": "Página {index} de {total}",
         "error": "❌ Ocorreu um erro ao recuperar as playlists."
       }
     },
@@ -497,9 +560,19 @@
         "playlist": "📝 A playlist que você deseja carregar"
       },
       "messages": {
+        "playlist_loaded_title": "📂 Playlist carregada",
         "playlist_not_exist": "❌ Essa playlist não existe.",
         "playlist_empty": "⚠️ Essa playlist está vazia.",
-        "playlist_loaded": "✅ Playlist {name} carregada com {count} músicas."
+        "playlist_loaded": "✅ Playlist {name} carregada com {count} músicas.",
+        "no_nodes": "❌ Nenhum nó do Lavalink está disponível para decodificar essa playlist agora.",
+        "playback_started": "tocando agora",
+        "playback_queued": "entrou na fila",
+        "footer": "Playlist: {name}",
+        "fields": {
+          "queue": "📋 Itens na fila",
+          "voice": "🔊 Canal de voz",
+          "playback": "▶️ Estado"
+        }
       }
     },
     "removesong": {
@@ -513,8 +586,12 @@
         "provide_song": "⚠️ Por favor, forneça uma música.",
         "playlist_not_exist": "❌ Essa playlist não existe.",
         "song_not_found": "⚠️ Nenhuma música correspondente encontrada.",
+        "song_removed_title": "🗑️ Música removida",
         "song_removed": "✅ Música {song} removida da playlist {playlist}.",
-        "error_occurred": "❌ Ocorreu um erro ao remover a música."
+        "error_occurred": "❌ Ocorreu um erro ao remover a música.",
+        "fields": {
+          "match": "🎯 Faixa encontrada"
+        }
       }
     },
     "steal": {
@@ -524,11 +601,17 @@
         "user": "👤 O usuário de quem você deseja roubar a playlist"
       },
       "messages": {
+        "invalid_user": "❌ Username inválido ou usuário não encontrado.",
         "provide_playlist": "⚠️ Por favor, forneça um nome de playlist.",
         "provide_user": "⚠️ Por favor, mencione um usuário.",
         "playlist_not_exist": "❌ Essa playlist não existe para o usuário mencionado.",
+        "playlist_stolen_title": "🎭 Playlist roubada",
         "playlist_stolen": "✅ Playlist {playlist} roubada com sucesso de {user}.",
-        "error_occurred": "❌ Ocorreu um erro ao roubar a playlist."
+        "unknown_user": "usuário desconhecido",
+        "error_occurred": "❌ Ocorreu um erro ao roubar a playlist.",
+        "fields": {
+          "tracks": "🎵 Faixas"
+        }
       }
     },
     "mlist": {
@@ -1159,6 +1242,39 @@
       "playlist_too_long": "⚠️ A playlist é muito longa. O tamanho máximo é {maxPlaylistSize} músicas.",
       "added_to_queue": "✅ Adicionado [{title}]({uri}) à fila.",
       "added_playlist_to_queue": "✅ Adicionadas [{length}] músicas da playlist à fila."
+    },
+    "trackPanel": {
+      "fields": {
+        "progress": "⏳ Progresso",
+        "author": "🎵 Autor",
+        "requester": "🎙️ Pedido",
+        "controls": "⚙️ Estado",
+        "up_next": "📋 Na sequência"
+      },
+      "controls": {
+        "loop": "Loop: {value}",
+        "autoplay": "Autoplay: {value}",
+        "volume": "Volume: {value}",
+        "queue_size": "Fila: {value}"
+      },
+      "loop": {
+        "off": "desligado",
+        "track": "faixa",
+        "queue": "fila"
+      },
+      "autoplay": {
+        "on": "ligado",
+        "off": "desligado"
+      },
+      "queue": {
+        "empty": "nada na sequência por enquanto",
+        "item": "{index}. {title}"
+      },
+      "requester": {
+        "unknown": "desconhecido",
+        "unknown_label": "desconhecido"
+      },
+      "live": "LIVE agora"
     }
   },
   "event": {
