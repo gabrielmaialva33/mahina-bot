@@ -96,11 +96,26 @@ const envSchema = z.object({
     .default('3050')
     .transform((val) => Number.parseInt(val, 10)),
   NVIDIA_API_KEY: z.string().optional(),
+  NVIDIA_API_KEYS: z.preprocess(
+    (val) =>
+      typeof val === 'string' && val.includes(',')
+        ? val
+            .split(',')
+            .map((k) => k.trim())
+            .filter(Boolean)
+        : undefined,
+    z.string().array().optional()
+  ),
   OPENAI_API_KEY: z.string().optional(),
   GEMINI_API_KEY: z.string().optional(),
   GROQ_API_KEY: z.string().optional(),
   AI_PRIMARY_MODEL: z.string().default('nvidia/llama-3.1-nemotron-ultra-253b-v1'),
   AI_FAST_MODEL: z.string().default('llama-3.3-70b-versatile'),
+  AI_LURKER_ENABLED: z.preprocess((val) => val === 'true', z.boolean().default(false)),
+  AI_LURKER_CHANCE: z.preprocess(
+    (val) => (typeof val === 'string' ? Number.parseFloat(val) : val),
+    z.number().min(0).max(1).default(0.03)
+  ),
 })
 
 type Env = z.infer<typeof envSchema>
