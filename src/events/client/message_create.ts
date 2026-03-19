@@ -14,6 +14,7 @@ import { T } from '#common/i18n'
 import Event from '#common/event'
 import Context from '#common/context'
 import type MahinaBot from '#common/mahina_bot'
+import { env } from '#src/env'
 import {
   getCooldownTimeLeft,
   getMissingClientPermissions,
@@ -44,6 +45,16 @@ export default class MessageCreate extends Event {
 
     if ((mahinaMention || botMention) && !message.content.startsWith(prefix)) {
       return this.client.emit('aiMention', message)
+    }
+
+    // Lurker mode: Mahina occasionally observes and comments
+    if (
+      env.AI_LURKER_ENABLED &&
+      this.client.services.brain &&
+      !message.content.startsWith(prefix) &&
+      Math.random() < (env.AI_LURKER_CHANCE || 0.03)
+    ) {
+      this.handleLurker(message).catch(() => {})
     }
 
     const setup = await this.client.db.getSetup(message.guildId)
@@ -317,6 +328,16 @@ export default class MessageCreate extends Event {
 
         await (logs as TextChannel).send({ embeds: [embed] })
       }
+    }
+  }
+
+  private async handleLurker(message: Message): Promise<void> {
+    const brain = this.client.services.brain
+    if (!brain) return
+
+    const response = await brain.analyzeForIntervention(message)
+    if (response) {
+      await message.reply({ content: response }).catch(() => {})
     }
   }
 }
