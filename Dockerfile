@@ -6,12 +6,16 @@ ENV PNPM_HOME=/pnpm
 ENV PATH=$PNPM_HOME:$PATH
 WORKDIR /opt/mahina-bot
 
-RUN apt-get update && apt-get install -y --no-install-recommends     ca-certificates     openssl     python3     python-is-python3     make     g++     && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    ca-certificates openssl python3 python-is-python3 make g++ \
+    pkg-config libglib2.0-dev libexpat1-dev \
+    && rm -rf /var/lib/apt/lists/*
 
 RUN npm config set update-notifier false && npm install -g pnpm@${PNPM_VERSION}
 
 FROM base AS deps
 COPY package.json pnpm-lock.yaml* ./
+ENV npm_config_sharp_force_compile=true
 RUN pnpm install --frozen-lockfile
 
 FROM deps AS build
