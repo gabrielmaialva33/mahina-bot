@@ -31,10 +31,8 @@ export default class AIMention extends Event {
       if (!this.brain || !this.brain.isAvailable()) return
 
       const aiConfig = await this.client.db.getAIConfig(message.guildId!)
-
       if (!aiConfig.enabled) return
 
-      // Channel allowlist check
       if (
         aiConfig.allowedChannels.length > 0 &&
         !aiConfig.allowedChannels.includes(message.channelId)
@@ -59,7 +57,7 @@ export default class AIMention extends Event {
         aiConfig.defaultPersonality ||
         'humor_negro'
 
-      // Load chat history from database
+      // Load chat history
       const chatHistory = await this.client.db.getChatHistory(message.channelId)
       const historyMessages: ChatMessage[] = chatHistory?.messages
         ? Array.isArray(chatHistory.messages)
@@ -67,17 +65,15 @@ export default class AIMention extends Event {
           : []
         : []
 
-      // Strip bot mentions from message content
+      // Strip bot mentions
       let cleanContent = message.content
         .replace(new RegExp(`<@!?${this.client.user?.id}>`, 'g'), '')
         .replace(/mahina/gi, '')
         .trim()
 
-      if (!cleanContent) {
-        cleanContent = 'Olá!'
-      }
+      if (!cleanContent) cleanContent = 'Olá!'
 
-      // Build conversation context from recent history
+      // Build conversation context
       const recentHistory = historyMessages
         .slice(-aiConfig.contextWindow)
         .map((m) => ({ role: m.role as 'user' | 'assistant', content: m.content }))
@@ -88,6 +84,9 @@ export default class AIMention extends Event {
       const guildName = message.guild?.name ?? 'Server Desconhecido'
       const channelName = 'name' in message.channel ? message.channel.name || 'geral' : 'geral'
 
+      // Streaming: send placeholder, edit as chunks arrive
+      let reply: Message | null = null
+
       const response = await this.brain.think(
         recentHistory,
         message.author.id,
@@ -95,34 +94,36 @@ export default class AIMention extends Event {
         channelName,
         message.author.username,
         guildName,
-        userPersonality
+        userPersonality,
+        {
+          onStart: async (content) => {
+            reply = await message.reply({ content: content + ' ▌' })
+          },
+          onUpdate: async (content) => {
+            if (reply) {
+              await reply.edit({ content: content + ' ▌' }).catch(() => {})
+            }
+          },
+          onEnd: async (content) => {
+            // Final edit with buttons — remove cursor
+            const buttons = this.buildButtons()
+            if (reply) {
+              await reply.edit({ content, components: [buttons] }).catch(() => {})
+            } else {
+              // Fallback if streaming never started
+              reply = await message.reply({ content, components: [buttons] })
+            }
+          },
+        }
       )
 
-      const buttons = new ActionRowBuilder<ButtonBuilder>().addComponents(
-        new ButtonBuilder()
-          .setCustomId('ai_memory')
-          .setLabel('Memória')
-          .setEmoji('🧠')
-          .setStyle(ButtonStyle.Secondary),
-        new ButtonBuilder()
-          .setCustomId('ai_personality')
-          .setLabel('Personalidade')
-          .setEmoji('🎭')
-          .setStyle(ButtonStyle.Secondary),
-        new ButtonBuilder()
-          .setCustomId('ai_new_chat')
-          .setLabel('Nova Conversa')
-          .setEmoji('🔄')
-          .setStyle(ButtonStyle.Secondary)
-      )
+      // If streaming callbacks never fired (non-streaming fallback)
+      if (!reply) {
+        const buttons = this.buildButtons()
+        reply = await message.reply({ content: response, components: [buttons] })
+      }
 
-      // Reply as plain text, not embed
-      const reply = await message.reply({
-        content: response,
-        components: [buttons],
-      })
-
-      // Persist to chat history
+      // Persist chat history
       const userMsg: ChatMessage = { role: 'user', content: cleanContent, timestamp: Date.now() }
       const assistantMsg: ChatMessage = {
         role: 'assistant',
@@ -141,110 +142,130 @@ export default class AIMention extends Event {
       await this.client.db.updateAIStats(message.guildId!, message.channelId, message.author.id)
 
       // Collect button interactions
-      const collector = reply.createMessageComponentCollector({
-        componentType: ComponentType.Button,
-        time: 120_000,
-      })
-
-      collector.on('collect', async (interaction) => {
-        if (interaction.user.id !== message.author.id) {
-          return interaction.reply({
-            content: 'isso não é pra você, intrometido 💀',
-            flags: MessageFlags.Ephemeral,
-          })
-        }
-
-        switch (interaction.customId) {
-          case 'ai_memory': {
-            const brainDump = await this.brain!.getUserBrainDump(
-              message.author.id,
-              message.guildId!
-            )
-            const embed = new EmbedBuilder()
-              .setColor(this.client.config.color.main)
-              .setTitle(`🧠 O que eu sei sobre ${message.author.username}`)
-              .setDescription(brainDump)
-              .setFooter({ text: 'Mahina Memory System' })
-
-            await interaction.reply({
-              embeds: [embed],
-              flags: MessageFlags.Ephemeral,
-            })
-            break
-          }
-
-          case 'ai_personality': {
-            const personalities = this.brain!.getPersonalities()
-            const options = Object.entries(personalities).map(([key, p]) => ({
-              label: p.name,
-              description: key === 'humor_negro' ? 'Personalidade padrão' : `Overlay: ${key}`,
-              value: key,
-              emoji: p.emoji,
-            }))
-
-            const selectMenu = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
-              new StringSelectMenuBuilder()
-                .setCustomId('ai_personality_select')
-                .setPlaceholder('Escolha uma personalidade')
-                .addOptions(options)
-            )
-
-            const personalityEmbed = new EmbedBuilder()
-              .setColor(this.client.config.color.main)
-              .setTitle('🎭 Personalidades da Mahina')
-              .setDescription('A base é sempre a mesma — só muda o tom.')
-              .setFooter({ text: `Atual: ${userPersonality}` })
-
-            for (const p of Object.values(personalities)) {
-              personalityEmbed.addFields({
-                name: `${p.emoji} ${p.name}`,
-                value: p.overlay || 'Identidade core — sem filtro',
-                inline: true,
-              })
-            }
-
-            await interaction.reply({
-              embeds: [personalityEmbed],
-              components: [selectMenu],
-              flags: MessageFlags.Ephemeral,
-            })
-
-            const selectCollector = interaction.channel?.createMessageComponentCollector({
-              componentType: ComponentType.StringSelect,
-              time: 60_000,
-              filter: (i) =>
-                i.customId === 'ai_personality_select' && i.user.id === message.author.id,
-            })
-
-            selectCollector?.on('collect', async (selectInteraction) => {
-              const selected = selectInteraction.values[0]
-              this.userPersonalities.set(message.author.id, selected)
-
-              const selectedP = this.brain!.getPersonality(selected)
-              await selectInteraction.update({
-                content: `${selectedP?.emoji} personalidade trocada pra **${selectedP?.name}**`,
-                embeds: [],
-                components: [],
-              })
-            })
-            break
-          }
-
-          case 'ai_new_chat': {
-            await this.client.db.clearChatHistory(message.channelId)
-            await interaction.reply({
-              content: 'zerou. esqueci tudo que rolou aqui 🧹',
-              flags: MessageFlags.Ephemeral,
-            })
-            break
-          }
-        }
-      })
+      this.setupCollector(reply, message, userPersonality)
     } catch (error: any) {
       console.error('AI Mention Error:', error)
       await message.reply({
         content: 'deu ruim aqui nos meus circuitos. tenta dnv 💀',
       })
     }
+  }
+
+  private buildButtons(): ActionRowBuilder<ButtonBuilder> {
+    return new ActionRowBuilder<ButtonBuilder>().addComponents(
+      new ButtonBuilder()
+        .setCustomId('ai_memory')
+        .setLabel('Memória')
+        .setEmoji('🧠')
+        .setStyle(ButtonStyle.Secondary),
+      new ButtonBuilder()
+        .setCustomId('ai_personality')
+        .setLabel('Personalidade')
+        .setEmoji('🎭')
+        .setStyle(ButtonStyle.Secondary),
+      new ButtonBuilder()
+        .setCustomId('ai_new_chat')
+        .setLabel('Nova Conversa')
+        .setEmoji('🔄')
+        .setStyle(ButtonStyle.Secondary)
+    )
+  }
+
+  private setupCollector(reply: Message, message: Message, userPersonality: string): void {
+    const collector = reply.createMessageComponentCollector({
+      componentType: ComponentType.Button,
+      time: 120_000,
+    })
+
+    collector.on('collect', async (interaction) => {
+      if (interaction.user.id !== message.author.id) {
+        return interaction.reply({
+          content: 'isso não é pra você, intrometido 💀',
+          flags: MessageFlags.Ephemeral,
+        })
+      }
+
+      switch (interaction.customId) {
+        case 'ai_memory': {
+          const brainDump = await this.brain!.getUserBrainDump(message.author.id, message.guildId!)
+          await interaction.reply({
+            embeds: [
+              new EmbedBuilder()
+                .setColor(this.client.config.color.main)
+                .setTitle(`🧠 O que eu sei sobre ${message.author.username}`)
+                .setDescription(brainDump)
+                .setFooter({ text: 'Mahina Memory System' }),
+            ],
+            flags: MessageFlags.Ephemeral,
+          })
+          break
+        }
+
+        case 'ai_personality': {
+          const personalities = this.brain!.getPersonalities()
+          const options = Object.entries(personalities).map(([key, p]) => ({
+            label: p.name,
+            description: key === 'humor_negro' ? 'Personalidade padrão' : `Overlay: ${key}`,
+            value: key,
+            emoji: p.emoji,
+          }))
+
+          const selectMenu = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
+            new StringSelectMenuBuilder()
+              .setCustomId('ai_personality_select')
+              .setPlaceholder('Escolha uma personalidade')
+              .addOptions(options)
+          )
+
+          const personalityEmbed = new EmbedBuilder()
+            .setColor(this.client.config.color.main)
+            .setTitle('🎭 Personalidades da Mahina')
+            .setDescription('A base é sempre a mesma — só muda o tom.')
+            .setFooter({ text: `Atual: ${userPersonality}` })
+
+          for (const p of Object.values(personalities)) {
+            personalityEmbed.addFields({
+              name: `${p.emoji} ${p.name}`,
+              value: p.overlay || 'Identidade core — sem filtro',
+              inline: true,
+            })
+          }
+
+          await interaction.reply({
+            embeds: [personalityEmbed],
+            components: [selectMenu],
+            flags: MessageFlags.Ephemeral,
+          })
+
+          const selectCollector = interaction.channel?.createMessageComponentCollector({
+            componentType: ComponentType.StringSelect,
+            time: 60_000,
+            filter: (i) =>
+              i.customId === 'ai_personality_select' && i.user.id === message.author.id,
+          })
+
+          selectCollector?.on('collect', async (selectInteraction) => {
+            const selected = selectInteraction.values[0]
+            this.userPersonalities.set(message.author.id, selected)
+            const selectedP = this.brain!.getPersonality(selected)
+            await selectInteraction.update({
+              content: `${selectedP?.emoji} personalidade trocada pra **${selectedP?.name}**`,
+              embeds: [],
+              components: [],
+            })
+          })
+          break
+        }
+
+        case 'ai_new_chat': {
+          await this.client.db.clearChatHistory(message.channelId)
+          await interaction.reply({
+            content: 'zerou. esqueci tudo que rolou aqui 🧹',
+            flags: MessageFlags.Ephemeral,
+          })
+          break
+        }
+      }
+    })
   }
 }
