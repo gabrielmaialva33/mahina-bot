@@ -48,31 +48,6 @@ services:
         max-size: 10m
         max-file: '3'
 
-  mahina:
-    build:
-      context: .
-      dockerfile: Dockerfile
-      args:
-        NODE_VERSION: 25
-        PNPM_VERSION: 10.32.1
-    restart: unless-stopped
-    env_file:
-      - .env
-    depends_on:
-      redis:
-        condition: service_healthy
-      lavalink:
-        condition: service_healthy
-    environment:
-      DATABASE_URL: ${DATABASE_URL}
-      REDIS_URL: redis://:${REDIS_PASSWORD:-change-me-redis-password}@redis:6379
-      AI_QUEUE_ENABLED: ${AI_QUEUE_ENABLED:-true}
-      AUTO_NODE: ${AUTO_NODE:-true}
-      PORT: ${PORT:-3050}
-      NODES: '[{"id":"docker","host":"lavalink","port":2333,"authorization":"${LAVALINK_PASSWORD:-change-me-lavalink-password}","retryAmount":5,"retryDelay":60000,"secure":false}]'
-    ports:
-      - '${PORT:-3050}:${PORT:-3050}'
-
 volumes:
   redis-data:
   lavalink-logs:
