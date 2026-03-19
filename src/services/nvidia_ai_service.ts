@@ -226,7 +226,10 @@ export class NvidiaAIService {
   private client: OpenAI
   private activeModel: string = 'llama-70b'
   private userModels: Map<string, string> = new Map()
-  private usageStats: Map<string, { totalTokens: number; totalRequests: number; totalCost: number }> = new Map()
+  private usageStats: Map<
+    string,
+    { totalTokens: number; totalRequests: number; totalCost: number }
+  > = new Map()
 
   constructor(apiKey: string) {
     this.client = new OpenAI({
@@ -286,8 +289,8 @@ export class NvidiaAIService {
           role: 'user',
           content: [
             { type: 'text', text: message },
-            { type: 'image_url', image_url: { url: imageUrl } }
-          ]
+            { type: 'image_url', image_url: { url: imageUrl } },
+          ],
         })
       } else {
         messages.push({ role: 'user', content: message })
@@ -310,11 +313,11 @@ export class NvidiaAIService {
 
       return {
         content: completion.choices[0]?.message?.content || 'No response generated',
-        usage: completion.usage
+        usage: completion.usage,
       }
     } catch (error: any) {
       logger.error('NVIDIA AI chat error:', error)
-      
+
       // Enhanced error handling for specific NVIDIA API errors
       if (error.response?.status === 401) {
         throw new Error('Invalid API key. Please check your NVIDIA API configuration.')
@@ -323,9 +326,11 @@ export class NvidiaAIService {
       } else if (error.response?.status === 503) {
         throw new Error('Model temporarily unavailable. Please try a different model.')
       } else if (error.message?.includes('context_length_exceeded')) {
-        throw new Error(`Context length exceeded for ${model.name}. Try a shorter message or use a model with larger context.`)
+        throw new Error(
+          `Context length exceeded for ${model.name}. Try a shorter message or use a model with larger context.`
+        )
       }
-      
+
       throw new Error(`Failed to generate AI response: ${error.message || 'Unknown error'}`)
     }
   }
@@ -479,7 +484,7 @@ export class NvidiaAIService {
     if (!model) return
 
     const stats = this.usageStats.get(userId) || { totalTokens: 0, totalRequests: 0, totalCost: 0 }
-    
+
     stats.totalTokens += tokens
     stats.totalRequests += 1
     // Rough cost estimation (actual costs may vary)
@@ -489,7 +494,9 @@ export class NvidiaAIService {
     this.usageStats.set(userId, stats)
   }
 
-  getUserUsageStats(userId: string): { totalTokens: number; totalRequests: number; totalCost: number } | null {
+  getUserUsageStats(
+    userId: string
+  ): { totalTokens: number; totalRequests: number; totalCost: number } | null {
     return this.usageStats.get(userId) || null
   }
 
@@ -497,7 +504,10 @@ export class NvidiaAIService {
     this.usageStats.delete(userId)
   }
 
-  getAllUsageStats(): Map<string, { totalTokens: number; totalRequests: number; totalCost: number }> {
+  getAllUsageStats(): Map<
+    string,
+    { totalTokens: number; totalRequests: number; totalCost: number }
+  > {
     return new Map(this.usageStats)
   }
 
@@ -517,9 +527,11 @@ export class NvidiaAIService {
 
     // Check if model supports function calling (mainly newer models)
     const supportsFunctions = ['deepseek-r1', 'mistral-large-2', 'mixtral-8x22b'].includes(modelKey)
-    
+
     if (!supportsFunctions) {
-      throw new Error(`Model ${model.name} does not support function calling. Try using DeepSeek R1 or Mistral Large 2.`)
+      throw new Error(
+        `Model ${model.name} does not support function calling. Try using DeepSeek R1 or Mistral Large 2.`
+      )
     }
 
     try {
@@ -552,7 +564,7 @@ export class NvidiaAIService {
       return {
         content: choice?.message?.content || 'No response generated',
         functionCall: choice?.message?.function_call,
-        usage: completion.usage
+        usage: completion.usage,
       }
     } catch (error: any) {
       logger.error('NVIDIA AI function call error:', error)
@@ -561,8 +573,10 @@ export class NvidiaAIService {
   }
 
   // Helper method to get models that support specific features
-  getModelsByFeature(feature: 'vision' | 'streaming' | 'function-calling' | 'coding' | 'reasoning'): NvidiaModel[] {
-    return Object.values(NVIDIA_MODELS).filter(model => {
+  getModelsByFeature(
+    feature: 'vision' | 'streaming' | 'function-calling' | 'coding' | 'reasoning'
+  ): NvidiaModel[] {
+    return Object.values(NVIDIA_MODELS).filter((model) => {
       switch (feature) {
         case 'vision':
           return model.category === 'vision'
@@ -570,7 +584,7 @@ export class NvidiaAIService {
           return model.streaming
         case 'function-calling':
           return ['deepseek-r1', 'mistral-large-2', 'mixtral-8x22b'].includes(
-            Object.keys(NVIDIA_MODELS).find(key => NVIDIA_MODELS[key] === model) || ''
+            Object.keys(NVIDIA_MODELS).find((key) => NVIDIA_MODELS[key] === model) || ''
           )
         case 'coding':
           return model.category === 'coding'

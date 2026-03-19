@@ -7,6 +7,7 @@ import { AIMemoryService } from './ai_memory_service.js'
 import { AIQueueService } from './ai_queue_service.js'
 import { NvidiaAIService } from './nvidia_ai_service.js'
 import { NvidiaMultimodalService } from './nvidia_multimodal_service.js'
+import { MahinaBrain } from './mahina_brain.js'
 
 export class AIManager {
   public nvidia?: NvidiaAIService
@@ -14,6 +15,7 @@ export class AIManager {
   public context?: AIContextService
   public memory?: AIMemoryService
   public queue?: AIQueueService
+  public brain?: MahinaBrain
 
   private prisma: PrismaClient
   private bot: MahinaBot
@@ -50,6 +52,10 @@ export class AIManager {
       this.memory = new AIMemoryService(this.prisma)
       logger.info('✅ AI Memory Service initialized')
 
+      // MahinaBrain needs memory to be ready first
+      this.brain = new MahinaBrain(this.bot)
+      logger.info('✅ MahinaBrain initialized')
+
       if (env.AI_QUEUE_ENABLED) {
         this.queue = new AIQueueService(this.bot)
         await this.queue.initialize()
@@ -77,10 +83,15 @@ export class AIManager {
       context: boolean
       memory: boolean
       queue: boolean
+      brain: boolean
     }
     features: string[]
   } {
     const features = []
+
+    if (this.brain) {
+      features.push('MahinaBrain (Multi-Provider AI)')
+    }
 
     if (this.nvidiaMultimodal) {
       features.push('Multimodal Chat', 'Vision Analysis', 'RAG')
@@ -110,6 +121,7 @@ export class AIManager {
         context: !!this.context,
         memory: !!this.memory,
         queue: !!this.queue,
+        brain: !!this.brain,
       },
       features,
     }
@@ -125,6 +137,7 @@ export class AIManager {
     logger.info(`  - NVIDIA Multimodal: ${status.services.nvidiaMultimodal ? '✅' : '❌'}`)
     logger.info(`  - Context: ${status.services.context ? '✅' : '❌'}`)
     logger.info(`  - Memory: ${status.services.memory ? '✅' : '❌'}`)
+    logger.info(`  - Brain: ${status.services.brain ? '✅' : '❌'}`)
     logger.info(`  - Queue: ${status.services.queue ? '✅' : '❌'}`)
 
     for (const feature of status.features) {

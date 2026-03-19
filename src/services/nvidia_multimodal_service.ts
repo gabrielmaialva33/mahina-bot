@@ -151,7 +151,8 @@ export const NVIDIA_MULTIMODAL_MODELS: Record<string, NvidiaMultimodalModel> = {
   'gemma-3-27b': {
     id: 'google/gemma-3-27b-it',
     name: 'Gemma 3 27B',
-    description: 'Cutting-edge open multimodal model exceling in high-quality reasoning from images',
+    description:
+      'Cutting-edge open multimodal model exceling in high-quality reasoning from images',
     category: 'vision',
     contextLength: 8192,
     streaming: true,
@@ -307,7 +308,12 @@ export class NvidiaMultimodalService {
       })
 
       const response = completion.choices[0]?.message?.content || 'No response generated'
-      this.recordModelMetric(model.id, completion.usage?.total_tokens || 0, Date.now() - startTime, true)
+      this.recordModelMetric(
+        model.id,
+        completion.usage?.total_tokens || 0,
+        Date.now() - startTime,
+        true
+      )
 
       return response
     } catch (error) {
@@ -363,7 +369,12 @@ export class NvidiaMultimodalService {
         }
       }
 
-      this.recordModelMetric(model.id, Math.ceil(fullResponse.length / 4), Date.now() - startTime, true)
+      this.recordModelMetric(
+        model.id,
+        Math.ceil(fullResponse.length / 4),
+        Date.now() - startTime,
+        true
+      )
     } catch (error) {
       logger.error('NVIDIA multimodal stream error:', error)
       this.recordModelMetric(model.id, 0, Date.now() - startTime, false)

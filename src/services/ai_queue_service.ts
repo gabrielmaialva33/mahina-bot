@@ -53,12 +53,7 @@ export interface TrainingQueueJobData extends AIQueueJobData {
   }
 }
 
-type QueueName =
-  | 'ai-embedding'
-  | 'ai-analysis'
-  | 'ai-generation'
-  | 'ai-training'
-  | 'ai-batch'
+type QueueName = 'ai-embedding' | 'ai-analysis' | 'ai-generation' | 'ai-training' | 'ai-batch'
 
 type QueueStats = Record<
   QueueName,
@@ -101,8 +96,7 @@ export class AIQueueService extends EventEmitter {
 
   async initialize(): Promise<void> {
     try {
-      const redisUrl =
-        env.REDIS_URL || `redis://:${env.REDIS_PASSWORD}@127.0.0.1:6380`
+      const redisUrl = env.REDIS_URL || `redis://:${env.REDIS_PASSWORD}@127.0.0.1:6380`
 
       this.connection = new IORedis(redisUrl, {
         maxRetriesPerRequest: null,
@@ -112,14 +106,10 @@ export class AIQueueService extends EventEmitter {
       for (const queueName of QUEUE_NAMES) {
         const queue = new Queue(queueName, { connection: this.connection })
         const events = new QueueEvents(queueName, { connection: this.connection.duplicate() })
-        const worker = new Worker(
-          queueName,
-          async (job) => this.processJob(queueName, job),
-          {
-            connection: this.connection.duplicate(),
-            concurrency: 2,
-          }
-        )
+        const worker = new Worker(queueName, async (job) => this.processJob(queueName, job), {
+          connection: this.connection.duplicate(),
+          concurrency: 2,
+        })
 
         this.queues.set(queueName, queue)
         this.queueEvents.set(queueName, events)
@@ -331,16 +321,10 @@ export class AIQueueService extends EventEmitter {
       nvidiaService.setUserModel(job.userId, job.data.model)
     }
 
-    const response = await nvidiaService.chat(
-      job.userId,
-      job.data.prompt,
-      undefined,
-      undefined,
-      {
-        temperature: job.data.parameters?.temperature,
-        maxTokens: job.data.parameters?.maxTokens,
-      }
-    )
+    const response = await nvidiaService.chat(job.userId, job.data.prompt, undefined, undefined, {
+      temperature: job.data.parameters?.temperature,
+      maxTokens: job.data.parameters?.maxTokens,
+    })
 
     return {
       type: 'generation',
