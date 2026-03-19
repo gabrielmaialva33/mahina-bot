@@ -68,7 +68,7 @@ export default class AIMention extends Event {
     }
   }
 
-  async run(message: Message): Promise<any> {
+  async run(message: Message): Promise<void> {
     try {
       if (!this.brain || !this.brain.isAvailable()) return
 
@@ -122,6 +122,15 @@ export default class AIMention extends Event {
 
       const guildName = message.guild?.name ?? 'Server Desconhecido'
       const channelName = 'name' in message.channel ? message.channel.name || 'geral' : 'geral'
+      const learnedServerContext = await this.client.services.serverLearning?.getPromptContext(
+        message.guildId!,
+        message.channelId,
+        message.author.id
+      )
+      const willContext = await this.client.services.mahinaWill?.getPromptContext(
+        message.guildId!,
+        message.channelId
+      )
 
       // Analyze image attachments if present
       let imageContext: string | undefined
@@ -173,7 +182,8 @@ export default class AIMention extends Event {
               }
             },
           },
-          imageContext
+          imageContext,
+          [learnedServerContext, willContext].filter(Boolean).join('\n\n') || undefined
         )
       )
 
@@ -200,18 +210,21 @@ export default class AIMention extends Event {
       )
 
       await this.client.db.updateAIStats(message.guildId!, message.channelId, message.author.id)
+      await this.client.services.mahinaWill?.markSpoke(message.guildId!, message.channelId)
 
       // Collect button interactions
       this.setupCollector(reply, message, userPersonality)
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('AI mention failed', {
         userId: message.author.id,
         guildId: message.guildId,
         error: (error as Error).message,
       })
-      await message.reply({
-        content: 'deu ruim aqui nos meus circuitos. tenta dnv 💀',
-      }).catch(() => {})
+      await message
+        .reply({
+          content: 'deu ruim aqui nos meus circuitos. tenta dnv 💀',
+        })
+        .catch(() => {})
     }
   }
 

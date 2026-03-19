@@ -29,7 +29,7 @@ export default class MessageCreate extends Event {
     })
   }
 
-  async run(message: Message): Promise<any> {
+  async run(message: Message): Promise<void> {
     if (message.author.bot) return
     if (!(message.guild && message.guildId)) return
 
@@ -42,8 +42,13 @@ export default class MessageCreate extends Event {
     const botMention = message.mentions.has(this.client.user?.id!)
     const mahinaMention = /mahina/i.test(message.content)
     const prefix = await this.client.db.getPrefix(message.guildId)
+    const isPrefixedCommand = message.content.startsWith(prefix)
 
-    if ((mahinaMention || botMention) && !message.content.startsWith(prefix)) {
+    if (this.client.services.serverLearning && !isPrefixedCommand) {
+      this.client.services.serverLearning.observeMessage(message).catch(() => {})
+    }
+
+    if ((mahinaMention || botMention) && !isPrefixedCommand) {
       return this.client.emit('aiMention', message)
     }
 
@@ -51,7 +56,7 @@ export default class MessageCreate extends Event {
     if (
       env.AI_LURKER_ENABLED &&
       this.client.services.brain &&
-      !message.content.startsWith(prefix) &&
+      !isPrefixedCommand &&
       Math.random() < (env.AI_LURKER_CHANCE || 0.03)
     ) {
       this.handleLurker(message).catch(() => {})

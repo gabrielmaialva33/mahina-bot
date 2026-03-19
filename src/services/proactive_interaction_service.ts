@@ -257,6 +257,10 @@ export class ProactiveInteractionService {
   }
 
   private async sendProactiveMessage(channel: TextChannel): Promise<void> {
+    const willContext = channel.guildId
+      ? await this.client.services.mahinaWill?.getPromptContext(channel.guildId, channel.id)
+      : undefined
+
     // Randomly select a category
     const category =
       this.interactionPrompts[Math.floor(Math.random() * this.interactionPrompts.length)]
@@ -273,13 +277,19 @@ export class ProactiveInteractionService {
       const musicCategory = this.interactionPrompts.find((p) => p.category === 'music')!
       const musicPrompt =
         musicCategory.prompts[Math.floor(Math.random() * musicCategory.prompts.length)]
-      await channel.send(musicPrompt)
+      await channel.send(
+        willContext ? `${musicPrompt}\n-# ${willContext.split('\n')[1] ?? ''}` : musicPrompt
+      )
     } else if (Math.random() > 0.7) {
       // 30% chance of sending an embed with suggestions
       await this.sendSuggestionEmbed(channel)
     } else {
       // Regular text message
-      await channel.send(prompt)
+      await channel.send(willContext ? `${prompt}\n-# ${willContext.split('\n')[1] ?? ''}` : prompt)
+    }
+
+    if (channel.guildId) {
+      await this.client.services.mahinaWill?.markSpoke(channel.guildId, channel.id)
     }
 
     // Add reactions to encourage interaction
@@ -339,7 +349,7 @@ export class ProactiveInteractionService {
       .addFields(suggestion.fields)
       .setColor(suggestion.color)
       .setFooter({
-        text: 'Mahina Bot - Sempre aqui para vocês! 💜',
+        text: 'Mahina Bot - Sempre de olho no clima daqui',
         iconURL: this.client.user?.displayAvatarURL(),
       })
       .setTimestamp()
