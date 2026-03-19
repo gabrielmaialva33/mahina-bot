@@ -113,7 +113,7 @@ export class MahinaBrain {
   }
 
   private setupProviders(): void {
-    // NVIDIA NIM — primary
+    // NVIDIA NIM — primary provider
     if (env.NVIDIA_API_KEY) {
       this.providers.set('nvidia', {
         client: new OpenAI({
@@ -126,7 +126,7 @@ export class MahinaBrain {
       this.providerOrder.push('nvidia')
     }
 
-    // Groq — fast secondary
+    // Groq — fast secondary provider
     if (env.GROQ_API_KEY) {
       this.providers.set('groq', {
         client: new OpenAI({
@@ -139,7 +139,7 @@ export class MahinaBrain {
       this.providerOrder.push('groq')
     }
 
-    // Gemini — fallback
+    // Gemini — tertiary fallback
     if (env.GEMINI_API_KEY) {
       this.providers.set('gemini', {
         client: new OpenAI({
@@ -152,7 +152,7 @@ export class MahinaBrain {
       this.providerOrder.push('gemini')
     }
 
-    // Fallback to OpenAI if nothing else
+    // OpenAI — last resort fallback
     if (this.providerOrder.length === 0 && env.OPENAI_API_KEY) {
       this.providers.set('openai', {
         client: new OpenAI({ apiKey: env.OPENAI_API_KEY }),
@@ -168,7 +168,7 @@ export class MahinaBrain {
   }
 
   /**
-   * Rate limit check (sliding window)
+   * Sliding window rate limit check per user.
    */
   checkRateLimit(userId: string, limit: number = 10, windowMs: number = 60000): boolean {
     const now = Date.now()
@@ -182,7 +182,7 @@ export class MahinaBrain {
   }
 
   /**
-   * Build the full system prompt with identity, memory, mood, and personality overlay
+   * Build the full system prompt with identity, memory, mood, and personality overlay.
    */
   private buildSystemPrompt(
     userName: string,
@@ -204,7 +204,7 @@ export class MahinaBrain {
       parts.push(`\nOVERLAY DE PERSONALIDADE: ${personalityConfig.overlay}`)
     }
 
-    // Guild context
+    // Guild context injection
     parts.push(
       `\nCONTEXTO: Você tá no server "${guildName}", canal #${channelName}. Falando com ${userName}.`
     )
@@ -215,7 +215,7 @@ export class MahinaBrain {
       parts.push(`\nO QUE VOCÊ SABE SOBRE ${userName.toUpperCase()}:\n${factsList}`)
     }
 
-    // Relationship context
+    // Relationship context injection
     if (relationships.closeness > 0) {
       let relContext = `\nRELAÇÃO COM ${userName.toUpperCase()}: closeness ${relationships.closeness}/100.`
       if (relationships.closeness > 70) {
@@ -234,7 +234,7 @@ export class MahinaBrain {
       parts.push(relContext)
     }
 
-    // Music context
+    // Currently playing music context
     const player = this.bot.manager?.getPlayer(
       this.bot.guilds.cache.find((g) => g.name === guildName)?.id ?? ''
     )
@@ -248,7 +248,7 @@ export class MahinaBrain {
   }
 
   /**
-   * Main thinking method — generates a response
+   * Main entry point — generates a response for a given conversation.
    */
   async think(
     messages: { role: 'user' | 'assistant'; content: string }[],
@@ -259,7 +259,6 @@ export class MahinaBrain {
     guildName: string,
     personality: string = 'humor_negro'
   ): Promise<string> {
-    // Load user memory
     let facts: UserFact[] = []
     let relationships: UserRelationships = { closeness: 0, lastRoast: '', insideJokes: [] }
 
@@ -268,11 +267,10 @@ export class MahinaBrain {
       relationships = await this.memory.getRelationships(userId, guildId)
     }
 
-    // Calculate mood based on Brazil timezone (UTC-3)
+    // Brazil timezone (UTC-3) for mood calculation
     const brHour = new Date(Date.now() - 3 * 60 * 60 * 1000).getUTCHours()
     const mood = calculateMood(brHour)
 
-    // Build system prompt
     const systemPrompt = this.buildSystemPrompt(
       userName,
       channelName,
@@ -285,16 +283,14 @@ export class MahinaBrain {
 
     const personalityConfig = PERSONALITIES[personality] || PERSONALITIES.humor_negro
 
-    // Build API messages
     const apiMessages: { role: 'system' | 'user' | 'assistant'; content: string }[] = [
       { role: 'system', content: systemPrompt },
       ...messages,
     ]
 
-    // Call with fallback
     const response = await this.callWithFallback(apiMessages, personalityConfig.temperature)
 
-    // Async: extract facts + update closeness (don't block response)
+    // Fire-and-forget: extract facts + update closeness (non-blocking)
     if (this.memory) {
       const lastUserMsg = messages.filter((m) => m.role === 'user').pop()?.content ?? ''
       this.extractAndSaveFacts(lastUserMsg, response, userId, guildId).catch((err) =>
@@ -312,7 +308,7 @@ export class MahinaBrain {
   }
 
   /**
-   * Call LLM with provider fallback chain
+   * Try each provider/model in order until one succeeds.
    */
   private async callWithFallback(
     messages: { role: 'system' | 'user' | 'assistant'; content: string }[],
@@ -349,7 +345,8 @@ export class MahinaBrain {
   }
 
   /**
-   * Extract facts from conversation using the fast model
+   * Extract concrete facts from the conversation using the fastest available provider.
+   * Runs async after the response is sent — best-effort, silent failure.
    */
   private async extractAndSaveFacts(
     userMessage: string,
@@ -359,7 +356,7 @@ export class MahinaBrain {
   ): Promise<void> {
     if (!this.memory || !userMessage.trim()) return
 
-    // Use fast provider (groq > gemini > nvidia) for extraction
+    // Prefer fast provider for extraction (groq > gemini > first available)
     const fastProvider =
       this.providers.get('groq') ||
       this.providers.get('gemini') ||
@@ -387,7 +384,7 @@ AI respondeu: "${aiResponse}"`
 
       const raw = completion.choices[0]?.message?.content?.trim() ?? '[]'
 
-      // Parse JSON — handle markdown code blocks
+      // Strip markdown code fences if present
       const jsonStr = raw
         .replace(/```json?\n?/g, '')
         .replace(/```/g, '')
@@ -401,14 +398,13 @@ AI respondeu: "${aiResponse}"`
           }
         }
       }
-    } catch (error) {
-      // Silent fail — fact extraction is best-effort
+    } catch (_error) {
       logger.debug('Fact extraction parse error (non-critical)')
     }
   }
 
   /**
-   * Get what Mahina knows about a user (for the memory button)
+   * Get a human-readable summary of what Mahina knows about a user (for the memory button).
    */
   async getUserBrainDump(userId: string, guildId: string): Promise<string> {
     if (!this.memory) return 'Minha memória tá off no momento.'
@@ -448,23 +444,17 @@ AI respondeu: "${aiResponse}"`
     return parts.join('\n')
   }
 
-  /**
-   * Get available personalities
-   */
+  /** Get all available personalities. */
   getPersonalities(): Record<string, MahinaPersonality> {
     return { ...PERSONALITIES }
   }
 
-  /**
-   * Get a specific personality
-   */
+  /** Get a specific personality by key. */
   getPersonality(name: string): MahinaPersonality | undefined {
     return PERSONALITIES[name]
   }
 
-  /**
-   * Check if the brain has any providers configured
-   */
+  /** Check if the brain has any providers configured. */
   isAvailable(): boolean {
     return this.providerOrder.length > 0
   }
