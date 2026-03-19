@@ -593,20 +593,303 @@
     "code": {
       "description": "Analisa código com IA especializada - explicar, revisar, otimizar ou debugar"
     },
+    "chat": {
+      "description": "Chat inteligente com IA da NVIDIA - análise de código, geração e muito mais!",
+      "ui": {
+        "footer": "Mahina AI • Powered by NVIDIA",
+        "default_model_label": "IA NVIDIA",
+        "loading": "🤖 Processando com {model}...",
+        "actions": {
+          "new_chat": "Nova conversa",
+          "continue": "Continuar",
+          "format_code": "Formatar código",
+          "export": "Exportar",
+          "new_chat_success": "✅ Conversa reiniciada! Use o comando novamente para começar.",
+          "continue_success": "💬 Digite sua próxima mensagem usando o comando!"
+        },
+        "response": {
+          "title": "{emoji} Resposta da IA",
+          "footer": "{emoji} {mode} Mode | Powered by NVIDIA"
+        },
+        "code": {
+          "no_blocks": "Nenhum bloco de código encontrado na resposta!",
+          "formatted": "📝 Código extraído e formatado:"
+        },
+        "export": {
+          "success": "📤 Resposta exportada como {filename}"
+        },
+        "errors": {
+          "missing_prompt": "Por favor, forneça uma mensagem ou pergunta!",
+          "missing_image": "Por favor, forneça uma URL de imagem para análise!",
+          "service_unavailable": "❌ Serviço de IA não está configurado. Configure NVIDIA_API_KEY no ambiente.",
+          "invalid_model": "Modelo inválido: {model}",
+          "model_apply_failed": "Não foi possível aplicar o modelo selecionado.",
+          "button_author_only": "Apenas o autor do comando pode usar esses botões!",
+          "generic_title": "❌ Erro",
+          "generic": "Ocorreu um erro ao processar sua solicitação.",
+          "generic_footer": "Tente novamente mais tarde"
+        }
+      }
+    },
     "model": {
-      "description": "Gerencia modelos de IA disponíveis"
+      "description": "Gerencia modelos de IA disponíveis",
+      "ui": {
+        "fields": {
+          "category": "Categoria",
+          "context": "Contexto",
+          "streaming": "Streaming",
+          "model_id": "ID do Modelo",
+          "max_tokens": "Max Tokens",
+          "temperature": "Temperatura",
+          "top_p": "Top P",
+          "features": "✨ Recursos",
+          "cost": "💰 Custo",
+          "latency": "⚡ Latência"
+        },
+        "streaming": {
+          "enabled": "✅ Habilitado",
+          "disabled": "❌ Desabilitado",
+          "supported": "✅ Suportado",
+          "unsupported": "❌ Não suportado"
+        },
+        "cost_value": "${cost} por milhão de tokens",
+        "list": {
+          "title": "🤖 Modelos de IA: {category}",
+          "empty_category": "Nenhum modelo encontrado para essa categoria.",
+          "item": "{description}\nContexto: {contextLength} tokens"
+        },
+        "select": {
+          "title": "✅ Modelo selecionado",
+          "description": "Você agora está usando {model}",
+          "footer": "Use !chat ou /chat para conversar com o novo modelo!"
+        },
+        "stats": {
+          "title": "📊 Estatísticas de uso ({period})",
+          "description": "Métricas de performance dos modelos de IA",
+          "requests": "Requisições: {total}",
+          "tokens": "Tokens: {total}",
+          "avg_time": "Tempo médio: {time}ms",
+          "success_rate": "Taxa de sucesso: {rate}%",
+          "empty": "Nenhuma estatística disponível no momento."
+        },
+        "errors": {
+          "service_unavailable": "❌ Serviço de IA NVIDIA não está configurado",
+          "missing_model_select": "❌ Por favor, especifique um modelo para selecionar",
+          "invalid_model": "❌ Modelo inválido: {model}",
+          "missing_model_info": "❌ Por favor, especifique um modelo",
+          "model_not_found": "❌ Modelo não encontrado: {model}",
+          "stats_unavailable": "❌ Estatísticas não disponíveis",
+          "current_model_unavailable": "❌ Não foi possível recuperar o modelo atual"
+        }
+      }
     },
     "reason": {
       "description": "Análise avançada de problemas com raciocínio aprofundado"
     },
     "stream": {
-      "description": "Chat com resposta em tempo real (streaming)"
+      "description": "Chat com resposta em tempo real (streaming)",
+      "ui": {
+        "unknown_model": "Desconhecido",
+        "loading": "🤖 Gerando resposta em tempo real...",
+        "complete": {
+          "title": "✅ Stream concluído",
+          "model": "Modelo",
+          "tokens": "Tokens gerados"
+        },
+        "errors": {
+          "service_unavailable": "❌ Serviço de streaming de IA não está configurado",
+          "missing_message": "❌ Por favor, forneça uma mensagem",
+          "streaming_unsupported": "❌ Seu modelo atual {model} não suporta streaming.\n\nTroque para um modelo com streaming usando /model select llama-70b-stream",
+          "generic": "❌ Ocorreu um erro durante a geração em streaming"
+        }
+      }
     },
     "mahinai": {
-      "description": "Chat avançado com IA: contexto, memória e personalidade"
+      "description": "Chat avançado com IA: contexto, memória e personalidade",
+      "ui": {
+        "errors": {
+          "missing_message": "Por favor, forneça uma mensagem!",
+          "services_unavailable": "Serviços de IA não estão prontos. Verifique NVIDIA_API_KEY e a inicialização do runtime.",
+          "services_unavailable_title": "⚠️ Serviços indisponíveis",
+          "generic_title": "❌ Erro",
+          "generic": "Ocorreu um erro ao processar sua solicitação. Tente novamente.",
+          "error_field": "Erro",
+          "unknown_error": "Erro desconhecido"
+        },
+        "loading_suffix": "Pensando...",
+        "loading": {
+          "1": "🧠 Processando neurônios...",
+          "2": "🎭 Entrando no personagem...",
+          "3": "💭 Contemplando resposta...",
+          "4": "🔮 Consultando o oráculo da IA...",
+          "5": "🎵 Sintonizando frequências de pensamento...",
+          "6": "✨ Gerando magia..."
+        },
+        "response": {
+          "intent": "💡 Intenção",
+          "mode": "🎯 Modo",
+          "rating": "⭐ Avaliação"
+        },
+        "intents": {
+          "help": "❓ Pedido de ajuda",
+          "music": "🎵 Consulta musical",
+          "greeting": "👋 Saudação",
+          "thanks": "🙏 Agradecimento",
+          "goodbye": "👋 Despedida",
+          "question": "❔ Pergunta"
+        },
+        "actions": {
+          "regenerate": "Regenerar",
+          "continue": "Continuar"
+        },
+        "quick_actions": {
+          "placeholder": "Ações rápidas...",
+          "change_personality": {
+            "label": "Mudar personalidade",
+            "description": "Troque para outra personalidade da IA"
+          },
+          "clear_context": {
+            "label": "Limpar contexto",
+            "description": "Comece uma conversa nova"
+          },
+          "view_stats": {
+            "label": "Ver estatísticas",
+            "description": "Veja suas métricas de interação com a IA"
+          },
+          "get_recommendations": {
+            "label": "Ver recomendações",
+            "description": "Receba sugestões personalizadas"
+          },
+          "export_chat": {
+            "label": "Exportar conversa",
+            "description": "Exporte o histórico da conversa"
+          }
+        },
+        "interactions": {
+          "original_user_only": "❌ Apenas o usuário original pode interagir com esses controles!",
+          "helpful": "✅ Obrigado pelo feedback! Fico feliz em ter ajudado!",
+          "unhelpful": "😔 Desculpe por não ter sido útil. Vou tentar melhorar. Se quiser, me diga o que deu errado.",
+          "regenerate": "🔄 Use o comando novamente com a mesma mensagem para regenerar a resposta!",
+          "continue": "💬 Continue a conversa enviando outra mensagem com o comando!",
+          "clear_context": "🧹 Contexto da conversa limpo! Sua próxima mensagem começa do zero.",
+          "export_chat": "📤 Sua conversa foi exportada! Essa parte ainda vai ser aprimorada."
+        },
+        "settings": {
+          "title": "⚙️ Configurações da IA",
+          "description": "Configure sua experiência com a IA",
+          "change_model": "Mudar modelo",
+          "change_model_value": "Use o comando /model",
+          "view_models": "Ver modelos",
+          "view_models_value": "Use o comando /model list",
+          "clear_history": "Limpar histórico",
+          "clear_history_value": "Selecione no menu de ações rápidas"
+        },
+        "personality": {
+          "title": "🎭 Escolha a personalidade",
+          "description": "Selecione uma personalidade para as próximas conversas:",
+          "friendly": "😊 Amigável",
+          "friendly_value": "Calorosa e acolhedora",
+          "professional": "💼 Profissional",
+          "professional_value": "Formal e precisa",
+          "playful": "🎉 Brincalhona",
+          "playful_value": "Divertida e energética",
+          "dj": "🎧 Modo DJ",
+          "dj_value": "Especialista em música",
+          "wise": "🧙 Sábia",
+          "wise_value": "Reflexiva e profunda",
+          "technical": "🤖 Técnica",
+          "technical_value": "Especialista em tecnologia",
+          "footer": "Use a opção de personalidade no comando para trocar!"
+        },
+        "stats": {
+          "title": "📊 Suas estatísticas de IA",
+          "total_conversations": "Total de conversas",
+          "total_messages": "Total de mensagens",
+          "helpfulness": "Utilidade",
+          "favorite_commands": "Comandos favoritos",
+          "none_yet": "Nenhum ainda",
+          "sentiment": "Sentimento",
+          "personality": "Personalidade"
+        },
+        "recommendations": {
+          "title": "💡 Recomendações personalizadas",
+          "music": "🎵 Música",
+          "commands": "🛠️ Comandos para testar",
+          "tips": "💭 Dicas"
+        },
+        "follow_up": {
+          "music_tip": "💡 Dica de música: use !play <nome da música> para começar a tocar algo, ou !help music para ver todos os comandos musicais.",
+          "welcome": "👋 Boas-vindas! Eu sou a Mahina AI. Posso ajudar com música, responder perguntas e conversar com você. Teste personalidades diferentes usando a opção de personalidade.",
+          "tip": "💭 Dica: {tip}"
+        }
+      }
     },
     "aistatus": {
-      "description": "Verificar status e estatísticas dos serviços de IA"
+      "description": "Verificar status e estatísticas dos serviços de IA",
+      "ui": {
+        "title": "🤖 Status da IA Mahina",
+        "loading": "🔍 Verificando status da IA...",
+        "service_status": {
+          "initialized": "**Inicializado:** {value}",
+          "nvidia": "**NVIDIA AI:** {value}",
+          "context": "**Serviço de Contexto:** {value}",
+          "memory": "**Serviço de Memória:** {value}"
+        },
+        "usage": {
+          "active_contexts": "**Contextos Ativos:** {total}",
+          "total_messages": "**Total de Mensagens:** {total}",
+          "total_users": "**Total de Usuários:** {total}"
+        },
+        "errors": {
+          "manager_unavailable_title": "❌ Gerenciador de IA Não Disponível",
+          "manager_unavailable": "Os serviços de IA não estão inicializados.",
+          "generic_title": "❌ Erro",
+          "generic": "Falha ao recuperar status da IA.",
+          "error_field": "Erro",
+          "unknown": "Erro desconhecido"
+        }
+      }
+    },
+    "aianalytics": {
+      "description": "Analise uso de IA, memória e métricas do runtime atual",
+      "ui": {
+        "loading": "📊 Analisando dados...",
+        "no_data": "Sem dados",
+        "errors": {
+          "db_title": "❌ Banco de dados indisponível",
+          "db_unavailable": "O MongoDB não está disponível no momento."
+        },
+        "user": {
+          "title": "📊 Seu uso de IA",
+          "period": "Período",
+          "conversations": "Conversas",
+          "messages": "Mensagens",
+          "last_activity": "Última atividade"
+        },
+        "models": {
+          "title": "🤖 Métricas de modelos",
+          "empty": "Ainda não há métricas de modelos nesta execução."
+        },
+        "sentiment": {
+          "title": "💭 Sentimento aprendido",
+          "positive": "Positivo",
+          "neutral": "Neutro",
+          "negative": "Negativo"
+        },
+        "search": {
+          "title": "🔎 Busca no histórico",
+          "empty": "Nenhum trecho encontrado."
+        },
+        "patterns": {
+          "title": "🧩 Padrões de uso",
+          "frequent_commands": "Comandos frequentes",
+          "learned_patterns": "Padrões aprendidos",
+          "empty": "Sem padrões registrados"
+        },
+        "export": {
+          "title": "📦 Exportação de analytics"
+        }
+      }
     },
     "aichannel": {
       "description": "Define o canal onde a IA enviará mensagens proativas",

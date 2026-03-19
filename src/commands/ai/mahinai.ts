@@ -1,20 +1,20 @@
 import Command from '#common/command'
 import { createAIErrorEmbed, createAILoadingEmbed } from '#common/ai_command_ui'
 import { chatWithPreferredAI, getPreferredAIService } from '#common/ai_runtime'
+import {
+  createMahinaInteractiveComponents,
+  createMahinaResponseEmbed,
+  getMahinaLoadingMessage,
+} from '#common/mahinai_runtime'
 import type Context from '#common/context'
+import { T } from '#common/i18n'
 import type MahinaBot from '#common/mahina_bot'
 import {
   TextChannel,
-  ActionRowBuilder,
   ApplicationCommandOptionType,
-  ButtonBuilder,
-  ButtonStyle,
-  ComponentType,
   EmbedBuilder,
   Message,
   MessageFlags,
-  StringSelectMenuBuilder,
-  StringSelectMenuOptionBuilder,
 } from 'discord.js'
 
 interface MahinaAIRequest {
@@ -105,10 +105,12 @@ export default class MahinaAI extends Command {
   }
 
   async run(client: MahinaBot, ctx: Context, args: string[]): Promise<any> {
+    const locale = ctx.guildLocale || 'PortugueseBR'
+    const t = (key: string, params?: Record<string, unknown>) => ctx.locale(key, params)
     const request = this.parseRequest(ctx, args)
     if (!request.message) {
       return await ctx.sendMessage({
-        embeds: [createAIErrorEmbed(client, 'Por favor, forneça uma mensagem!')],
+        embeds: [createAIErrorEmbed(client, t('cmd.mahinai.ui.errors.missing_message'))],
         flags: MessageFlags.Ephemeral,
       })
     }
@@ -119,8 +121,8 @@ export default class MahinaAI extends Command {
         embeds: [
           createAIErrorEmbed(
             client,
-            'Serviços de IA não estão prontos. Verifique NVIDIA_API_KEY e a inicialização do runtime.',
-            '⚠️ Serviços indisponíveis'
+            t('cmd.mahinai.ui.errors.services_unavailable'),
+            t('cmd.mahinai.ui.errors.services_unavailable_title')
           ),
         ],
         flags: request.ephemeral ? MessageFlags.Ephemeral : undefined,
@@ -128,7 +130,12 @@ export default class MahinaAI extends Command {
     }
 
     await ctx.sendDeferMessage({
-      embeds: [createAILoadingEmbed(client, `${this.getLoadingMessage()} Pensando...`)],
+      embeds: [
+        createAILoadingEmbed(
+          client,
+          `${getMahinaLoadingMessage(t)} ${t('cmd.mahinai.ui.loading_suffix')}`
+        ),
+      ],
     })
 
     try {
@@ -193,9 +200,10 @@ export default class MahinaAI extends Command {
         request.mode,
         analysis,
         conversationState.insights,
-        client
+        client,
+        t
       )
-      const components = this.createInteractiveComponents(userId, conversationState.insights)
+      const components = this.createInteractiveComponents(conversationState.insights, t)
 
       const sentMessage = await ctx.editMessage({
         content: null,
@@ -209,6 +217,7 @@ export default class MahinaAI extends Command {
           userId,
           channelId,
           guildId,
+          locale,
           services.contextService,
           services.memoryService,
           client
@@ -227,6 +236,7 @@ export default class MahinaAI extends Command {
         services.memoryService,
         userId,
         guildId,
+        locale,
         client
       )
     } catch (error) {
@@ -234,10 +244,14 @@ export default class MahinaAI extends Command {
       await ctx.editMessage({
         embeds: [
           {
-            title: '❌ Error',
-            description: 'An error occurred while processing your request. Please try again.',
+            title: t('cmd.mahinai.ui.errors.generic_title'),
+            description: t('cmd.mahinai.ui.errors.generic'),
             fields: [
-              { name: 'Error', value: (error as Error).message || 'Unknown error', inline: false },
+              {
+                name: t('cmd.mahinai.ui.errors.error_field'),
+                value: (error as Error).message || t('cmd.mahinai.ui.errors.unknown_error'),
+                inline: false,
+              },
             ],
             color: client.config.color.red,
           },
@@ -420,18 +434,6 @@ export default class MahinaAI extends Command {
     return moderationResult.filtered_response
   }
 
-  private getLoadingMessage(): string {
-    const messages = [
-      '🧠 Processando neurônios...',
-      '🎭 Entrando no personagem...',
-      '💭 Contemplando resposta...',
-      '🔮 Consultando o oráculo da IA...',
-      '🎵 Sintonizando frequências de pensamento...',
-      '✨ Gerando magia...',
-    ]
-    return messages[Math.floor(Math.random() * messages.length)]
-  }
-
   private mapEmotionToSentiment(emotion?: string): 'positive' | 'neutral' | 'negative' {
     const sentimentMap: Record<string, 'positive' | 'neutral' | 'negative'> = {
       happy: 'positive',
@@ -556,128 +558,25 @@ export default class MahinaAI extends Command {
     mode: string,
     analysis: any,
     insights: any,
-    client: MahinaBot
+    client: MahinaBot,
+    translate: (key: string, params?: Record<string, unknown>) => string
   ): EmbedBuilder {
-    const personalityInfo: Record<string, { emoji: string; color: any }> = {
-      friendly: { emoji: '😊', color: client.config.color.green },
-      professional: { emoji: '💼', color: client.config.color.blue },
-      playful: { emoji: '🎉', color: client.config.color.violet },
-      dj: { emoji: '🎧', color: client.config.color.main },
-      wise: { emoji: '🧙', color: client.config.color.yellow },
-      technical: { emoji: '🤖', color: client.config.color.blue },
-      gamer: { emoji: '🎮', color: client.config.color.violet },
-      teacher: { emoji: '📚', color: client.config.color.green },
-    }
-
-    const info = personalityInfo[personality] || personalityInfo.friendly
-
-    const embed = new EmbedBuilder()
-      .setColor(info.color)
-      .setAuthor({
-        name: `Mahina AI ${info.emoji} ${personality.charAt(0).toUpperCase() + personality.slice(1)}`,
-        iconURL: client.user?.displayAvatarURL(),
-      })
-      .setDescription(response)
-      .setTimestamp()
-
-    // Add contextual fields
-    const fields = []
-
-    if (analysis.intent) {
-      fields.push({
-        name: '💡 Intent',
-        value: this.formatIntent(analysis.intent),
-        inline: true,
-      })
-    }
-
-    if (mode !== 'chat') {
-      fields.push({
-        name: '🎯 Mode',
-        value: mode.charAt(0).toUpperCase() + mode.slice(1),
-        inline: true,
-      })
-    }
-
-    if (insights.helpfulnessRate > 0) {
-      fields.push({
-        name: '⭐ Rating',
-        value: `${Math.round(insights.helpfulnessRate * 100)}%`,
-        inline: true,
-      })
-    }
-
-    if (fields.length > 0) {
-      embed.addFields(fields)
-    }
-
-    return embed
+    return createMahinaResponseEmbed({
+      response,
+      personality,
+      mode,
+      analysis,
+      insights,
+      client,
+      translate,
+    })
   }
 
   private createInteractiveComponents(
-    userId: string,
-    insights: any
-  ): ActionRowBuilder<ButtonBuilder | StringSelectMenuBuilder>[] {
-    const components = []
-
-    // Main action buttons
-    const buttonRow = new ActionRowBuilder<ButtonBuilder>().addComponents(
-      new ButtonBuilder().setCustomId('ai_helpful').setEmoji('👍').setStyle(ButtonStyle.Success),
-      new ButtonBuilder().setCustomId('ai_unhelpful').setEmoji('👎').setStyle(ButtonStyle.Danger),
-      new ButtonBuilder()
-        .setCustomId('ai_regenerate')
-        .setEmoji('🔄')
-        .setLabel('Regenerate')
-        .setStyle(ButtonStyle.Secondary),
-      new ButtonBuilder()
-        .setCustomId('ai_continue')
-        .setEmoji('💬')
-        .setLabel('Continue')
-        .setStyle(ButtonStyle.Primary),
-      new ButtonBuilder().setCustomId('ai_settings').setEmoji('⚙️').setStyle(ButtonStyle.Secondary)
-    )
-
-    components.push(buttonRow)
-
-    // Quick actions menu (if user is experienced)
-    if (insights.totalMessages > 10) {
-      const menuRow = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
-        new StringSelectMenuBuilder()
-          .setCustomId('ai_quick_actions')
-          .setPlaceholder('Quick Actions...')
-          .addOptions([
-            new StringSelectMenuOptionBuilder()
-              .setLabel('Change Personality')
-              .setDescription('Switch to a different AI personality')
-              .setValue('change_personality')
-              .setEmoji('🎭'),
-            new StringSelectMenuOptionBuilder()
-              .setLabel('Clear Context')
-              .setDescription('Start a fresh conversation')
-              .setValue('clear_context')
-              .setEmoji('🧹'),
-            new StringSelectMenuOptionBuilder()
-              .setLabel('View Stats')
-              .setDescription('See your AI interaction statistics')
-              .setValue('view_stats')
-              .setEmoji('📊'),
-            new StringSelectMenuOptionBuilder()
-              .setLabel('Get Recommendations')
-              .setDescription('Get personalized suggestions')
-              .setValue('get_recommendations')
-              .setEmoji('💡'),
-            new StringSelectMenuOptionBuilder()
-              .setLabel('Export Chat')
-              .setDescription('Export conversation history')
-              .setValue('export_chat')
-              .setEmoji('📤'),
-          ])
-      )
-
-      components.push(menuRow)
-    }
-
-    return components
+    insights: any,
+    translate: (key: string, params?: Record<string, unknown>) => string
+  ) {
+    return createMahinaInteractiveComponents(insights, translate)
   }
 
   private async handleInteractions(
@@ -685,6 +584,7 @@ export default class MahinaAI extends Command {
     userId: string,
     channelId: string,
     guildId: string,
+    locale: string,
     contextService: any,
     memoryService: any,
     client: MahinaBot
@@ -697,7 +597,7 @@ export default class MahinaAI extends Command {
       // Verify user
       if (interaction.user.id !== userId) {
         await interaction.reply({
-          content: '❌ Apenas o usuário original pode interagir com esses controles!',
+          content: T(locale, 'cmd.mahinai.ui.interactions.original_user_only'),
           flags: MessageFlags.Ephemeral,
         })
         return
@@ -709,7 +609,7 @@ export default class MahinaAI extends Command {
           case 'ai_helpful':
             await memoryService.recordFeedback(userId, guildId, true)
             await interaction.reply({
-              content: '✅ Obrigado pelo feedback! Fico feliz em ter ajudado! 😊',
+              content: T(locale, 'cmd.mahinai.ui.interactions.helpful'),
               flags: MessageFlags.Ephemeral,
             })
             break
@@ -717,37 +617,44 @@ export default class MahinaAI extends Command {
           case 'ai_unhelpful':
             await memoryService.recordFeedback(userId, guildId, false)
             await interaction.reply({
-              content:
-                '😔 Desculpe por não ter sido útil. Vou tentar melhorar! Por favor, me diga o que deu errado.',
+              content: T(locale, 'cmd.mahinai.ui.interactions.unhelpful'),
               flags: MessageFlags.Ephemeral,
             })
             break
 
           case 'ai_regenerate':
             await interaction.reply({
-              content: '🔄 Use o comando novamente com a mesma mensagem para regenerar a resposta!',
+              content: T(locale, 'cmd.mahinai.ui.interactions.regenerate'),
               flags: MessageFlags.Ephemeral,
             })
             break
 
           case 'ai_continue':
             await interaction.reply({
-              content: '💬 Continue a conversa enviando outra mensagem com o comando!',
+              content: T(locale, 'cmd.mahinai.ui.interactions.continue'),
               flags: MessageFlags.Ephemeral,
             })
             break
 
           case 'ai_settings':
             const settingsEmbed = new EmbedBuilder()
-              .setTitle('⚙️ Configurações da IA')
+              .setTitle(T(locale, 'cmd.mahinai.ui.settings.title'))
               .setColor(client.config.color.main)
-              .setDescription('Configure sua experiência com a IA')
+              .setDescription(T(locale, 'cmd.mahinai.ui.settings.description'))
               .addFields(
-                { name: 'Mudar Modelo', value: 'Use o comando `/model`', inline: true },
-                { name: 'Ver Modelos', value: 'Use o comando `/model list`', inline: true },
                 {
-                  name: 'Limpar Histórico',
-                  value: 'Selecione no menu de Ações Rápidas',
+                  name: T(locale, 'cmd.mahinai.ui.settings.change_model'),
+                  value: T(locale, 'cmd.mahinai.ui.settings.change_model_value'),
+                  inline: true,
+                },
+                {
+                  name: T(locale, 'cmd.mahinai.ui.settings.view_models'),
+                  value: T(locale, 'cmd.mahinai.ui.settings.view_models_value'),
+                  inline: true,
+                },
+                {
+                  name: T(locale, 'cmd.mahinai.ui.settings.clear_history'),
+                  value: T(locale, 'cmd.mahinai.ui.settings.clear_history_value'),
                   inline: true,
                 }
               )
@@ -767,18 +674,42 @@ export default class MahinaAI extends Command {
         switch (selected) {
           case 'change_personality':
             const personalityEmbed = new EmbedBuilder()
-              .setTitle('🎭 Choose Personality')
+              .setTitle(T(locale, 'cmd.mahinai.ui.personality.title'))
               .setColor(client.config.color.violet)
-              .setDescription('Select a personality for future conversations:')
+              .setDescription(T(locale, 'cmd.mahinai.ui.personality.description'))
               .addFields(
-                { name: '😊 Friendly', value: 'Warm and welcoming', inline: true },
-                { name: '💼 Professional', value: 'Formal and precise', inline: true },
-                { name: '🎉 Playful', value: 'Fun and energetic', inline: true },
-                { name: '🎧 DJ Mode', value: 'Music expert', inline: true },
-                { name: '🧙 Wise', value: 'Thoughtful sage', inline: true },
-                { name: '🤖 Technical', value: 'Tech expert', inline: true }
+                {
+                  name: T(locale, 'cmd.mahinai.ui.personality.friendly'),
+                  value: T(locale, 'cmd.mahinai.ui.personality.friendly_value'),
+                  inline: true,
+                },
+                {
+                  name: T(locale, 'cmd.mahinai.ui.personality.professional'),
+                  value: T(locale, 'cmd.mahinai.ui.personality.professional_value'),
+                  inline: true,
+                },
+                {
+                  name: T(locale, 'cmd.mahinai.ui.personality.playful'),
+                  value: T(locale, 'cmd.mahinai.ui.personality.playful_value'),
+                  inline: true,
+                },
+                {
+                  name: T(locale, 'cmd.mahinai.ui.personality.dj'),
+                  value: T(locale, 'cmd.mahinai.ui.personality.dj_value'),
+                  inline: true,
+                },
+                {
+                  name: T(locale, 'cmd.mahinai.ui.personality.wise'),
+                  value: T(locale, 'cmd.mahinai.ui.personality.wise_value'),
+                  inline: true,
+                },
+                {
+                  name: T(locale, 'cmd.mahinai.ui.personality.technical'),
+                  value: T(locale, 'cmd.mahinai.ui.personality.technical_value'),
+                  inline: true,
+                }
               )
-              .setFooter({ text: 'Use the personality option in the command to switch!' })
+              .setFooter({ text: T(locale, 'cmd.mahinai.ui.personality.footer') })
 
             await interaction.reply({
               embeds: [personalityEmbed],
@@ -789,7 +720,7 @@ export default class MahinaAI extends Command {
           case 'clear_context':
             contextService.clearContext(userId, channelId)
             await interaction.reply({
-              content: '🧹 Conversation context cleared! Start fresh with your next message.',
+              content: T(locale, 'cmd.mahinai.ui.interactions.clear_context'),
               flags: MessageFlags.Ephemeral,
             })
             break
@@ -799,23 +730,40 @@ export default class MahinaAI extends Command {
             const insights = await memoryService.getUserInsights(userId, guildId)
 
             const statsEmbed = new EmbedBuilder()
-              .setTitle('📊 Your AI Statistics')
+              .setTitle(T(locale, 'cmd.mahinai.ui.stats.title'))
               .setColor(client.config.color.blue)
               .addFields(
-                { name: 'Total Conversations', value: `${stats.totalContexts}`, inline: true },
-                { name: 'Total Messages', value: `${stats.totalMessages}`, inline: true },
                 {
-                  name: 'Helpfulness',
+                  name: T(locale, 'cmd.mahinai.ui.stats.total_conversations'),
+                  value: `${stats.totalContexts}`,
+                  inline: true,
+                },
+                {
+                  name: T(locale, 'cmd.mahinai.ui.stats.total_messages'),
+                  value: `${stats.totalMessages}`,
+                  inline: true,
+                },
+                {
+                  name: T(locale, 'cmd.mahinai.ui.stats.helpfulness'),
                   value: `${Math.round(insights.helpfulnessRate * 100)}%`,
                   inline: true,
                 },
                 {
-                  name: 'Favorite Commands',
-                  value: insights.topCommands.join(', ') || 'None yet',
+                  name: T(locale, 'cmd.mahinai.ui.stats.favorite_commands'),
+                  value:
+                    insights.topCommands.join(', ') || T(locale, 'cmd.mahinai.ui.stats.none_yet'),
                   inline: false,
                 },
-                { name: 'Sentiment', value: insights.sentiment, inline: true },
-                { name: 'Personality', value: insights.personality, inline: true }
+                {
+                  name: T(locale, 'cmd.mahinai.ui.stats.sentiment'),
+                  value: insights.sentiment,
+                  inline: true,
+                },
+                {
+                  name: T(locale, 'cmd.mahinai.ui.stats.personality'),
+                  value: insights.personality,
+                  inline: true,
+                }
               )
 
             await interaction.reply({
@@ -828,12 +776,12 @@ export default class MahinaAI extends Command {
             const recommendations = await memoryService.getRecommendations(userId, guildId)
 
             const recEmbed = new EmbedBuilder()
-              .setTitle('💡 Personalized Recommendations')
+              .setTitle(T(locale, 'cmd.mahinai.ui.recommendations.title'))
               .setColor(client.config.color.yellow)
 
             if (recommendations.music.length > 0) {
               recEmbed.addFields({
-                name: '🎵 Music',
+                name: T(locale, 'cmd.mahinai.ui.recommendations.music'),
                 value: recommendations.music.join('\n'),
                 inline: false,
               })
@@ -841,7 +789,7 @@ export default class MahinaAI extends Command {
 
             if (recommendations.commands.length > 0) {
               recEmbed.addFields({
-                name: '🛠️ Commands to Try',
+                name: T(locale, 'cmd.mahinai.ui.recommendations.commands'),
                 value: recommendations.commands.join('\n'),
                 inline: false,
               })
@@ -849,7 +797,7 @@ export default class MahinaAI extends Command {
 
             if (recommendations.tips.length > 0) {
               recEmbed.addFields({
-                name: '💭 Tips',
+                name: T(locale, 'cmd.mahinai.ui.recommendations.tips'),
                 value: recommendations.tips.join('\n'),
                 inline: false,
               })
@@ -862,10 +810,10 @@ export default class MahinaAI extends Command {
             break
 
           case 'export_chat':
-            const exportData = contextService.exportContext(userId, channelId)
+            contextService.exportContext(userId, channelId)
 
             await interaction.reply({
-              content: '📤 Your conversation has been exported! (Feature coming soon)',
+              content: T(locale, 'cmd.mahinai.ui.interactions.export_chat'),
               flags: MessageFlags.Ephemeral,
             })
             break
@@ -887,6 +835,7 @@ export default class MahinaAI extends Command {
     memoryService: any,
     userId: string,
     guildId: string,
+    locale: string,
     client: MahinaBot
   ): Promise<void> {
     // Only send suggestions for new users or specific intents
@@ -900,31 +849,19 @@ export default class MahinaAI extends Command {
 
       if (analysis.intent === 'music' && ctx.guild) {
         await (ctx.channel as TextChannel)?.send({
-          content: `💡 **Music Tip**: Try \`!play <song name>\` to start playing music, or \`!help music\` for all music commands!`,
+          content: T(locale, 'cmd.mahinai.ui.follow_up.music_tip'),
         })
       } else if (memory.interactions.totalMessages === 1) {
         await (ctx.channel as TextChannel)?.send({
-          content: `👋 **Welcome!** I'm Mahina AI. I can help with music, answer questions, and chat! Try different personalities with the \`personality\` option.`,
+          content: T(locale, 'cmd.mahinai.ui.follow_up.welcome'),
         })
       } else if (recommendations.tips.length > 0 && Math.random() < 0.3) {
         // 30% chance to show a tip
         await (ctx.channel as TextChannel)?.send({
-          content: `💭 **Tip**: ${recommendations.tips[0]}`,
+          content: T(locale, 'cmd.mahinai.ui.follow_up.tip', { tip: recommendations.tips[0] }),
         })
       }
     }, 3000)
-  }
-
-  private formatIntent(intent: string): string {
-    const intents: Record<string, string> = {
-      help: '❓ Help Request',
-      music: '🎵 Music Query',
-      greeting: '👋 Greeting',
-      thanks: '🙏 Appreciation',
-      goodbye: '👋 Farewell',
-      question: '❔ Question',
-    }
-    return intents[intent] || intent
   }
 
   private async generateAudioResponse(

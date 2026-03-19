@@ -8,6 +8,7 @@ import {
   type GuildMemberResolvable,
   type InteractionEditReplyOptions,
   type InteractionReplyOptions,
+  MessageFlags,
   Message,
   type MessageCreateOptions,
   type MessageEditOptions,
@@ -131,7 +132,10 @@ export default class Context {
     ephemeral = false
   ): Promise<Message> {
     if (this.isInteraction) {
-      this.msg = await this.interaction?.deferReply({ fetchReply: true, ephemeral })
+      this.msg = await this.interaction?.deferReply({
+        withResponse: true,
+        flags: ephemeral ? MessageFlags.Ephemeral : undefined,
+      })
       return this.msg
     }
 

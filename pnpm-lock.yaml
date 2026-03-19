@@ -17,9 +17,6 @@ importers:
       '@distube/ytdl-core':
         specifier: ^4.16.12
         version: 4.16.12
-      '@img/sharp-wasm32':
-        specifier: 0.34.5
-        version: 0.34.5
       '@prisma/client':
         specifier: ^6.15.0
         version: 6.19.2(prisma@6.19.2(typescript@5.9.3))(typescript@5.9.3)
@@ -4705,6 +4702,7 @@ snapshots:
   '@emnapi/runtime@1.9.0':
     dependencies:
       tslib: 2.8.1
+    optional: true
 
   '@emnapi/wasi-threads@1.2.0':
     dependencies:
@@ -4949,6 +4947,7 @@ snapshots:
   '@img/sharp-wasm32@0.34.5':
     dependencies:
       '@emnapi/runtime': 1.9.0
+    optional: true
 
   '@img/sharp-win32-arm64@0.34.5':
     optional: true

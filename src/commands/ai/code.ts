@@ -5,6 +5,7 @@ import {
   createAIResultEmbed,
   splitDiscordMessage,
 } from '#common/ai_command_ui'
+import { runCodeTask } from '#common/ai_runtime'
 import type Context from '#common/context'
 import type MahinaBot from '#common/mahina_bot'
 import { ApplicationCommandOptionType, AttachmentBuilder } from 'discord.js'
@@ -158,9 +159,7 @@ export default class Code extends Command {
   }
 
   async run(client: MahinaBot, ctx: Context, args: string[]): Promise<any> {
-    const nvidiaService = client.services.nvidia
-
-    if (!nvidiaService) {
+    if (!client.services.nvidia && !client.services.nvidiaMultimodal) {
       return await ctx.sendMessage({
         embeds: [createAIErrorEmbed(client, 'NVIDIA AI service is not configured')],
       })
@@ -218,12 +217,7 @@ export default class Code extends Command {
     })
 
     try {
-      const response = await nvidiaService.analyzeCode(
-        ctx.author?.id || 'unknown',
-        code,
-        language,
-        task
-      )
+      const response = await runCodeTask(client, ctx.author?.id || 'unknown', code, language, task)
 
       // Split response if too long
       const chunks = splitDiscordMessage(response)

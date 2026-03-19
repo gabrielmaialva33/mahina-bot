@@ -5,6 +5,7 @@ import {
   createAIResultEmbed,
   splitDiscordMessage,
 } from '#common/ai_command_ui'
+import { runReasoningTask } from '#common/ai_runtime'
 import type Context from '#common/context'
 import type MahinaBot from '#common/mahina_bot'
 import { ApplicationCommandOptionType } from 'discord.js'
@@ -50,9 +51,7 @@ export default class Reason extends Command {
   }
 
   async run(client: MahinaBot, ctx: Context, args: string[]): Promise<any> {
-    const nvidiaService = client.services.nvidia
-
-    if (!nvidiaService) {
+    if (!client.services.nvidia && !client.services.nvidiaMultimodal) {
       return await ctx.sendMessage({
         embeds: [createAIErrorEmbed(client, 'NVIDIA AI service is not configured')],
       })
@@ -82,7 +81,7 @@ export default class Reason extends Command {
     })
 
     try {
-      const response = await nvidiaService.reasoning(ctx.author!.id, problem, context)
+      const response = await runReasoningTask(client, ctx.author!.id, problem, context)
 
       // Split response if too long
       const chunks = splitDiscordMessage(response)

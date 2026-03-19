@@ -1,5 +1,9 @@
 import Command from '#common/command'
-import { getPreferredAIService } from '#common/ai_runtime'
+import {
+  getAIServiceCapabilities,
+  getAllAvailableAIModels,
+  getPreferredAIService,
+} from '#common/ai_runtime'
 import { EmbedBuilder } from 'discord.js'
 import MahinaBot from '#common/mahina_bot'
 import Context from '#common/context'
@@ -29,19 +33,20 @@ export default class AIStatus extends Command {
   }
 
   async run(client: MahinaBot, ctx: Context): Promise<any> {
+    const t = (key: string, params?: Record<string, unknown>) => ctx.locale(key, params)
     if (!client.aiManager) {
       return await ctx.sendMessage({
         embeds: [
           {
-            title: '❌ Gerenciador de IA Não Disponível',
-            description: 'Os serviços de IA não estão inicializados.',
+            title: t('cmd.aistatus.ui.errors.manager_unavailable_title'),
+            description: t('cmd.aistatus.ui.errors.manager_unavailable'),
             color: client.config.color.red,
           },
         ],
       })
     }
 
-    await ctx.sendDeferMessage('🔍 Verificando status da IA...')
+    await ctx.sendDeferMessage(t('cmd.aistatus.ui.loading'))
 
     try {
       // Get AI Manager status
@@ -50,7 +55,7 @@ export default class AIStatus extends Command {
 
       // Create status embed
       const statusEmbed = new EmbedBuilder()
-        .setTitle('🤖 Status da IA Mahina')
+        .setTitle(t('cmd.aistatus.ui.title'))
         .setColor(status.initialized ? client.config.color.green : client.config.color.red)
         .setTimestamp()
 
@@ -58,10 +63,18 @@ export default class AIStatus extends Command {
       statusEmbed.addFields({
         name: '📊 Status dos Serviços',
         value: [
-          `**Inicializado:** ${status.initialized ? '✅ Sim' : '❌ Não'}`,
-          `**NVIDIA AI:** ${status.services.nvidia ? '✅ Ativo' : '❌ Inativo'}`,
-          `**Serviço de Contexto:** ${status.services.context ? '✅ Ativo' : '❌ Inativo'}`,
-          `**Serviço de Memória:** ${status.services.memory ? '✅ Ativo' : '❌ Inativo'}`,
+          t('cmd.aistatus.ui.service_status.initialized', {
+            value: status.initialized ? '✅ Sim' : '❌ Não',
+          }),
+          t('cmd.aistatus.ui.service_status.nvidia', {
+            value: status.services.nvidia ? '✅ Ativo' : '❌ Inativo',
+          }),
+          t('cmd.aistatus.ui.service_status.context', {
+            value: status.services.context ? '✅ Ativo' : '❌ Inativo',
+          }),
+          t('cmd.aistatus.ui.service_status.memory', {
+            value: status.services.memory ? '✅ Ativo' : '❌ Inativo',
+          }),
         ].join('\n'),
         inline: false,
       })
@@ -79,9 +92,9 @@ export default class AIStatus extends Command {
       statusEmbed.addFields({
         name: '📈 Estatísticas de Uso',
         value: [
-          `**Contextos Ativos:** ${stats.contextStats.totalContexts}`,
-          `**Total de Mensagens:** ${stats.contextStats.totalMessages}`,
-          `**Total de Usuários:** ${stats.totalInteractions}`,
+          t('cmd.aistatus.ui.usage.active_contexts', { total: stats.contextStats.totalContexts }),
+          t('cmd.aistatus.ui.usage.total_messages', { total: stats.contextStats.totalMessages }),
+          t('cmd.aistatus.ui.usage.total_users', { total: stats.totalInteractions }),
         ].join('\n'),
         inline: true,
       })
@@ -104,7 +117,10 @@ export default class AIStatus extends Command {
       // Models info if NVIDIA is active
       const aiService = getPreferredAIService(client)
       if (aiService) {
-        const models = aiService.getAllModels()
+        const models = getAllAvailableAIModels(client)
+        const capabilities = [...getAIServiceCapabilities(aiService)].map(
+          (capability) => `• ${capability}`
+        )
         statusEmbed.addFields({
           name: '🧠 Modelos Disponíveis',
           value: models
@@ -113,6 +129,14 @@ export default class AIStatus extends Command {
             .join('\n'),
           inline: false,
         })
+
+        if (capabilities.length > 0) {
+          statusEmbed.addFields({
+            name: '🛠️ Capacidades Ativas',
+            value: capabilities.join('\n'),
+            inline: false,
+          })
+        }
       }
 
       // Health check
@@ -130,11 +154,12 @@ export default class AIStatus extends Command {
         embeds: [
           {
             title: '❌ Erro',
-            description: 'Falha ao recuperar status da IA.',
+            title: t('cmd.aistatus.ui.errors.generic_title'),
+            description: t('cmd.aistatus.ui.errors.generic'),
             fields: [
               {
-                name: 'Erro',
-                value: (error as Error).message || 'Erro desconhecido',
+                name: t('cmd.aistatus.ui.errors.error_field'),
+                value: (error as Error).message || t('cmd.aistatus.ui.errors.unknown'),
               },
             ],
             color: client.config.color.red,

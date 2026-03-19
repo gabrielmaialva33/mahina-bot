@@ -33,42 +33,53 @@ export class AIManager {
     }
 
     try {
-      if (env.NVIDIA_API_KEY) {
-        this.nvidiaMultimodal = new NvidiaMultimodalService(this.bot, env.NVIDIA_API_KEY)
-        await this.nvidiaMultimodal.initialize()
-        logger.info('✅ NVIDIA multimodal AI service initialized')
-
-        this.nvidia = new NvidiaAIService(env.NVIDIA_API_KEY)
-        logger.info('✅ NVIDIA AI Service (legacy) initialized')
-      } else if (env.OPENAI_API_KEY) {
-        logger.warn('NVIDIA_API_KEY not found, OpenAI support not implemented yet')
-      } else {
-        logger.warn('No AI API keys found. AI features will be disabled.')
-      }
-
-      this.context = new AIContextService()
-      logger.info('✅ AI Context Service initialized')
-
-      this.memory = new AIMemoryService(this.prisma)
-      logger.info('✅ AI Memory Service initialized')
-
-      // MahinaBrain needs memory to be ready first
-      this.brain = new MahinaBrain(this.bot)
-      logger.info('✅ MahinaBrain initialized')
-
-      if (env.AI_QUEUE_ENABLED) {
-        this.queue = new AIQueueService(this.bot)
-        await this.queue.initialize()
-        logger.info('✅ AI queue service initialized with Redis')
-      }
+      await this.initializeCoreProviders()
+      this.initializeContext()
+      this.initializeMemory()
+      this.initializeBrain()
+      await this.initializeQueue()
 
       this.initialized = true
-      logger.info('🤖 AI Manager fully initialized')
-      this.logAvailableFeatures()
+      this.logInitializationSummary()
     } catch (error) {
       logger.error('Failed to initialize AI Manager:', error)
       throw error
     }
+  }
+
+  private async initializeCoreProviders(): Promise<void> {
+    if (env.NVIDIA_API_KEY) {
+      this.nvidiaMultimodal = new NvidiaMultimodalService(this.bot, env.NVIDIA_API_KEY)
+      await this.nvidiaMultimodal.initialize()
+      this.nvidia = new NvidiaAIService(env.NVIDIA_API_KEY)
+      return
+    }
+
+    if (env.OPENAI_API_KEY) {
+      logger.warn('AI bootstrap: OPENAI_API_KEY found, but OpenAI provider is not implemented yet')
+      return
+    }
+
+    logger.warn('AI bootstrap: no provider API key configured')
+  }
+
+  private initializeContext(): void {
+    this.context = new AIContextService()
+  }
+
+  private initializeMemory(): void {
+    this.memory = new AIMemoryService(this.prisma)
+  }
+
+  private initializeBrain(): void {
+    this.brain = new MahinaBrain(this.bot)
+  }
+
+  private async initializeQueue(): Promise<void> {
+    if (!env.AI_QUEUE_ENABLED) return
+
+    this.queue = new AIQueueService(this.bot)
+    await this.queue.initialize()
   }
 
   isAvailable(): boolean {
@@ -127,21 +138,26 @@ export class AIManager {
     }
   }
 
-  private logAvailableFeatures(): void {
+  private logInitializationSummary(): void {
     const status = this.getStatus()
+    const enabledProviders = []
 
-    logger.info('=== AI Features Status ===')
-    logger.info(`Initialized: ${status.initialized ? '✅' : '❌'}`)
-    logger.info('Services:')
-    logger.info(`  - NVIDIA AI: ${status.services.nvidia ? '✅' : '❌'}`)
-    logger.info(`  - NVIDIA Multimodal: ${status.services.nvidiaMultimodal ? '✅' : '❌'}`)
-    logger.info(`  - Context: ${status.services.context ? '✅' : '❌'}`)
-    logger.info(`  - Memory: ${status.services.memory ? '✅' : '❌'}`)
-    logger.info(`  - Brain: ${status.services.brain ? '✅' : '❌'}`)
-    logger.info(`  - Queue: ${status.services.queue ? '✅' : '❌'}`)
+    if (status.services.nvidiaMultimodal) enabledProviders.push('nvidia-multimodal')
+    if (status.services.nvidia) enabledProviders.push('nvidia-legacy')
 
-    for (const feature of status.features) {
-      logger.info(`  - ${feature}`)
+    const enabledInfrastructure = []
+
+    if (status.services.context) enabledInfrastructure.push('context')
+    if (status.services.memory) enabledInfrastructure.push('memory')
+    if (status.services.brain) enabledInfrastructure.push('brain')
+    if (status.services.queue) enabledInfrastructure.push('queue')
+
+    logger.info(
+      `AI ready: providers=${enabledProviders.join(', ') || 'none'} | services=${enabledInfrastructure.join(', ') || 'none'}`
+    )
+
+    if (status.features.length > 0) {
+      logger.debug(`AI features: ${status.features.join(' | ')}`)
     }
   }
 

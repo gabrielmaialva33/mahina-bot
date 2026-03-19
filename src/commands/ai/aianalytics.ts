@@ -91,6 +91,7 @@ export default class AIAnalytics extends Command {
   }
 
   async run(client: MahinaBot, ctx: Context, args: string[]): Promise<any> {
+    const t = (key: string, params?: Record<string, unknown>) => ctx.locale(key, params)
     const subcommand = ctx.isInteraction
       ? ctx.options.getSubCommand()
       : args[0]?.toLowerCase() || 'user'
@@ -101,8 +102,8 @@ export default class AIAnalytics extends Command {
       return ctx.sendMessage({
         embeds: [
           {
-            title: '❌ Banco de Dados Indisponível',
-            description: 'O MongoDB não está disponível no momento.',
+            title: t('cmd.aianalytics.ui.errors.db_title'),
+            description: t('cmd.aianalytics.ui.errors.db_unavailable'),
             color: client.config.color.red,
           },
         ],
@@ -113,7 +114,7 @@ export default class AIAnalytics extends Command {
       embeds: [
         new EmbedBuilder()
           .setColor(client.config.color.blue)
-          .setDescription('📊 Analisando dados...'),
+          .setDescription(t('cmd.aianalytics.ui.loading')),
       ],
     })
 
@@ -136,6 +137,7 @@ export default class AIAnalytics extends Command {
   }
 
   private async userAnalytics(ctx: Context, client: MahinaBot, prisma: any): Promise<void> {
+    const t = (key: string, params?: Record<string, unknown>) => ctx.locale(key, params)
     const period = ctx.isInteraction ? (ctx.options.get('period')?.value as Period) || '7d' : '7d'
     const since = this.getDateFromPeriod(period)
     const where = since
@@ -163,17 +165,29 @@ export default class AIAnalytics extends Command {
     )
 
     const embed = new EmbedBuilder()
-      .setTitle('📊 Seu Uso de IA')
+      .setTitle(t('cmd.aianalytics.ui.user.title'))
       .setColor(client.config.color.blue)
       .addFields(
-        { name: 'Período', value: this.getPeriodLabel(period), inline: true },
-        { name: 'Conversas', value: histories.length.toString(), inline: true },
-        { name: 'Mensagens', value: totalMessages.toString(), inline: true },
         {
-          name: 'Última atividade',
+          name: t('cmd.aianalytics.ui.user.period'),
+          value: this.getPeriodLabel(period),
+          inline: true,
+        },
+        {
+          name: t('cmd.aianalytics.ui.user.conversations'),
+          value: histories.length.toString(),
+          inline: true,
+        },
+        {
+          name: t('cmd.aianalytics.ui.user.messages'),
+          value: totalMessages.toString(),
+          inline: true,
+        },
+        {
+          name: t('cmd.aianalytics.ui.user.last_activity'),
           value: histories[0]
             ? new Date(histories[0].updatedAt).toLocaleString('pt-BR')
-            : 'Sem dados',
+            : t('cmd.aianalytics.ui.no_data'),
           inline: false,
         }
       )
@@ -183,16 +197,17 @@ export default class AIAnalytics extends Command {
   }
 
   private async modelAnalytics(ctx: Context, client: MahinaBot): Promise<void> {
+    const t = (key: string, params?: Record<string, unknown>) => ctx.locale(key, params)
     const modelService = getPreferredAIService(client)
     const stats = (await modelService?.getModelStats?.('7d')) || []
 
     const embed = new EmbedBuilder()
-      .setTitle('🤖 Métricas de Modelos')
+      .setTitle(t('cmd.aianalytics.ui.models.title'))
       .setColor(client.config.color.blue)
       .setTimestamp()
 
     if (stats.length === 0) {
-      embed.setDescription('Ainda não há métricas de modelos nesta execução.')
+      embed.setDescription(t('cmd.aianalytics.ui.models.empty'))
     } else {
       for (const stat of stats.slice(0, 5)) {
         embed.addFields({
@@ -211,6 +226,7 @@ export default class AIAnalytics extends Command {
   }
 
   private async sentimentAnalytics(ctx: Context, client: MahinaBot, prisma: any): Promise<void> {
+    const t = (key: string, params?: Record<string, unknown>) => ctx.locale(key, params)
     const memory = await prisma.aIMemory.findUnique({
       where: {
         userId_guildId: {
@@ -227,18 +243,31 @@ export default class AIAnalytics extends Command {
     }
 
     const embed = new EmbedBuilder()
-      .setTitle('💭 Sentimento Aprendido')
+      .setTitle(t('cmd.aianalytics.ui.sentiment.title'))
       .setColor(client.config.color.blue)
       .addFields(
-        { name: 'Positivo', value: String(sentiment.positive || 0), inline: true },
-        { name: 'Neutro', value: String(sentiment.neutral || 0), inline: true },
-        { name: 'Negativo', value: String(sentiment.negative || 0), inline: true }
+        {
+          name: t('cmd.aianalytics.ui.sentiment.positive'),
+          value: String(sentiment.positive || 0),
+          inline: true,
+        },
+        {
+          name: t('cmd.aianalytics.ui.sentiment.neutral'),
+          value: String(sentiment.neutral || 0),
+          inline: true,
+        },
+        {
+          name: t('cmd.aianalytics.ui.sentiment.negative'),
+          value: String(sentiment.negative || 0),
+          inline: true,
+        }
       )
 
     await ctx.editMessage({ embeds: [embed] })
   }
 
   private async searchAnalytics(ctx: Context, client: MahinaBot, prisma: any): Promise<void> {
+    const t = (key: string, params?: Record<string, unknown>) => ctx.locale(key, params)
     const query = ctx.isInteraction
       ? String(ctx.options.get('query')?.value || '')
       : ctx.args.slice(1).join(' ')
@@ -269,14 +298,17 @@ export default class AIAnalytics extends Command {
       .slice(0, 8)
 
     const embed = new EmbedBuilder()
-      .setTitle('🔎 Busca no Histórico')
+      .setTitle(t('cmd.aianalytics.ui.search.title'))
       .setColor(client.config.color.blue)
-      .setDescription(matches.length > 0 ? matches.join('\n') : 'Nenhum trecho encontrado.')
+      .setDescription(
+        matches.length > 0 ? matches.join('\n') : t('cmd.aianalytics.ui.search.empty')
+      )
 
     await ctx.editMessage({ embeds: [embed] })
   }
 
   private async patternAnalytics(ctx: Context, client: MahinaBot, prisma: any): Promise<void> {
+    const t = (key: string, params?: Record<string, unknown>) => ctx.locale(key, params)
     const memory = await prisma.aIMemory.findUnique({
       where: {
         userId_guildId: {
@@ -297,17 +329,17 @@ export default class AIAnalytics extends Command {
       : []
 
     const embed = new EmbedBuilder()
-      .setTitle('🧩 Padrões de Uso')
+      .setTitle(t('cmd.aianalytics.ui.patterns.title'))
       .setColor(client.config.color.blue)
       .addFields(
         {
-          name: 'Comandos frequentes',
-          value: topCommands.length > 0 ? topCommands.join('\n') : 'Sem dados',
+          name: t('cmd.aianalytics.ui.patterns.frequent_commands'),
+          value: topCommands.length > 0 ? topCommands.join('\n') : t('cmd.aianalytics.ui.no_data'),
           inline: false,
         },
         {
-          name: 'Padrões aprendidos',
-          value: patterns.length > 0 ? patterns.join('\n') : 'Sem padrões registrados',
+          name: t('cmd.aianalytics.ui.patterns.learned_patterns'),
+          value: patterns.length > 0 ? patterns.join('\n') : t('cmd.aianalytics.ui.patterns.empty'),
           inline: false,
         }
       )
@@ -316,6 +348,7 @@ export default class AIAnalytics extends Command {
   }
 
   private async exportAnalytics(ctx: Context, client: MahinaBot, prisma: any): Promise<void> {
+    const t = (key: string, params?: Record<string, unknown>) => ctx.locale(key, params)
     const historyCount = await prisma.chatHistory.count({ where: { userId: ctx.author.id } })
     const memoryCount = await prisma.aIMemory.count({ where: { userId: ctx.author.id } })
 
@@ -328,7 +361,7 @@ export default class AIAnalytics extends Command {
     ].join('\n')
 
     const embed = new EmbedBuilder()
-      .setTitle('📦 Exportação de Analytics')
+      .setTitle(t('cmd.aianalytics.ui.export.title'))
       .setColor(client.config.color.green)
       .setDescription(`\`\`\`md\n${exportText}\n\`\`\``)
 

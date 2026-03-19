@@ -288,13 +288,14 @@ export default class MSearch extends Command {
           .setDescription('Nenhum resultado encontrado')
           .setColor(client.color.red)
 
-        return interaction.update({ embeds: [embed], fetchReply: true })
+        await interaction.update({ embeds: [embed] })
+        return
       } else if (totalItems > 0) {
-        const message = await interaction.update({
+        await interaction.update({
           embeds: [initialEmbed],
           components: [initialRow, initialDownloadRow],
-          fetchReply: true,
         })
+        const message = await interaction.fetchReply()
 
         if (!message) return
 
@@ -318,7 +319,7 @@ export default class MSearch extends Command {
               .setDescription(`O vídeo será reproduzido em instantes`)
               .setColor(client.color.yellow)
 
-            await cInteraction.reply({ embeds: [embed], fetchReply: true })
+            await cInteraction.reply({ embeds: [embed] })
 
             const streamTrack: StreamTrack = {
               type: 'url',

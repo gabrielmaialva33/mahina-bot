@@ -26,7 +26,7 @@ import { i18n, initI18n, localization, T } from '#common/i18n'
 import loadPlugins from '#src/extensions/index'
 import { Utils } from '#utils/utils'
 import { env } from '#src/env'
-import SelfBot from '#common/selfbot'
+import type SelfBot from '#common/selfbot'
 import { AnimeZey } from '#src/platforms/animezey'
 import { NvidiaAIService } from '#src/services/nvidia_ai_service'
 import { ProactiveInteractionService } from '#src/services/proactive_interaction_service'
@@ -79,7 +79,7 @@ export default class MahinaBot extends Client {
   utils = Utils
   env: typeof env = env
   manager!: MahinaLinkClient
-  selfbot: SelfBot
+  selfbot?: SelfBot
   animezey = new AnimeZey()
   services: BotServices = {}
   aiManager?: AIManager
@@ -94,7 +94,13 @@ export default class MahinaBot extends Client {
       music: env.ENABLE_MUSIC,
       selfbot: env.ENABLE_SELFBOT,
     }
-    this.selfbot = new SelfBot(this)
+    if (this.runtime.selfbot) {
+      import('#common/selfbot').then(({ default: SelfBotClass }) => {
+        this.selfbot = new SelfBotClass(this)
+      }).catch((err) => {
+        this.logger.warn('SelfBot module unavailable (sharp/video-stream deps missing):', err.message)
+      })
+    }
   }
 
   embed(): EmbedBuilder {
@@ -137,7 +143,7 @@ export default class MahinaBot extends Client {
       return
     }
 
-    this.logger.warn('Top.gg token not found!')
+    this.logger.warn('Top.gg token not found. Auto poster disabled.')
   }
 
   private async setupAIManager(): Promise<void> {
@@ -157,8 +163,6 @@ export default class MahinaBot extends Client {
       this.services.aiMemory = this.aiManager.memory
       this.services.aiQueue = this.aiManager.queue
       this.services.brain = this.aiManager.brain
-
-      this.logger.info('AI Manager and services initialized successfully')
     } catch (error) {
       this.logger.error('Failed to initialize AI Manager:', error)
       this.logger.warn('AI features will be disabled')
@@ -172,6 +176,7 @@ export default class MahinaBot extends Client {
       this.services.nvidiaEmbedding = new NvidiaEmbeddingService(this)
       this.services.nvidiaCosmos = new NvidiaCosmosService(this)
       this.services.nvidiaGuard = new NvidiaGuardService(this)
+      this.logger.debug('AI optional services ready: proactive, tts, embedding, cosmos, guard')
     }
 
     if (this.runtime.music) {

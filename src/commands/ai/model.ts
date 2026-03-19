@@ -1,5 +1,12 @@
 import Command from '#common/command'
-import { getPreferredAIService } from '#common/ai_runtime'
+import {
+  createAIModelCatalogEmbed,
+  createAIModelStatusEmbed,
+  getAIModelInfo,
+  getAllAvailableAIModels,
+  getPreferredAIService,
+  setUserAIModel,
+} from '#common/ai_runtime'
 import type Context from '#common/context'
 import type MahinaBot from '#common/mahina_bot'
 import { ApplicationCommandOptionType, EmbedBuilder } from 'discord.js'
@@ -138,6 +145,7 @@ export default class Model extends Command {
   }
 
   async run(client: MahinaBot, ctx: Context, args: string[]): Promise<any> {
+    const t = (key: string, params?: Record<string, unknown>) => ctx.locale(key, params)
     const subcommand = ctx.isInteraction
       ? ctx.options.getSubCommand() || 'current'
       : args[0]?.toLowerCase() || 'current'
@@ -149,7 +157,7 @@ export default class Model extends Command {
       return await ctx.sendMessage({
         embeds: [
           {
-            description: '❌ Serviço de IA NVIDIA não está configurado',
+            description: t('cmd.model.ui.errors.service_unavailable'),
             color: client.config.color.red,
           },
         ],
@@ -161,6 +169,38 @@ export default class Model extends Command {
         const category = ctx.isInteraction
           ? (ctx.options.get('category')?.value as string)
           : args[1]
+
+        if (category) {
+          const models = getAllAvailableAIModels(client).filter(
+            (model) => model.category === category
+          )
+          const embed = new EmbedBuilder()
+            .setTitle(t('cmd.model.ui.list.title', { category }))
+            .setColor(client.config.color.blue)
+            .setTimestamp()
+
+          if (models.length === 0) {
+            embed.setDescription(t('cmd.model.ui.list.empty_category'))
+          } else {
+            for (const model of models) {
+              embed.addFields({
+                name: model.name,
+                value: t('cmd.model.ui.list.item', {
+                  description: model.description,
+                  contextLength: model.contextLength.toLocaleString(),
+                }),
+                inline: false,
+              })
+            }
+          }
+
+          return await ctx.sendMessage({ embeds: [embed] })
+        }
+
+        const catalogEmbed = createAIModelCatalogEmbed(client)
+        if (catalogEmbed) {
+          return await ctx.sendMessage({ embeds: [catalogEmbed as EmbedBuilder] })
+        }
 
         if (nvidiaService.createEnhancedModelEmbed) {
           const embed = nvidiaService.createEnhancedModelEmbed()
@@ -178,45 +218,47 @@ export default class Model extends Command {
           return await ctx.sendMessage({
             embeds: [
               {
-                description: '❌ Por favor, especifique um modelo para selecionar',
+                description: t('cmd.model.ui.errors.missing_model_select'),
                 color: client.config.color.red,
               },
             ],
           })
         }
 
-        const success = nvidiaService.setUserModel(ctx.author!.id, modelKey)
+        const selection = setUserAIModel(client, ctx.author!.id, modelKey)
 
-        if (!success) {
+        if (!selection.success) {
           return await ctx.sendMessage({
             embeds: [
               {
-                description: `❌ Modelo inválido: \`${modelKey}\``,
+                description: t('cmd.model.ui.errors.invalid_model', { model: modelKey }),
                 color: client.config.color.red,
               },
             ],
           })
         }
 
-        const model = nvidiaService.getModelInfo(modelKey)
+        const model = selection.model
         const embed = new EmbedBuilder()
-          .setTitle('✅ Modelo Selecionado')
-          .setDescription(`Você agora está usando **${model!.name}**`)
+          .setTitle(t('cmd.model.ui.select.title'))
+          .setDescription(t('cmd.model.ui.select.description', { model: model!.name }))
           .setColor(client.config.color.green)
           .addFields(
-            { name: 'Categoria', value: model!.category, inline: true },
+            { name: t('cmd.model.ui.fields.category'), value: model!.category, inline: true },
             {
-              name: 'Contexto',
+              name: t('cmd.model.ui.fields.context'),
               value: `${model!.contextLength.toLocaleString()} tokens`,
               inline: true,
             },
             {
-              name: 'Streaming',
-              value: model!.streaming ? '✅ Habilitado' : '❌ Desabilitado',
+              name: t('cmd.model.ui.fields.streaming'),
+              value: model!.streaming
+                ? t('cmd.model.ui.streaming.enabled')
+                : t('cmd.model.ui.streaming.disabled'),
               inline: true,
             }
           )
-          .setFooter({ text: 'Use !chat ou /chat para conversar com o novo modelo!' })
+          .setFooter({ text: t('cmd.model.ui.select.footer') })
 
         return await ctx.sendMessage({ embeds: [embed] })
       }
@@ -228,20 +270,20 @@ export default class Model extends Command {
           return await ctx.sendMessage({
             embeds: [
               {
-                description: '❌ Por favor, especifique um modelo',
+                description: t('cmd.model.ui.errors.missing_model_info'),
                 color: client.config.color.red,
               },
             ],
           })
         }
 
-        const model = nvidiaService.getModelInfo(modelKey)
+        const model = getAIModelInfo(client, modelKey)
 
         if (!model) {
           return await ctx.sendMessage({
             embeds: [
               {
-                description: `❌ Modelo não encontrado: \`${modelKey}\``,
+                description: t('cmd.model.ui.errors.model_not_found', { model: modelKey }),
                 color: client.config.color.red,
               },
             ],
@@ -253,19 +295,29 @@ export default class Model extends Command {
           .setDescription(model.description)
           .setColor(client.config.color.main)
           .addFields(
-            { name: 'ID do Modelo', value: `\`${model.id}\``, inline: false },
-            { name: 'Categoria', value: model.category, inline: true },
+            { name: t('cmd.model.ui.fields.model_id'), value: `\`${model.id}\``, inline: false },
+            { name: t('cmd.model.ui.fields.category'), value: model.category, inline: true },
             {
-              name: 'Contexto',
+              name: t('cmd.model.ui.fields.context'),
               value: `${model.contextLength.toLocaleString()} tokens`,
               inline: true,
             },
-            { name: 'Max Tokens', value: `${model.maxTokens.toLocaleString()}`, inline: true },
-            { name: 'Temperatura', value: `${model.temperature}`, inline: true },
-            { name: 'Top P', value: `${model.topP}`, inline: true },
             {
-              name: 'Streaming',
-              value: model.streaming ? '✅ Suportado' : '❌ Não Suportado',
+              name: t('cmd.model.ui.fields.max_tokens'),
+              value: `${model.maxTokens.toLocaleString()}`,
+              inline: true,
+            },
+            {
+              name: t('cmd.model.ui.fields.temperature'),
+              value: `${model.temperature}`,
+              inline: true,
+            },
+            { name: t('cmd.model.ui.fields.top_p'), value: `${model.topP}`, inline: true },
+            {
+              name: t('cmd.model.ui.fields.streaming'),
+              value: model.streaming
+                ? t('cmd.model.ui.streaming.supported')
+                : t('cmd.model.ui.streaming.unsupported'),
               inline: true,
             }
           )
@@ -273,7 +325,7 @@ export default class Model extends Command {
         // Add features if enhanced model
         if (model.features && model.features.length > 0) {
           embed.addFields({
-            name: '✨ Recursos',
+            name: t('cmd.model.ui.fields.features'),
             value: model.features.map((f) => `• ${f}`).join('\n'),
             inline: false,
           })
@@ -282,15 +334,15 @@ export default class Model extends Command {
         // Add cost if available
         if (model.costPerMillion) {
           embed.addFields({
-            name: '💰 Custo',
-            value: `$${model.costPerMillion} por milhão de tokens`,
+            name: t('cmd.model.ui.fields.cost'),
+            value: t('cmd.model.ui.cost_value', { cost: model.costPerMillion }),
             inline: true,
           })
         }
 
         if (model.latency) {
           embed.addFields({
-            name: '⚡ Latência',
+            name: t('cmd.model.ui.fields.latency'),
             value: model.latency,
             inline: true,
           })
@@ -308,7 +360,7 @@ export default class Model extends Command {
           return await ctx.sendMessage({
             embeds: [
               {
-                description: '❌ Estatísticas não disponíveis',
+                description: t('cmd.model.ui.errors.stats_unavailable'),
                 color: client.config.color.red,
               },
             ],
@@ -317,9 +369,9 @@ export default class Model extends Command {
 
         const stats = await nvidiaService.getModelStats(period)
         const embed = new EmbedBuilder()
-          .setTitle(`📊 Estatísticas de Uso (${period})`)
+          .setTitle(t('cmd.model.ui.stats.title', { period }))
           .setColor(client.config.color.blue)
-          .setDescription('Métricas de performance dos modelos de IA')
+          .setDescription(t('cmd.model.ui.stats.description'))
           .setTimestamp()
 
         if (Array.isArray(stats) && stats.length > 0) {
@@ -327,16 +379,22 @@ export default class Model extends Command {
             embed.addFields({
               name: stat.model_name,
               value: [
-                `Requisições: **${stat.total_requests}**`,
-                `Tokens: **${Number(stat.total_tokens).toLocaleString()}**`,
-                `Tempo médio: **${Math.round(stat.avg_response_time)}ms**`,
-                `Taxa de sucesso: **${Math.round(stat.success_rate * 100)}%**`,
+                t('cmd.model.ui.stats.requests', { total: stat.total_requests }),
+                t('cmd.model.ui.stats.tokens', {
+                  total: Number(stat.total_tokens).toLocaleString(),
+                }),
+                t('cmd.model.ui.stats.avg_time', {
+                  time: Math.round(stat.avg_response_time),
+                }),
+                t('cmd.model.ui.stats.success_rate', {
+                  rate: Math.round(stat.success_rate * 100),
+                }),
               ].join(' | '),
               inline: false,
             })
           }
         } else {
-          embed.setDescription('Nenhuma estatística disponível no momento.')
+          embed.setDescription(t('cmd.model.ui.stats.empty'))
         }
 
         return await ctx.sendMessage({ embeds: [embed] })
@@ -344,7 +402,18 @@ export default class Model extends Command {
 
       case 'current':
       default: {
-        const embed = nvidiaService.createModelStatusEmbed(ctx.author!.id)
+        const embed = createAIModelStatusEmbed(client, ctx.author!.id)
+        if (!embed) {
+          return await ctx.sendMessage({
+            embeds: [
+              {
+                description: t('cmd.model.ui.errors.current_model_unavailable'),
+                color: client.config.color.red,
+              },
+            ],
+          })
+        }
+
         return await ctx.sendMessage({ embeds: [embed] })
       }
     }

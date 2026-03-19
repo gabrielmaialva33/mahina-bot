@@ -72,6 +72,7 @@ export default class VisionCommand extends Command {
   }
 
   public async run(client: MahinaBot, ctx: Context, args: string[]): Promise<any> {
+    const t = (key: string, params?: Record<string, unknown>) => ctx.locale(key, params)
     // Check for attachments in the message or referenced message
     const attachments = ctx.msg?.attachments || ctx.interaction?.options?.resolved?.attachments
     const attachment = attachments?.first()
@@ -85,7 +86,7 @@ export default class VisionCommand extends Command {
 
     const loadingEmbed = new EmbedBuilder()
       .setColor(this.client.config.color.violet)
-      .setDescription('🖼️ **Analisando imagem...**')
+      .setDescription(t('ai.vision.messages.analyzing'))
       .setThumbnail(attachment.url)
       .setFooter({ text: 'Powered by NVIDIA Vision AI' })
 
@@ -119,8 +120,8 @@ export default class VisionCommand extends Command {
 
       const errorEmbed = new EmbedBuilder()
         .setColor(this.client.config.color.red)
-        .setTitle('❌ Erro na análise')
-        .setDescription('Não foi possível analisar a imagem. Verifique se é uma imagem válida.')
+        .setTitle('❌')
+        .setDescription(t('ai.vision.errors.analysis_failed'))
 
       await msg.edit({ embeds: [errorEmbed] })
     }
@@ -234,17 +235,17 @@ export default class VisionCommand extends Command {
     const buttons = new ActionRowBuilder<ButtonBuilder>().addComponents(
       new ButtonBuilder()
         .setCustomId('vision_reanalyze')
-        .setLabel('Analisar Novamente')
+        .setLabel('Analisar novamente')
         .setEmoji('🔄')
         .setStyle(ButtonStyle.Primary),
       new ButtonBuilder()
         .setCustomId('vision_export')
-        .setLabel('Exportar Análise')
+        .setLabel('Exportar análise')
         .setEmoji('📤')
         .setStyle(ButtonStyle.Secondary),
       new ButtonBuilder()
         .setCustomId('vision_modes')
-        .setLabel('Outros Modos')
+        .setLabel('Outros modos')
         .setEmoji('🔧')
         .setStyle(ButtonStyle.Secondary)
     )
@@ -293,7 +294,7 @@ export default class VisionCommand extends Command {
         case 'vision_modes':
           const modesEmbed = new EmbedBuilder()
             .setColor(this.client.config.color.main)
-            .setTitle('🔧 Modos de Análise Disponíveis')
+            .setTitle('🔧 Modos de análise disponíveis')
             .setDescription('Use o comando com um desses modos:')
             .addFields(
               { name: '🔍 analyze', value: 'Análise detalhada e completa', inline: true },

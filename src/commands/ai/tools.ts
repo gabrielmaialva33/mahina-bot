@@ -219,6 +219,7 @@ export default class ToolsCommand extends Command {
   }
 
   public async run(client: MahinaBot, ctx: Context, args: string[]): Promise<any> {
+    const t = (key: string, params?: Record<string, unknown>) => ctx.locale(key, params)
     // If no tool specified, show tool selector
     if (!args[0]) {
       return this.showToolSelector(ctx)
@@ -228,9 +229,7 @@ export default class ToolsCommand extends Command {
     const tool = this.findTool(toolKey)
 
     if (!tool) {
-      return ctx.sendMessage(
-        '❌ Ferramenta não encontrada! Use o comando sem argumentos para ver as opções.'
-      )
+      return ctx.sendMessage(t('ai.tools.errors.tool_not_found'))
     }
 
     const input = args.slice(1).join(' ')
@@ -258,12 +257,11 @@ export default class ToolsCommand extends Command {
   }
 
   private async showToolSelector(ctx: Context) {
+    const t = (key: string, params?: Record<string, unknown>) => ctx.locale(key, params)
     const embed = new EmbedBuilder()
       .setColor(this.client.config.color.main)
-      .setTitle('🛠️ Ferramentas de IA Disponíveis')
-      .setDescription(
-        'Selecione uma ferramenta no menu abaixo ou use:\n`!tools [ferramenta] [seu texto/código]`'
-      )
+      .setTitle(t('ai.tools.messages.select_tool'))
+      .setDescription(t('ai.tools.messages.select_description'))
       .setFooter({ text: 'Powered by NVIDIA AI' })
 
     // Add tool descriptions
@@ -307,7 +305,11 @@ export default class ToolsCommand extends Command {
       const selectedTool = this.tools.get(interaction.values[0])
       if (selectedTool) {
         await interaction.reply({
-          content: `Você selecionou: **${selectedTool.emoji} ${selectedTool.name}**\n\nAgora use: \`!tools ${interaction.values[0]} [seu input]\`\n\n**Exemplos:**\n${selectedTool.examples.map((ex) => `• \`!tools ${interaction.values[0]} ${ex}\``).join('\n')}`,
+          content: t('ai.tools.messages.tool_selected', {
+            emoji: selectedTool.emoji,
+            name: selectedTool.name,
+            key: interaction.values[0],
+          }),
           flags: MessageFlags.Ephemeral,
         })
       }
@@ -335,9 +337,10 @@ export default class ToolsCommand extends Command {
   }
 
   private async executeTool(ctx: Context, tool: Tool, input: string) {
+    const t = (key: string, params?: Record<string, unknown>) => ctx.locale(key, params)
     const loadingEmbed = new EmbedBuilder()
       .setColor(this.client.config.color.violet)
-      .setDescription(`${tool.emoji} **Processando com ${tool.name}...**`)
+      .setDescription(t('ai.tools.messages.processing', { emoji: tool.emoji, name: tool.name }))
 
     const msg = await ctx.sendMessage({ embeds: [loadingEmbed] })
 
@@ -358,7 +361,7 @@ export default class ToolsCommand extends Command {
 
       const resultEmbed = new EmbedBuilder()
         .setColor(this.client.config.color.green)
-        .setTitle(`${tool.emoji} ${tool.name} - Resultado`)
+        .setTitle(t('ai.tools.messages.result_title', { emoji: tool.emoji, name: tool.name }))
         .setDescription(response.length > 4000 ? response.substring(0, 4000) + '...' : response)
         .setFooter({
           text: 'Powered by NVIDIA AI',
@@ -371,12 +374,12 @@ export default class ToolsCommand extends Command {
       const buttons = new ActionRowBuilder<ButtonBuilder>().addComponents(
         new ButtonBuilder()
           .setCustomId('tool_export')
-          .setLabel('Exportar Resultado')
+          .setLabel('Exportar resultado')
           .setEmoji('📤')
           .setStyle(ButtonStyle.Secondary),
         new ButtonBuilder()
           .setCustomId('tool_retry')
-          .setLabel('Tentar Novamente')
+          .setLabel('Tentar novamente')
           .setEmoji('🔄')
           .setStyle(ButtonStyle.Primary),
         new ButtonBuilder()
@@ -436,8 +439,8 @@ export default class ToolsCommand extends Command {
 
       const errorEmbed = new EmbedBuilder()
         .setColor(this.client.config.color.red)
-        .setTitle('❌ Erro ao executar ferramenta')
-        .setDescription('Ocorreu um erro ao processar sua solicitação.')
+        .setTitle('❌')
+        .setDescription(t('ai.tools.errors.processing_error'))
 
       await msg.edit({ embeds: [errorEmbed], components: [] })
     }

@@ -402,7 +402,7 @@ export class NvidiaAIService {
     try {
       const response = await this.chat(userId, prompts[task])
       this.setUserModel(userId, originalModel)
-      return response
+      return response.content
     } catch (error) {
       this.setUserModel(userId, originalModel)
       throw error
@@ -419,7 +419,7 @@ export class NvidiaAIService {
         'You are an expert problem solver. Analyze the problem step by step and provide a detailed solution.'
       const response = await this.chat(userId, problem, context, systemPrompt)
       this.setUserModel(userId, originalModel)
-      return response
+      return response.content
     } catch (error) {
       this.setUserModel(userId, originalModel)
       throw error

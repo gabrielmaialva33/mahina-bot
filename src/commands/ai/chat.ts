@@ -11,7 +11,15 @@ import {
 } from 'discord.js'
 
 import Command from '#common/command'
-import { chatWithPreferredAI, getPreferredAIService } from '#common/ai_runtime'
+import {
+  chatWithPreferredAI,
+  getPreferredAIService,
+  resolveAIServiceForCapability,
+  runCodeTask,
+  runRagTask,
+  runReasoningTask,
+  setUserAIModel,
+} from '#common/ai_runtime'
 import MahinaBot from '#common/mahina_bot'
 import Context from '#common/context'
 
@@ -111,6 +119,7 @@ export default class ChatCommand extends Command {
   }
 
   public async run(client: MahinaBot, ctx: Context, args: string[]): Promise<any> {
+    const t = (key: string, params?: Record<string, unknown>) => ctx.locale(key, params)
     let mode: string
     let prompt: string
     let language: string | undefined
@@ -140,12 +149,12 @@ export default class ChatCommand extends Command {
     }
 
     if (!prompt) {
-      return await ctx.sendMessage('Por favor, forneça uma mensagem ou pergunta!')
+      return await ctx.sendMessage(t('cmd.chat.ui.errors.missing_prompt'))
     }
 
     // Check for vision mode requirements
     if (mode === 'vision' && !imageUrl) {
-      return await ctx.sendMessage('Por favor, forneça uma URL de imagem para análise!')
+      return await ctx.sendMessage(t('cmd.chat.ui.errors.missing_image'))
     }
 
     // Get enhanced NVIDIA service
@@ -155,8 +164,7 @@ export default class ChatCommand extends Command {
       return await ctx.sendMessage({
         embeds: [
           {
-            description:
-              '❌ Serviço de IA não está configurado. Configure NVIDIA_API_KEY no ambiente.',
+            description: t('cmd.chat.ui.errors.service_unavailable'),
             color: client.config.color.red,
           },
         ],
@@ -165,8 +173,12 @@ export default class ChatCommand extends Command {
 
     const loadingEmbed = new EmbedBuilder()
       .setColor(this.client.config.color.violet)
-      .setDescription(`🤖 **Processando com ${modelKey ? `modelo ${modelKey}` : 'IA NVIDIA'}...**`)
-      .setFooter({ text: 'Powered by NVIDIA AI' })
+      .setDescription(
+        t('cmd.chat.ui.loading', {
+          model: modelKey || t('cmd.chat.ui.default_model_label'),
+        })
+      )
+      .setFooter({ text: t('cmd.chat.ui.footer') })
 
     const msg = await ctx.sendMessage({ embeds: [loadingEmbed] })
 
@@ -182,8 +194,19 @@ export default class ChatCommand extends Command {
       const conversation = this.conversations.get(conversationKey)!
 
       // Set user model if specified
-      if (modelKey && nvidiaService.setUserModel) {
-        nvidiaService.setUserModel(userId, modelKey)
+      if (modelKey) {
+        const modelSelection = setUserAIModel(client, userId, modelKey)
+        if (!modelSelection.success) {
+          const reason =
+            modelSelection.error === 'model-not-found'
+              ? t('cmd.chat.ui.errors.invalid_model', { model: modelKey })
+              : t('cmd.chat.ui.errors.model_apply_failed')
+
+          await msg.edit({
+            embeds: [new EmbedBuilder().setColor(client.config.color.red).setDescription(reason)],
+          })
+          return
+        }
       }
 
       // Build system prompt based on mode
@@ -196,37 +219,36 @@ export default class ChatCommand extends Command {
         .join('\n')
 
       // Prepare options for enhanced service
-      const options: any = {
+      const options = {
         temperature: mode === 'code' ? 0.2 : mode === 'reasoning' ? 0.6 : 0.7,
         maxTokens: mode === 'reasoning' ? 4096 : 2048,
-      }
-
-      if (imageUrl) {
-        options.images = [imageUrl]
+        images: imageUrl ? [imageUrl] : undefined,
       }
 
       // Use appropriate method based on mode
       let response: string
 
-      if (mode === 'reasoning' && nvidiaService.reasoning) {
-        // Use specialized reasoning method
-        response = await nvidiaService.reasoning(userId, prompt, context)
-      } else if (
-        (mode === 'code' || mode === 'analyze' || mode === 'debug') &&
-        nvidiaService.analyzeCode
-      ) {
-        // Use code analysis method
-        response = await nvidiaService.analyzeCode(
-          userId,
-          prompt,
-          language || 'javascript',
-          mode as any
-        )
-      } else if (nvidiaService.generateWithRAG && conversation.length > 0) {
-        // Use RAG for better context
-        response = await nvidiaService.generateWithRAG(userId, prompt)
+      if (mode === 'reasoning') {
+        response = await runReasoningTask(client, userId, prompt, context)
+      } else if (mode === 'analyze' || mode === 'debug') {
+        response = await runCodeTask(client, userId, prompt, language || 'javascript', mode)
+      } else if (mode === 'code') {
+        const codeService = resolveAIServiceForCapability(client, 'code')
+        if (codeService?.analyzeCode) {
+          response = await runCodeTask(client, userId, prompt, language || 'javascript', 'explain')
+        } else {
+          response = await chatWithPreferredAI(client, {
+            userId,
+            message: prompt,
+            context,
+            systemPrompt,
+            imageUrl,
+            options,
+          })
+        }
+      } else if (conversation.length > 0 && resolveAIServiceForCapability(client, 'rag')) {
+        response = await runRagTask(client, userId, prompt)
       } else {
-        // Default chat method
         response = await chatWithPreferredAI(client, {
           userId,
           message: prompt,
@@ -253,23 +275,23 @@ export default class ChatCommand extends Command {
       const buttons = new ActionRowBuilder<ButtonBuilder>().addComponents(
         new ButtonBuilder()
           .setCustomId('ai_new_chat')
-          .setLabel('Nova Conversa')
+          .setLabel(t('cmd.chat.ui.actions.new_chat'))
           .setEmoji('🔄')
           .setStyle(ButtonStyle.Secondary),
         new ButtonBuilder()
           .setCustomId('ai_continue')
-          .setLabel('Continuar')
+          .setLabel(t('cmd.chat.ui.actions.continue'))
           .setEmoji('💬')
           .setStyle(ButtonStyle.Primary),
         new ButtonBuilder()
           .setCustomId('ai_code_format')
-          .setLabel('Formatar Código')
+          .setLabel(t('cmd.chat.ui.actions.format_code'))
           .setEmoji('📝')
           .setStyle(ButtonStyle.Secondary)
           .setDisabled(mode !== 'code' && mode !== 'analyze' && mode !== 'debug'),
         new ButtonBuilder()
           .setCustomId('ai_export')
-          .setLabel('Exportar')
+          .setLabel(t('cmd.chat.ui.actions.export'))
           .setEmoji('📤')
           .setStyle(ButtonStyle.Secondary)
       )
@@ -291,7 +313,7 @@ export default class ChatCommand extends Command {
         }) => {
           if (interaction.user.id !== ctx.author?.id) {
             return interaction.reply({
-              content: 'Apenas o autor do comando pode usar esses botões!',
+              content: t('cmd.chat.ui.errors.button_author_only'),
               flags: MessageFlags.Ephemeral,
             })
           }
@@ -300,24 +322,24 @@ export default class ChatCommand extends Command {
             case 'ai_new_chat':
               this.conversations.delete(conversationKey)
               await interaction.reply({
-                content: '✅ Conversa reiniciada! Use o comando novamente para começar.',
+                content: t('cmd.chat.ui.actions.new_chat_success'),
                 flags: MessageFlags.Ephemeral,
               })
               break
 
             case 'ai_continue':
               await interaction.reply({
-                content: '💬 Digite sua próxima mensagem usando o comando!',
+                content: t('cmd.chat.ui.actions.continue_success'),
                 flags: MessageFlags.Ephemeral,
               })
               break
 
             case 'ai_code_format':
-              await this.formatCodeResponse(interaction, response)
+              await this.formatCodeResponse(ctx, interaction, response)
               break
 
             case 'ai_export':
-              await this.exportResponse(interaction, response, mode)
+              await this.exportResponse(ctx, interaction, response, mode)
               break
           }
         }
@@ -327,9 +349,9 @@ export default class ChatCommand extends Command {
 
       const errorEmbed = new EmbedBuilder()
         .setColor(this.client.config.color.red)
-        .setTitle('❌ Erro')
-        .setDescription('Ocorreu um erro ao processar sua solicitação.')
-        .setFooter({ text: 'Tente novamente mais tarde' })
+        .setTitle(t('cmd.chat.ui.errors.generic_title'))
+        .setDescription(t('cmd.chat.ui.errors.generic'))
+        .setFooter({ text: t('cmd.chat.ui.errors.generic_footer') })
 
       await msg.edit({ embeds: [errorEmbed], components: [] })
     }
@@ -391,6 +413,7 @@ export default class ChatCommand extends Command {
   }
 
   private async sendFormattedResponse(ctx: Context, msg: Message, response: string, mode: string) {
+    const t = (key: string, params?: Record<string, unknown>) => ctx.locale(key, params)
     // Split response if too long
     const chunks = this.splitResponse(response, 4000)
 
@@ -399,13 +422,16 @@ export default class ChatCommand extends Command {
         .setColor(this.getModeColor(mode))
         .setDescription(chunk)
         .setFooter({
-          text: `${this.getModeEmoji(mode)} ${mode.charAt(0).toUpperCase() + mode.slice(1)} Mode | Powered by NVIDIA`,
+          text: t('cmd.chat.ui.response.footer', {
+            emoji: this.getModeEmoji(mode),
+            mode: mode.charAt(0).toUpperCase() + mode.slice(1),
+          }),
           iconURL:
             'https://upload.wikimedia.org/wikipedia/commons/thumb/2/21/Nvidia_logo.svg/1200px-Nvidia_logo.svg.png',
         })
 
       if (i === 0) {
-        embed.setTitle(`${this.getModeEmoji(mode)} Resposta da IA`)
+        embed.setTitle(t('cmd.chat.ui.response.title', { emoji: this.getModeEmoji(mode) }))
         await msg.edit({ embeds: [embed] })
       } else {
         await ctx.sendMessage({ embeds: [embed] })
@@ -462,13 +488,13 @@ export default class ChatCommand extends Command {
     return emojis[mode] || '🤖'
   }
 
-  private async formatCodeResponse(interaction: any, response: string) {
+  private async formatCodeResponse(ctx: Context, interaction: any, response: string) {
     // Extract code blocks from response
     const codeBlocks = response.match(/```[\s\S]*?```/g) || []
 
     if (codeBlocks.length === 0) {
       return interaction.reply({
-        content: 'Nenhum bloco de código encontrado na resposta!',
+        content: ctx.locale('cmd.chat.ui.code.no_blocks'),
         flags: MessageFlags.Ephemeral,
       })
     }
@@ -482,18 +508,18 @@ export default class ChatCommand extends Command {
     const attachment = new AttachmentBuilder(Buffer.from(formattedCode), { name: 'code.txt' })
 
     await interaction.reply({
-      content: '📝 Código extraído e formatado:',
+      content: ctx.locale('cmd.chat.ui.code.formatted'),
       files: [attachment],
       flags: MessageFlags.Ephemeral,
     })
   }
 
-  private async exportResponse(interaction: any, response: string, mode: string) {
+  private async exportResponse(ctx: Context, interaction: any, response: string, mode: string) {
     const filename = `ai_${mode}_${Date.now()}.md`
     const attachment = new AttachmentBuilder(Buffer.from(response), { name: filename })
 
     await interaction.reply({
-      content: `📤 Resposta exportada como **${filename}**`,
+      content: ctx.locale('cmd.chat.ui.export.success', { filename }),
       files: [attachment],
       flags: MessageFlags.Ephemeral,
     })

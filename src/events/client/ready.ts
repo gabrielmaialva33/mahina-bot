@@ -8,7 +8,7 @@ import { env } from '#src/env'
 export default class Ready extends Event {
   constructor(client: MahinaBot, file: string) {
     super(client, file, {
-      name: 'ready',
+      name: 'clientReady',
     })
   }
 

@@ -1,4 +1,5 @@
 import Command from '#common/command'
+import { createAIModelStatusEmbed, resolveAIServiceForCapability } from '#common/ai_runtime'
 import type Context from '#common/context'
 import type MahinaBot from '#common/mahina_bot'
 import { ApplicationCommandOptionType } from 'discord.js'
@@ -35,16 +36,17 @@ export default class Stream extends Command {
   }
 
   async run(client: MahinaBot, ctx: Context, args: string[]): Promise<any> {
+    const t = (key: string, params?: Record<string, unknown>) => ctx.locale(key, params)
     const message = ctx.isInteraction
       ? (ctx.options.get('message')?.value as string)
       : args.join(' ')
-    const nvidiaService = client.services.nvidia
+    const aiService = resolveAIServiceForCapability(client, 'stream')
 
-    if (!nvidiaService) {
+    if (!aiService?.chatStream || !aiService.getUserModel || !aiService.getModelInfo) {
       return await ctx.sendMessage({
         embeds: [
           {
-            description: '❌ NVIDIA AI service is not configured',
+            description: t('cmd.stream.ui.errors.service_unavailable'),
             color: 0xff0000,
           },
         ],
@@ -55,7 +57,7 @@ export default class Stream extends Command {
       return await ctx.sendMessage({
         embeds: [
           {
-            description: '❌ Please provide a message',
+            description: t('cmd.stream.ui.errors.missing_message'),
             color: 0xff0000,
           },
         ],
@@ -63,21 +65,26 @@ export default class Stream extends Command {
     }
 
     // Check if current model supports streaming
-    const modelKey = nvidiaService.getUserModel(ctx.author!.id)
-    const model = nvidiaService.getModelInfo(modelKey)
+    const modelKey = aiService.getUserModel(ctx.author!.id)
+    const model = aiService.getModelInfo(modelKey)
 
     if (!model?.streaming) {
+      const currentModelEmbed = createAIModelStatusEmbed(client, ctx.author!.id)
       return await ctx.sendMessage({
+        content: currentModelEmbed ? undefined : null,
         embeds: [
           {
-            description: `❌ Your current model **${model?.name || 'Unknown'}** does not support streaming.\n\nSwitch to a streaming-enabled model with \`/model select llama-70b-stream\``,
+            description: t('cmd.stream.ui.errors.streaming_unsupported', {
+              model: model?.name || t('cmd.stream.ui.unknown_model'),
+            }),
             color: 0xff0000,
           },
+          ...(currentModelEmbed ? [currentModelEmbed.toJSON()] : []),
         ],
       })
     }
 
-    await ctx.sendDeferMessage('🤖 Generating streaming response...')
+    await ctx.sendDeferMessage(t('cmd.stream.ui.loading'))
 
     try {
       const chunks: string[] = []
@@ -87,7 +94,7 @@ export default class Stream extends Command {
       const updateInterval = 1500 // Update every 1.5 seconds
       const maxLength = 1900 // Leave room for formatting
 
-      for await (const chunk of nvidiaService.chatStream(ctx.author!.id, message)) {
+      for await (const chunk of aiService.chatStream(ctx.author!.id, message)) {
         chunks.push(chunk)
         currentMessage += chunk
 
@@ -135,10 +142,14 @@ export default class Stream extends Command {
       await ctx.sendMessage({
         embeds: [
           {
-            title: '✅ Stream Complete',
+            title: t('cmd.stream.ui.complete.title'),
             fields: [
-              { name: 'Model', value: model.name, inline: true },
-              { name: 'Tokens Generated', value: `~${chunks.length}`, inline: true },
+              { name: t('cmd.stream.ui.complete.model'), value: model.name, inline: true },
+              {
+                name: t('cmd.stream.ui.complete.tokens'),
+                value: `~${chunks.length}`,
+                inline: true,
+              },
             ],
             color: 0x76b900,
             timestamp: new Date().toISOString(),
@@ -150,7 +161,7 @@ export default class Stream extends Command {
       await ctx.editMessage({
         embeds: [
           {
-            description: '❌ An error occurred while streaming the response',
+            description: t('cmd.stream.ui.errors.generic'),
             color: 0xff0000,
           },
         ],

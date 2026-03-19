@@ -8,7 +8,6 @@ WORKDIR /opt/mahina-bot
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     ca-certificates openssl python3 python-is-python3 make g++ \
-    pkg-config libvips-dev \
     && rm -rf /var/lib/apt/lists/*
 
 RUN npm config set update-notifier false && npm install -g pnpm@${PNPM_VERSION}
@@ -16,11 +15,6 @@ RUN npm config set update-notifier false && npm install -g pnpm@${PNPM_VERSION}
 FROM base AS deps
 COPY package.json pnpm-lock.yaml* ./
 RUN pnpm install --frozen-lockfile
-
-# VPS CPU lacks x86-64-v2: prebuilt sharp binaries crash, WASM SIMD also unsupported.
-# Build sharp from source against system libvips (compiled for generic x86-64).
-ENV SHARP_FORCE_GLOBAL_LIBVIPS=1
-RUN cd node_modules/.pnpm/sharp@*/node_modules/sharp && npm run build
 
 FROM deps AS build
 COPY . .
@@ -31,7 +25,7 @@ ENV NODE_ENV=production
 WORKDIR /opt/mahina-bot
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    ca-certificates openssl libvips42 \
+    ca-certificates openssl \
     && rm -rf /var/lib/apt/lists/*
 
 COPY --from=build /opt/mahina-bot/package.json ./package.json

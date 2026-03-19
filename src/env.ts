@@ -6,7 +6,7 @@ import { z } from 'zod'
 
 const dirname = path.dirname(fileURLToPath(import.meta.url))
 
-config({ path: path.join(dirname, '../.env') })
+config({ path: path.join(dirname, '../.env'), quiet: true })
 
 const LavalinkNodeSchema = z.object({
   id: z.string(),

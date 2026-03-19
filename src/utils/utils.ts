@@ -150,21 +150,14 @@ export class Utils {
     let msg: Message
     if (ctx.isInteraction) {
       if (ctx.deferred) {
-        msg = await ctx.interaction!.followUp({
-          ...msgOptions,
-          fetchReply: true,
-        })
+        await ctx.interaction!.followUp(msgOptions)
+        msg = (await ctx.interaction!.fetchReply()) as Message
       } else {
-        msg = (await ctx.interaction!.reply({
-          ...msgOptions,
-          fetchReply: true,
-        })) as unknown as Message
+        await ctx.interaction!.reply(msgOptions)
+        msg = (await ctx.interaction!.fetchReply()) as Message
       }
     } else {
-      msg = await (ctx.channel as TextChannel).send({
-        ...msgOptions,
-        fetchReply: true,
-      })
+      msg = await (ctx.channel as TextChannel).send(msgOptions)
     }
 
     const author = ctx instanceof CommandInteraction ? ctx.user : ctx.author
