@@ -29,6 +29,7 @@ export class AIContextService {
   private contexts: Collection<string, ConversationContext> = new Collection()
   private maxMessagesPerContext = 50
   private contextTTL = 3600000 // 1 hour in milliseconds
+  private readonly MAX_CONTEXTS = 1000
 
   constructor() {
     // Clean up old contexts periodically
@@ -43,6 +44,29 @@ export class AIContextService {
     let context = this.contexts.get(key)
 
     if (!context) {
+      // Evict oldest contexts if at capacity
+      if (this.contexts.size >= this.MAX_CONTEXTS) {
+        this.cleanupOldContexts()
+
+        // If still at capacity after TTL cleanup, evict the oldest by lastInteraction
+        if (this.contexts.size >= this.MAX_CONTEXTS) {
+          let oldestKey: string | null = null
+          let oldestTime = Infinity
+
+          for (const [k, ctx] of this.contexts) {
+            const time = ctx.metadata.lastInteraction.getTime()
+            if (time < oldestTime) {
+              oldestTime = time
+              oldestKey = k
+            }
+          }
+
+          if (oldestKey) {
+            this.contexts.delete(oldestKey)
+          }
+        }
+      }
+
       context = {
         userId,
         channelId,
@@ -142,7 +166,48 @@ export class AIContextService {
     const topics = content
       .toLowerCase()
       .split(/\s+/)
-      .filter((word) => word.length > 4 && !['para', 'with', 'from', 'that', 'this'].includes(word))
+      .filter((word) => {
+        const stopwords = new Set([
+          'para',
+          'with',
+          'from',
+          'that',
+          'this',
+          'como',
+          'mais',
+          'muito',
+          'tambem',
+          'também',
+          'aqui',
+          'quando',
+          'onde',
+          'porque',
+          'então',
+          'entao',
+          'voce',
+          'você',
+          'esse',
+          'essa',
+          'isso',
+          'desse',
+          'dessa',
+          'sobre',
+          'ainda',
+          'depois',
+          'antes',
+          'entre',
+          'outro',
+          'outra',
+          'cada',
+          'mesmo',
+          'mesma',
+          'todo',
+          'toda',
+          'todos',
+          'todas',
+        ])
+        return word.length > 4 && !stopwords.has(word)
+      })
       .slice(0, 5)
 
     return {
@@ -158,7 +223,7 @@ export class AIContextService {
   clearContext(userId: string, channelId: string): void {
     const key = `${userId}-${channelId}`
     this.contexts.delete(key)
-    logger.info(`Cleared context for ${key}`)
+    logger.debug(`Cleared context for ${key}`)
   }
 
   /**
