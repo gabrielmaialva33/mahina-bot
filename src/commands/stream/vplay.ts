@@ -167,7 +167,8 @@ export default class VPlay extends Command {
         await ctx.editMessage({ content: '', embeds: [embed] })
       }
     } catch (error) {
-      this.client.logger.error(error)
+      const message = error instanceof Error ? error.message : String(error)
+      this.client.logger.error(`vplay failed for ${query}: ${message}`, error)
       await ctx.editMessage(ctx.locale('cmd.vplay.errors.general_error'))
     }
   }
