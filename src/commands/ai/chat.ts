@@ -67,6 +67,12 @@ export default class ChatCommand extends Command {
       slashCommand: true,
       options: [
         {
+          name: 'prompt',
+          description: 'Sua mensagem ou pergunta',
+          type: ApplicationCommandOptionType.String,
+          required: true,
+        },
+        {
           name: 'mode',
           description: 'Modo de operação da IA',
           type: ApplicationCommandOptionType.String,
@@ -81,12 +87,6 @@ export default class ChatCommand extends Command {
             { name: '👁️ Análise de Imagem', value: 'vision' },
             { name: '🧠 Raciocínio Avançado', value: 'reasoning' },
           ],
-        },
-        {
-          name: 'prompt',
-          description: 'Sua mensagem ou pergunta',
-          type: ApplicationCommandOptionType.String,
-          required: true,
         },
         {
           name: 'language',
