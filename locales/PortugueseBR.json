@@ -966,7 +966,9 @@
           "top_channels": "🔥 Canais principais",
           "models": "🧠 Modelos disponíveis",
           "capabilities": "🛠️ Capacidades ativas",
-          "health": "💚 Status de saúde"
+          "health": "💚 Status de saúde",
+          "providers": "🛰️ Roteamento de providers",
+          "last_route": "🧭 Última rota"
         },
         "models": {
           "item": "• {name} ({category})"
@@ -990,6 +992,9 @@
         },
         "top_channels": {
           "item": "<#{channelId}>: {total} contextos"
+        },
+        "last_route": {
+          "item": "{provider} · {model}"
         },
         "health": {
           "checks": {
