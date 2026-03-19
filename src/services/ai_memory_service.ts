@@ -1,6 +1,21 @@
 import { PrismaClient } from '@prisma/client'
 import { logger } from '#common/logger'
 
+export interface UserFact {
+  fact: string
+  source: 'extracted' | 'explicit'
+  confidence: number
+  createdAt: Date
+  lastMentioned: Date
+}
+
+export interface UserRelationships {
+  closeness: number // 0-100
+  lastRoast: string
+  insideJokes: string[]
+  nickname?: string
+}
+
 export interface UserMemory {
   userId: string
   guildId: string
@@ -23,13 +38,15 @@ export interface UserMemory {
     }
   }
   learning: {
-    topics: Record<string, number> // topic -> frequency
-    patterns: string[] // recognized patterns
+    topics: Record<string, number>
+    patterns: string[]
     feedback: {
       helpful: number
       unhelpful: number
     }
   }
+  facts: UserFact[]
+  relationships: UserRelationships
 }
 
 export class AIMemoryService {
@@ -69,6 +86,11 @@ export class AIMemoryService {
 
       if (dbMemory) {
         memory = JSON.parse(dbMemory.data as string) as UserMemory
+        // Migrate old memories without facts/relationships
+        if (!memory.facts) memory.facts = []
+        if (!memory.relationships) {
+          memory.relationships = { closeness: 0, lastRoast: '', insideJokes: [] }
+        }
         this.memoryCache.set(key, memory)
         return memory
       }
@@ -259,6 +281,109 @@ export class AIMemoryService {
   /**
    * Create default memory structure
    */
+  /**
+   * Add a fact about a user, deduplicating similar facts
+   */
+  async addFact(
+    userId: string,
+    guildId: string,
+    fact: string,
+    source: 'extracted' | 'explicit' = 'extracted',
+    confidence: number = 0.7
+  ): Promise<boolean> {
+    const memory = await this.getUserMemory(userId, guildId)
+    const lowerFact = fact.toLowerCase().trim()
+
+    // Deduplicate: check if a similar fact already exists
+    const isDuplicate = memory.facts.some((f) => {
+      const existing = f.fact.toLowerCase()
+      return existing === lowerFact || existing.includes(lowerFact) || lowerFact.includes(existing)
+    })
+
+    if (isDuplicate) {
+      // Update lastMentioned on existing similar fact
+      const existing = memory.facts.find((f) => {
+        const e = f.fact.toLowerCase()
+        return e === lowerFact || e.includes(lowerFact) || lowerFact.includes(e)
+      })
+      if (existing) {
+        existing.lastMentioned = new Date()
+        existing.confidence = Math.min(1, existing.confidence + 0.1)
+      }
+      return false
+    }
+
+    memory.facts.push({
+      fact: fact.trim(),
+      source,
+      confidence,
+      createdAt: new Date(),
+      lastMentioned: new Date(),
+    })
+
+    // Keep max 50 facts, remove lowest confidence oldest first
+    if (memory.facts.length > 50) {
+      memory.facts.sort(
+        (a, b) =>
+          b.confidence - a.confidence || b.lastMentioned.getTime() - a.lastMentioned.getTime()
+      )
+      memory.facts = memory.facts.slice(0, 50)
+    }
+
+    return true
+  }
+
+  /**
+   * Get top relevant facts about a user
+   */
+  async getFacts(userId: string, guildId: string, limit: number = 20): Promise<UserFact[]> {
+    const memory = await this.getUserMemory(userId, guildId)
+    return [...memory.facts]
+      .sort(
+        (a, b) =>
+          b.confidence - a.confidence || b.lastMentioned.getTime() - a.lastMentioned.getTime()
+      )
+      .slice(0, limit)
+  }
+
+  /**
+   * Increment closeness score for user-Mahina relationship
+   */
+  async updateCloseness(userId: string, guildId: string, increment: number = 1): Promise<number> {
+    const memory = await this.getUserMemory(userId, guildId)
+    memory.relationships.closeness = Math.min(100, memory.relationships.closeness + increment)
+    return memory.relationships.closeness
+  }
+
+  /**
+   * Set a nickname Mahina gave to the user
+   */
+  async setNickname(userId: string, guildId: string, nickname: string): Promise<void> {
+    const memory = await this.getUserMemory(userId, guildId)
+    memory.relationships.nickname = nickname
+  }
+
+  /**
+   * Add an inside joke
+   */
+  async addInsideJoke(userId: string, guildId: string, joke: string): Promise<void> {
+    const memory = await this.getUserMemory(userId, guildId)
+    if (!memory.relationships.insideJokes.includes(joke)) {
+      memory.relationships.insideJokes.push(joke)
+      if (memory.relationships.insideJokes.length > 10) {
+        memory.relationships.insideJokes = memory.relationships.insideJokes.slice(-10)
+      }
+    }
+  }
+
+  /**
+   * Get the relationship data
+   */
+  async getRelationships(userId: string, guildId: string): Promise<UserRelationships> {
+    const memory = await this.getUserMemory(userId, guildId)
+    return memory.relationships
+  }
+
   private createDefaultMemory(userId: string, guildId: string): UserMemory {
     return {
       userId,
@@ -283,6 +408,12 @@ export class AIMemoryService {
           helpful: 0,
           unhelpful: 0,
         },
+      },
+      facts: [],
+      relationships: {
+        closeness: 0,
+        lastRoast: '',
+        insideJokes: [],
       },
     }
   }
