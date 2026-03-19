@@ -249,14 +249,17 @@ export function createToolResultEmbed(
   color: number,
   translate: Translate,
   tool: AIToolDefinition,
-  response: string
+  response: string,
+  routeLabel?: string
 ) {
   return new EmbedBuilder()
     .setColor(color)
     .setTitle(translate('ai.tools.messages.result_title', { emoji: tool.emoji, name: tool.name }))
     .setDescription(response.length > 4000 ? `${response.substring(0, 4000)}...` : response)
     .setFooter({
-      text: translate('ai.tools.messages.footer'),
+      text: routeLabel
+        ? `${translate('ai.tools.messages.footer')} · ${routeLabel}`
+        : translate('ai.tools.messages.footer'),
       iconURL:
         'https://upload.wikimedia.org/wikipedia/commons/thumb/2/21/Nvidia_logo.svg/1200px-Nvidia_logo.svg.png',
     })

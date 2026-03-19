@@ -7,10 +7,10 @@ import {
   MessageFlags,
   StringSelectMenuInteraction,
 } from 'discord.js'
-import OpenAI from 'openai'
 import Command from '#common/command'
 import type Context from '#common/context'
 import type MahinaBot from '#common/mahina_bot'
+import { chatWithPreferredAI, getLastAIRoute } from '#common/ai_runtime'
 import {
   createDefaultAITools,
   createToolButtons,
@@ -27,7 +27,6 @@ import {
 } from '#common/tools_runtime'
 
 export default class ToolsCommand extends Command {
-  private openai: OpenAI
   private tools: Map<string, AIToolDefinition>
 
   constructor(client: MahinaBot) {
@@ -82,11 +81,6 @@ export default class ToolsCommand extends Command {
           required: false,
         },
       ],
-    })
-
-    this.openai = new OpenAI({
-      apiKey: process.env.NVIDIA_API_KEY,
-      baseURL: 'https://integrate.api.nvidia.com/v1',
     })
 
     this.tools = createDefaultAITools()
@@ -164,21 +158,22 @@ export default class ToolsCommand extends Command {
     })
 
     try {
-      const completion = await this.openai.chat.completions.create({
-        model: 'meta/llama-3.1-405b-instruct',
-        messages: [
-          { role: 'system', content: tool.systemPrompt },
-          { role: 'user', content: input },
-        ],
-        temperature: 0.3,
-        top_p: 0.9,
-        max_tokens: 2048,
+      const response = await chatWithPreferredAI(this.client, {
+        userId: ctx.author!.id,
+        message: input,
+        systemPrompt: tool.systemPrompt,
+        options: {
+          temperature: 0.3,
+          maxTokens: 2048,
+        },
       })
-
-      const response = completion.choices[0]?.message?.content || t('ai.tools.errors.no_result')
+      const route = getLastAIRoute(ctx.author!.id)
+      const routeLabel = route ? `${route.provider} · ${route.model}` : undefined
 
       await msg.edit({
-        embeds: [createToolResultEmbed(this.client.config.color.green, t, tool, response)],
+        embeds: [
+          createToolResultEmbed(this.client.config.color.green, t, tool, response, routeLabel),
+        ],
         components: [createToolButtons(t)],
       })
 
