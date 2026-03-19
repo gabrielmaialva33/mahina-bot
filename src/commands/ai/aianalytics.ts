@@ -8,18 +8,18 @@ type Period = '1h' | '24h' | '7d' | '30d' | 'all'
 
 function createPeriodOption() {
   return {
-      name: 'period',
-      description: 'Período de análise',
-      type: ApplicationCommandOptionType.String,
-      required: false,
-      choices: [
-        { name: 'Última hora', value: '1h' },
-        { name: 'Últimas 24 horas', value: '24h' },
-        { name: 'Últimos 7 dias', value: '7d' },
-        { name: 'Últimos 30 dias', value: '30d' },
-        { name: 'Todos os tempos', value: 'all' },
-      ],
-    }
+    name: 'period',
+    description: 'Período de análise',
+    type: ApplicationCommandOptionType.String,
+    required: false,
+    choices: [
+      { name: 'Última hora', value: '1h' },
+      { name: 'Últimas 24 horas', value: '24h' },
+      { name: 'Últimos 7 dias', value: '7d' },
+      { name: 'Últimos 30 dias', value: '30d' },
+      { name: 'Todos os tempos', value: 'all' },
+    ],
+  }
 }
 
 export default class AIAnalytics extends Command {
@@ -110,7 +110,11 @@ export default class AIAnalytics extends Command {
     }
 
     await ctx.sendMessage({
-      embeds: [new EmbedBuilder().setColor(client.config.color.blue).setDescription('📊 Analisando dados...')],
+      embeds: [
+        new EmbedBuilder()
+          .setColor(client.config.color.blue)
+          .setDescription('📊 Analisando dados...'),
+      ],
     })
 
     switch (subcommand) {
@@ -131,10 +135,8 @@ export default class AIAnalytics extends Command {
     }
   }
 
-
-
   private async userAnalytics(ctx: Context, client: MahinaBot, prisma: any): Promise<void> {
-    const period = ctx.isInteraction ? ((ctx.options.get('period')?.value as Period) || '7d') : '7d'
+    const period = ctx.isInteraction ? (ctx.options.get('period')?.value as Period) || '7d' : '7d'
     const since = this.getDateFromPeriod(period)
     const where = since
       ? {
@@ -169,7 +171,9 @@ export default class AIAnalytics extends Command {
         { name: 'Mensagens', value: totalMessages.toString(), inline: true },
         {
           name: 'Última atividade',
-          value: histories[0] ? new Date(histories[0].updatedAt).toLocaleString('pt-BR') : 'Sem dados',
+          value: histories[0]
+            ? new Date(histories[0].updatedAt).toLocaleString('pt-BR')
+            : 'Sem dados',
           inline: false,
         }
       )
@@ -216,12 +220,11 @@ export default class AIAnalytics extends Command {
       },
     })
 
-    const sentiment =
-      (memory?.data as any)?.interactions?.sentiment || {
-        positive: 0,
-        neutral: 0,
-        negative: 0,
-      }
+    const sentiment = (memory?.data as any)?.interactions?.sentiment || {
+      positive: 0,
+      neutral: 0,
+      negative: 0,
+    }
 
     const embed = new EmbedBuilder()
       .setTitle('💭 Sentimento Aprendido')
@@ -236,7 +239,9 @@ export default class AIAnalytics extends Command {
   }
 
   private async searchAnalytics(ctx: Context, client: MahinaBot, prisma: any): Promise<void> {
-    const query = ctx.isInteraction ? String(ctx.options.get('query')?.value || '') : ctx.args.slice(1).join(' ')
+    const query = ctx.isInteraction
+      ? String(ctx.options.get('query')?.value || '')
+      : ctx.args.slice(1).join(' ')
     const histories = await prisma.chatHistory.findMany({
       where: { userId: ctx.author.id },
       orderBy: { updatedAt: 'desc' },
@@ -287,7 +292,9 @@ export default class AIAnalytics extends Command {
       .slice(0, 5)
       .map(([command, count]) => `${command}: ${count}`)
 
-    const patterns = Array.isArray(data.learning?.patterns) ? data.learning.patterns.slice(0, 5) : []
+    const patterns = Array.isArray(data.learning?.patterns)
+      ? data.learning.patterns.slice(0, 5)
+      : []
 
     const embed = new EmbedBuilder()
       .setTitle('🧩 Padrões de Uso')
@@ -346,7 +353,7 @@ export default class AIAnalytics extends Command {
       '24h': 'Últimas 24 horas',
       '7d': 'Últimos 7 dias',
       '30d': 'Últimos 30 dias',
-      all: 'Todos os tempos',
+      'all': 'Todos os tempos',
     }
 
     return labels[period]

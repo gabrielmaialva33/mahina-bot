@@ -76,7 +76,9 @@ export default class Reason extends Command {
     }
 
     await ctx.sendDeferMessage({
-      embeds: [createAILoadingEmbed(client, '🧠 Analyzing your problem with advanced reasoning...')],
+      embeds: [
+        createAILoadingEmbed(client, '🧠 Analyzing your problem with advanced reasoning...'),
+      ],
     })
 
     try {
@@ -106,22 +108,29 @@ export default class Reason extends Command {
         // If response is very long, truncate and inform user
         await ctx.editMessage({
           embeds: [
-            createAIResultEmbed(client, '🧠 Analysis Result', chunks[0] + '\n\n...(response truncated)', [
-              { name: 'Model', value: 'DeepSeek R1', inline: true },
-              { name: 'Response Length', value: `${response.length} characters`, inline: true },
-              {
-                name: 'Note',
-                value: 'Response was too long and has been truncated',
-                inline: false,
-              },
-            ]),
+            createAIResultEmbed(
+              client,
+              '🧠 Analysis Result',
+              chunks[0] + '\n\n...(response truncated)',
+              [
+                { name: 'Model', value: 'DeepSeek R1', inline: true },
+                { name: 'Response Length', value: `${response.length} characters`, inline: true },
+                {
+                  name: 'Note',
+                  value: 'Response was too long and has been truncated',
+                  inline: false,
+                },
+              ]
+            ),
           ],
         })
       }
     } catch (error) {
       console.error('Reasoning error:', error)
       await ctx.editMessage({
-        embeds: [createAIErrorEmbed(client, `Failed to analyze problem: ${(error as Error).message}`)],
+        embeds: [
+          createAIErrorEmbed(client, `Failed to analyze problem: ${(error as Error).message}`),
+        ],
       })
     }
   }

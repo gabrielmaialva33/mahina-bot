@@ -180,7 +180,10 @@ export default class Code extends Command {
       if (!['explain', 'review', 'optimize', 'debug'].includes(taskMatch)) {
         return await ctx.sendMessage({
           embeds: [
-            createAIErrorEmbed(client, 'Please specify a task: explain, review, optimize, or debug'),
+            createAIErrorEmbed(
+              client,
+              'Please specify a task: explain, review, optimize, or debug'
+            ),
           ],
         })
       }
@@ -228,10 +231,15 @@ export default class Code extends Command {
       if (chunks.length === 1) {
         await ctx.editMessage({
           embeds: [
-            createAIResultEmbed(client, `📝 Code ${task.charAt(0).toUpperCase() + task.slice(1)}`, chunks[0], [
-              { name: 'Language', value: language, inline: true },
-              { name: 'Model', value: 'Qwen 2.5 Coder', inline: true },
-            ]),
+            createAIResultEmbed(
+              client,
+              `📝 Code ${task.charAt(0).toUpperCase() + task.slice(1)}`,
+              chunks[0],
+              [
+                { name: 'Language', value: language, inline: true },
+                { name: 'Model', value: 'Qwen 2.5 Coder', inline: true },
+              ]
+            ),
           ],
         })
       } else {

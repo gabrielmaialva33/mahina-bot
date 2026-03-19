@@ -157,7 +157,9 @@ export default class Play extends Command {
       }
 
       if (res.loadType !== 'search') {
-        this.client.logger.debug(`Play autocomplete empty/non-search result for query: ${query} (${res.loadType})`)
+        this.client.logger.debug(
+          `Play autocomplete empty/non-search result for query: ${query} (${res.loadType})`
+        )
         return await respondSafely(interaction, [])
       }
 
@@ -169,7 +171,9 @@ export default class Play extends Command {
         }
       })
 
-      this.client.logger.debug(`Play autocomplete returned ${songs.length} option(s) for query: ${query}`)
+      this.client.logger.debug(
+        `Play autocomplete returned ${songs.length} option(s) for query: ${query}`
+      )
       return await respondSafely(interaction, songs)
     } catch (error) {
       this.client.logger.error('Play autocomplete failed:', error)

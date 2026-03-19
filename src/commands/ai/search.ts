@@ -74,7 +74,9 @@ export default class SearchCommand extends Command {
 
     if (!query) {
       return await ctx.sendMessage({
-        embeds: [createAIErrorEmbed(client, 'Por favor, forneça uma pergunta ou termo para buscar!')],
+        embeds: [
+          createAIErrorEmbed(client, 'Por favor, forneça uma pergunta ou termo para buscar!'),
+        ],
         flags: MessageFlags.Ephemeral,
       })
     }
@@ -91,7 +93,10 @@ export default class SearchCommand extends Command {
     if (!embeddingService.isAvailable()) {
       return await ctx.sendMessage({
         embeds: [
-          createAIErrorEmbed(client, 'Serviço de busca não está configurado. Configure NVIDIA_API_KEY.'),
+          createAIErrorEmbed(
+            client,
+            'Serviço de busca não está configurado. Configure NVIDIA_API_KEY.'
+          ),
         ],
         flags: MessageFlags.Ephemeral,
       })
