@@ -8,7 +8,6 @@ WORKDIR /opt/mahina-bot
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     ca-certificates openssl python3 python-is-python3 make g++ \
-    pkg-config libglib2.0-dev libexpat1-dev \
     && rm -rf /var/lib/apt/lists/*
 
 RUN npm config set update-notifier false && npm install -g pnpm@${PNPM_VERSION}
@@ -17,11 +16,9 @@ FROM base AS deps
 COPY package.json pnpm-lock.yaml* ./
 RUN pnpm install --frozen-lockfile
 
-# Sharp prebuilt binaries require x86-64-v2 which old VPS CPUs lack.
-# Remove prebuilt and compile from source for generic x86-64 compat.
-RUN rm -rf node_modules/.pnpm/@img+sharp-linux-x64@*/node_modules/@img/sharp-linux-x64/lib/*.node \
-    && cd node_modules/.pnpm/sharp@*/node_modules/sharp \
-    && npx --yes node-gyp rebuild
+# VPS CPU lacks x86-64-v2 required by sharp prebuilt linux-x64 binaries.
+# Remove the prebuilt so sharp falls through to @img/sharp-wasm32.
+RUN rm -rf node_modules/.pnpm/@img+sharp-linux-x64@*/node_modules/@img/sharp-linux-x64/lib/*.node
 
 FROM deps AS build
 COPY . .
