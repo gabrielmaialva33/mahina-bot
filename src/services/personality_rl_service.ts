@@ -310,7 +310,7 @@ export class PersonalityRLService {
     const embed = new EmbedBuilder()
       .setColor(rarityColors[animal.rarity])
       .setTitle(`${animal.emoji} Análise de Personalidade - ${userName}`)
-      .setDescription(`**Seu Animal Espiritual:** ${animal.name}\n\n${animal.description}`)
+      .setDescription(`Animal espiritual: ${animal.name}\n\n${animal.description}`)
       .addFields(
         {
           name: '🎭 Traços Principais',
@@ -337,7 +337,7 @@ export class PersonalityRLService {
         inline: false,
       })
       .setFooter({
-        text: `🍁 Weed Of Warcraft | Análise baseada em ${state.messageCount} interações`,
+        text: `Mahina | Análise baseada em ${state.messageCount} interações`,
         iconURL: 'https://i.imgur.com/AfFp7pu.png',
       })
       .setTimestamp()
@@ -363,7 +363,7 @@ export class PersonalityRLService {
     try {
       if (!this.webhookClient) return
       await this.webhookClient.send({
-        username: 'Oráculo Espiritual WoW',
+        username: 'Mahina | Leitura de Personalidade',
         avatarURL: 'https://i.imgur.com/wSTFkRM.png',
         embeds: [embed],
       })
@@ -395,7 +395,7 @@ export class PersonalityRLService {
         },
       })
     } catch (error) {
-      console.error('Error saving personality analysis:', error)
+      this.client.logger.error('Error saving personality analysis:', error)
     }
   }
 
@@ -458,7 +458,7 @@ export class PersonalityRLService {
       })
 
       // Busca análises anteriores para aprender padrões
-      const previousAnalyses = await this.client.db.prisma.personalityAnalysis.findMany({
+      await this.client.db.prisma.personalityAnalysis.findMany({
         where: { userId, guildId },
         orderBy: { createdAt: 'desc' },
         take: 3,
@@ -493,7 +493,7 @@ export class PersonalityRLService {
         responseTime,
       }
     } catch (error) {
-      console.error('Error getting user stats:', error)
+      this.client.logger.error('Error getting user stats:', error)
 
       // Fallback para dados aleatórios
       const hour = new Date().getHours()

@@ -27,6 +27,19 @@ export interface StyleProfile {
   lastUpdatedAt: string
 }
 
+export interface SocialPulseSnapshot {
+  guildVibe: string[]
+  channelFocus: string[]
+  slang: string[]
+  recurringPhrases: string[]
+  recentSummaries: string[]
+  relationship?: {
+    closeness: number
+    nickname?: string
+    insideJokes: string[]
+  }
+}
+
 interface ObservationAnalysis {
   summary: string
   topics: string[]
@@ -171,9 +184,51 @@ export class ServerLearningService {
       if (relationships.insideJokes.length > 0) {
         parts.push(`PIADAS INTERNAS COM O USER: ${relationships.insideJokes.slice(-3).join('; ')}`)
       }
+      if (relationships.nickname) {
+        parts.push(`APELIDO QUE A MAHINA USA PRA ESSA PESSOA: ${relationships.nickname}`)
+      }
+      parts.push(`PROXIMIDADE COM ESSA PESSOA: ${relationships.closeness}/100`)
     }
 
     return parts.join('\n')
+  }
+
+  async getSocialPulseSnapshot(
+    guildId: string,
+    channelId: string,
+    userId?: string
+  ): Promise<SocialPulseSnapshot> {
+    const [guildProfileRaw, channelProfileRaw, recentObservations, relationships] =
+      await Promise.all([
+        this.client.db.getGuildStyleProfile(guildId),
+        this.client.db.getChannelStyleProfile(guildId, channelId),
+        this.client.db.getRecentServerObservations(guildId, channelId, 5),
+        userId && this.client.services.aiMemory
+          ? this.client.services.aiMemory.getRelationships(userId, guildId)
+          : Promise.resolve(undefined),
+      ])
+
+    const guildProfile = this.parseStyleProfile(guildProfileRaw?.data)
+    const channelProfile = this.parseStyleProfile(channelProfileRaw?.data)
+
+    return {
+      guildVibe: guildProfile ? topEntries(guildProfile.toneTags, 4).map(([tone]) => tone) : [],
+      channelFocus: channelProfile
+        ? topEntries(channelProfile.recurringTopics, 4).map(([topic]) => topic)
+        : [],
+      slang: guildProfile ? topEntries(guildProfile.slangTerms, 6).map(([term]) => term) : [],
+      recurringPhrases: channelProfile
+        ? topEntries(channelProfile.recurringPhrases, 4).map(([phrase]) => phrase)
+        : [],
+      recentSummaries: recentObservations.map((observation) => observation.summary),
+      relationship: relationships
+        ? {
+            closeness: relationships.closeness,
+            nickname: relationships.nickname,
+            insideJokes: relationships.insideJokes.slice(-3),
+          }
+        : undefined,
+    }
   }
 
   private async persistObservation(
@@ -229,6 +284,16 @@ export class ServerLearningService {
 
     const sentiment = this.mapEmotionToSentiment(analysis.emotion)
     await memory.recordInteraction(message.author.id, message.guildId, 'ambient_chat', sentiment)
+    await memory.updateCloseness(
+      message.author.id,
+      message.guildId,
+      analysis.toneTags.includes('carinhoso') || /mahina/i.test(message.content) ? 2 : 1
+    )
+    const displayName =
+      'displayName' in (message.member ?? {}) && typeof message.member?.displayName === 'string'
+        ? message.member.displayName
+        : message.author.displayName || message.author.username
+    await memory.ensureNickname(message.author.id, message.guildId, displayName)
 
     for (const topic of analysis.topics) {
       await memory.learn(message.author.id, message.guildId, topic, analysis.summary)

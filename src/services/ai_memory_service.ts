@@ -415,6 +415,28 @@ export class AIMemoryService {
     this.markDirty(userId, guildId)
   }
 
+  async ensureNickname(
+    userId: string,
+    guildId: string,
+    displayName: string
+  ): Promise<string | null> {
+    const memory = await this.getUserMemory(userId, guildId)
+    if (memory.relationships.nickname) return memory.relationships.nickname
+    if (memory.relationships.closeness < 8) return null
+
+    const normalized = displayName
+      .replace(/[^\p{L}\p{N}\s_-]/gu, ' ')
+      .trim()
+      .split(/\s+/)
+      .filter(Boolean)[0]
+
+    if (!normalized || normalized.length < 3) return null
+
+    memory.relationships.nickname = normalized.slice(0, 18)
+    this.markDirty(userId, guildId)
+    return memory.relationships.nickname
+  }
+
   /**
    * Add an inside joke to the relationship.
    */

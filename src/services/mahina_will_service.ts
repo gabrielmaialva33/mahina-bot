@@ -29,6 +29,14 @@ export interface MahinaWillState {
   totalObservations: number
 }
 
+export interface MahinaWillSnapshot {
+  mood: MahinaMoodState
+  initiativeScore: number
+  dominantDrives: string[]
+  currentFixations: string[]
+  currentTargets: string[]
+}
+
 const clamp = (value: number, min = 0, max = 1) => Math.max(min, Math.min(max, value))
 
 const defaultWillState = (): MahinaWillState => ({
@@ -132,25 +140,37 @@ export class MahinaWillService {
   }
 
   async getPromptContext(guildId: string, channelId: string): Promise<string> {
+    const snapshot = await this.getStateSnapshot(guildId, channelId)
+
+    return [
+      'ESTADO INTERNO DA MAHINA:',
+      `- humor atual: ${snapshot.mood}`,
+      `- drives dominantes: ${snapshot.dominantDrives.join(', ')}`,
+      `- impulso de iniciativa: ${snapshot.initiativeScore.toFixed(2)}/1`,
+      snapshot.currentFixations.length > 0
+        ? `- fixações recentes: ${snapshot.currentFixations.join(', ')}`
+        : '- fixações recentes: nenhuma forte no momento',
+      snapshot.currentTargets.length > 0
+        ? `- pessoas na cabeça dela agora: ${snapshot.currentTargets.join(', ')}`
+        : '- pessoas na cabeça dela agora: ninguém em especial',
+      `- aja como alguém com vontade própria, mas sem quebrar naturalidade`,
+    ].join('\n')
+  }
+
+  async getStateSnapshot(guildId: string, channelId: string): Promise<MahinaWillSnapshot> {
     const state = await this.getState(guildId, channelId)
     const dominantDrives = Object.entries(state.drives)
       .sort(([, a], [, b]) => b - a)
       .slice(0, 3)
       .map(([drive]) => drive)
 
-    return [
-      'ESTADO INTERNO DA MAHINA:',
-      `- humor atual: ${state.mood}`,
-      `- drives dominantes: ${dominantDrives.join(', ')}`,
-      `- impulso de iniciativa: ${state.initiativeScore.toFixed(2)}/1`,
-      state.currentFixations.length > 0
-        ? `- fixações recentes: ${state.currentFixations.join(', ')}`
-        : '- fixações recentes: nenhuma forte no momento',
-      state.currentTargets.length > 0
-        ? `- pessoas na cabeça dela agora: ${state.currentTargets.join(', ')}`
-        : '- pessoas na cabeça dela agora: ninguém em especial',
-      `- aja como alguém com vontade própria, mas sem quebrar naturalidade`,
-    ].join('\n')
+    return {
+      mood: state.mood,
+      initiativeScore: state.initiativeScore,
+      dominantDrives,
+      currentFixations: state.currentFixations,
+      currentTargets: state.currentTargets,
+    }
   }
 
   async shouldIntervene(guildId: string, channelId: string, content: string): Promise<boolean> {
