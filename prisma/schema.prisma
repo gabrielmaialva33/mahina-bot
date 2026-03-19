@@ -136,3 +136,56 @@ model AIMemory {
   @@index([guildId])
   @@index([updatedAt])
 }
+
+model GuildStyleProfile {
+  guildId    String   @id @map("_id")
+  data       Json
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([updatedAt])
+}
+
+model ChannelStyleProfile {
+  id         String   @id @default(uuid()) @map("_id")
+  guildId    String
+  channelId  String
+  data       Json
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@unique([guildId, channelId])
+  @@index([guildId])
+  @@index([updatedAt])
+}
+
+model ServerObservation {
+  id           String   @id @default(uuid()) @map("_id")
+  guildId      String
+  channelId    String
+  userId       String
+  content      String
+  summary      String
+  topics       String[] @default([])
+  intent       String?
+  emotion      String?
+  imageSummary String?
+  createdAt    DateTime @default(now())
+
+  @@index([guildId, createdAt])
+  @@index([channelId, createdAt])
+  @@index([userId, guildId])
+}
+
+model MahinaWillState {
+  id        String   @id @default(uuid()) @map("_id")
+  guildId   String
+  channelId String
+  data      Json
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([guildId, channelId])
+  @@index([guildId])
+  @@index([updatedAt])
+}

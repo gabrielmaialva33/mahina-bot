@@ -3,6 +3,7 @@ import {
   type Dj,
   type Guild,
   type Playlist,
+  Prisma,
   PrismaClient,
   type Role,
   type Setup,
@@ -333,14 +334,16 @@ export default class ServerData {
     channelId: string,
     userId: string,
     guildId: string,
-    messages: any[],
+    messages: Prisma.JsonArray,
     limit: number = 20
   ): Promise<void> {
     const existingHistory = await this.getChatHistory(channelId)
 
     if (existingHistory) {
-      const existingMessages = existingHistory.messages as any[]
-      const updatedMessages = [...existingMessages, ...messages].slice(-limit)
+      const existingMessages = Array.isArray(existingHistory.messages)
+        ? (existingHistory.messages as Prisma.JsonArray)
+        : []
+      const updatedMessages = [...existingMessages, ...messages].slice(-limit) as Prisma.JsonArray
 
       const prisma = await this.ensurePrisma()
       await prisma.chatHistory.update({
@@ -370,8 +373,133 @@ export default class ServerData {
     await prisma.chatHistory.deleteMany({ where: { guildId } })
   }
 
+  async getGuildStyleProfile(guildId: string): Promise<{ data: Prisma.JsonValue } | null> {
+    const prisma = await this.ensurePrisma()
+    return prisma.guildStyleProfile.findUnique({
+      where: { guildId },
+      select: { data: true },
+    })
+  }
+
+  async upsertGuildStyleProfile(guildId: string, data: Prisma.InputJsonValue): Promise<void> {
+    const prisma = await this.ensurePrisma()
+    await prisma.guildStyleProfile.upsert({
+      where: { guildId },
+      update: { data },
+      create: { guildId, data },
+    })
+  }
+
+  async getChannelStyleProfile(
+    guildId: string,
+    channelId: string
+  ): Promise<{ data: Prisma.JsonValue } | null> {
+    const prisma = await this.ensurePrisma()
+    return prisma.channelStyleProfile.findUnique({
+      where: { guildId_channelId: { guildId, channelId } },
+      select: { data: true },
+    })
+  }
+
+  async upsertChannelStyleProfile(
+    guildId: string,
+    channelId: string,
+    data: Prisma.InputJsonValue
+  ): Promise<void> {
+    const prisma = await this.ensurePrisma()
+    await prisma.channelStyleProfile.upsert({
+      where: { guildId_channelId: { guildId, channelId } },
+      update: { data },
+      create: { guildId, channelId, data },
+    })
+  }
+
+  async createServerObservation(data: {
+    guildId: string
+    channelId: string
+    userId: string
+    content: string
+    summary: string
+    topics?: string[]
+    intent?: string
+    emotion?: string
+    imageSummary?: string
+  }): Promise<void> {
+    const prisma = await this.ensurePrisma()
+    await prisma.serverObservation.create({
+      data: {
+        guildId: data.guildId,
+        channelId: data.channelId,
+        userId: data.userId,
+        content: data.content,
+        summary: data.summary,
+        topics: data.topics ?? [],
+        intent: data.intent,
+        emotion: data.emotion,
+        imageSummary: data.imageSummary,
+      },
+    })
+  }
+
+  async getRecentServerObservations(
+    guildId: string,
+    channelId?: string,
+    limit: number = 8
+  ): Promise<
+    Array<{
+      userId: string
+      summary: string
+      topics: string[]
+      emotion: string | null
+      imageSummary: string | null
+      createdAt: Date
+    }>
+  > {
+    const prisma = await this.ensurePrisma()
+    return prisma.serverObservation.findMany({
+      where: {
+        guildId,
+        ...(channelId ? { channelId } : {}),
+      },
+      orderBy: { createdAt: 'desc' },
+      take: limit,
+      select: {
+        userId: true,
+        summary: true,
+        topics: true,
+        emotion: true,
+        imageSummary: true,
+        createdAt: true,
+      },
+    })
+  }
+
+  async getMahinaWillState(
+    guildId: string,
+    channelId: string
+  ): Promise<{ data: Prisma.JsonValue } | null> {
+    const prisma = await this.ensurePrisma()
+    return prisma.mahinaWillState.findUnique({
+      where: { guildId_channelId: { guildId, channelId } },
+      select: { data: true },
+    })
+  }
+
+  async upsertMahinaWillState(
+    guildId: string,
+    channelId: string,
+    data: Prisma.InputJsonValue
+  ): Promise<void> {
+    const prisma = await this.ensurePrisma()
+    await prisma.mahinaWillState.upsert({
+      where: { guildId_channelId: { guildId, channelId } },
+      update: { data },
+      create: { guildId, channelId, data },
+    })
+  }
+
   // AI Config methods
-  async getAIConfig(guildId: string): Promise<any> {
+  async getAIConfig(guildId: string) {
     const prisma = await this.ensurePrisma()
     const config = await prisma.aIConfig.findUnique({ where: { guildId } })
     if (!config) {
@@ -385,14 +513,17 @@ export default class ServerData {
     return prisma.guild.findUnique({ where: { guildId } })
   }
 
-  async createAIConfig(guildId: string): Promise<any> {
+  async createAIConfig(guildId: string) {
     const prisma = await this.ensurePrisma()
     return prisma.aIConfig.create({
       data: { guildId },
     })
   }
 
-  async updateAIConfig(guildId: string, data: any): Promise<void> {
+  async updateAIConfig(
+    guildId: string,
+    data: Prisma.AIConfigUncheckedCreateInput | Prisma.AIConfigUncheckedUpdateInput
+  ): Promise<void> {
     const prisma = await this.ensurePrisma()
     await prisma.aIConfig.upsert({
       where: { guildId },
