@@ -9,9 +9,12 @@ export default class ChannelCreate extends Event {
     })
   }
 
-  async run(channel: any): Promise<void> {
+  async run(channel: unknown): Promise<void> {
     if (channel instanceof TextChannel && this.client.services.proactiveInteraction) {
       await this.client.services.proactiveInteraction.handleChannelCreate(channel)
+    }
+    if (channel instanceof TextChannel && this.client.services.ambientPresence) {
+      await this.client.services.ambientPresence.sendChannelSpark(channel)
     }
   }
 }

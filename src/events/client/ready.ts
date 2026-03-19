@@ -64,5 +64,11 @@ export default class Ready extends Event {
       this.client.services.lavalinkHealth.start()
       this.client.logger.info('Lavalink Health Service started')
     }
+
+    if (this.client.services.ambientPresence) {
+      this.client.services.ambientPresence.start()
+      await this.client.services.ambientPresence.updateDynamicPresence()
+      this.client.logger.info('Ambient Presence Service started')
+    }
   }
 }

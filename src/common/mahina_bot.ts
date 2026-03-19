@@ -43,6 +43,7 @@ import { NvidiaMultimodalService } from '#src/services/nvidia_multimodal_service
 import { AIQueueService } from '#src/services/ai_queue_service'
 import { ServerLearningService } from '#src/services/server_learning_service'
 import { MahinaWillService } from '#src/services/mahina_will_service'
+import { AmbientPresenceService } from '#src/services/ambient_presence_service'
 import type { MahinaBrain } from '#src/services/mahina_brain'
 import type { Command as CommandInstance } from '#common/command'
 
@@ -59,6 +60,7 @@ interface BotServices {
   brain?: MahinaBrain
   serverLearning?: ServerLearningService
   mahinaWill?: MahinaWillService
+  ambientPresence?: AmbientPresenceService
   nvidiaTTS?: NvidiaTTSService
   nvidiaEmbedding?: NvidiaEmbeddingService
   nvidiaCosmos?: NvidiaCosmosService
@@ -177,6 +179,7 @@ export default class MahinaBot extends Client {
       this.services.nvidiaGuard = new NvidiaGuardService(this)
       this.services.serverLearning = new ServerLearningService(this)
       this.services.mahinaWill = new MahinaWillService(this)
+      this.services.ambientPresence = new AmbientPresenceService(this)
       this.logger.debug('AI optional services ready: proactive, tts, embedding, cosmos, guard')
     }
 

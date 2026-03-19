@@ -47,6 +47,9 @@ export default class MessageCreate extends Event {
     if (this.client.services.serverLearning && !isPrefixedCommand) {
       this.client.services.serverLearning.observeMessage(message).catch(() => {})
     }
+    if (this.client.services.ambientPresence && !isPrefixedCommand) {
+      this.client.services.ambientPresence.maybeReactToMessage(message).catch(() => {})
+    }
 
     if ((mahinaMention || botMention) && !isPrefixedCommand) {
       return this.client.emit('aiMention', message)
