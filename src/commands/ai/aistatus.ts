@@ -1,7 +1,9 @@
 import Command from '#common/command'
 import {
   getAIServiceCapabilities,
+  getAIProviderOverview,
   getAllAvailableAIModels,
+  getLastAIRoute,
   getPreferredAIService,
 } from '#common/ai_runtime'
 import MahinaBot from '#common/mahina_bot'
@@ -54,10 +56,21 @@ export default class AIStatus extends Command {
       const aiService = getPreferredAIService(client)
       const models = aiService ? getAllAvailableAIModels(client) : []
       const capabilities = aiService ? [...getAIServiceCapabilities(aiService)] : []
+      const providers = getAIProviderOverview(client)
+      const lastRoute = ctx.author?.id ? getLastAIRoute(ctx.author.id) : null
 
       await ctx.editMessage({
         embeds: [
-          createAIStatusEmbed(client.config.color.green, t, status, stats, models, capabilities),
+          createAIStatusEmbed(
+            client.config.color.green,
+            t,
+            status,
+            stats,
+            models,
+            capabilities,
+            providers,
+            lastRoute
+          ),
         ],
       })
     } catch (error) {

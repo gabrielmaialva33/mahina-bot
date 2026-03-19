@@ -1,6 +1,6 @@
 import Command from '#common/command'
 import { createAIErrorEmbed, createAILoadingEmbed } from '#common/ai_command_ui'
-import { chatWithPreferredAI, getPreferredAIService } from '#common/ai_runtime'
+import { chatWithPreferredAI, getLastAIRoute, getPreferredAIService } from '#common/ai_runtime'
 import {
   createMahinaInteractiveComponents,
   createMahinaResponseEmbed,
@@ -211,7 +211,8 @@ export default class MahinaAI extends Command {
         analysis,
         conversationState.insights,
         client,
-        t
+        t,
+        userId
       )
       const components = this.createInteractiveComponents(conversationState.insights, t)
 
@@ -593,8 +594,10 @@ export default class MahinaAI extends Command {
     analysis: MessageAnalysis,
     insights: UserInsights,
     client: MahinaBot,
-    translate: (key: string, params?: Record<string, unknown>) => string
+    translate: (key: string, params?: Record<string, unknown>) => string,
+    userId: string
   ): EmbedBuilder {
+    const route = getLastAIRoute(userId)
     return createMahinaResponseEmbed({
       response,
       personality,
@@ -603,6 +606,7 @@ export default class MahinaAI extends Command {
       insights,
       client,
       translate,
+      routeLabel: route ? `${route.provider} · ${route.model}` : undefined,
     })
   }
 

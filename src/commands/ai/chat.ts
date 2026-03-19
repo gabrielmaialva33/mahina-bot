@@ -10,6 +10,7 @@ import {
 import Command from '#common/command'
 import {
   chatWithPreferredAI,
+  getLastAIRoute,
   getPreferredAIService,
   resolveAIServiceForCapability,
   runCodeTask,
@@ -265,7 +266,7 @@ export default class ChatCommand extends Command {
       }
 
       // Format and send response
-      await this.sendFormattedResponse(ctx, msg, response, mode)
+      await this.sendFormattedResponse(ctx, msg, response, mode, userId)
 
       // Add control buttons
       await msg.edit({ components: [createChatButtons(t, mode)] })
@@ -322,9 +323,17 @@ export default class ChatCommand extends Command {
     }
   }
 
-  private async sendFormattedResponse(ctx: Context, msg: Message, response: string, mode: string) {
+  private async sendFormattedResponse(
+    ctx: Context,
+    msg: Message,
+    response: string,
+    mode: string,
+    userId: string
+  ) {
     const t = (key: string, params?: Record<string, unknown>) => ctx.locale(key, params)
     const chunks = splitChatResponse(response, 4000)
+    const route = getLastAIRoute(userId)
+    const routeLabel = route ? `${route.provider} · ${route.model}` : undefined
 
     for (const [i, chunk] of chunks.entries()) {
       const embed = createChatResponseEmbed(
@@ -344,7 +353,8 @@ export default class ChatCommand extends Command {
         t,
         mode,
         chunk,
-        i === 0
+        i === 0,
+        routeLabel
       )
 
       if (i === 0) {
