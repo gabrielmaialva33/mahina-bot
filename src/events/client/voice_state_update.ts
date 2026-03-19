@@ -142,12 +142,26 @@ export default class VoiceStateUpdate extends Event {
       type = 'move'
     }
 
+    const playerChannelId = player.voiceChannelId
+    const touchesPlayerChannel =
+      oldState.channelId === playerChannelId || newState.channelId === playerChannelId
+
+    if (!touchesPlayerChannel && newState.id !== this.client.user?.id) {
+      return
+    }
+
     if (type === 'join') {
-      this.handle.join(newState, this.client)
+      if (newState.channelId === playerChannelId || newState.id === this.client.user?.id) {
+        this.handle.join(newState, this.client)
+      }
     } else if (type === 'leave') {
-      this.handle.leave(newState, this.client)
+      if (oldState.channelId === playerChannelId || newState.id === this.client.user?.id) {
+        this.handle.leave(newState, this.client)
+      }
     } else if (type === 'move') {
-      this.handle.move(newState, this.client)
+      if (touchesPlayerChannel || newState.id === this.client.user?.id) {
+        this.handle.move(newState, this.client)
+      }
     }
   }
 }
