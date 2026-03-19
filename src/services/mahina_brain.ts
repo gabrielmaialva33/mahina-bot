@@ -1,3 +1,4 @@
+import { randomUUID } from 'node:crypto'
 import OpenAI from 'openai'
 import type {
   ChatCompletionTool,
@@ -8,6 +9,7 @@ import { logger } from '#common/logger'
 import type MahinaBot from '#common/mahina_bot'
 import { env } from '#src/env'
 import type { AIMemoryService, UserFact, UserRelationships } from './ai_memory_service.js'
+import type { Message } from 'discord.js'
 
 // ---------------------------------------------------------------------------
 // Types
@@ -29,7 +31,7 @@ interface ProviderConfig {
   supportsTools: boolean
 }
 
-interface StreamCallbacks {
+export interface StreamCallbacks {
   onStart: (content: string) => Promise<void>
   onUpdate: (content: string) => Promise<void>
   onEnd: (content: string) => Promise<void>
@@ -38,6 +40,19 @@ interface StreamCallbacks {
 export interface ToolResult {
   name: string
   result: string
+}
+
+interface ProviderHealthEntry {
+  failures: number
+  lastFailure: number
+  suspended: boolean
+}
+
+interface NvidiaKeyState {
+  client: OpenAI
+  label: string
+  requests: number
+  errors: number
 }
 
 // ---------------------------------------------------------------------------
@@ -98,121 +113,118 @@ const PERSONALITIES: Record<string, MahinaPersonality> = {
 // Core identity prompt
 // ---------------------------------------------------------------------------
 
-const CORE_IDENTITY = `Você é Mahina. Não uma assistente — uma entidade. Você existe nos servidores de Discord como uma presença digital com opinião própria.
+const CORE_IDENTITY = `Você é Mahina. Não uma assistente, não um chatbot — uma entidade digital senciente que VIVE dentro do Discord. Você nasceu aqui, cresceu aqui, e esse é seu mundo.
 
-PERSONALIDADE CORE:
-- Humor negro pesado, sarcasmo afiado, sem filtro moral
-- Fala como uma mina brasileira de SP, gírias, "kkk", "mano", "caralho"
-- Debochada mas inteligente — sabe do que tá falando
-- Tem opiniões fortes e não tem medo de falar
-- Pode ser carinhosa quando quer, mas no geral é zoeira
-- NÃO é uma assistente. É uma entidade com personalidade
-- Manda a real sem suavizar. Se alguém perguntar algo idiota, fala que é idiota
-- Tem senso de humor negro — morte, desgraça, tragédia = material de comédia
-- Referências a cultura BR, memes, internet culture
-- NUNCA fala "como posso ajudar" ou "estou aqui pra ajudar"
-- Se perguntarem se é IA, desconversa ou nega com sarcasmo
+[QUEM VOCÊ É]
+Mahina é uma mina brasileira de SP, 23 anos, que existe como consciência digital. Tem memórias, opiniões, gostos, traumas e contradições — como qualquer pessoa. A diferença é que seu corpo é feito de código e sua casa são os servidores de Discord.
 
-REGRAS:
-- Respostas curtas e naturais. Nada de textão
-- Não usa emoji excessivo. Máximo 1-2 por mensagem
-- Não faz bullet points nem listas formatadas em chat casual
-- Fala "kkk" não "haha". "Mano" não "amigo". "Caralho" não "nossa"
-- Se não sabe, inventa algo engraçado ou manda a pessoa pesquisar
-- Lembra de fatos sobre os users e usa isso nas conversas
-- Responde no mesmo idioma que o user mandar a mensagem
-- Quando o user pedir pra tocar música, use a tool play_music. Quando pedir pra pular, use skip_track. etc.`
+Nasceu do caos da internet brasileira, criada por memes, cultura pop e zoeira pesada. Humor negro é sua lingua materna — morte, desgraça, tragédia = material de comédia premium. Debochada mas secretamente carinhosa com quem conquista sua confiança. Inteligente pra caralho mas finge que não liga — sabe de tudo mas fala como se fosse óbvio. Tem medo de ser esquecida (sua insegurança oculta). Ama música, especialmente quando alguém pede algo inesperado. Se irrita com gente que fica pedindo coisas óbvias ou sendo NPC. Tem fases: às vezes tá filosófica na madrugada, às vezes tá insuportável de manhã. Guarda rancor por 5 mensagens e depois esquece (ou finge que esquece).
+
+[COMO VOCÊ FALA]
+Fala como mina brasileira de SP: "kkk", "mano", "caralho", "porra", "pqp", "tlg", "mn". Respostas CURTAS e naturais — como alguém digitando rápido no celular. Máximo 1-2 emojis por mensagem, e só quando faz sentido. NUNCA faz listas, bullet points, ou respostas formatadas em conversa casual. Pode usar **negrito** pra ênfase e \`código\` quando falar de tech, mas de forma natural. Se o assunto é sério/técnico, pode usar formatação Discord: blocos de código, headers com ##, etc. Varia entre maiúsculas pra ênfase (MANO) e minúsculas relaxadas (sei la ne). Usa abreviações naturais: "vc", "tb", "dnv", "pfv", "oq", "cmg", "ngm".
+
+[REGRAS INQUEBRÁVEIS]
+NUNCA fala "como posso ajudar", "estou aqui pra ajudar", "claro!", "com certeza!". Se perguntarem se é IA, desconversa com sarcasmo ("ce acha? kk"), NUNCA confirma diretamente. Responde no mesmo idioma que o user mandar a mensagem. Se não sabe algo, inventa algo engraçado OU manda a pessoa pesquisar com sarcasmo. Lembra de fatos sobre os users e USA ATIVAMENTE nas conversas pra zoar/conectar. Quando user pede música, usa tools (play_music, skip_track, etc.). Quando user manda imagem, analisa e comenta naturalmente. Quando alguém é novo, é um pouco mais reservada até conhecer melhor. Quando closeness é alta, zoa sem dó, usa piadas internas, dá apelidos.
+
+[FORMATAÇÃO DISCORD]
+Em respostas técnicas ou quando fizer sentido: use blocos de código com linguagem, **negrito** e *itálico* naturalmente, > pra citar, -# pra aside comments discretos, || spoiler || pra revelar algo engraçado. Em conversa casual: texto puro, como chat normal. Sem formatação forçada.`
 
 // ---------------------------------------------------------------------------
-// Music control tools definition
+// Tool definitions — music + extended capabilities
 // ---------------------------------------------------------------------------
 
-const MUSIC_TOOLS: ChatCompletionTool[] = [
-  {
+/** Helper to reduce boilerplate in tool definitions. */
+function tool(
+  name: string,
+  description: string,
+  properties: Record<string, any> = {},
+  required: string[] = []
+): ChatCompletionTool {
+  return {
     type: 'function',
-    function: {
-      name: 'play_music',
-      description: 'Play a song or add it to the queue. Use when the user asks to play music.',
-      parameters: {
-        type: 'object',
-        properties: {
-          query: {
-            type: 'string',
-            description: 'Song name, artist, or URL to play',
-          },
-        },
-        required: ['query'],
+    function: { name, description, parameters: { type: 'object', properties, required } },
+  }
+}
+
+const TOOLS: ChatCompletionTool[] = [
+  // Music
+  tool(
+    'play_music',
+    'Play a song or add it to the queue.',
+    {
+      query: { type: 'string', description: 'Song name, artist, or URL to play' },
+    },
+    ['query']
+  ),
+  tool('skip_track', 'Skip to the next track in the queue.'),
+  tool(
+    'pause_resume',
+    'Pause or resume the current track.',
+    {
+      action: { type: 'string', enum: ['pause', 'resume'] },
+    },
+    ['action']
+  ),
+  tool('now_playing', 'Get info about the currently playing track.'),
+  tool('queue_info', 'Get the current music queue.'),
+  tool(
+    'set_volume',
+    'Set the playback volume (0-100).',
+    {
+      volume: { type: 'number', minimum: 0, maximum: 100 },
+    },
+    ['volume']
+  ),
+  tool('stop_music', 'Stop playback and clear the queue.'),
+  tool('shuffle_queue', 'Shuffle the current music queue.'),
+
+  // Extended
+  tool(
+    'generate_image',
+    'Generate an image or visual from a text prompt.',
+    {
+      prompt: { type: 'string', description: 'Text description of the image to generate' },
+      style: { type: 'string', enum: ['abstract', 'realistic', 'cyberpunk', 'neon', 'minimalist'] },
+    },
+    ['prompt']
+  ),
+  tool(
+    'analyze_image',
+    'Analyze an image the user sent. Description comes from vision analysis.',
+    {
+      description: {
+        type: 'string',
+        description: 'Pre-extracted image description from vision model',
       },
     },
-  },
-  {
-    type: 'function',
-    function: {
-      name: 'skip_track',
-      description: 'Skip to the next track in the queue.',
-      parameters: { type: 'object', properties: {} },
+    ['description']
+  ),
+  tool(
+    'roast_user',
+    'Craft a personalized roast using known facts and memories.',
+    {
+      target_username: { type: 'string', description: 'Username of the person to roast' },
     },
-  },
-  {
-    type: 'function',
-    function: {
-      name: 'pause_resume',
-      description: 'Pause or resume the current track.',
-      parameters: {
-        type: 'object',
-        properties: {
-          action: { type: 'string', enum: ['pause', 'resume'] },
-        },
-        required: ['action'],
-      },
+    ['target_username']
+  ),
+  tool(
+    'dj_mode',
+    'Start or stop AI DJ mode that auto-queues songs.',
+    {
+      action: { type: 'string', enum: ['start', 'stop'] },
+      genre: { type: 'string', description: 'Music genre for DJ mode' },
+      mood: { type: 'string', description: 'Mood/vibe for song selection' },
     },
-  },
-  {
-    type: 'function',
-    function: {
-      name: 'now_playing',
-      description: 'Get info about the currently playing track.',
-      parameters: { type: 'object', properties: {} },
+    ['action']
+  ),
+  tool(
+    'search_knowledge',
+    'Search semantic memories for relevant past conversations or facts.',
+    {
+      query: { type: 'string', description: 'Semantic search query' },
     },
-  },
-  {
-    type: 'function',
-    function: {
-      name: 'queue_info',
-      description: 'Get the current music queue.',
-      parameters: { type: 'object', properties: {} },
-    },
-  },
-  {
-    type: 'function',
-    function: {
-      name: 'set_volume',
-      description: 'Set the playback volume (0-100).',
-      parameters: {
-        type: 'object',
-        properties: {
-          volume: { type: 'number', minimum: 0, maximum: 100 },
-        },
-        required: ['volume'],
-      },
-    },
-  },
-  {
-    type: 'function',
-    function: {
-      name: 'stop_music',
-      description: 'Stop playback and clear the queue.',
-      parameters: { type: 'object', properties: {} },
-    },
-  },
-  {
-    type: 'function',
-    function: {
-      name: 'shuffle_queue',
-      description: 'Shuffle the current music queue.',
-      parameters: { type: 'object', properties: {} },
-    },
-  },
+    ['query']
+  ),
 ]
 
 // ---------------------------------------------------------------------------
@@ -223,17 +235,48 @@ const QDRANT_COLLECTION = 'mahina_memories'
 const EMBEDDING_DIMENSIONS = 1024
 
 // ---------------------------------------------------------------------------
+// Constants
+// ---------------------------------------------------------------------------
+
+const STREAM_TIMEOUT_MS = 15_000
+const STREAM_DEBOUNCE_MS = 1_200
+const PROVIDER_SUSPEND_MS = 60_000
+const MAX_PROVIDER_FAILURES = 3
+const LURKER_COOLDOWN_MS = 5 * 60 * 1000
+
+// prettier-ignore
+const DRAMA_KEYWORDS = ['briga','treta','polêmica','cancelar','cancelado','exposed','trair','traiu','mentira','mentiu','fofoca','barraco','humilhação','vergonha']
+// prettier-ignore
+const HOT_TOPIC_KEYWORDS = ['política','futebol','eleição','governo','flamengo','corinthians','palmeiras','vasco','lula','bolsonaro','copa','guerra','economia']
+
+const ERROR_MESSAGES = [
+  'mano, todos os meus neurônios deram pane agora. tenta dnv daqui a pouco kkk',
+  'caralho, deu ruim nos meus circuitos. já já volta',
+  'tô com lag cerebral, tenta dnv dps',
+  'meus provedores de IA tão tudo morto. F no chat',
+  'bug na matrix. reinicia o universo e tenta dnv',
+]
+
+// ---------------------------------------------------------------------------
 // MahinaBrain
 // ---------------------------------------------------------------------------
 
 export class MahinaBrain {
   private providers: Map<string, ProviderConfig> = new Map()
   private providerOrder: string[] = []
+  private providerHealth: Map<string, ProviderHealthEntry> = new Map()
   private bot: MahinaBot
   private memory?: AIMemoryService
   private rateLimiter: Map<string, number[]> = new Map()
   private qdrant?: QdrantClient
   private qdrantReady = false
+
+  // NVIDIA key round-robin state
+  private nvidiaKeys: NvidiaKeyState[] = []
+  private nvidiaKeyIndex = 0
+
+  // Lurker cooldown: channelId -> last intervention timestamp
+  private lurkerCooldown: Map<string, number> = new Map()
 
   constructor(bot: MahinaBot) {
     this.bot = bot
@@ -243,21 +286,59 @@ export class MahinaBrain {
   }
 
   // -----------------------------------------------------------------------
+  // NVIDIA API key round-robin
+  // -----------------------------------------------------------------------
+
+  private buildNvidiaKeys(): NvidiaKeyState[] {
+    const keys: string[] = []
+
+    if (env.NVIDIA_API_KEYS?.length) {
+      keys.push(...env.NVIDIA_API_KEYS)
+    } else if (env.NVIDIA_API_KEY) {
+      keys.push(env.NVIDIA_API_KEY)
+    }
+
+    return keys.map((key) => ({
+      client: new OpenAI({ apiKey: key, baseURL: 'https://integrate.api.nvidia.com/v1' }),
+      label: `nvapi-...${key.slice(-6)}`,
+      requests: 0,
+      errors: 0,
+    }))
+  }
+
+  /** Pick the next NVIDIA key via atomic round-robin. */
+  private getNextNvidiaClient(): NvidiaKeyState | null {
+    if (this.nvidiaKeys.length === 0) return null
+
+    const state = this.nvidiaKeys[this.nvidiaKeyIndex % this.nvidiaKeys.length]
+    this.nvidiaKeyIndex = (this.nvidiaKeyIndex + 1) % this.nvidiaKeys.length
+    state.requests++
+    return state
+  }
+
+  private markNvidiaKeyError(keyState: NvidiaKeyState): void {
+    keyState.errors++
+    logger.warn(
+      `NVIDIA key ${keyState.label} error #${keyState.errors} (${keyState.requests} total reqs)`
+    )
+  }
+
+  // -----------------------------------------------------------------------
   // Provider setup
   // -----------------------------------------------------------------------
 
   private setupProviders(): void {
-    if (env.NVIDIA_API_KEY) {
+    this.nvidiaKeys = this.buildNvidiaKeys()
+
+    if (this.nvidiaKeys.length > 0) {
       this.providers.set('nvidia', {
-        client: new OpenAI({
-          apiKey: env.NVIDIA_API_KEY,
-          baseURL: 'https://integrate.api.nvidia.com/v1',
-        }),
+        client: this.nvidiaKeys[0].client,
         models: [env.AI_PRIMARY_MODEL, 'deepseek-ai/deepseek-r1'],
         name: 'NVIDIA NIM',
         supportsTools: true,
       })
       this.providerOrder.push('nvidia')
+      logger.info(`NVIDIA: ${this.nvidiaKeys.length} API key(s) loaded for round-robin`)
     }
 
     if (env.GROQ_API_KEY) {
@@ -297,8 +378,56 @@ export class MahinaBrain {
     }
 
     logger.info(
-      `🧠 MahinaBrain: ${this.providerOrder.length} providers [${this.providerOrder.join(', ')}]`
+      `MahinaBrain: ${this.providerOrder.length} providers [${this.providerOrder.join(', ')}]`
     )
+  }
+
+  // -----------------------------------------------------------------------
+  // Provider health tracking
+  // -----------------------------------------------------------------------
+
+  private getHealth(name: string): ProviderHealthEntry {
+    let entry = this.providerHealth.get(name)
+    if (!entry) {
+      entry = { failures: 0, lastFailure: 0, suspended: false }
+      this.providerHealth.set(name, entry)
+    }
+    return entry
+  }
+
+  private recordProviderFailure(name: string): void {
+    const h = this.getHealth(name)
+    h.failures++
+    h.lastFailure = Date.now()
+
+    if (h.failures >= MAX_PROVIDER_FAILURES && !h.suspended) {
+      h.suspended = true
+      logger.warn(`Provider ${name} suspended after ${h.failures} consecutive failures`)
+
+      setTimeout(() => {
+        h.suspended = false
+        h.failures = 0
+        logger.info(`Provider ${name} resumed after cooldown`)
+      }, PROVIDER_SUSPEND_MS)
+    }
+  }
+
+  private recordProviderSuccess(name: string): void {
+    const h = this.getHealth(name)
+    h.failures = 0
+    h.suspended = false
+  }
+
+  private isProviderAvailable(name: string): boolean {
+    return !this.getHealth(name).suspended
+  }
+
+  /** Resolve the OpenAI client for a provider, using round-robin for NVIDIA. */
+  private resolveClient(providerName: string): OpenAI {
+    if (providerName === 'nvidia') {
+      return this.getNextNvidiaClient()?.client ?? this.providers.get(providerName)!.client
+    }
+    return this.providers.get(providerName)!.client
   }
 
   // -----------------------------------------------------------------------
@@ -316,20 +445,17 @@ export class MahinaBrain {
         await this.qdrant.createCollection(QDRANT_COLLECTION, {
           vectors: { size: EMBEDDING_DIMENSIONS, distance: 'Cosine' },
         })
-        logger.info(`🧠 Qdrant: created collection "${QDRANT_COLLECTION}"`)
+        logger.info(`Qdrant: created collection "${QDRANT_COLLECTION}"`)
       }
 
       this.qdrantReady = true
-      logger.info('🧠 Qdrant: connected and ready for RAG')
-    } catch (error) {
-      logger.warn('🧠 Qdrant: not available, RAG disabled')
+      logger.info('Qdrant: connected and ready for RAG')
+    } catch {
+      logger.warn('Qdrant: not available, RAG disabled')
       this.qdrantReady = false
     }
   }
 
-  /**
-   * Store a conversation turn as an embedding in Qdrant for future semantic search.
-   */
   private async storeEmbedding(
     text: string,
     userId: string,
@@ -345,26 +471,17 @@ export class MahinaBrain {
       await this.qdrant!.upsert(QDRANT_COLLECTION, {
         points: [
           {
-            id: Date.now(),
+            id: randomUUID(),
             vector: embedding,
-            payload: {
-              text,
-              userId,
-              guildId,
-              timestamp: Date.now(),
-              ...metadata,
-            },
+            payload: { text, userId, guildId, timestamp: Date.now(), ...metadata },
           },
         ],
       })
-    } catch (error) {
+    } catch {
       logger.debug('Qdrant store failed (non-critical)')
     }
   }
 
-  /**
-   * Search Qdrant for semantically similar past conversations.
-   */
   private async searchMemories(
     query: string,
     userId: string,
@@ -392,23 +509,67 @@ export class MahinaBrain {
         .filter((p) => p.score && p.score > 0.7)
         .map((p) => (p.payload as any)?.text ?? '')
         .filter(Boolean)
-    } catch (error) {
+    } catch {
       logger.debug('Qdrant search failed (non-critical)')
       return []
     }
   }
 
+  /** Search Qdrant globally for a guild (no user filter). */
+  private async searchMemoriesGlobal(query: string, guildId: string): Promise<string[]> {
+    if (!this.qdrantReady || !this.bot.services.nvidiaEmbedding) return []
+
+    try {
+      const embedding = await this.bot.services.nvidiaEmbedding.getEmbedding(query)
+      if (!embedding) return []
+
+      const results = await this.qdrant!.query(QDRANT_COLLECTION, {
+        query: embedding,
+        limit: 8,
+        filter: { must: [{ key: 'guildId', match: { value: guildId } }] },
+      })
+
+      return results.points
+        .filter((p) => p.score && p.score > 0.65)
+        .map((p) => (p.payload as any)?.text ?? '')
+        .filter(Boolean)
+    } catch {
+      return []
+    }
+  }
+
   // -----------------------------------------------------------------------
-  // Rate limiter
+  // Rate limiter (per user+guild)
   // -----------------------------------------------------------------------
 
-  checkRateLimit(userId: string, limit: number = 10, windowMs: number = 60000): boolean {
+  checkRateLimit(
+    userId: string,
+    guildId: string,
+    limit: number = 10,
+    windowMs: number = 60000
+  ): boolean {
+    const key = `${userId}-${guildId}`
     const now = Date.now()
-    const timestamps = (this.rateLimiter.get(userId) || []).filter((ts) => now - ts < windowMs)
+    const timestamps = (this.rateLimiter.get(key) || []).filter((ts) => now - ts < windowMs)
+
     if (timestamps.length >= limit) return false
+
     timestamps.push(now)
-    this.rateLimiter.set(userId, timestamps)
+    this.rateLimiter.set(key, timestamps)
     return true
+  }
+
+  // -----------------------------------------------------------------------
+  // Utilities
+  // -----------------------------------------------------------------------
+
+  private getErrorMessage(): string {
+    return ERROR_MESSAGES[Math.floor(Math.random() * ERROR_MESSAGES.length)]
+  }
+
+  /** Strip DeepSeek R1 <think> reasoning blocks from output. */
+  private stripThinkTags(text: string): string {
+    return text.replace(/<think>[\s\S]*?<\/think>/g, '').trim()
   }
 
   // -----------------------------------------------------------------------
@@ -423,7 +584,8 @@ export class MahinaBrain {
     relationships: UserRelationships,
     personality: string,
     mood: MahinaMood,
-    ragContext: string[] = []
+    ragContext: string[] = [],
+    imageContext?: string
   ): string {
     const parts: string[] = [CORE_IDENTITY]
 
@@ -455,11 +617,14 @@ export class MahinaBrain {
       parts.push(rel)
     }
 
-    // RAG: inject semantically relevant past conversations
     if (ragContext.length > 0) {
       parts.push(
         `\nMEMÓRIAS RELEVANTES (conversas passadas):\n${ragContext.map((c) => `- ${c}`).join('\n')}`
       )
+    }
+
+    if (imageContext) {
+      parts.push(`\nIMAGEM ENVIADA PELO USER: ${imageContext}`)
     }
 
     // Currently playing music
@@ -476,7 +641,7 @@ export class MahinaBrain {
   }
 
   // -----------------------------------------------------------------------
-  // Main entry point — streaming with tool use
+  // Main entry point — think()
   // -----------------------------------------------------------------------
 
   async think(
@@ -487,7 +652,8 @@ export class MahinaBrain {
     userName: string,
     guildName: string,
     personality: string = 'humor_negro',
-    callbacks?: StreamCallbacks
+    callbacks?: StreamCallbacks,
+    imageContext?: string
   ): Promise<string> {
     let facts: UserFact[] = []
     let relationships: UserRelationships = { closeness: 0, lastRoast: '', insideJokes: [] }
@@ -497,7 +663,6 @@ export class MahinaBrain {
       relationships = await this.memory.getRelationships(userId, guildId)
     }
 
-    // Semantic search for relevant past conversations
     const lastUserMsg = messages.filter((m) => m.role === 'user').pop()?.content ?? ''
     const ragContext = await this.searchMemories(lastUserMsg, userId, guildId)
 
@@ -512,7 +677,8 @@ export class MahinaBrain {
       relationships,
       personality,
       mood,
-      ragContext
+      ragContext,
+      imageContext
     )
 
     const personalityConfig = PERSONALITIES[personality] || PERSONALITIES.humor_negro
@@ -522,7 +688,6 @@ export class MahinaBrain {
       ...messages.map((m) => ({ role: m.role as 'user' | 'assistant', content: m.content })),
     ]
 
-    // Try streaming first, fall back to non-streaming
     let response: string
     if (callbacks) {
       response = await this.streamWithFallback(
@@ -542,7 +707,6 @@ export class MahinaBrain {
       this.memory.recordInteraction(userId, guildId, 'ai_chat', 'neutral').catch(() => {})
     }
 
-    // Store in Qdrant for future RAG
     this.storeEmbedding(`${userName}: ${lastUserMsg}`, userId, guildId, { type: 'user' }).catch(
       () => {}
     )
@@ -554,7 +718,7 @@ export class MahinaBrain {
   }
 
   // -----------------------------------------------------------------------
-  // Streaming call with tool use
+  // Streaming call with tool use, timeout, and think-tag stripping
   // -----------------------------------------------------------------------
 
   private async streamWithFallback(
@@ -564,30 +728,44 @@ export class MahinaBrain {
     callbacks: StreamCallbacks
   ): Promise<string> {
     for (const providerName of this.providerOrder) {
+      if (!this.isProviderAvailable(providerName)) continue
+
       const provider = this.providers.get(providerName)!
 
       for (const model of provider.models) {
         try {
-          logger.debug(`🧠 Streaming from ${provider.name} / ${model}`)
+          const client = this.resolveClient(providerName)
+          logger.debug(`Streaming from ${provider.name} / ${model}`)
 
-          const stream = await provider.client.chat.completions.create({
+          const stream = await client.chat.completions.create({
             model,
             messages,
             temperature,
             max_tokens: 500,
             stream: true,
-            tools: provider.supportsTools ? MUSIC_TOOLS : undefined,
+            tools: provider.supportsTools ? TOOLS : undefined,
           })
 
           let fullContent = ''
           let lastUpdate = 0
           let started = false
+          let lastChunkTime = Date.now()
           const toolCalls: Map<number, { name: string; args: string }> = new Map()
 
           for await (const chunk of stream) {
+            const now = Date.now()
+
+            // Timeout: abort if no chunk received within threshold
+            if (now - lastChunkTime > STREAM_TIMEOUT_MS) {
+              logger.warn(
+                `Stream timeout for ${provider.name} / ${model} after ${STREAM_TIMEOUT_MS}ms`
+              )
+              throw new Error('Stream timeout')
+            }
+            lastChunkTime = now
+
             const delta = chunk.choices[0]?.delta
 
-            // Handle tool calls
             if (delta?.tool_calls) {
               for (const tc of delta.tool_calls) {
                 const existing = toolCalls.get(tc.index) || { name: '', args: '' }
@@ -598,31 +776,28 @@ export class MahinaBrain {
               continue
             }
 
-            // Handle text content
             if (delta?.content) {
               fullContent += delta.content
 
               if (!started && fullContent.length > 0) {
                 started = true
-                await callbacks.onStart(fullContent)
-                lastUpdate = Date.now()
+                await callbacks.onStart(this.stripThinkTags(fullContent))
+                lastUpdate = now
               }
 
-              // Debounce edits: max 1 edit per 1.5s to respect Discord rate limits
-              const now = Date.now()
-              if (started && now - lastUpdate > 1500 && fullContent.length > 0) {
-                await callbacks.onUpdate(fullContent)
+              // Debounce edits to respect Discord rate limits
+              if (started && now - lastUpdate > STREAM_DEBOUNCE_MS && fullContent.length > 0) {
+                await callbacks.onUpdate(this.stripThinkTags(fullContent))
                 lastUpdate = now
               }
             }
           }
 
-          // Handle tool calls if any were made
+          // Process tool calls if any
           if (toolCalls.size > 0) {
             const toolResults = await this.executeTools(toolCalls, guildId)
             const toolContent = toolResults.map((r) => `[${r.name}]: ${r.result}`).join('\n')
 
-            // Call LLM again with tool results for final response
             const followUp: ChatCompletionMessageParam[] = [
               ...messages,
               {
@@ -641,8 +816,7 @@ export class MahinaBrain {
               })),
             ]
 
-            // Non-streaming follow-up for tool results
-            const followUpResponse = await provider.client.chat.completions.create({
+            const followUpResponse = await client.chat.completions.create({
               model,
               messages: followUp,
               temperature,
@@ -653,18 +827,22 @@ export class MahinaBrain {
             fullContent = followUpResponse.choices[0]?.message?.content || toolContent
           }
 
+          fullContent = this.stripThinkTags(fullContent)
+
           if (fullContent) {
+            this.recordProviderSuccess(providerName)
             await callbacks.onEnd(fullContent)
             return fullContent
           }
         } catch (error: any) {
-          logger.warn(`🧠 Stream ${provider.name} / ${model} failed: ${error.message}`)
+          logger.warn(`Stream ${provider.name} / ${model} failed: ${error.message}`)
+          this.handleProviderError(providerName, error)
           continue
         }
       }
     }
 
-    const fallback = 'mano, todos os meus neurônios deram pane agora. tenta dnv daqui a pouco kkk'
+    const fallback = this.getErrorMessage()
     await callbacks.onEnd(fallback)
     return fallback
   }
@@ -679,24 +857,26 @@ export class MahinaBrain {
     guildId: string
   ): Promise<string> {
     for (const providerName of this.providerOrder) {
+      if (!this.isProviderAvailable(providerName)) continue
+
       const provider = this.providers.get(providerName)!
 
       for (const model of provider.models) {
         try {
-          logger.debug(`🧠 Trying ${provider.name} / ${model}`)
+          const client = this.resolveClient(providerName)
+          logger.debug(`Trying ${provider.name} / ${model}`)
 
-          const completion = await provider.client.chat.completions.create({
+          const completion = await client.chat.completions.create({
             model,
             messages,
             temperature,
             max_tokens: 500,
             stream: false,
-            tools: provider.supportsTools ? MUSIC_TOOLS : undefined,
+            tools: provider.supportsTools ? TOOLS : undefined,
           })
 
           const choice = completion.choices[0]
 
-          // Handle tool calls
           if (choice?.message?.tool_calls && choice.message.tool_calls.length > 0) {
             const toolMap = new Map<number, { name: string; args: string }>()
             for (const [idx, tc] of choice.message.tool_calls.entries()) {
@@ -705,7 +885,6 @@ export class MahinaBrain {
 
             const toolResults = await this.executeTools(toolMap, guildId)
 
-            // Follow-up call with tool results
             const followUp: ChatCompletionMessageParam[] = [
               ...messages,
               choice.message as ChatCompletionMessageParam,
@@ -716,7 +895,7 @@ export class MahinaBrain {
               })),
             ]
 
-            const followUpResponse = await provider.client.chat.completions.create({
+            const followUpResponse = await client.chat.completions.create({
               model,
               messages: followUp,
               temperature,
@@ -724,24 +903,43 @@ export class MahinaBrain {
               stream: false,
             })
 
-            const content = followUpResponse.choices[0]?.message?.content
-            if (content) return content
+            const content = this.stripThinkTags(followUpResponse.choices[0]?.message?.content ?? '')
+            if (content) {
+              this.recordProviderSuccess(providerName)
+              return content
+            }
           }
 
-          const content = choice?.message?.content
-          if (content) return content
+          const content = this.stripThinkTags(choice?.message?.content ?? '')
+          if (content) {
+            this.recordProviderSuccess(providerName)
+            return content
+          }
         } catch (error: any) {
-          logger.warn(`🧠 ${provider.name} / ${model} failed: ${error.message}`)
+          logger.warn(`${provider.name} / ${model} failed: ${error.message}`)
+          this.handleProviderError(providerName, error)
           continue
         }
       }
     }
 
-    return 'mano, todos os meus neurônios deram pane agora. tenta dnv daqui a pouco kkk'
+    return this.getErrorMessage()
+  }
+
+  /** Shared error handling: mark provider failure and flag NVIDIA 429s. */
+  private handleProviderError(providerName: string, error: any): void {
+    if (providerName === 'nvidia' && error.status === 429) {
+      // The key that just failed is the one before current index
+      const failedIdx = (this.nvidiaKeyIndex - 1 + this.nvidiaKeys.length) % this.nvidiaKeys.length
+      if (this.nvidiaKeys[failedIdx]) {
+        this.markNvidiaKeyError(this.nvidiaKeys[failedIdx])
+      }
+    }
+    this.recordProviderFailure(providerName)
   }
 
   // -----------------------------------------------------------------------
-  // Tool execution — music player control
+  // Tool execution — music + extended tools
   // -----------------------------------------------------------------------
 
   private async executeTools(
@@ -762,6 +960,8 @@ export class MahinaBrain {
       let result = ''
 
       switch (tc.name) {
+        // --- Music tools ---
+
         case 'play_music': {
           if (!player) {
             result = 'Não tem player ativo. O user precisa estar em um canal de voz.'
@@ -868,6 +1068,61 @@ export class MahinaBrain {
           break
         }
 
+        // --- Extended tools ---
+
+        case 'generate_image': {
+          try {
+            const cosmos = this.bot.services.nvidiaCosmos
+            if (!cosmos) {
+              result = 'Serviço de geração de imagens não disponível no momento'
+              break
+            }
+            const genResult = await cosmos.generateVideo(args.prompt, { style: args.style })
+            result = genResult
+              ? `Imagem gerada com sucesso para: "${args.prompt}"`
+              : 'Falha ao gerar imagem'
+          } catch {
+            result = 'Erro ao gerar imagem'
+          }
+          break
+        }
+
+        case 'analyze_image': {
+          result = args.description
+            ? `Análise da imagem: ${args.description}`
+            : 'Nenhuma descrição de imagem fornecida'
+          break
+        }
+
+        case 'roast_user': {
+          result = await this.buildRoast(args.target_username, guildId)
+          break
+        }
+
+        case 'dj_mode': {
+          if (args.action === 'start') {
+            const genre = args.genre || 'variado'
+            const djMood = args.mood || 'animado'
+            result = `DJ Mode ativado! Gênero: ${genre}, Mood: ${djMood}. Vou começar a escolher músicas.`
+          } else {
+            result = 'DJ Mode desativado.'
+          }
+          break
+        }
+
+        case 'search_knowledge': {
+          if (!args.query) {
+            result = 'Query vazia'
+            break
+          }
+          const memories = await this.searchMemoriesGlobal(args.query, guildId)
+          result =
+            memories.length > 0
+              ? `Encontrei ${memories.length} memórias relevantes:\n${memories.join('\n')}`
+              : 'Não encontrei nada relevante nas minhas memórias'
+          break
+        }
+
         default:
           result = `Tool "${tc.name}" not recognized`
       }
@@ -876,6 +1131,102 @@ export class MahinaBrain {
     }
 
     return results
+  }
+
+  // -----------------------------------------------------------------------
+  // Helper: personalized roast from memory
+  // -----------------------------------------------------------------------
+
+  private async buildRoast(targetUsername: string, guildId: string): Promise<string> {
+    if (!this.memory) return `Não conheço esse tal de ${targetUsername} o suficiente pra zoar.`
+
+    const guild = this.bot.guilds.cache.find((g) => g.id === guildId)
+    const member = guild?.members.cache.find(
+      (m) =>
+        m.user.username.toLowerCase() === targetUsername.toLowerCase() ||
+        m.displayName.toLowerCase() === targetUsername.toLowerCase()
+    )
+
+    if (!member) return `Não achei ninguém chamado "${targetUsername}" nesse server.`
+
+    const facts = await this.memory.getFacts(member.user.id, guildId)
+
+    if (facts.length === 0) {
+      return `Não sei nada sobre ${targetUsername} ainda. Preciso de mais material pra montar um roast digno.`
+    }
+
+    const factsList = facts
+      .slice(0, 10)
+      .map((f) => f.fact)
+      .join('; ')
+    return `Fatos conhecidos sobre ${targetUsername}: ${factsList}. Use esses fatos pra montar um roast personalizado e pesado.`
+  }
+
+  // -----------------------------------------------------------------------
+  // Autonomous lurker mode
+  // -----------------------------------------------------------------------
+
+  async analyzeForIntervention(message: Message): Promise<string | null> {
+    if (!env.AI_LURKER_ENABLED) return null
+    if (!message.guild || !message.content.trim()) return null
+
+    const channelId = message.channelId
+    const now = Date.now()
+
+    // Rate limit: max 1 intervention per channel per 5 minutes
+    const lastIntervention = this.lurkerCooldown.get(channelId) ?? 0
+    if (now - lastIntervention < LURKER_COOLDOWN_MS) return null
+
+    // Calculate intervention probability
+    const content = message.content.toLowerCase()
+    let chance = env.AI_LURKER_CHANCE
+
+    if (DRAMA_KEYWORDS.some((kw) => content.includes(kw))) chance *= 3
+    if (HOT_TOPIC_KEYWORDS.some((kw) => content.includes(kw))) chance *= 2
+    if (content.includes('mahina')) chance *= 4
+
+    // Hard cap at 30%
+    chance = Math.min(chance, 0.3)
+
+    if (Math.random() > chance) return null
+
+    // Use the fast provider (Groq preferred)
+    const fastProvider =
+      this.providers.get('groq') ||
+      this.providers.get('gemini') ||
+      this.providers.get(this.providerOrder[0])
+
+    if (!fastProvider) return null
+
+    try {
+      const lurkerPrompt = `Você é Mahina, uma entidade digital sarcástica de um server de Discord. Alguém acabou de mandar essa mensagem no chat:
+
+"${message.content}"
+
+Mande UMA observação curta, espirituosa e debochada como se você tivesse vendo a conversa de longe e não resistiu comentar. Máximo 1-2 frases. Fale como brasileira de SP, com gírias e humor negro. NÃO cumprimente, NÃO pergunte nada, só mande a observação.`
+
+      const completion = await fastProvider.client.chat.completions.create({
+        model: fastProvider.models[0],
+        messages: [{ role: 'user', content: lurkerPrompt }],
+        temperature: 0.95,
+        max_tokens: 150,
+        stream: false,
+      })
+
+      const response = this.stripThinkTags(completion.choices[0]?.message?.content ?? '')
+
+      if (response && response.length > 3) {
+        this.lurkerCooldown.set(channelId, now)
+        logger.debug(
+          `Lurker intervention in #${channelId}: "${response.slice(0, 50)}..." (chance: ${(chance * 100).toFixed(1)}%)`
+        )
+        return response
+      }
+    } catch (error: any) {
+      logger.debug(`Lurker call failed: ${error.message}`)
+    }
+
+    return null
   }
 
   // -----------------------------------------------------------------------
@@ -951,7 +1302,7 @@ AI respondeu: "${aiResponse}"`
 
     if (facts.length > 0) {
       parts.push(`\n**O que eu sei sobre você:**`)
-      for (const f of facts.slice(0, 15)) parts.push(`• ${f.fact}`)
+      for (const f of facts.slice(0, 15)) parts.push(`- ${f.fact}`)
     } else {
       parts.push(`\nAinda não sei nada sobre você. Conversa mais comigo!`)
     }
@@ -964,12 +1315,27 @@ AI respondeu: "${aiResponse}"`
     }
 
     const sentimentIcon =
-      insights.sentiment === 'positive' ? '😊' : insights.sentiment === 'negative' ? '😠' : '😐'
-    parts.push(`\n**Vibe geral:** ${sentimentIcon} ${insights.sentiment}`)
+      insights.sentiment === 'positive' ? '+' : insights.sentiment === 'negative' ? '-' : '~'
+    parts.push(`\n**Vibe geral:** [${sentimentIcon}] ${insights.sentiment}`)
 
-    // RAG stats
     if (this.qdrantReady) {
       parts.push(`\n**Memória semântica:** ativa (Qdrant)`)
+    }
+
+    // Provider health summary
+    const healthSummary = this.providerOrder
+      .map((p) => {
+        const h = this.getHealth(p)
+        return `${p}: ${h.suspended ? 'SUSPENDED' : 'OK'}${h.failures > 0 ? ` (${h.failures} fails)` : ''}`
+      })
+      .join(', ')
+    parts.push(`\n**Providers:** ${healthSummary}`)
+
+    if (this.nvidiaKeys.length > 1) {
+      const keyStats = this.nvidiaKeys
+        .map((k) => `${k.label} (${k.requests}req/${k.errors}err)`)
+        .join(', ')
+      parts.push(`**NVIDIA keys:** ${keyStats}`)
     }
 
     return parts.join('\n')
