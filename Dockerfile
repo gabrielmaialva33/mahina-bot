@@ -15,8 +15,13 @@ RUN npm config set update-notifier false && npm install -g pnpm@${PNPM_VERSION}
 
 FROM base AS deps
 COPY package.json pnpm-lock.yaml* ./
-ENV npm_config_sharp_force_compile=true
 RUN pnpm install --frozen-lockfile
+
+# Sharp prebuilt binaries require x86-64-v2 which old VPS CPUs lack.
+# Remove prebuilt and compile from source for generic x86-64 compat.
+RUN rm -rf node_modules/.pnpm/@img+sharp-linux-x64@*/node_modules/@img/sharp-linux-x64/lib/*.node \
+    && cd node_modules/.pnpm/sharp@*/node_modules/sharp \
+    && npx --yes node-gyp rebuild
 
 FROM deps AS build
 COPY . .
