@@ -1,1018 +1,1057 @@
 {
-  "cmd": {
-    "247": {
-      "description": "🎧 Define o bot para permanecer no canal de voz",
-      "errors": {
-        "not_in_voice": "⚠️ Você precisa estar em um canal de voz para usar este comando.",
-        "generic": "❌ Ocorreu um erro ao tentar executar este comando."
-      },
-      "messages": {
-        "disabled": "✅ | O modo 24/7 foi DESATIVADO.",
-        "enabled": "✅ | O modo 24/7 foi ATIVADO."
-      }
-    },
-    "ping": {
-      "description": "🏓 Mostra o ping do bot.",
-      "content": "⏳ Calculando ping...",
-      "bot_latency": "📶 Latência do Bot",
-      "api_latency": "🌐 Latência da API",
-      "requested_by": "📌 Solicitado por {author}"
-    },
-    "lavalink": {
-      "description": "📊 Mostra as estatísticas atuais do Lavalink.",
-      "title": "📈 Estatísticas do Lavalink",
-      "content": "🎵 Players: {players}\n🎶 Players Tocando: {playingPlayers}\n⏱️ Tempo de Atividade: {uptime}\n🖥️ Núcleos: {cores} Núcleo(s)\n📂 Uso de Memória: {used} / {reservable}\n⚙️ Carga do Sistema: {systemLoad}%\n🔧 Carga do Lavalink: {lavalinkLoad}%",
-      "page_info": "📄 Página {index} de {total}"
-    },
-    "invite": {
-      "description": "🔗 Obtenha o link de convite do bot.",
-      "content": "Você pode me convidar clicando no botão abaixo. Encontrou bugs ou problemas? Junte-se ao servidor de suporte! 🚀"
-    },
-    "help": {
-      "description": "📜 Mostra o menu de ajuda.",
-      "options": {
-        "command": "🛠️ O comando sobre o qual você quer informações"
-      },
-      "content": "Olá! Eu sou {bot}, um bot de música feito com [MahinaBot](https://github.com/gabrielmaialva33/mahina-bot) e Discord.js. Você pode usar {prefix}help <comando> para obter mais informações sobre um comando.",
-      "title": "📘 Menu de Ajuda",
-      "not_found": "❌ O comando {cmdName} não existe.",
-      "help_cmd": "📝 Descrição: {description}\nUso: {usage}\nExemplos: {examples}\nAliases: {aliases}\nCategoria: {category}\nCooldown: {cooldown} segundos\nPermissões: {premUser}\nPermissões do Bot: {premBot}\nApenas Desenvolvedor: {dev}\nComando Slash: {slash}\nArgumentos: {args}\nPlayer: {player}\nDJ: {dj}\nPermissões DJ: {djPerm}\nVoz: {voice}",
-      "footer": "ℹ️ Use {prefix}help <comando> para mais informações sobre um comando"
-    },
-    "botinfo": {
-      "description": "ℹ️ Informações sobre o bot",
-      "content": "🤖 Informações do Bot:\n- 💻 Sistema Operacional: {osInfo}\n- ⏳ Tempo de Atividade: {osUptime}\n- 🏠 Hostname: {osHostname}\n- 🔧 Arquitetura da CPU: {cpuInfo}\n- ⚙️ Uso da CPU: {cpuUsed}%\n- 📂 Uso de Memória: {memUsed}MB / {memTotal}GB\n- 🛠️ Versão do Node: {nodeVersion}\n- 📜 Versão do Discord.js: {discordJsVersion}\n- 🌐 Conectado a {guilds} servidores, {channels} canais e {users} usuários\n- 🎵 Total de Comandos: {commands}"
-    },
-    "about": {
-      "description": "❓ Mostra informações sobre o bot",
-      "fields": {
-        "creator": "👤 Criador",
-        "repository": "📂 Repositório",
-        "support": "🔧 Suporte",
-        "description": "Ele realmente queria fazer seu primeiro projeto de código aberto para ganhar mais experiência em programação. Neste projeto, ele foi desafiado a fazer um projeto com menos bugs. Espero que você goste de usar o MahinaBot! 🎉"
-      }
-    },
-    "dj": {
-      "description": "🎛️ Gerencia o modo DJ e os papéis associados",
-      "errors": {
-        "provide_role": "⚠️ Por favor, forneça um papel.",
-        "no_roles": "🚫 O papel de DJ está vazio.",
-        "invalid_subcommand": "❌ Por favor, forneça um subcomando válido."
-      },
-      "messages": {
-        "role_exists": "⚠️ O papel de DJ <@&{roleId}> já foi adicionado.",
-        "role_added": "✅ O papel de DJ <@&{roleId}> foi adicionado.",
-        "role_not_found": "❌ O papel de DJ <@&{roleId}> não foi encontrado.",
-        "role_removed": "✅ O papel de DJ <@&{roleId}> foi removido.",
-        "all_roles_cleared": "🧹 Todos os papéis de DJ foram removidos.",
-        "toggle": "🔄 O modo DJ foi alternado para {status}."
-      },
-      "options": {
-        "add": "➕ O papel de DJ que você deseja adicionar",
-        "remove": "➖ O papel de DJ que você deseja remover",
-        "clear": "🧹 Limpa todos os papéis de DJ",
-        "toggle": "🔄 Alterna o modo DJ",
-        "role": "🎭 O papel de DJ"
-      },
-      "subcommands": "🔧 Subcomandos"
-    },
-    "language": {
-      "description": "🌐 Define o idioma para o bot",
-      "invalid_language": "⚠️ Por favor, forneça um idioma válido. Exemplo: PortugueseBR para Português (Brasil)\n\n🌍 Idiomas Disponíveis:\n{languages}",
-      "already_set": "✅ O idioma já está definido como {language}.",
-      "not_set": "❌ O idioma não está definido.",
-      "set": "✅ | O idioma foi definido para {language}.",
-      "reset": "✅ | O idioma foi redefinido para o padrão.",
-      "options": {
-        "set": "🌐 Define o idioma para o bot",
-        "language": "🗣️ O idioma que você deseja definir",
-        "reset": "🔄 Altera o idioma de volta para o padrão"
-      }
-    },
-    "prefix": {
-      "description": "🔑 Mostra ou define o prefixo do bot",
-      "errors": {
-        "prefix_too_long": "⚠️ O prefixo não pode ter mais de 3 caracteres."
-      },
-      "messages": {
-        "current_prefix": "🔍 O prefixo deste servidor é {prefix}.",
-        "prefix_set": "✅ O prefixo deste servidor agora é {prefix}.",
-        "prefix_reset": "🔄 O prefixo deste servidor agora é {prefix}."
-      },
-      "options": {
-        "set": "🛠️ Define o prefixo",
-        "prefix": "🔑 O prefixo que você deseja definir",
-        "reset": "🔄 Redefine o prefixo para o padrão"
-      }
-    },
-    "setup": {
-      "description": "⚙️ Configura o bot",
-      "errors": {
-        "channel_exists": "⚠️ O canal de solicitação de música já existe.",
-        "channel_not_exists": "❌ O canal de solicitação de música não existe.",
-        "channel_delete_fail": "⚠️ O canal de configuração foi excluído do banco de dados. Por favor, exclua o canal você mesmo."
-      },
-      "messages": {
-        "channel_created": "✅ O canal de solicitação de música foi criado em <#{channelId}>.",
-        "channel_deleted": "🗑️ O canal de solicitação de música foi excluído.",
-        "channel_info": "ℹ️ O canal de solicitação de música é <#{channelId}>."
-      },
-      "options": {
-        "create": "➕ Cria o canal de solicitação de música",
-        "delete": "🗑️ Exclui o canal de solicitação de música",
-        "info": "ℹ️ Mostra o canal de solicitação de música"
-      }
-    },
-    "8d": {
-      "description": "🎧 Ativa/desativa o filtro 8D",
-      "messages": {
-        "filter_enabled": "✅ O filtro 8D foi ATIVADO.",
-        "filter_disabled": "✅ O filtro 8D foi DESATIVADO."
-      }
-    },
-    "bassboost": {
-      "description": "🎚️ Ativa/desativa o filtro bassboost",
-      "options": {
-        "level": "📈 O nível de bassboost que você deseja definir"
-      },
-      "messages": {
-        "high": "✅ O filtro bassboost alto foi ATIVADO.",
-        "low": "✅ O filtro bassboost baixo foi ATIVADO.",
-        "medium": "✅ O filtro bassboost médio foi ATIVADO.",
-        "off": "✅ O filtro bassboost foi DESATIVADO."
-      }
-    },
-    "distortion": {
-      "description": "🔊 Ativa/desativa o filtro distortion",
-      "messages": {
-        "filter_enabled": "✅ O filtro distortion foi ATIVADO.",
-        "filter_disabled": "✅ O filtro distortion foi DESATIVADO."
-      }
-    },
-    "karaoke": {
-      "description": "🎤 Ativa/desativa o filtro karaokê",
-      "messages": {
-        "filter_enabled": "✅ O filtro karaokê foi ATIVADO.",
-        "filter_disabled": "✅ O filtro karaokê foi DESATIVADO."
-      }
-    },
-    "lowpass": {
-      "description": "🔈 Ativa/desativa o filtro lowpass",
-      "messages": {
-        "filter_enabled": "✅ O filtro lowpass foi ATIVADO.",
-        "filter_disabled": "✅ O filtro lowpass foi DESATIVADO."
-      }
-    },
-    "nightcore": {
-      "description": "🎶 Ativa/desativa o filtro nightcore",
-      "messages": {
-        "filter_enabled": "✅ O filtro nightcore foi ATIVADO.",
-        "filter_disabled": "✅ O filtro nightcore foi DESATIVADO."
-      }
-    },
-    "pitch": {
-      "description": "🎼 Altera a afinação da música",
-      "options": {
-        "pitch": "🎚️ O número para o qual você deseja definir a afinação (entre 0.5 e 5)"
-      },
-      "errors": {
-        "invalid_number": "⚠️ Por favor, forneça um número válido entre 0.5 e 5."
-      },
-      "messages": {
-        "pitch_set": "✅ A afinação foi definida para {pitch}."
-      }
-    },
-    "rate": {
-      "description": "🔄 Altera a taxa da música",
-      "options": {
-        "rate": "📉 O número para o qual você deseja definir a taxa (entre 0.5 e 5)"
-      },
-      "errors": {
-        "invalid_number": "⚠️ Por favor, forneça um número válido entre 0.5 e 5."
-      },
-      "messages": {
-        "rate_set": "✅ A taxa foi definida para {rate}."
-      }
-    },
-    "reset": {
-      "description": "🧹 Redefine os filtros ativos",
-      "messages": {
-        "filters_reset": "✅ Os filtros foram redefinidos."
-      }
-    },
-    "rotation": {
-      "description": "🔄 Ativa/desativa o filtro rotation",
-      "messages": {
-        "enabled": "✅ O filtro rotation foi ATIVADO.",
-        "disabled": "✅ O filtro rotation foi DESATIVADO."
-      }
-    },
-    "speed": {
-      "description": "⏩ Altera a velocidade da música",
-      "options": {
-        "speed": "🚀 A velocidade que você deseja definir"
-      },
-      "messages": {
-        "invalid_number": "⚠️ Por favor, forneça um número válido entre 0.5 e 5.",
-        "set_speed": "✅ A velocidade foi definida para {speed}."
-      }
-    },
-    "tremolo": {
-      "description": "🎛️ Ativa/desativa o filtro tremolo",
-      "messages": {
-        "enabled": "✅ O filtro tremolo foi ATIVADO.",
-        "disabled": "✅ O filtro tremolo foi DESATIVADO."
-      }
-    },
-    "vibrato": {
-      "description": "🎶 Ativa/desativa o filtro vibrato",
-      "messages": {
-        "enabled": "✅ O filtro vibrato foi ATIVADO.",
-        "disabled": "✅ O filtro vibrato foi DESATIVADO."
-      }
-    },
-    "autoplay": {
-      "description": "🔄 Ativa/desativa o autoplay",
-      "messages": {
-        "enabled": "✅ O autoplay foi ATIVADO.",
-        "disabled": "✅ O autoplay foi DESATIVADO."
-      }
-    },
-    "clearqueue": {
-      "description": "🗑️ Limpa a fila",
-      "messages": {
-        "cleared": "✅ A fila foi limpa."
-      }
-    },
-    "grab": {
-      "description": "📥 Pega a música atual em reprodução no seu DM",
-      "loading": "⏳ Carregando...",
-      "content": "⏱️ Duração: {length}\n🎙️ Solicitado por: <@{requester}>\n🔗 Link: [Clique aqui]({uri})",
-      "check_dm": "📬 Por favor, verifique seu DM.",
-      "dm_failed": "❌ Não consegui enviar uma mensagem direta para você. Certifique-se de que as mensagens diretas estão ativadas."
-    },
-    "join": {
-      "description": "🔊 Entra no canal de voz",
-      "already_connected": "⚠️ Já estou conectado em <#{channelId}>.",
-      "no_voice_channel": "❌ Você precisa estar em um canal de voz para usar este comando.",
-      "joined": "✅ Conectado com sucesso em <#{channelId}>."
-    },
-    "leave": {
-      "description": "📤 Sai do canal de voz",
-      "left": "✅ Saiu com sucesso de <#{channelId}>.",
-      "not_in_channel": "⚠️ Não estou em um canal de voz."
-    },
-    "loop": {
-      "description": "🔁 Repete a música atual ou a fila",
-      "looping_song": "🔂 Repetindo a música atual.",
-      "looping_queue": "🔁 Repetindo a fila inteira.",
-      "looping_off": "⏹️ Repetição desativada."
-    },
-    "lyrics": {
-      "description": "📜 Obtém a letra da música que está tocando atualmente",
-      "lyrics_track": "🎵 Letra de: [{trackTitle}]({trackUrl})\n{lyrics}",
-      "searching": "🔍 Procurando a letra de {trackTitle}...",
-      "errors": {
-        "no_results": "❌ Nenhuma letra encontrada para a música atual.",
-        "lyrics_error": "⚠️ Ocorreu um erro ao obter a letra."
-      }
-    },
-    "nowplaying": {
-      "description": "🎶 Mostra a música que está tocando atualmente",
-      "now_playing": "▶️ Tocando Agora",
-      "track_info": "[{title}]({uri}) - 🎙️ Solicitado por: <@{requester}>\n\n{bar}"
-    },
-    "pause": {
-      "description": "⏸️ Pausa a música atual",
-      "successfully_paused": "✅ Música pausada com sucesso."
-    },
-    "play": {
-      "description": "▶️ Toca uma música do YouTube, Spotify ou URL",
-      "options": {
-        "song": "🎵 A música que você quer tocar"
-      },
-      "loading": "⏳ Carregando...",
-      "errors": {
-        "search_error": "❌ Ocorreu um erro durante a busca.",
-        "no_results": "⚠️ Nenhum resultado encontrado.",
-        "queue_too_long": "⚠️ A fila está muito longa. O tamanho máximo é {maxQueueSize} músicas.",
-        "playlist_too_long": "⚠️ A playlist é muito longa. O tamanho máximo é {maxPlaylistSize} músicas."
-      },
-      "added_to_queue": "✅ Adicionado [{title}]({uri}) à fila.",
-      "added_playlist_to_queue": "✅ Adicionadas {length} músicas à fila."
-    },
-    "vplay": {
-      "description": "🎥 Stream de vídeo no canal de voz.",
-      "options": {
-        "url": "🔗 O link do vídeo que você deseja tocar"
-      },
-      "errors": {
-        "no_url": "❌ Por favor, forneça um link de vídeo.",
-        "invalid_url": "⚠️ Por favor, forneça um link de vídeo válido.",
-        "download_failed": "⛔ Ocorreu um erro ao baixar o vídeo.",
-        "general_error": "❗ Ocorreu um erro ao tentar reproduzir o vídeo."
-      },
-      "info_fetching": "🔍 Obtendo informações do vídeo...",
-      "downloading": "⬇️ Baixando o vídeo, aguarde...",
-      "progress": "📊 Progresso: {percentage}% | 🚀 Velocidade: {speed} | 📦 Tamanho: {size}",
-      "download_complete": "✅ Download concluído! 🎶 Preparando para tocar...",
-      "loading": "⏳ Carregando...",
-      "cleanup": "🧹 Limpando..."
-    },
-    "playnext": {
-      "description": "⏭️ Adiciona a música para tocar a seguir na fila",
-      "options": {
-        "song": "🎵 A música que você quer tocar"
-      },
-      "loading": "⏳ Carregando...",
-      "errors": {
-        "search_error": "❌ Ocorreu um erro durante a busca.",
-        "no_results": "⚠️ Nenhum resultado encontrado.",
-        "queue_too_long": "⚠️ A fila está muito longa. O tamanho máximo é {maxQueueSize} músicas.",
-        "playlist_too_long": "⚠️ A playlist é muito longa. O tamanho máximo é {maxPlaylistSize} músicas."
-      },
-      "added_to_play_next": "✅ Adicionado [{title}]({uri}) para tocar a seguir na fila.",
-      "added_playlist_to_play_next": "✅ Adicionadas {length} músicas para tocar a seguir na fila."
-    },
-    "queue": {
-      "description": "📃 Mostra a fila atual",
-      "now_playing": "▶️ Tocando agora: [{title}]({uri}) - 🎙️ Solicitado por: <@{requester}> - ⏱️ Duração: {duration}",
-      "live": "🔴 AO VIVO",
-      "track_info": "{index}. [{title}]({uri}) - 🎙️ Solicitado por: <@{requester}> - ⏱️ Duração: {duration}",
-      "title": "🎵 Fila",
-      "page_info": "📄 Página {index} de {total}"
-    },
-    "remove": {
-      "description": "❌ Remove uma música da fila",
-      "options": {
-        "song": "🔢 O número da música que você quer remover"
-      },
-      "errors": {
-        "no_songs": "⚠️ Não há músicas na fila.",
-        "invalid_number": "⚠️ Por favor, forneça um número de música válido."
-      },
-      "messages": {
-        "removed": "✅ Removida a música número {songNumber} da fila."
-      }
-    },
-    "replay": {
-      "description": "🔄 Reproduz a faixa atual novamente",
-      "errors": {
-        "not_seekable": "❌ Não é possível reproduzir esta faixa novamente, pois ela não é buscável."
-      },
-      "messages": {
-        "replaying": "🔁 Reproduzindo a faixa atual novamente."
-      }
-    },
-    "resume": {
-      "description": "▶️ Retoma a música atual",
-      "errors": {
-        "not_paused": "⚠️ O player não está pausado."
-      },
-      "messages": {
-        "resumed": "✅ Player retomado."
-      }
-    },
-    "search": {
-      "description": "🔍 Procura por uma música",
-      "options": {
-        "song": "🎵 A música que você quer procurar"
-      },
-      "select": "📋 Por favor, selecione a música que você deseja tocar",
-      "errors": {
-        "no_results": "❌ Nenhum resultado encontrado.",
-        "search_error": "⚠️ Ocorreu um erro durante a busca."
-      },
-      "messages": {
-        "added_to_queue": "✅ Adicionado [{title}]({uri}) à fila."
-      }
-    },
-    "seek": {
-      "description": "⏩ Busca para um determinado tempo na música",
-      "options": {
-        "duration": "⏱️ A duração para a qual você deseja buscar"
-      },
-      "errors": {
-        "invalid_format": "⚠️ Formato de tempo inválido. Exemplos: seek 1m, seek 1h 30m",
-        "not_seekable": "❌ Esta faixa não é buscável.",
-        "beyond_duration": "⚠️ Não é possível buscar além da duração da música de {length}."
-      },
-      "messages": {
-        "seeked_to": "✅ Buscado para {duration}."
-      }
-    },
-    "shuffle": {
-      "description": "🔀 Embaralha a fila",
-      "messages": {
-        "shuffled": "✅ Fila embaralhada."
-      }
-    },
-    "skip": {
-      "description": "⏭️ Pula a música atual",
-      "messages": {
-        "skipped": "✅ Pulada [{title}]({uri})."
-      }
-    },
-    "skipto": {
-      "description": "⏩ Pula para uma música específica na fila",
-      "options": {
-        "number": "🔢 O número da música para a qual você quer pular"
-      },
-      "errors": {
-        "invalid_number": "⚠️ Por favor, forneça um número válido."
-      },
-      "messages": {
-        "skipped_to": "✅ Pulado para a música número {number}."
-      }
-    },
-    "stop": {
-      "description": "⏹️ Para a música e limpa a fila",
-      "messages": {
-        "stopped": "✅ Música parada e fila limpa."
-      }
-    },
-    "volume": {
-      "description": "🔊 Define o volume do player",
-      "options": {
-        "number": "🔢 O volume que você deseja definir"
-      },
-      "messages": {
-        "invalid_number": "⚠️ Por favor, forneça um número válido.",
-        "too_low": "🔈 O volume não pode ser menor que 0.",
-        "too_high": "🔊 O volume não pode ser maior que 200. Isso pode danificar sua audição ou alto-falantes!",
-        "set": "✅ Volume definido para {volume}."
-      }
-    },
-    "addsong": {
-      "description": "🎵 Adiciona uma música à playlist",
-      "options": {
-        "playlist": "📝 A playlist que você deseja adicionar",
-        "song": "🎶 A música que você deseja adicionar"
-      },
-      "messages": {
-        "no_playlist": "⚠️ Por favor, forneça uma playlist.",
-        "no_song": "⚠️ Por favor, forneça uma música.",
-        "playlist_not_found": "❌ Essa playlist não existe.",
-        "no_songs_found": "⚠️ Nenhuma música encontrada.",
-        "added": "✅ Adicionada(s) {count} música(s) à playlist {playlist}."
-      }
-    },
-    "create": {
-      "description": "🆕 Cria uma playlist",
-      "options": {
-        "name": "📝 O nome da playlist"
-      },
-      "messages": {
-        "name_too_long": "⚠️ Os nomes das playlists podem ter no máximo 50 caracteres.",
-        "playlist_exists": "❌ Uma playlist com esse nome já existe. Por favor, use um nome diferente.",
-        "playlist_created": "✅ A playlist {name} foi criada com sucesso!"
-      }
-    },
-    "delete": {
-      "description": "🗑️ Exclui uma playlist",
-      "options": {
-        "playlist": "📝 A playlist que você deseja excluir"
-      },
-      "messages": {
-        "playlist_not_found": "❌ Essa playlist não existe.",
-        "playlist_deleted": "✅ Playlist {playlistName} excluída com sucesso!"
-      }
-    },
-    "list": {
-      "description": "📋 Recupera todas as playlists do usuário",
-      "options": {
-        "user": "👤 O usuário cujas playlists você deseja recuperar"
-      },
-      "messages": {
-        "no_playlists": "⚠️ Este usuário não tem playlists.",
-        "your": "📂 Suas",
-        "playlists_title": "📂 Playlists de {username}",
-        "error": "❌ Ocorreu um erro ao recuperar as playlists."
-      }
-    },
-    "load": {
-      "description": "📂 Carrega uma playlist",
-      "options": {
-        "playlist": "📝 A playlist que você deseja carregar"
-      },
-      "messages": {
-        "playlist_not_exist": "❌ Essa playlist não existe.",
-        "playlist_empty": "⚠️ Essa playlist está vazia.",
-        "playlist_loaded": "✅ Playlist {name} carregada com {count} músicas."
-      }
-    },
-    "removesong": {
-      "description": "🗑️ Remove uma música da playlist",
-      "options": {
-        "playlist": "📝 A playlist da qual você deseja remover",
-        "song": "🎵 A música que você deseja remover"
-      },
-      "messages": {
-        "provide_playlist": "⚠️ Por favor, forneça uma playlist.",
-        "provide_song": "⚠️ Por favor, forneça uma música.",
-        "playlist_not_exist": "❌ Essa playlist não existe.",
-        "song_not_found": "⚠️ Nenhuma música correspondente encontrada.",
-        "song_removed": "✅ Música {song} removida da playlist {playlist}.",
-        "error_occurred": "❌ Ocorreu um erro ao remover a música."
-      }
-    },
-    "steal": {
-      "description": "🎭 Rouba uma playlist de outro usuário e a adiciona às suas playlists",
-      "options": {
-        "playlist": "📝 A playlist que você deseja roubar",
-        "user": "👤 O usuário de quem você deseja roubar a playlist"
-      },
-      "messages": {
-        "provide_playlist": "⚠️ Por favor, forneça um nome de playlist.",
-        "provide_user": "⚠️ Por favor, mencione um usuário.",
-        "playlist_not_exist": "❌ Essa playlist não existe para o usuário mencionado.",
-        "playlist_stolen": "✅ Playlist {playlist} roubada com sucesso de {user}.",
-        "error_occurred": "❌ Ocorreu um erro ao roubar a playlist."
-      }
-    },
-    "mlist": {
-      "description": "📁 Lista os downloads de vídeos",
-      "messages": {
-        "no_videos": "⚠️ Você não tem nenhum vídeo baixado.",
-        "available_movies": "🎥 Vídeos Disponíveis"
-      }
-    },
-    "mplay": {
-      "description": "▶️ Reproduz um vídeo baixado",
-      "options": {
-        "movie": "🎥 O vídeo que você deseja reproduzir",
-        "audioTrack": "🔊 A trilha de áudio que você deseja selecionar"
-      },
-      "messages": {
-        "waiting": "⏳ Por favor, aguarde...",
-        "playing_movie": "🎬 Reproduzindo o vídeo {movie}."
-      },
-      "errors": {
-        "movie_not_found": "❌ O vídeo não foi encontrado."
-      }
-    },
-    "msearch": {
-      "description": "🔍 Procura por filmes ou animes",
-      "options": {
-        "query": "🎥 O vídeo que você deseja procurar",
-        "search": "🔎 Termo de pesquisa para procurar vídeos"
-      },
-      "messages": {
-        "no_results": "⚠️ Nenhum resultado encontrado.",
-        "searching": "🔍 Procurando por {query}...",
-        "select": "📋 Por favor, selecione o vídeo que você deseja baixar."
-      }
-    },
-    "mstop": {
-      "description": "⏹️ Para a transmissão de vídeo",
-      "messages": {
-        "success": "✅ Transmissão de vídeo parada."
-      }
-    },
-    "mpause": {
-      "description": "⏸️ Pausa o streaming em execução.",
-      "errors": {
-        "not_in_voice": "❌ O bot não está em um canal de voz."
-      },
-      "messages": {
-        "paused": "✅ O streaming foi pausado com sucesso!",
-        "title": "⏸️ Reprodução Pausada",
-        "paused_description": "ℹ️ O streaming foi pausado. Use mresume para retomar."
-      }
-    },
-    "mresume": {
-      "description": "▶️ Retoma o streaming pausado.",
-      "errors": {
-        "not_in_voice": "❌ O bot não está em um canal de voz."
-      },
-      "messages": {
-        "resumed": "✅ O streaming foi retomado com sucesso!"
-      }
-    },
-    "code": {
-      "description": "Analisa código com IA especializada - explicar, revisar, otimizar ou debugar"
-    },
-    "model": {
-      "description": "Gerencia modelos de IA disponíveis"
-    },
-    "reason": {
-      "description": "Análise avançada de problemas com raciocínio aprofundado"
-    },
-    "stream": {
-      "description": "Chat com resposta em tempo real (streaming)"
-    },
-    "mahinai": {
-      "description": "Chat avançado com IA: contexto, memória e personalidade"
-    },
-    "aistatus": {
-      "description": "Verificar status e estatísticas dos serviços de IA"
-    },
-    "aichannel": {
-      "description": "Define o canal onde a IA enviará mensagens proativas",
-      "options": {
-        "channel": "O canal para mensagens proativas da IA",
-        "action": "Ação a ser executada"
-      },
-      "cleared": "✅ Canal de mensagens proativas da IA foi limpo. A IA agora escolherá um canal adequado automaticamente.",
-      "set": "✅ Mensagens proativas da IA agora serão enviadas para {channel}",
-      "current_none": "Nenhum canal específico está definido para mensagens proativas da IA. A IA escolherá um canal adequado automaticamente.",
-      "current": "Mensagens proativas da IA são enviadas atualmente para: {channels}",
-      "invalid_channel": "❌ Por favor, forneça um canal de texto válido.",
-      "usage": "❌ Uso: aichannel <#canal|clear>"
-    }
-  },
-  "player": {
-    "errors": {
-      "no_player": "❌ Não há um player ativo neste servidor.",
-      "no_channel": "⚠️ Você precisa estar em um canal de voz para usar este comando.",
-      "queue_empty": "🛑 A fila está vazia.",
-      "no_previous": "⚠️ Não há músicas anteriores na fila.",
-      "no_song": "⚠️ Não há músicas na fila.",
-      "already_paused": "⏸️ A música já está pausada."
-    },
-    "trackStart": {
-      "now_playing": "▶️ Tocando Agora",
-      "requested_by": "🎙️ Solicitado por {user}",
-      "duration": "⏱️ Duração",
-      "author": "🎵 Autor",
-      "not_connected_to_voice_channel": "❌ Você não está conectado a <#{channel}> para usar esses botões.",
-      "need_dj_role": "⚠️ Você precisa ter o papel de DJ para usar este comando.",
-      "previous_by": "⏮️ Anterior por {user}",
-      "no_previous_song": "⚠️ Não há música anterior.",
-      "paused_by": "⏸️ Pausado por {user}",
-      "resumed_by": "▶️ Retomado por {user}",
-      "skipped_by": "⏭️ Pulado por {user}",
-      "no_more_songs_in_queue": "🛑 Não há mais músicas na fila.",
-      "looping_by": "🔁 Repetindo por {user}",
-      "looping_queue_by": "🔄 Repetindo Fila por {user}",
-      "looping_off_by": "⏹️ Repetição Desativada por {user}"
-    },
-    "setupStart": {
-      "now_playing": "▶️ Tocando Agora",
-      "description": "🎶 [{title}]({uri}) por {author} • ⏱️ [{length}] - 🎙️ Solicitado por <@{requester}>",
-      "error_searching": "❌ Ocorreu um erro durante a busca.",
-      "no_results": "⚠️ Nenhum resultado encontrado.",
-      "nothing_playing": "🛑 Nada está tocando no momento.",
-      "queue_too_long": "⚠️ A fila está muito longa. O tamanho máximo é {maxQueueSize} músicas.",
-      "playlist_too_long": "⚠️ A playlist é muito longa. O tamanho máximo é {maxPlaylistSize} músicas.",
-      "added_to_queue": "✅ Adicionado [{title}]({uri}) à fila.",
-      "added_playlist_to_queue": "✅ Adicionadas [{length}] músicas da playlist à fila."
-    }
-  },
-  "event": {
-    "interaction": {
-      "setup_channel": "⚠️ Você não pode usar este comando no canal de configuração.",
-      "no_send_message": "❌ Eu não tenho permissão para Enviar Mensagens, Visualizar Canal, Inserir Links ou Ler Histórico de Mensagens.",
-      "no_permission": "⚠️ Eu não tenho permissão {permissions}.",
-      "no_user_permission": "❌ Você não tem permissões suficientes para usar este comando.",
-      "no_voice_channel": "⚠️ Você deve estar conectado a um canal de voz para usar o comando {command}.",
-      "no_connect_permission": "❌ Eu não tenho permissão CONECTAR para executar o comando {command}.",
-      "no_speak_permission": "❌ Eu não tenho permissão FALAR para executar o comando {command}.",
-      "no_request_to_speak": "⚠️ Eu não tenho permissão SOLICITAR PARA FALAR para executar o comando {command}.",
-      "different_voice_channel": "❌ Você não está conectado a {channel} para usar o comando {command}.",
-      "no_music_playing": "🛑 Nada está tocando no momento.",
-      "no_dj_role": "⚠️ O papel de DJ não está definido.",
-      "no_dj_permission": "❌ Você precisa ter o papel de DJ para usar este comando.",
-      "cooldown": "⏳ Por favor, espere mais {time} segundo(s) antes de reutilizar o comando {command}.",
-      "error": "❌ Ocorreu um erro: {error}",
-      "vote_button": "🗳️ Vote em mim!",
-      "vote_message": "🚨 Espere! Você precisa votar no top.gg para usar este comando. Obrigado."
-    },
-    "message": {
-      "prefix_mention": "🔑 Ei, meu prefixo para este servidor é {prefix}. Quer mais informações? Use {prefix}help.\n✨ Fique Seguro, Fique Incrível!",
-      "no_send_message": "❌ Eu não tenho permissão para Enviar Mensagens, Visualizar Canal, Inserir Links ou Ler Histórico de Mensagens.",
-      "no_permission": "⚠️ Eu não tenho permissão {permissions}.",
-      "no_user_permission": "❌ Você não tem permissões suficientes para usar este comando.",
-      "no_voice_channel": "⚠️ Você deve estar conectado a um canal de voz para usar o comando {command}.",
-      "no_connect_permission": "❌ Eu não tenho permissão CONECTAR para executar o comando {command}.",
-      "no_speak_permission": "❌ Eu não tenho permissão FALAR para executar o comando {command}.",
-      "no_request_to_speak": "⚠️ Eu não tenho permissão SOLICITAR PARA FALAR para executar o comando {command}.",
-      "different_voice_channel": "❌ Você não está conectado a {channel} para usar o comando {command}.",
-      "no_music_playing": "🛑 Nada está tocando no momento.",
-      "no_dj_role": "⚠️ O papel de DJ não está definido.",
-      "no_dj_permission": "❌ Você precisa ter o papel de DJ para usar este comando.",
-      "missing_arguments": "⚠️ Argumentos Faltando",
-      "missing_arguments_description": "ℹ️ Por favor, forneça os argumentos necessários para o comando {command}.\n\n💡 Exemplos:\n{examples}",
-      "syntax_footer": "🔤 Sintaxe: [] = opcional, <> = obrigatório",
-      "cooldown": "⏳ Por favor, espere mais {time} segundo(s) antes de reutilizar o comando {command}.",
-      "no_mention_everyone": "⚠️ Você não pode usar este comando com @everyone ou @here. Por favor, use o comando slash.",
-      "error": "❌ Ocorreu um erro: {error}",
-      "no_voice_channel_queue": "⚠️ Você não está conectado a um canal de voz para enfileirar músicas.",
-      "no_permission_connect_speak": "❌ Não tenho permissão suficiente para conectar/falar em <#{channel}>.",
-      "different_voice_channel_queue": "❌ Você não está conectado a <#{channel}> para enfileirar músicas.",
-      "vote_button": "🗳️ Vote em mim!",
-      "vote_message": "🚨 Espere! Você precisa votar no top.gg para usar este comando. Obrigado."
-    },
-    "setupButton": {
-      "no_voice_channel_button": "❌ Você não está conectado a um canal de voz para usar este botão.",
-      "different_voice_channel_button": "❌ Você não está conectado a {channel} para usar esses botões.",
-      "now_playing": "▶️ Tocando Agora",
-      "live": "🔴 AO VIVO",
-      "requested_by": "🎙️ Solicitado por <@{requester}>",
-      "no_dj_permission": "⚠️ Você precisa ter o papel de DJ para usar este botão.",
-      "volume_set": "🔊 Volume definido para {vol}%.",
-      "volume_footer": "🎚️ Volume: {vol}%",
-      "paused": "⏸️ Pausado",
-      "resumed": "▶️ Retomado",
-      "pause_resume": "{name} a música.",
-      "pause_resume_footer": "{name} por {displayName}",
-      "no_music_to_skip": "⚠️ Não há música para pular.",
-      "skipped": "⏭️ Música pulada.",
-      "skipped_footer": "⏩ Pulado por {displayName}",
-      "stopped": "⏹️ Música parada.",
-      "stopped_footer": "⏹️ Parado por {displayName}",
-      "nothing_playing": "🛑 Nada está tocando no momento.",
-      "loop_set": "🔁 Repetição definida para {loop}.",
-      "loop_footer": "🔁 Repetição definida por {displayName}",
-      "shuffled": "🔀 Fila embaralhada.",
-      "no_previous_track": "⚠️ Não há faixa anterior.",
-      "playing_previous": "⏮️ Tocando a faixa anterior.",
-      "previous_footer": "⏮️ Tocando por {displayName}",
-      "rewinded": "⏪ Música retrocedida.",
-      "rewind_footer": "⏪ Retrocedido por {displayName}",
-      "forward_limit": "⚠️ Você não pode avançar a música além do comprimento da canção.",
-      "forwarded": "⏩ Música avançada.",
-      "forward_footer": "⏩ Avançado por {displayName}",
-      "button_not_available": "⚠️ Este botão não está disponível.",
-      "no_music_playing": "🛑 Não há música tocando neste servidor."
-    }
-  },
-  "buttons": {
-    "invite": "🔗 Convide-me!",
-    "support": "🛠️ Suporte"
-  },
-  "ai": {
-    "chat": {
-      "description": "💬 Chat inteligente com IA da NVIDIA - análise de código, geração e muito mais!",
-      "options": {
-        "mode": "🤖 Modo de operação da IA",
-        "prompt": "📝 Sua mensagem ou pergunta",
-        "language": "💻 Linguagem de programação (para modos de código)"
-      },
-      "errors": {
-        "no_prompt": "⚠️ Por favor, forneça uma mensagem ou pergunta!",
-        "api_error": "❌ Ocorreu um erro ao processar sua solicitação.",
-        "invalid_mode": "❌ Modo inválido. Use um dos modos disponíveis."
-      },
-      "messages": {
-        "processing": "🤖 Processando sua solicitação...",
-        "conversation_reset": "✅ Conversa reiniciada! Use o comando novamente para começar.",
-        "continue_hint": "💬 Digite sua próxima mensagem usando o comando!",
-        "no_code_blocks": "⚠️ Nenhum bloco de código encontrado na resposta!",
-        "code_extracted": "📝 Código extraído e formatado:",
-        "response_exported": "📤 Resposta exportada como {filename}"
-      },
-      "buttons": {
-        "new_chat": "🔄 Nova Conversa",
-        "continue": "💬 Continuar",
-        "format_code": "📝 Formatar Código",
-        "export": "📤 Exportar"
-      },
-      "modes": {
-        "chat": "💬 Chat Normal",
-        "code": "💻 Geração de Código",
-        "analyze": "🔍 Análise de Código",
-        "explain": "📚 Tutorial/Explicação",
-        "debug": "🐛 Debug de Código",
-        "design": "🎨 UI/UX Helper"
-      }
-    },
-    "tools": {
-      "description": "🛠️ Ferramentas avançadas de IA para análise, tradução, documentação e mais!",
-      "options": {
-        "tool": "🔧 Escolha uma ferramenta",
-        "input": "📝 Texto ou código para processar"
-      },
-      "errors": {
-        "tool_not_found": "❌ Ferramenta não encontrada! Use o comando sem argumentos para ver as opções.",
-        "no_input": "⚠️ Por favor, forneça um texto ou código para processar!",
-        "processing_error": "❌ Ocorreu um erro ao executar a ferramenta."
-      },
-      "messages": {
-        "select_tool": "🛠️ Ferramentas de IA Disponíveis",
-        "select_description": "Selecione uma ferramenta no menu abaixo ou use:\n!tools [ferramenta] [seu texto/código]",
-        "tool_selected": "Você selecionou: {emoji} {name}\n\nAgora use: !tools {key} [seu input]",
-        "processing": "{emoji} Processando com {name}...",
-        "result_title": "{emoji} {name} - Resultado"
-      },
-      "sentiment": {
-        "name": "💭 Análise de Sentimento",
-        "description": "Analisa o sentimento e emoções em um texto"
-      },
-      "translate": {
-        "name": "🌍 Tradutor Inteligente",
-        "description": "Traduz texto preservando contexto e nuances"
-      },
-      "summarize": {
-        "name": "📄 Resumo de Texto",
-        "description": "Cria resumos inteligentes de textos longos"
-      },
-      "docs": {
-        "name": "📚 Gerador de Documentação",
-        "description": "Gera documentação profissional para código"
-      },
-      "complexity": {
-        "name": "🔍 Análise de Complexidade",
-        "description": "Analisa a complexidade e qualidade do código"
-      },
-      "optimize": {
-        "name": "⚡ Otimizador de Código",
-        "description": "Sugere otimizações de performance e qualidade"
-      },
-      "tests": {
-        "name": "🎯 Gerador de Testes",
-        "description": "Gera testes unitários e de integração"
-      },
-      "security": {
-        "name": "🔐 Análise de Segurança",
-        "description": "Identifica vulnerabilidades e problemas de segurança"
-      }
-    },
-    "vision": {
-      "description": "🖼️ Análise inteligente de imagens com IA - descreva, analise e extraia informações!",
-      "options": {
-        "mode": "🔍 Modo de análise",
-        "question": "❓ Pergunta específica sobre a imagem"
-      },
-      "errors": {
-        "no_image": "⚠️ Por favor, anexe uma imagem à sua mensagem!",
-        "invalid_image": "❌ Por favor, forneça uma imagem válida!",
-        "analysis_failed": "❌ Não foi possível analisar a imagem."
-      },
-      "messages": {
-        "analyzing": "🖼️ Analisando imagem...",
-        "help_title": "🖼️ Comando Vision - Análise de Imagens com IA",
-        "help_description": "Envie uma imagem junto com o comando para analisá-la!",
-        "how_to_use": "📋 Como usar",
-        "how_to_steps": "1. Anexe uma imagem à sua mensagem\n2. Use o comando com um modo ou pergunta\n3. Aguarde a análise da IA",
-        "available_modes": "🔧 Modos disponíveis",
-        "custom_questions": "❓ Perguntas personalizadas",
-        "attach_image": "Anexe uma imagem para começar!"
-      },
-      "modes": {
-        "analyze": {
-          "name": "🔍 Análise Detalhada",
-          "title": "Análise Detalhada"
-        },
-        "describe": {
-          "name": "📝 Descrever Imagem",
-          "title": "Descrição da Imagem"
-        },
-        "ocr": {
-          "name": "📄 Extrair Texto (OCR)",
-          "title": "Texto Extraído"
-        },
-        "art": {
-          "name": "🎨 Análise Artística",
-          "title": "Análise Artística"
-        },
-        "detect": {
-          "name": "👥 Detectar Pessoas/Objetos",
-          "title": "Objetos Detectados"
-        },
-        "technical": {
-          "name": "📊 Análise Técnica",
-          "title": "Análise Técnica"
-        }
-      },
-      "metadata": {
-        "dimensions": "📏 Dimensões",
-        "size": "📦 Tamanho",
-        "type": "📄 Tipo"
-      },
-      "buttons": {
-        "reanalyze": "🔄 Analisar Novamente",
-        "export": "📤 Exportar Análise",
-        "modes": "🔧 Outros Modos"
-      }
-    }
-  },
-  "Chat inteligente com IA da NVIDIA - análise de código, geração e muito mais!": "Chat inteligente com IA da NVIDIA - análise de código, geração e muito mais!",
-  "Modo de operação da IA": "Modo de operação da IA",
-  "Sua mensagem ou pergunta": "Sua mensagem ou pergunta",
-  "Linguagem de programação (para modos de código)": "Linguagem de programação (para modos de código)",
-  "Ferramentas avançadas de IA para análise, tradução, documentação e mais!": "Ferramentas avançadas de IA para análise, tradução, documentação e mais!",
-  "Escolha uma ferramenta": "Escolha uma ferramenta",
-  "Texto ou código para processar": "Texto ou código para processar",
-  "Análise inteligente de imagens com IA - descreva, analise e extraia informações!": "Análise inteligente de imagens com IA - descreva, analise e extraia informações!",
-  "Modo de análise": "Modo de análise",
-  "Pergunta específica sobre a imagem": "Pergunta específica sobre a imagem",
-  "ai_mention": {
-    "thinking": "💭 Mahina está pensando...",
-    "error": "❌ Erro ao processar mensagem",
-    "error_description": "Ocorreu um erro ao processar sua mensagem.",
-    "try_again": "Tente novamente mais tarde",
-    "new_conversation": "✨ Nova conversa iniciada! A memória anterior foi limpa.",
-    "feedback_positive": "👍",
-    "feedback_negative": "👎",
-    "reset_conversation": "🔄"
-  },
-  "Configura o comportamento da IA da Mahina": "Configura o comportamento da IA da Mahina",
-  "Ação a ser executada": "Ação a ser executada",
-  "🍁 Descubra seu animal espiritual do World of Warcraft através de análise de personalidade com IA": "🍁 Descubra seu animal espiritual do World of Warcraft através de análise de personalidade com IA",
-  "👤 O usuário que você deseja analisar": "👤 O usuário que você deseja analisar",
-  "Explain code in detail": "Explain code in detail",
-  "Review code and suggest improvements": "Review code and suggest improvements",
-  "Optimize code for better performance": "Optimize code for better performance",
-  "Debug code and identify issues": "Debug code and identify issues",
-  "Programming language": "Programming language",
-  "The code to explain": "The code to explain",
-  "The code to review": "The code to review",
-  "The code to optimize": "The code to optimize",
-  "The code to debug": "The code to debug",
-  "List all available AI models": "List all available AI models",
-  "Select an AI model": "Select an AI model",
-  "Get information about a specific model": "Get information about a specific model",
-  "Show your current AI model": "Show your current AI model",
-  "The model to select": "The model to select",
-  "The model to get info about": "The model to get info about",
-  "The problem or question to analyze": "The problem or question to analyze",
-  "Additional context for the problem": "Additional context for the problem",
-  "Your message for streaming AI response": "Your message for streaming AI response",
-  "Advanced AI chat with context, memory, and personality": "Advanced AI chat with context, memory, and personality",
-  "Your message to Mahina AI": "Your message to Mahina AI",
-  "Choose AI personality": "Choose AI personality",
-  "Conversation mode": "Conversation mode",
-  "Private response (only you can see)": "Private response (only you can see)",
-  "Manage proactive interaction settings": "Manage proactive interaction settings",
-  "Show proactive interaction statistics": "Show proactive interaction statistics",
-  "Test proactive interaction in current channel": "Test proactive interaction in current channel",
-  "Force proactive interaction check": "Force proactive interaction check",
-  "Check AI services status and statistics": "Check AI services status and statistics",
-  "Verificar status e estatísticas dos serviços de IA": "Verificar status e estatísticas dos serviços de IA",
-  "Chat avançado com IA": " contexto, memória e personalidade",
-  "Sua mensagem para a Mahina AI": "Sua mensagem para a Mahina AI",
-  "Escolha a personalidade da IA": "Escolha a personalidade da IA",
-  "Modo de conversa": "Modo de conversa",
-  "Resposta privada (apenas você pode ver)": "Resposta privada (apenas você pode ver)",
-  "Testa e configura sistemas de segurança NVIDIA NemoGuard": "Testa e configura sistemas de segurança NVIDIA NemoGuard",
-  "Texto para verificar (obrigatório para verificações)": "Texto para verificar (obrigatório para verificações)",
-  "Usar modo estrito para verificação de tópicos": "Usar modo estrito para verificação de tópicos",
-  "Receber resposta também em áudio (TTS)": "Receber resposta também em áudio (TTS)",
-  "Busca por comandos e informações usando IA semântica": "Busca por comandos e informações usando IA semântica",
-  "O que você está procurando? Ex": "O que você está procurando? Ex",
-  "Filtrar por categoria específica": "Filtrar por categoria específica",
-  "Nível de precisão da busca (padrão": "Nível de precisão da busca (padrão",
-  "Converte texto em áudio usando NVIDIA TTS": "Converte texto em áudio usando NVIDIA TTS",
-  "O texto que será convertido em áudio": "O texto que será convertido em áudio",
-  "Escolha da voz para o TTS": "Escolha da voz para o TTS",
-  "Velocidade da fala (0": {
-    "5 - 2": {
-      "0)": "Velocidade da fala (0.5 - 2.0)"
-    }
-  },
-  "Tom da voz (-0": {
-    "5 a 0": {
-      "5)": "Tom da voz (-0.5 a 0.5)"
-    }
-  },
-  "Enviar áudio apenas para você": "Enviar áudio apenas para você",
-  "Gera visualizações com física realista usando NVIDIA Cosmos": "Gera visualizações com física realista usando NVIDIA Cosmos",
-  "Tipo de visualização": "Tipo de visualização",
-  "Descrição da visualização (obrigatório para prompt customizado)": "Descrição da visualização (obrigatório para prompt customizado)",
-  "Estilo visual da animação": "Estilo visual da animação",
-  "Número de frames (8-48, padrão": "Número de frames (8-48, padrão",
-  "Incluir texto na visualização": "Incluir texto na visualização",
-  "Imagem base para predição física (opcional)": "Imagem base para predição física (opcional)",
-  "Analise dados de IA e métricas com TimescaleDB": "Analise dados de IA e métricas com TimescaleDB",
-  "Análise detalhada do seu uso de IA": "Análise detalhada do seu uso de IA",
-  "Performance e uso dos modelos de IA": "Performance e uso dos modelos de IA",
-  "Análise de sentimento ao longo do tempo": "Análise de sentimento ao longo do tempo",
-  "Buscar conversas similares usando embeddings": "Buscar conversas similares usando embeddings",
-  "Padrões de uso e comportamento": "Padrões de uso e comportamento",
-  "Exportar dados de analytics": "Exportar dados de analytics",
-  "Período de análise": "Período de análise",
-  "Texto para buscar": "Texto para buscar",
-  "Número de resultados": "Número de resultados",
-  "Formato de exportação": "Formato de exportação",
-  "Gerencie e monitore trabalhos de IA em segundo plano": "Gerencie e monitore trabalhos de IA em segundo plano",
-  "Adicionar um trabalho à fila": "Adicionar um trabalho à fila",
-  "Verificar status de um trabalho": "Verificar status de um trabalho",
-  "Ver estatísticas da fila de trabalhos": "Ver estatísticas da fila de trabalhos",
-  "Listar trabalhos recentes": "Listar trabalhos recentes",
-  "Cancelar um trabalho": "Cancelar um trabalho",
-  "Tipo de trabalho": "Tipo de trabalho",
-  "Dados para processar": "Dados para processar",
-  "Prioridade do trabalho (0-10)": "Prioridade do trabalho (0-10)",
-  "ID do trabalho": "ID do trabalho",
-  "Filtrar por status": "Filtrar por status",
-  "ID do trabalho para cancelar": "ID do trabalho para cancelar",
-  "Modelo de IA a usar": "Modelo de IA a usar",
-  "URL da imagem para análise (modo vision)": "URL da imagem para análise (modo vision)",
-  "Manage AI background jobs and processing tasks": "Manage AI background jobs and processing tasks",
-  "Action to perform": "Action to perform",
-  "Type of job to queue": "Type of job to queue",
-  "Content for the job": "Content for the job",
-  "Job ID for details/cancel": "Job ID for details/cancel",
-  "Job priority (0-10, higher = more priority)": "Job priority (0-10, higher = more priority)",
-  "Gerencie modelos de IA da NVIDIA - incluindo Llama 4 Maverick e outros modelos avançados": "Gerencie modelos de IA da NVIDIA - incluindo Llama 4 Maverick e outros modelos avançados",
-  "Listar todos os modelos de IA disponíveis": "Listar todos os modelos de IA disponíveis",
-  "Selecionar um modelo de IA": "Selecionar um modelo de IA",
-  "Obter informações sobre um modelo específico": "Obter informações sobre um modelo específico",
-  "Mostrar seu modelo de IA atual": "Mostrar seu modelo de IA atual",
-  "Ver estatísticas de uso dos modelos": "Ver estatísticas de uso dos modelos",
-  "Filtrar por categoria": "Filtrar por categoria",
-  "O modelo para selecionar": "O modelo para selecionar",
-  "O modelo para obter informações": "O modelo para obter informações",
-  "Período de tempo": "Período de tempo"
+	"cmd": {
+		"247": {
+			"description": "🎧 Define o bot para permanecer no canal de voz",
+			"errors": {
+				"not_in_voice": "⚠️ Você precisa estar em um canal de voz para usar este comando.",
+				"generic": "❌ Ocorreu um erro ao tentar executar este comando."
+			},
+			"messages": {
+				"disabled": "✅ | O modo 24/7 foi DESATIVADO.",
+				"enabled": "✅ | O modo 24/7 foi ATIVADO."
+			}
+		},
+		"ping": {
+			"description": "🏓 Mostra o ping do bot.",
+			"content": "⏳ Calculando ping...",
+			"bot_latency": "📶 Latência do Bot",
+			"api_latency": "🌐 Latência da API",
+			"requested_by": "📌 Solicitado por {author}"
+		},
+		"lavalink": {
+			"description": "📊 Mostra as estatísticas atuais do Lavalink.",
+			"title": "📈 Estatísticas do Lavalink",
+			"content": "🎵 Players: {players}\n🎶 Players Tocando: {playingPlayers}\n⏱️ Tempo de Atividade: {uptime}\n🖥️ Núcleos: {cores} Núcleo(s)\n📂 Uso de Memória: {used} / {reservable}\n⚙️ Carga do Sistema: {systemLoad}%\n🔧 Carga do Lavalink: {lavalinkLoad}%",
+			"page_info": "📄 Página {index} de {total}"
+		},
+		"invite": {
+			"description": "🔗 Obtenha o link de convite do bot.",
+			"content": "Você pode me convidar clicando no botão abaixo. Encontrou bugs ou problemas? Junte-se ao servidor de suporte! 🚀"
+		},
+		"help": {
+			"description": "📜 Mostra o menu de ajuda.",
+			"options": {
+				"command": "🛠️ O comando sobre o qual você quer informações"
+			},
+			"content": "Olá! Eu sou {bot}, um bot de música feito com [MahinaBot](https://github.com/gabrielmaialva33/mahina-bot) e Discord.js. Você pode usar {prefix}help <comando> para obter mais informações sobre um comando.",
+			"title": "📘 Menu de Ajuda",
+			"not_found": "❌ O comando {cmdName} não existe.",
+			"help_cmd": "📝 Descrição: {description}\nUso: {usage}\nExemplos: {examples}\nAliases: {aliases}\nCategoria: {category}\nCooldown: {cooldown} segundos\nPermissões: {premUser}\nPermissões do Bot: {premBot}\nApenas Desenvolvedor: {dev}\nComando Slash: {slash}\nArgumentos: {args}\nPlayer: {player}\nDJ: {dj}\nPermissões DJ: {djPerm}\nVoz: {voice}",
+			"footer": "ℹ️ Use {prefix}help <comando> para mais informações sobre um comando"
+		},
+		"botinfo": {
+			"description": "ℹ️ Informações sobre o bot",
+			"content": "🤖 Informações do Bot:\n- 💻 Sistema Operacional: {osInfo}\n- ⏳ Tempo de Atividade: {osUptime}\n- 🏠 Hostname: {osHostname}\n- 🔧 Arquitetura da CPU: {cpuInfo}\n- ⚙️ Uso da CPU: {cpuUsed}%\n- 📂 Uso de Memória: {memUsed}MB / {memTotal}GB\n- 🛠️ Versão do Node: {nodeVersion}\n- 📜 Versão do Discord.js: {discordJsVersion}\n- 🌐 Conectado a {guilds} servidores, {channels} canais e {users} usuários\n- 🎵 Total de Comandos: {commands}"
+		},
+		"about": {
+			"description": "❓ Mostra informações sobre o bot",
+			"fields": {
+				"creator": "👤 Criador",
+				"repository": "📂 Repositório",
+				"support": "🔧 Suporte",
+				"description": "Ele realmente queria fazer seu primeiro projeto de código aberto para ganhar mais experiência em programação. Neste projeto, ele foi desafiado a fazer um projeto com menos bugs. Espero que você goste de usar o MahinaBot! 🎉"
+			}
+		},
+		"dj": {
+			"description": "🎛️ Gerencia o modo DJ e os papéis associados",
+			"errors": {
+				"provide_role": "⚠️ Por favor, forneça um papel.",
+				"no_roles": "🚫 O papel de DJ está vazio.",
+				"invalid_subcommand": "❌ Por favor, forneça um subcomando válido."
+			},
+			"messages": {
+				"role_exists": "⚠️ O papel de DJ <@&{roleId}> já foi adicionado.",
+				"role_added": "✅ O papel de DJ <@&{roleId}> foi adicionado.",
+				"role_not_found": "❌ O papel de DJ <@&{roleId}> não foi encontrado.",
+				"role_removed": "✅ O papel de DJ <@&{roleId}> foi removido.",
+				"all_roles_cleared": "🧹 Todos os papéis de DJ foram removidos.",
+				"toggle": "🔄 O modo DJ foi alternado para {status}."
+			},
+			"options": {
+				"add": "➕ O papel de DJ que você deseja adicionar",
+				"remove": "➖ O papel de DJ que você deseja remover",
+				"clear": "🧹 Limpa todos os papéis de DJ",
+				"toggle": "🔄 Alterna o modo DJ",
+				"role": "🎭 O papel de DJ"
+			},
+			"subcommands": "🔧 Subcomandos"
+		},
+		"language": {
+			"description": "🌐 Define o idioma para o bot",
+			"invalid_language": "⚠️ Por favor, forneça um idioma válido. Exemplo: PortugueseBR para Português (Brasil)\n\n🌍 Idiomas Disponíveis:\n{languages}",
+			"already_set": "✅ O idioma já está definido como {language}.",
+			"not_set": "❌ O idioma não está definido.",
+			"set": "✅ | O idioma foi definido para {language}.",
+			"reset": "✅ | O idioma foi redefinido para o padrão.",
+			"options": {
+				"set": "🌐 Define o idioma para o bot",
+				"language": "🗣️ O idioma que você deseja definir",
+				"reset": "🔄 Altera o idioma de volta para o padrão"
+			}
+		},
+		"prefix": {
+			"description": "🔑 Mostra ou define o prefixo do bot",
+			"errors": {
+				"prefix_too_long": "⚠️ O prefixo não pode ter mais de 3 caracteres."
+			},
+			"messages": {
+				"current_prefix": "🔍 O prefixo deste servidor é {prefix}.",
+				"prefix_set": "✅ O prefixo deste servidor agora é {prefix}.",
+				"prefix_reset": "🔄 O prefixo deste servidor agora é {prefix}."
+			},
+			"options": {
+				"set": "🛠️ Define o prefixo",
+				"prefix": "🔑 O prefixo que você deseja definir",
+				"reset": "🔄 Redefine o prefixo para o padrão"
+			}
+		},
+		"setup": {
+			"description": "⚙️ Configura o bot",
+			"errors": {
+				"channel_exists": "⚠️ O canal de solicitação de música já existe.",
+				"channel_not_exists": "❌ O canal de solicitação de música não existe.",
+				"channel_delete_fail": "⚠️ O canal de configuração foi excluído do banco de dados. Por favor, exclua o canal você mesmo."
+			},
+			"messages": {
+				"channel_created": "✅ O canal de solicitação de música foi criado em <#{channelId}>.",
+				"channel_deleted": "🗑️ O canal de solicitação de música foi excluído.",
+				"channel_info": "ℹ️ O canal de solicitação de música é <#{channelId}>."
+			},
+			"options": {
+				"create": "➕ Cria o canal de solicitação de música",
+				"delete": "🗑️ Exclui o canal de solicitação de música",
+				"info": "ℹ️ Mostra o canal de solicitação de música"
+			}
+		},
+		"8d": {
+			"description": "🎧 Ativa/desativa o filtro 8D",
+			"messages": {
+				"filter_enabled": "✅ O filtro 8D foi ATIVADO.",
+				"filter_disabled": "✅ O filtro 8D foi DESATIVADO."
+			}
+		},
+		"bassboost": {
+			"description": "🎚️ Ativa/desativa o filtro bassboost",
+			"options": {
+				"level": "📈 O nível de bassboost que você deseja definir"
+			},
+			"messages": {
+				"high": "✅ O filtro bassboost alto foi ATIVADO.",
+				"low": "✅ O filtro bassboost baixo foi ATIVADO.",
+				"medium": "✅ O filtro bassboost médio foi ATIVADO.",
+				"off": "✅ O filtro bassboost foi DESATIVADO."
+			}
+		},
+		"distortion": {
+			"description": "🔊 Ativa/desativa o filtro distortion",
+			"messages": {
+				"filter_enabled": "✅ O filtro distortion foi ATIVADO.",
+				"filter_disabled": "✅ O filtro distortion foi DESATIVADO."
+			}
+		},
+		"karaoke": {
+			"description": "🎤 Ativa/desativa o filtro karaokê",
+			"messages": {
+				"filter_enabled": "✅ O filtro karaokê foi ATIVADO.",
+				"filter_disabled": "✅ O filtro karaokê foi DESATIVADO."
+			}
+		},
+		"lowpass": {
+			"description": "🔈 Ativa/desativa o filtro lowpass",
+			"messages": {
+				"filter_enabled": "✅ O filtro lowpass foi ATIVADO.",
+				"filter_disabled": "✅ O filtro lowpass foi DESATIVADO."
+			}
+		},
+		"nightcore": {
+			"description": "🎶 Ativa/desativa o filtro nightcore",
+			"messages": {
+				"filter_enabled": "✅ O filtro nightcore foi ATIVADO.",
+				"filter_disabled": "✅ O filtro nightcore foi DESATIVADO."
+			}
+		},
+		"pitch": {
+			"description": "🎼 Altera a afinação da música",
+			"options": {
+				"pitch": "🎚️ O número para o qual você deseja definir a afinação (entre 0.5 e 5)"
+			},
+			"errors": {
+				"invalid_number": "⚠️ Por favor, forneça um número válido entre 0.5 e 5."
+			},
+			"messages": {
+				"pitch_set": "✅ A afinação foi definida para {pitch}."
+			}
+		},
+		"rate": {
+			"description": "🔄 Altera a taxa da música",
+			"options": {
+				"rate": "📉 O número para o qual você deseja definir a taxa (entre 0.5 e 5)"
+			},
+			"errors": {
+				"invalid_number": "⚠️ Por favor, forneça um número válido entre 0.5 e 5."
+			},
+			"messages": {
+				"rate_set": "✅ A taxa foi definida para {rate}."
+			}
+		},
+		"reset": {
+			"description": "🧹 Redefine os filtros ativos",
+			"messages": {
+				"filters_reset": "✅ Os filtros foram redefinidos."
+			}
+		},
+		"rotation": {
+			"description": "🔄 Ativa/desativa o filtro rotation",
+			"messages": {
+				"enabled": "✅ O filtro rotation foi ATIVADO.",
+				"disabled": "✅ O filtro rotation foi DESATIVADO."
+			}
+		},
+		"speed": {
+			"description": "⏩ Altera a velocidade da música",
+			"options": {
+				"speed": "🚀 A velocidade que você deseja definir"
+			},
+			"messages": {
+				"invalid_number": "⚠️ Por favor, forneça um número válido entre 0.5 e 5.",
+				"set_speed": "✅ A velocidade foi definida para {speed}."
+			}
+		},
+		"tremolo": {
+			"description": "🎛️ Ativa/desativa o filtro tremolo",
+			"messages": {
+				"enabled": "✅ O filtro tremolo foi ATIVADO.",
+				"disabled": "✅ O filtro tremolo foi DESATIVADO."
+			}
+		},
+		"vibrato": {
+			"description": "🎶 Ativa/desativa o filtro vibrato",
+			"messages": {
+				"enabled": "✅ O filtro vibrato foi ATIVADO.",
+				"disabled": "✅ O filtro vibrato foi DESATIVADO."
+			}
+		},
+		"autoplay": {
+			"description": "🔄 Ativa/desativa o autoplay",
+			"messages": {
+				"enabled": "✅ O autoplay foi ATIVADO.",
+				"disabled": "✅ O autoplay foi DESATIVADO."
+			}
+		},
+		"clearqueue": {
+			"description": "🗑️ Limpa a fila",
+			"messages": {
+				"cleared": "✅ A fila foi limpa."
+			}
+		},
+		"grab": {
+			"description": "📥 Pega a música atual em reprodução no seu DM",
+			"loading": "⏳ Carregando...",
+			"content": "⏱️ Duração: {length}\n🎙️ Solicitado por: <@{requester}>\n🔗 Link: [Clique aqui]({uri})",
+			"check_dm": "📬 Por favor, verifique seu DM.",
+			"dm_failed": "❌ Não consegui enviar uma mensagem direta para você. Certifique-se de que as mensagens diretas estão ativadas."
+		},
+		"join": {
+			"description": "🔊 Entra no canal de voz",
+			"already_connected": "⚠️ Já estou conectado em <#{channelId}>.",
+			"no_voice_channel": "❌ Você precisa estar em um canal de voz para usar este comando.",
+			"joined": "✅ Conectado com sucesso em <#{channelId}>."
+		},
+		"leave": {
+			"description": "📤 Sai do canal de voz",
+			"left": "✅ Saiu com sucesso de <#{channelId}>.",
+			"not_in_channel": "⚠️ Não estou em um canal de voz."
+		},
+		"loop": {
+			"description": "🔁 Repete a música atual ou a fila",
+			"looping_song": "🔂 Repetindo a música atual.",
+			"looping_queue": "🔁 Repetindo a fila inteira.",
+			"looping_off": "⏹️ Repetição desativada."
+		},
+		"lyrics": {
+			"description": "📜 Obtém a letra da música que está tocando atualmente",
+			"lyrics_track": "🎵 Letra de: [{trackTitle}]({trackUrl})\n{lyrics}",
+			"searching": "🔍 Procurando a letra de {trackTitle}...",
+			"errors": {
+				"no_results": "❌ Nenhuma letra encontrada para a música atual.",
+				"lyrics_error": "⚠️ Ocorreu um erro ao obter a letra."
+			}
+		},
+		"nowplaying": {
+			"description": "🎶 Mostra a música que está tocando atualmente",
+			"now_playing": "▶️ Tocando Agora",
+			"track_info": "[{title}]({uri}) - 🎙️ Solicitado por: <@{requester}>\n\n{bar}"
+		},
+		"pause": {
+			"description": "⏸️ Pausa a música atual",
+			"successfully_paused": "✅ Música pausada com sucesso."
+		},
+		"play": {
+			"description": "▶️ Toca uma música do YouTube, Spotify ou URL",
+			"options": {
+				"song": "🎵 A música que você quer tocar"
+			},
+			"loading": "⏳ Carregando...",
+			"errors": {
+				"search_error": "❌ Ocorreu um erro durante a busca.",
+				"no_results": "⚠️ Nenhum resultado encontrado.",
+				"queue_too_long": "⚠️ A fila está muito longa. O tamanho máximo é {maxQueueSize} músicas.",
+				"playlist_too_long": "⚠️ A playlist é muito longa. O tamanho máximo é {maxPlaylistSize} músicas."
+			},
+			"added_to_queue": "✅ Adicionado [{title}]({uri}) à fila.",
+			"added_playlist_to_queue": "✅ Adicionadas {length} músicas à fila."
+		},
+		"vplay": {
+			"description": "🎥 Stream de vídeo no canal de voz.",
+			"options": {
+				"url": "🔗 O link do vídeo que você deseja tocar"
+			},
+			"errors": {
+				"no_url": "❌ Por favor, forneça um link de vídeo.",
+				"invalid_url": "⚠️ Por favor, forneça um link de vídeo válido.",
+				"download_failed": "⛔ Ocorreu um erro ao baixar o vídeo.",
+				"general_error": "❗ Ocorreu um erro ao tentar reproduzir o vídeo."
+			},
+			"info_fetching": "🔍 Obtendo informações do vídeo...",
+			"downloading": "⬇️ Baixando o vídeo, aguarde...",
+			"progress": "📊 Progresso: {percentage}% | 🚀 Velocidade: {speed} | 📦 Tamanho: {size}",
+			"download_complete": "✅ Download concluído! 🎶 Preparando para tocar...",
+			"loading": "⏳ Carregando...",
+			"cleanup": "🧹 Limpando...",
+			"added_to_queue": "✅ Adicionado [{title}]({uri}) na fila. (Posição: {position})"
+		},
+		"playnext": {
+			"description": "⏭️ Adiciona a música para tocar a seguir na fila",
+			"options": {
+				"song": "🎵 A música que você quer tocar"
+			},
+			"loading": "⏳ Carregando...",
+			"errors": {
+				"search_error": "❌ Ocorreu um erro durante a busca.",
+				"no_results": "⚠️ Nenhum resultado encontrado.",
+				"queue_too_long": "⚠️ A fila está muito longa. O tamanho máximo é {maxQueueSize} músicas.",
+				"playlist_too_long": "⚠️ A playlist é muito longa. O tamanho máximo é {maxPlaylistSize} músicas."
+			},
+			"added_to_play_next": "✅ Adicionado [{title}]({uri}) para tocar a seguir na fila.",
+			"added_playlist_to_play_next": "✅ Adicionadas {length} músicas para tocar a seguir na fila."
+		},
+		"queue": {
+			"description": "📃 Mostra a fila atual",
+			"now_playing": "▶️ Tocando agora: [{title}]({uri}) - 🎙️ Solicitado por: <@{requester}> - ⏱️ Duração: {duration}",
+			"live": "🔴 AO VIVO",
+			"track_info": "{index}. [{title}]({uri}) - 🎙️ Solicitado por: <@{requester}> - ⏱️ Duração: {duration}",
+			"title": "🎵 Fila",
+			"page_info": "📄 Página {index} de {total}"
+		},
+		"remove": {
+			"description": "❌ Remove uma música da fila",
+			"options": {
+				"song": "🔢 O número da música que você quer remover"
+			},
+			"errors": {
+				"no_songs": "⚠️ Não há músicas na fila.",
+				"invalid_number": "⚠️ Por favor, forneça um número de música válido."
+			},
+			"messages": {
+				"removed": "✅ Removida a música número {songNumber} da fila."
+			}
+		},
+		"replay": {
+			"description": "🔄 Reproduz a faixa atual novamente",
+			"errors": {
+				"not_seekable": "❌ Não é possível reproduzir esta faixa novamente, pois ela não é buscável."
+			},
+			"messages": {
+				"replaying": "🔁 Reproduzindo a faixa atual novamente."
+			}
+		},
+		"resume": {
+			"description": "▶️ Retoma a música atual",
+			"errors": {
+				"not_paused": "⚠️ O player não está pausado."
+			},
+			"messages": {
+				"resumed": "✅ Player retomado."
+			}
+		},
+		"search": {
+			"description": "🔍 Procura por uma música",
+			"options": {
+				"song": "🎵 A música que você quer procurar"
+			},
+			"select": "📋 Por favor, selecione a música que você deseja tocar",
+			"errors": {
+				"no_results": "❌ Nenhum resultado encontrado.",
+				"search_error": "⚠️ Ocorreu um erro durante a busca."
+			},
+			"messages": {
+				"added_to_queue": "✅ Adicionado [{title}]({uri}) à fila."
+			}
+		},
+		"seek": {
+			"description": "⏩ Busca para um determinado tempo na música",
+			"options": {
+				"duration": "⏱️ A duração para a qual você deseja buscar"
+			},
+			"errors": {
+				"invalid_format": "⚠️ Formato de tempo inválido. Exemplos: seek 1m, seek 1h 30m",
+				"not_seekable": "❌ Esta faixa não é buscável.",
+				"beyond_duration": "⚠️ Não é possível buscar além da duração da música de {length}."
+			},
+			"messages": {
+				"seeked_to": "✅ Buscado para {duration}."
+			}
+		},
+		"shuffle": {
+			"description": "🔀 Embaralha a fila",
+			"messages": {
+				"shuffled": "✅ Fila embaralhada."
+			}
+		},
+		"skip": {
+			"description": "⏭️ Pula a música atual",
+			"messages": {
+				"skipped": "✅ Pulada [{title}]({uri})."
+			}
+		},
+		"skipto": {
+			"description": "⏩ Pula para uma música específica na fila",
+			"options": {
+				"number": "🔢 O número da música para a qual você quer pular"
+			},
+			"errors": {
+				"invalid_number": "⚠️ Por favor, forneça um número válido."
+			},
+			"messages": {
+				"skipped_to": "✅ Pulado para a música número {number}."
+			}
+		},
+		"stop": {
+			"description": "⏹️ Para a música e limpa a fila",
+			"messages": {
+				"stopped": "✅ Música parada e fila limpa."
+			}
+		},
+		"volume": {
+			"description": "🔊 Define o volume do player",
+			"options": {
+				"number": "🔢 O volume que você deseja definir"
+			},
+			"messages": {
+				"invalid_number": "⚠️ Por favor, forneça um número válido.",
+				"too_low": "🔈 O volume não pode ser menor que 0.",
+				"too_high": "🔊 O volume não pode ser maior que 200. Isso pode danificar sua audição ou alto-falantes!",
+				"set": "✅ Volume definido para {volume}."
+			}
+		},
+		"addsong": {
+			"description": "🎵 Adiciona uma música à playlist",
+			"options": {
+				"playlist": "📝 A playlist que você deseja adicionar",
+				"song": "🎶 A música que você deseja adicionar"
+			},
+			"messages": {
+				"no_playlist": "⚠️ Por favor, forneça uma playlist.",
+				"no_song": "⚠️ Por favor, forneça uma música.",
+				"playlist_not_found": "❌ Essa playlist não existe.",
+				"no_songs_found": "⚠️ Nenhuma música encontrada.",
+				"added": "✅ Adicionada(s) {count} música(s) à playlist {playlist}."
+			}
+		},
+		"create": {
+			"description": "🆕 Cria uma playlist",
+			"options": {
+				"name": "📝 O nome da playlist"
+			},
+			"messages": {
+				"name_too_long": "⚠️ Os nomes das playlists podem ter no máximo 50 caracteres.",
+				"playlist_exists": "❌ Uma playlist com esse nome já existe. Por favor, use um nome diferente.",
+				"playlist_created": "✅ A playlist {name} foi criada com sucesso!"
+			}
+		},
+		"delete": {
+			"description": "🗑️ Exclui uma playlist",
+			"options": {
+				"playlist": "📝 A playlist que você deseja excluir"
+			},
+			"messages": {
+				"playlist_not_found": "❌ Essa playlist não existe.",
+				"playlist_deleted": "✅ Playlist {playlistName} excluída com sucesso!"
+			}
+		},
+		"list": {
+			"description": "📋 Recupera todas as playlists do usuário",
+			"options": {
+				"user": "👤 O usuário cujas playlists você deseja recuperar"
+			},
+			"messages": {
+				"no_playlists": "⚠️ Este usuário não tem playlists.",
+				"your": "📂 Suas",
+				"playlists_title": "📂 Playlists de {username}",
+				"error": "❌ Ocorreu um erro ao recuperar as playlists."
+			}
+		},
+		"load": {
+			"description": "📂 Carrega uma playlist",
+			"options": {
+				"playlist": "📝 A playlist que você deseja carregar"
+			},
+			"messages": {
+				"playlist_not_exist": "❌ Essa playlist não existe.",
+				"playlist_empty": "⚠️ Essa playlist está vazia.",
+				"playlist_loaded": "✅ Playlist {name} carregada com {count} músicas."
+			}
+		},
+		"removesong": {
+			"description": "🗑️ Remove uma música da playlist",
+			"options": {
+				"playlist": "📝 A playlist da qual você deseja remover",
+				"song": "🎵 A música que você deseja remover"
+			},
+			"messages": {
+				"provide_playlist": "⚠️ Por favor, forneça uma playlist.",
+				"provide_song": "⚠️ Por favor, forneça uma música.",
+				"playlist_not_exist": "❌ Essa playlist não existe.",
+				"song_not_found": "⚠️ Nenhuma música correspondente encontrada.",
+				"song_removed": "✅ Música {song} removida da playlist {playlist}.",
+				"error_occurred": "❌ Ocorreu um erro ao remover a música."
+			}
+		},
+		"steal": {
+			"description": "🎭 Rouba uma playlist de outro usuário e a adiciona às suas playlists",
+			"options": {
+				"playlist": "📝 A playlist que você deseja roubar",
+				"user": "👤 O usuário de quem você deseja roubar a playlist"
+			},
+			"messages": {
+				"provide_playlist": "⚠️ Por favor, forneça um nome de playlist.",
+				"provide_user": "⚠️ Por favor, mencione um usuário.",
+				"playlist_not_exist": "❌ Essa playlist não existe para o usuário mencionado.",
+				"playlist_stolen": "✅ Playlist {playlist} roubada com sucesso de {user}.",
+				"error_occurred": "❌ Ocorreu um erro ao roubar a playlist."
+			}
+		},
+		"mlist": {
+			"description": "📁 Lista os downloads de vídeos",
+			"messages": {
+				"no_videos": "⚠️ Você não tem nenhum vídeo baixado.",
+				"available_movies": "🎥 Vídeos Disponíveis"
+			}
+		},
+		"mplay": {
+			"description": "▶️ Reproduz um vídeo baixado",
+			"options": {
+				"movie": "🎥 O vídeo que você deseja reproduzir",
+				"audioTrack": "🔊 A trilha de áudio que você deseja selecionar"
+			},
+			"messages": {
+				"waiting": "⏳ Por favor, aguarde...",
+				"playing_movie": "🎬 Reproduzindo o vídeo {movie}."
+			},
+			"errors": {
+				"movie_not_found": "❌ O vídeo não foi encontrado."
+			}
+		},
+		"msearch": {
+			"description": "🔍 Procura por filmes ou animes",
+			"options": {
+				"query": "🎥 O vídeo que você deseja procurar",
+				"search": "🔎 Termo de pesquisa para procurar vídeos"
+			},
+			"messages": {
+				"no_results": "⚠️ Nenhum resultado encontrado.",
+				"searching": "🔍 Procurando por {query}...",
+				"select": "📋 Por favor, selecione o vídeo que você deseja baixar."
+			}
+		},
+		"mstop": {
+			"description": "⏹️ Para a transmissão de vídeo",
+			"messages": {
+				"success": "✅ Transmissão de vídeo parada."
+			}
+		},
+		"mpause": {
+			"description": "⏸️ Pausa o streaming em execução.",
+			"errors": {
+				"not_in_voice": "❌ O bot não está em um canal de voz."
+			},
+			"messages": {
+				"paused": "✅ O streaming foi pausado com sucesso!",
+				"title": "⏸️ Reprodução Pausada",
+				"paused_description": "ℹ️ O streaming foi pausado. Use mresume para retomar."
+			}
+		},
+		"mresume": {
+			"description": "▶️ Retoma o streaming pausado.",
+			"errors": {
+				"not_in_voice": "❌ O bot não está em um canal de voz."
+			},
+			"messages": {
+				"resumed": "✅ O streaming foi retomado com sucesso!"
+			}
+		},
+		"code": {
+			"description": "Analisa código com IA especializada - explicar, revisar, otimizar ou debugar"
+		},
+		"model": {
+			"description": "Gerencia modelos de IA disponíveis"
+		},
+		"reason": {
+			"description": "Análise avançada de problemas com raciocínio aprofundado"
+		},
+		"stream": {
+			"description": "Chat com resposta em tempo real (streaming)"
+		},
+		"mahinai": {
+			"description": "Chat avançado com IA: contexto, memória e personalidade"
+		},
+		"aistatus": {
+			"description": "Verificar status e estatísticas dos serviços de IA"
+		},
+		"aichannel": {
+			"description": "Define o canal onde a IA enviará mensagens proativas",
+			"options": {
+				"channel": "O canal para mensagens proativas da IA",
+				"action": "Ação a ser executada"
+			},
+			"cleared": "✅ Canal de mensagens proativas da IA foi limpo. A IA agora escolherá um canal adequado automaticamente.",
+			"set": "✅ Mensagens proativas da IA agora serão enviadas para {channel}",
+			"current_none": "Nenhum canal específico está definido para mensagens proativas da IA. A IA escolherá um canal adequado automaticamente.",
+			"current": "Mensagens proativas da IA são enviadas atualmente para: {channels}",
+			"invalid_channel": "❌ Por favor, forneça um canal de texto válido.",
+			"usage": "❌ Uso: aichannel <#canal|clear>"
+		},
+		"mskip": {
+			"description": "⏭️ Pula o vídeo atual da stream",
+			"messages": {
+				"skipped": "⏭️ Pulado [{title}]({uri})."
+			}
+		},
+		"mqueue": {
+			"description": "📃 Mostra a fila de stream",
+			"now_playing": "▶️ Tocando agora: [{title}]({uri}) - 🎙️ Solicitado por: <@{requester}> - ⏱️ Duração: {duration}",
+			"track_info": "{index}. [{title}]({uri}) - 🎙️ Solicitado por: <@{requester}> - ⏱️ Duração: {duration}",
+			"title": "🎬 Fila de Stream",
+			"tracks_in_queue": "vídeos na fila"
+		},
+		"mloop": {
+			"description": "🔁 Repete o vídeo atual ou a fila de stream",
+			"messages": {
+				"looping_track": "🔂 Repetindo o vídeo atual.",
+				"looping_queue": "🔁 Repetindo a fila inteira.",
+				"looping_off": "⏹️ Repetição desativada."
+			}
+		},
+		"mprevious": {
+			"description": "⏮️ Volta ao vídeo anterior da stream",
+			"errors": {
+				"no_previous": "⚠️ Não há vídeo anterior.",
+				"unavailable": "❌ O vídeo anterior não está mais disponível."
+			},
+			"messages": {
+				"playing": "⏮️ Tocando anterior: [{title}]({uri})"
+			}
+		}
+	},
+	"player": {
+		"errors": {
+			"no_player": "❌ Não há um player ativo neste servidor.",
+			"no_channel": "⚠️ Você precisa estar em um canal de voz para usar este comando.",
+			"queue_empty": "🛑 A fila está vazia.",
+			"no_previous": "⚠️ Não há músicas anteriores na fila.",
+			"no_song": "⚠️ Não há músicas na fila.",
+			"already_paused": "⏸️ A música já está pausada."
+		},
+		"trackStart": {
+			"now_playing": "▶️ Tocando Agora",
+			"requested_by": "🎙️ Solicitado por {user}",
+			"duration": "⏱️ Duração",
+			"author": "🎵 Autor",
+			"not_connected_to_voice_channel": "❌ Você não está conectado a <#{channel}> para usar esses botões.",
+			"need_dj_role": "⚠️ Você precisa ter o papel de DJ para usar este comando.",
+			"previous_by": "⏮️ Anterior por {user}",
+			"no_previous_song": "⚠️ Não há música anterior.",
+			"paused_by": "⏸️ Pausado por {user}",
+			"resumed_by": "▶️ Retomado por {user}",
+			"skipped_by": "⏭️ Pulado por {user}",
+			"no_more_songs_in_queue": "🛑 Não há mais músicas na fila.",
+			"looping_by": "🔁 Repetindo por {user}",
+			"looping_queue_by": "🔄 Repetindo Fila por {user}",
+			"looping_off_by": "⏹️ Repetição Desativada por {user}"
+		},
+		"setupStart": {
+			"now_playing": "▶️ Tocando Agora",
+			"description": "🎶 [{title}]({uri}) por {author} • ⏱️ [{length}] - 🎙️ Solicitado por <@{requester}>",
+			"error_searching": "❌ Ocorreu um erro durante a busca.",
+			"no_results": "⚠️ Nenhum resultado encontrado.",
+			"nothing_playing": "🛑 Nada está tocando no momento.",
+			"queue_too_long": "⚠️ A fila está muito longa. O tamanho máximo é {maxQueueSize} músicas.",
+			"playlist_too_long": "⚠️ A playlist é muito longa. O tamanho máximo é {maxPlaylistSize} músicas.",
+			"added_to_queue": "✅ Adicionado [{title}]({uri}) à fila.",
+			"added_playlist_to_queue": "✅ Adicionadas [{length}] músicas da playlist à fila."
+		}
+	},
+	"event": {
+		"interaction": {
+			"setup_channel": "⚠️ Você não pode usar este comando no canal de configuração.",
+			"no_send_message": "❌ Eu não tenho permissão para Enviar Mensagens, Visualizar Canal, Inserir Links ou Ler Histórico de Mensagens.",
+			"no_permission": "⚠️ Eu não tenho permissão {permissions}.",
+			"no_user_permission": "❌ Você não tem permissões suficientes para usar este comando.",
+			"no_voice_channel": "⚠️ Você deve estar conectado a um canal de voz para usar o comando {command}.",
+			"no_connect_permission": "❌ Eu não tenho permissão CONECTAR para executar o comando {command}.",
+			"no_speak_permission": "❌ Eu não tenho permissão FALAR para executar o comando {command}.",
+			"no_request_to_speak": "⚠️ Eu não tenho permissão SOLICITAR PARA FALAR para executar o comando {command}.",
+			"different_voice_channel": "❌ Você não está conectado a {channel} para usar o comando {command}.",
+			"no_music_playing": "🛑 Nada está tocando no momento.",
+			"no_dj_role": "⚠️ O papel de DJ não está definido.",
+			"no_dj_permission": "❌ Você precisa ter o papel de DJ para usar este comando.",
+			"cooldown": "⏳ Por favor, espere mais {time} segundo(s) antes de reutilizar o comando {command}.",
+			"error": "❌ Ocorreu um erro: {error}",
+			"vote_button": "🗳️ Vote em mim!",
+			"vote_message": "🚨 Espere! Você precisa votar no top.gg para usar este comando. Obrigado."
+		},
+		"message": {
+			"prefix_mention": "🔑 Ei, meu prefixo para este servidor é {prefix}. Quer mais informações? Use {prefix}help.\n✨ Fique Seguro, Fique Incrível!",
+			"no_send_message": "❌ Eu não tenho permissão para Enviar Mensagens, Visualizar Canal, Inserir Links ou Ler Histórico de Mensagens.",
+			"no_permission": "⚠️ Eu não tenho permissão {permissions}.",
+			"no_user_permission": "❌ Você não tem permissões suficientes para usar este comando.",
+			"no_voice_channel": "⚠️ Você deve estar conectado a um canal de voz para usar o comando {command}.",
+			"no_connect_permission": "❌ Eu não tenho permissão CONECTAR para executar o comando {command}.",
+			"no_speak_permission": "❌ Eu não tenho permissão FALAR para executar o comando {command}.",
+			"no_request_to_speak": "⚠️ Eu não tenho permissão SOLICITAR PARA FALAR para executar o comando {command}.",
+			"different_voice_channel": "❌ Você não está conectado a {channel} para usar o comando {command}.",
+			"no_music_playing": "🛑 Nada está tocando no momento.",
+			"no_dj_role": "⚠️ O papel de DJ não está definido.",
+			"no_dj_permission": "❌ Você precisa ter o papel de DJ para usar este comando.",
+			"missing_arguments": "⚠️ Argumentos Faltando",
+			"missing_arguments_description": "ℹ️ Por favor, forneça os argumentos necessários para o comando {command}.\n\n💡 Exemplos:\n{examples}",
+			"syntax_footer": "🔤 Sintaxe: [] = opcional, <> = obrigatório",
+			"cooldown": "⏳ Por favor, espere mais {time} segundo(s) antes de reutilizar o comando {command}.",
+			"no_mention_everyone": "⚠️ Você não pode usar este comando com @everyone ou @here. Por favor, use o comando slash.",
+			"error": "❌ Ocorreu um erro: {error}",
+			"no_voice_channel_queue": "⚠️ Você não está conectado a um canal de voz para enfileirar músicas.",
+			"no_permission_connect_speak": "❌ Não tenho permissão suficiente para conectar/falar em <#{channel}>.",
+			"different_voice_channel_queue": "❌ Você não está conectado a <#{channel}> para enfileirar músicas.",
+			"vote_button": "🗳️ Vote em mim!",
+			"vote_message": "🚨 Espere! Você precisa votar no top.gg para usar este comando. Obrigado."
+		},
+		"setupButton": {
+			"no_voice_channel_button": "❌ Você não está conectado a um canal de voz para usar este botão.",
+			"different_voice_channel_button": "❌ Você não está conectado a {channel} para usar esses botões.",
+			"now_playing": "▶️ Tocando Agora",
+			"live": "🔴 AO VIVO",
+			"requested_by": "🎙️ Solicitado por <@{requester}>",
+			"no_dj_permission": "⚠️ Você precisa ter o papel de DJ para usar este botão.",
+			"volume_set": "🔊 Volume definido para {vol}%.",
+			"volume_footer": "🎚️ Volume: {vol}%",
+			"paused": "⏸️ Pausado",
+			"resumed": "▶️ Retomado",
+			"pause_resume": "{name} a música.",
+			"pause_resume_footer": "{name} por {displayName}",
+			"no_music_to_skip": "⚠️ Não há música para pular.",
+			"skipped": "⏭️ Música pulada.",
+			"skipped_footer": "⏩ Pulado por {displayName}",
+			"stopped": "⏹️ Música parada.",
+			"stopped_footer": "⏹️ Parado por {displayName}",
+			"nothing_playing": "🛑 Nada está tocando no momento.",
+			"loop_set": "🔁 Repetição definida para {loop}.",
+			"loop_footer": "🔁 Repetição definida por {displayName}",
+			"shuffled": "🔀 Fila embaralhada.",
+			"no_previous_track": "⚠️ Não há faixa anterior.",
+			"playing_previous": "⏮️ Tocando a faixa anterior.",
+			"previous_footer": "⏮️ Tocando por {displayName}",
+			"rewinded": "⏪ Música retrocedida.",
+			"rewind_footer": "⏪ Retrocedido por {displayName}",
+			"forward_limit": "⚠️ Você não pode avançar a música além do comprimento da canção.",
+			"forwarded": "⏩ Música avançada.",
+			"forward_footer": "⏩ Avançado por {displayName}",
+			"button_not_available": "⚠️ Este botão não está disponível.",
+			"no_music_playing": "🛑 Não há música tocando neste servidor."
+		}
+	},
+	"buttons": {
+		"invite": "🔗 Convide-me!",
+		"support": "🛠️ Suporte"
+	},
+	"ai": {
+		"chat": {
+			"description": "💬 Chat inteligente com IA da NVIDIA - análise de código, geração e muito mais!",
+			"options": {
+				"mode": "🤖 Modo de operação da IA",
+				"prompt": "📝 Sua mensagem ou pergunta",
+				"language": "💻 Linguagem de programação (para modos de código)"
+			},
+			"errors": {
+				"no_prompt": "⚠️ Por favor, forneça uma mensagem ou pergunta!",
+				"api_error": "❌ Ocorreu um erro ao processar sua solicitação.",
+				"invalid_mode": "❌ Modo inválido. Use um dos modos disponíveis."
+			},
+			"messages": {
+				"processing": "🤖 Processando sua solicitação...",
+				"conversation_reset": "✅ Conversa reiniciada! Use o comando novamente para começar.",
+				"continue_hint": "💬 Digite sua próxima mensagem usando o comando!",
+				"no_code_blocks": "⚠️ Nenhum bloco de código encontrado na resposta!",
+				"code_extracted": "📝 Código extraído e formatado:",
+				"response_exported": "📤 Resposta exportada como {filename}"
+			},
+			"buttons": {
+				"new_chat": "🔄 Nova Conversa",
+				"continue": "💬 Continuar",
+				"format_code": "📝 Formatar Código",
+				"export": "📤 Exportar"
+			},
+			"modes": {
+				"chat": "💬 Chat Normal",
+				"code": "💻 Geração de Código",
+				"analyze": "🔍 Análise de Código",
+				"explain": "📚 Tutorial/Explicação",
+				"debug": "🐛 Debug de Código",
+				"design": "🎨 UI/UX Helper"
+			}
+		},
+		"tools": {
+			"description": "🛠️ Ferramentas avançadas de IA para análise, tradução, documentação e mais!",
+			"options": {
+				"tool": "🔧 Escolha uma ferramenta",
+				"input": "📝 Texto ou código para processar"
+			},
+			"errors": {
+				"tool_not_found": "❌ Ferramenta não encontrada! Use o comando sem argumentos para ver as opções.",
+				"no_input": "⚠️ Por favor, forneça um texto ou código para processar!",
+				"processing_error": "❌ Ocorreu um erro ao executar a ferramenta."
+			},
+			"messages": {
+				"select_tool": "🛠️ Ferramentas de IA Disponíveis",
+				"select_description": "Selecione uma ferramenta no menu abaixo ou use:\n!tools [ferramenta] [seu texto/código]",
+				"tool_selected": "Você selecionou: {emoji} {name}\n\nAgora use: !tools {key} [seu input]",
+				"processing": "{emoji} Processando com {name}...",
+				"result_title": "{emoji} {name} - Resultado"
+			},
+			"sentiment": {
+				"name": "💭 Análise de Sentimento",
+				"description": "Analisa o sentimento e emoções em um texto"
+			},
+			"translate": {
+				"name": "🌍 Tradutor Inteligente",
+				"description": "Traduz texto preservando contexto e nuances"
+			},
+			"summarize": {
+				"name": "📄 Resumo de Texto",
+				"description": "Cria resumos inteligentes de textos longos"
+			},
+			"docs": {
+				"name": "📚 Gerador de Documentação",
+				"description": "Gera documentação profissional para código"
+			},
+			"complexity": {
+				"name": "🔍 Análise de Complexidade",
+				"description": "Analisa a complexidade e qualidade do código"
+			},
+			"optimize": {
+				"name": "⚡ Otimizador de Código",
+				"description": "Sugere otimizações de performance e qualidade"
+			},
+			"tests": {
+				"name": "🎯 Gerador de Testes",
+				"description": "Gera testes unitários e de integração"
+			},
+			"security": {
+				"name": "🔐 Análise de Segurança",
+				"description": "Identifica vulnerabilidades e problemas de segurança"
+			}
+		},
+		"vision": {
+			"description": "🖼️ Análise inteligente de imagens com IA - descreva, analise e extraia informações!",
+			"options": {
+				"mode": "🔍 Modo de análise",
+				"question": "❓ Pergunta específica sobre a imagem"
+			},
+			"errors": {
+				"no_image": "⚠️ Por favor, anexe uma imagem à sua mensagem!",
+				"invalid_image": "❌ Por favor, forneça uma imagem válida!",
+				"analysis_failed": "❌ Não foi possível analisar a imagem."
+			},
+			"messages": {
+				"analyzing": "🖼️ Analisando imagem...",
+				"help_title": "🖼️ Comando Vision - Análise de Imagens com IA",
+				"help_description": "Envie uma imagem junto com o comando para analisá-la!",
+				"how_to_use": "📋 Como usar",
+				"how_to_steps": "1. Anexe uma imagem à sua mensagem\n2. Use o comando com um modo ou pergunta\n3. Aguarde a análise da IA",
+				"available_modes": "🔧 Modos disponíveis",
+				"custom_questions": "❓ Perguntas personalizadas",
+				"attach_image": "Anexe uma imagem para começar!"
+			},
+			"modes": {
+				"analyze": {
+					"name": "🔍 Análise Detalhada",
+					"title": "Análise Detalhada"
+				},
+				"describe": {
+					"name": "📝 Descrever Imagem",
+					"title": "Descrição da Imagem"
+				},
+				"ocr": {
+					"name": "📄 Extrair Texto (OCR)",
+					"title": "Texto Extraído"
+				},
+				"art": {
+					"name": "🎨 Análise Artística",
+					"title": "Análise Artística"
+				},
+				"detect": {
+					"name": "👥 Detectar Pessoas/Objetos",
+					"title": "Objetos Detectados"
+				},
+				"technical": {
+					"name": "📊 Análise Técnica",
+					"title": "Análise Técnica"
+				}
+			},
+			"metadata": {
+				"dimensions": "📏 Dimensões",
+				"size": "📦 Tamanho",
+				"type": "📄 Tipo"
+			},
+			"buttons": {
+				"reanalyze": "🔄 Analisar Novamente",
+				"export": "📤 Exportar Análise",
+				"modes": "🔧 Outros Modos"
+			}
+		}
+	},
+	"Chat inteligente com IA da NVIDIA - análise de código, geração e muito mais!": "Chat inteligente com IA da NVIDIA - análise de código, geração e muito mais!",
+	"Modo de operação da IA": "Modo de operação da IA",
+	"Sua mensagem ou pergunta": "Sua mensagem ou pergunta",
+	"Linguagem de programação (para modos de código)": "Linguagem de programação (para modos de código)",
+	"Ferramentas avançadas de IA para análise, tradução, documentação e mais!": "Ferramentas avançadas de IA para análise, tradução, documentação e mais!",
+	"Escolha uma ferramenta": "Escolha uma ferramenta",
+	"Texto ou código para processar": "Texto ou código para processar",
+	"Análise inteligente de imagens com IA - descreva, analise e extraia informações!": "Análise inteligente de imagens com IA - descreva, analise e extraia informações!",
+	"Modo de análise": "Modo de análise",
+	"Pergunta específica sobre a imagem": "Pergunta específica sobre a imagem",
+	"ai_mention": {
+		"thinking": "💭 Mahina está pensando...",
+		"error": "❌ Erro ao processar mensagem",
+		"error_description": "Ocorreu um erro ao processar sua mensagem.",
+		"try_again": "Tente novamente mais tarde",
+		"new_conversation": "✨ Nova conversa iniciada! A memória anterior foi limpa.",
+		"feedback_positive": "👍",
+		"feedback_negative": "👎",
+		"reset_conversation": "🔄"
+	},
+	"Configura o comportamento da IA da Mahina": "Configura o comportamento da IA da Mahina",
+	"Ação a ser executada": "Ação a ser executada",
+	"🍁 Descubra seu animal espiritual do World of Warcraft através de análise de personalidade com IA": "🍁 Descubra seu animal espiritual do World of Warcraft através de análise de personalidade com IA",
+	"👤 O usuário que você deseja analisar": "👤 O usuário que você deseja analisar",
+	"Explain code in detail": "Explain code in detail",
+	"Review code and suggest improvements": "Review code and suggest improvements",
+	"Optimize code for better performance": "Optimize code for better performance",
+	"Debug code and identify issues": "Debug code and identify issues",
+	"Programming language": "Programming language",
+	"The code to explain": "The code to explain",
+	"The code to review": "The code to review",
+	"The code to optimize": "The code to optimize",
+	"The code to debug": "The code to debug",
+	"List all available AI models": "List all available AI models",
+	"Select an AI model": "Select an AI model",
+	"Get information about a specific model": "Get information about a specific model",
+	"Show your current AI model": "Show your current AI model",
+	"The model to select": "The model to select",
+	"The model to get info about": "The model to get info about",
+	"The problem or question to analyze": "The problem or question to analyze",
+	"Additional context for the problem": "Additional context for the problem",
+	"Your message for streaming AI response": "Your message for streaming AI response",
+	"Advanced AI chat with context, memory, and personality": "Advanced AI chat with context, memory, and personality",
+	"Your message to Mahina AI": "Your message to Mahina AI",
+	"Choose AI personality": "Choose AI personality",
+	"Conversation mode": "Conversation mode",
+	"Private response (only you can see)": "Private response (only you can see)",
+	"Manage proactive interaction settings": "Manage proactive interaction settings",
+	"Show proactive interaction statistics": "Show proactive interaction statistics",
+	"Test proactive interaction in current channel": "Test proactive interaction in current channel",
+	"Force proactive interaction check": "Force proactive interaction check",
+	"Check AI services status and statistics": "Check AI services status and statistics",
+	"Verificar status e estatísticas dos serviços de IA": "Verificar status e estatísticas dos serviços de IA",
+	"Chat avançado com IA": " contexto, memória e personalidade",
+	"Sua mensagem para a Mahina AI": "Sua mensagem para a Mahina AI",
+	"Escolha a personalidade da IA": "Escolha a personalidade da IA",
+	"Modo de conversa": "Modo de conversa",
+	"Resposta privada (apenas você pode ver)": "Resposta privada (apenas você pode ver)",
+	"Testa e configura sistemas de segurança NVIDIA NemoGuard": "Testa e configura sistemas de segurança NVIDIA NemoGuard",
+	"Texto para verificar (obrigatório para verificações)": "Texto para verificar (obrigatório para verificações)",
+	"Usar modo estrito para verificação de tópicos": "Usar modo estrito para verificação de tópicos",
+	"Receber resposta também em áudio (TTS)": "Receber resposta também em áudio (TTS)",
+	"Busca por comandos e informações usando IA semântica": "Busca por comandos e informações usando IA semântica",
+	"O que você está procurando? Ex": "O que você está procurando? Ex",
+	"Filtrar por categoria específica": "Filtrar por categoria específica",
+	"Nível de precisão da busca (padrão": "Nível de precisão da busca (padrão",
+	"Converte texto em áudio usando NVIDIA TTS": "Converte texto em áudio usando NVIDIA TTS",
+	"O texto que será convertido em áudio": "O texto que será convertido em áudio",
+	"Escolha da voz para o TTS": "Escolha da voz para o TTS",
+	"Velocidade da fala (0": {
+		"5 - 2": {
+			"0)": "Velocidade da fala (0.5 - 2.0)"
+		}
+	},
+	"Tom da voz (-0": {
+		"5 a 0": {
+			"5)": "Tom da voz (-0.5 a 0.5)"
+		}
+	},
+	"Enviar áudio apenas para você": "Enviar áudio apenas para você",
+	"Gera visualizações com física realista usando NVIDIA Cosmos": "Gera visualizações com física realista usando NVIDIA Cosmos",
+	"Tipo de visualização": "Tipo de visualização",
+	"Descrição da visualização (obrigatório para prompt customizado)": "Descrição da visualização (obrigatório para prompt customizado)",
+	"Estilo visual da animação": "Estilo visual da animação",
+	"Número de frames (8-48, padrão": "Número de frames (8-48, padrão",
+	"Incluir texto na visualização": "Incluir texto na visualização",
+	"Imagem base para predição física (opcional)": "Imagem base para predição física (opcional)",
+	"Analise dados de IA e métricas com TimescaleDB": "Analise dados de IA e métricas com TimescaleDB",
+	"Análise detalhada do seu uso de IA": "Análise detalhada do seu uso de IA",
+	"Performance e uso dos modelos de IA": "Performance e uso dos modelos de IA",
+	"Análise de sentimento ao longo do tempo": "Análise de sentimento ao longo do tempo",
+	"Buscar conversas similares usando embeddings": "Buscar conversas similares usando embeddings",
+	"Padrões de uso e comportamento": "Padrões de uso e comportamento",
+	"Exportar dados de analytics": "Exportar dados de analytics",
+	"Período de análise": "Período de análise",
+	"Texto para buscar": "Texto para buscar",
+	"Número de resultados": "Número de resultados",
+	"Formato de exportação": "Formato de exportação",
+	"Gerencie e monitore trabalhos de IA em segundo plano": "Gerencie e monitore trabalhos de IA em segundo plano",
+	"Adicionar um trabalho à fila": "Adicionar um trabalho à fila",
+	"Verificar status de um trabalho": "Verificar status de um trabalho",
+	"Ver estatísticas da fila de trabalhos": "Ver estatísticas da fila de trabalhos",
+	"Listar trabalhos recentes": "Listar trabalhos recentes",
+	"Cancelar um trabalho": "Cancelar um trabalho",
+	"Tipo de trabalho": "Tipo de trabalho",
+	"Dados para processar": "Dados para processar",
+	"Prioridade do trabalho (0-10)": "Prioridade do trabalho (0-10)",
+	"ID do trabalho": "ID do trabalho",
+	"Filtrar por status": "Filtrar por status",
+	"ID do trabalho para cancelar": "ID do trabalho para cancelar",
+	"Modelo de IA a usar": "Modelo de IA a usar",
+	"URL da imagem para análise (modo vision)": "URL da imagem para análise (modo vision)",
+	"Manage AI background jobs and processing tasks": "Manage AI background jobs and processing tasks",
+	"Action to perform": "Action to perform",
+	"Type of job to queue": "Type of job to queue",
+	"Content for the job": "Content for the job",
+	"Job ID for details/cancel": "Job ID for details/cancel",
+	"Job priority (0-10, higher = more priority)": "Job priority (0-10, higher = more priority)",
+	"Gerencie modelos de IA da NVIDIA - incluindo Llama 4 Maverick e outros modelos avançados": "Gerencie modelos de IA da NVIDIA - incluindo Llama 4 Maverick e outros modelos avançados",
+	"Listar todos os modelos de IA disponíveis": "Listar todos os modelos de IA disponíveis",
+	"Selecionar um modelo de IA": "Selecionar um modelo de IA",
+	"Obter informações sobre um modelo específico": "Obter informações sobre um modelo específico",
+	"Mostrar seu modelo de IA atual": "Mostrar seu modelo de IA atual",
+	"Ver estatísticas de uso dos modelos": "Ver estatísticas de uso dos modelos",
+	"Filtrar por categoria": "Filtrar por categoria",
+	"O modelo para selecionar": "O modelo para selecionar",
+	"O modelo para obter informações": "O modelo para obter informações",
+	"Período de tempo": "Período de tempo",
+	"Analise uso de IA, memória e métricas do runtime atual": "Analise uso de IA, memória e métricas do runtime atual",
+	"Resumo do seu uso de IA": "Resumo do seu uso de IA",
+	"Uso e performance dos modelos carregados": "Uso e performance dos modelos carregados",
+	"Distribuição de sentimento aprendida pela memória": "Distribuição de sentimento aprendida pela memória",
+	"Buscar trechos recentes do seu histórico local": "Buscar trechos recentes do seu histórico local",
+	"Padrões aprendidos sobre seu uso": "Padrões aprendidos sobre seu uso",
+	"Exportar resumo em Markdown": "Exportar resumo em Markdown"
 }
