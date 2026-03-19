@@ -26,7 +26,7 @@ import { i18n, initI18n, localization, T } from '#common/i18n'
 import loadPlugins from '#src/extensions/index'
 import { Utils } from '#utils/utils'
 import { env } from '#src/env'
-import type SelfBot from '#common/selfbot'
+import SelfBot from '#common/selfbot'
 import { AnimeZey } from '#src/platforms/animezey'
 import { NvidiaAIService } from '#src/services/nvidia_ai_service'
 import { ProactiveInteractionService } from '#src/services/proactive_interaction_service'
@@ -79,7 +79,7 @@ export default class MahinaBot extends Client {
   utils = Utils
   env: typeof env = env
   manager!: MahinaLinkClient
-  selfbot?: SelfBot
+  selfbot: SelfBot
   animezey = new AnimeZey()
   services: BotServices = {}
   aiManager?: AIManager
@@ -94,13 +94,7 @@ export default class MahinaBot extends Client {
       music: env.ENABLE_MUSIC,
       selfbot: env.ENABLE_SELFBOT,
     }
-    if (this.runtime.selfbot) {
-      import('#common/selfbot').then(({ default: SelfBotClass }) => {
-        this.selfbot = new SelfBotClass(this)
-      }).catch((err) => {
-        this.logger.warn('SelfBot module unavailable (sharp/video-stream deps missing):', err.message)
-      })
-    }
+    this.selfbot = new SelfBot(this)
   }
 
   embed(): EmbedBuilder {

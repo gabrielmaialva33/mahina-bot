@@ -256,26 +256,35 @@ export default class ToolsCommand extends Command {
     return undefined
   }
 
+  private getToolKey(tool: Tool): string {
+    return (
+      Array.from(this.tools.entries()).find(([, currentTool]) => currentTool === tool)?.[0] || ''
+    )
+  }
+
   private async showToolSelector(ctx: Context) {
     const t = (key: string, params?: Record<string, unknown>) => ctx.locale(key, params)
     const embed = new EmbedBuilder()
       .setColor(this.client.config.color.main)
       .setTitle(t('ai.tools.messages.select_tool'))
       .setDescription(t('ai.tools.messages.select_description'))
-      .setFooter({ text: 'Powered by NVIDIA AI' })
+      .setFooter({ text: t('ai.tools.messages.footer') })
 
     // Add tool descriptions
     for (const [key, tool] of this.tools) {
       embed.addFields({
         name: `${tool.emoji} ${tool.name}`,
-        value: `${tool.description}\n**Uso:** \`!tools ${key} [input]\``,
+        value: [
+          tool.description,
+          t('ai.tools.messages.usage_line', { command: `!tools ${key} [input]` }),
+        ].join('\n'),
         inline: true,
       })
     }
 
     const selectMenu = new StringSelectMenuBuilder()
       .setCustomId('tool_selector')
-      .setPlaceholder('Escolha uma ferramenta...')
+      .setPlaceholder(t('ai.tools.messages.selector_placeholder'))
       .addOptions(
         Array.from(this.tools.entries()).map(([key, tool]) => ({
           label: tool.name,
@@ -297,7 +306,7 @@ export default class ToolsCommand extends Command {
     collector.on('collect', async (interaction: any) => {
       if (interaction.user.id !== ctx.author.id) {
         return interaction.reply({
-          content: 'Apenas o autor do comando pode usar este menu!',
+          content: t('ai.tools.errors.author_only_menu'),
           flags: MessageFlags.Ephemeral,
         })
       }
@@ -317,21 +326,23 @@ export default class ToolsCommand extends Command {
   }
 
   private async showToolHelp(ctx: Context, tool: Tool) {
+    const t = (key: string, params?: Record<string, unknown>) => ctx.locale(key, params)
+    const toolKey = this.getToolKey(tool)
     const embed = new EmbedBuilder()
       .setColor(this.client.config.color.blue)
       .setTitle(`${tool.emoji} ${tool.name}`)
       .setDescription(tool.description)
       .addFields(
         {
-          name: '📝 Como usar',
-          value: `\`!tools ${Array.from(this.tools.entries()).find(([k, t]) => t === tool)?.[0]} [seu input]\``,
+          name: t('ai.tools.messages.help_usage_title'),
+          value: `!tools ${toolKey} [input]`,
         },
         {
-          name: '💡 Exemplos',
+          name: t('ai.tools.messages.help_examples_title'),
           value: tool.examples.map((ex) => `• ${ex}`).join('\n'),
         }
       )
-      .setFooter({ text: 'Forneça um texto ou código para processar!' })
+      .setFooter({ text: t('ai.tools.messages.help_footer') })
 
     await ctx.sendMessage({ embeds: [embed] })
   }
@@ -356,15 +367,14 @@ export default class ToolsCommand extends Command {
         max_tokens: 2048,
       })
 
-      const response =
-        completion.choices[0]?.message?.content || 'Não foi possível processar sua solicitação.'
+      const response = completion.choices[0]?.message?.content || t('ai.tools.errors.no_result')
 
       const resultEmbed = new EmbedBuilder()
         .setColor(this.client.config.color.green)
         .setTitle(t('ai.tools.messages.result_title', { emoji: tool.emoji, name: tool.name }))
         .setDescription(response.length > 4000 ? response.substring(0, 4000) + '...' : response)
         .setFooter({
-          text: 'Powered by NVIDIA AI',
+          text: t('ai.tools.messages.footer'),
           iconURL:
             'https://upload.wikimedia.org/wikipedia/commons/thumb/2/21/Nvidia_logo.svg/1200px-Nvidia_logo.svg.png',
         })
@@ -374,17 +384,17 @@ export default class ToolsCommand extends Command {
       const buttons = new ActionRowBuilder<ButtonBuilder>().addComponents(
         new ButtonBuilder()
           .setCustomId('tool_export')
-          .setLabel('Exportar resultado')
+          .setLabel(t('ai.tools.buttons.export'))
           .setEmoji('📤')
           .setStyle(ButtonStyle.Secondary),
         new ButtonBuilder()
           .setCustomId('tool_retry')
-          .setLabel('Tentar novamente')
+          .setLabel(t('ai.tools.buttons.retry'))
           .setEmoji('🔄')
           .setStyle(ButtonStyle.Primary),
         new ButtonBuilder()
           .setCustomId('tool_copy')
-          .setLabel('Copiar')
+          .setLabel(t('ai.tools.buttons.copy'))
           .setEmoji('📋')
           .setStyle(ButtonStyle.Secondary)
       )
@@ -400,7 +410,7 @@ export default class ToolsCommand extends Command {
       collector.on('collect', async (interaction: any) => {
         if (interaction.user.id !== ctx.author.id) {
           return interaction.reply({
-            content: 'Apenas o autor pode usar esses botões!',
+            content: t('ai.tools.errors.author_only_buttons'),
             flags: MessageFlags.Ephemeral,
           })
         }
@@ -409,9 +419,17 @@ export default class ToolsCommand extends Command {
           case 'tool_export':
             const attachment = new AttachmentBuilder(
               Buffer.from(
-                `# ${tool.name} - Resultado\n\n## Input:\n${input}\n\n## Output:\n${response}`
+                [
+                  `${tool.name} - ${t('ai.tools.messages.export_title')}`,
+                  '',
+                  `${t('ai.tools.messages.export_input')}:`,
+                  input,
+                  '',
+                  `${t('ai.tools.messages.export_output')}:`,
+                  response,
+                ].join('\n')
               ),
-              { name: `${tool.name.replace(/\s/g, '_')}_${Date.now()}.md` }
+              { name: `${this.getToolKey(tool) || 'tool'}_${Date.now()}.txt` }
             )
             await interaction.reply({
               files: [attachment],
@@ -428,7 +446,7 @@ export default class ToolsCommand extends Command {
             // Create a code block for easy copying
             const codeBlock = '```\n' + response + '\n```'
             await interaction.reply({
-              content: 'Resultado formatado para cópia:\n' + codeBlock,
+              content: `${t('ai.tools.messages.copy_ready')}\n${codeBlock}`,
               flags: MessageFlags.Ephemeral,
             })
             break
@@ -439,7 +457,7 @@ export default class ToolsCommand extends Command {
 
       const errorEmbed = new EmbedBuilder()
         .setColor(this.client.config.color.red)
-        .setTitle('❌')
+        .setTitle(t('ai.tools.errors.title'))
         .setDescription(t('ai.tools.errors.processing_error'))
 
       await msg.edit({ embeds: [errorEmbed], components: [] })

@@ -829,16 +829,50 @@
       "ui": {
         "title": "🤖 Status da IA Mahina",
         "loading": "🔍 Verificando status da IA...",
+        "sections": {
+          "service_status": "📊 Status dos serviços",
+          "features": "✨ Recursos disponíveis",
+          "usage": "📈 Estatísticas de uso",
+          "top_channels": "🔥 Canais principais",
+          "models": "🧠 Modelos disponíveis",
+          "capabilities": "🛠️ Capacidades ativas",
+          "health": "💚 Status de saúde"
+        },
+        "values": {
+          "yes": "✅ Sim",
+          "no": "❌ Não",
+          "active": "✅ Ativo",
+          "inactive": "❌ Inativo"
+        },
         "service_status": {
-          "initialized": "**Inicializado:** {value}",
-          "nvidia": "**NVIDIA AI:** {value}",
-          "context": "**Serviço de Contexto:** {value}",
-          "memory": "**Serviço de Memória:** {value}"
+          "initialized": "Inicializado: {value}",
+          "nvidia": "NVIDIA AI: {value}",
+          "context": "Serviço de contexto: {value}",
+          "memory": "Serviço de memória: {value}"
         },
         "usage": {
-          "active_contexts": "**Contextos Ativos:** {total}",
-          "total_messages": "**Total de Mensagens:** {total}",
-          "total_users": "**Total de Usuários:** {total}"
+          "active_contexts": "Contextos ativos: {total}",
+          "total_messages": "Total de mensagens: {total}",
+          "total_users": "Total de usuários: {total}"
+        },
+        "top_channels": {
+          "item": "<#{channelId}>: {total} contextos"
+        },
+        "health": {
+          "checks": {
+            "core_ready": "✅ Serviços principais inicializados",
+            "core_not_ready": "❌ Serviços principais não inicializados",
+            "model_ready": "✅ Serviço de modelo de IA saudável",
+            "model_unavailable": "⚠️ Serviço de modelo de IA indisponível",
+            "memory_high": "⚠️ Alto uso de memória detectado",
+            "memory_normal": "✅ Uso de memória normal"
+          },
+          "overall": {
+            "excellent": "Geral: 🟢 Excelente",
+            "good": "Geral: 🟡 Bom",
+            "fair": "Geral: 🟠 Regular",
+            "poor": "Geral: 🔴 Ruim"
+          }
         },
         "errors": {
           "manager_unavailable_title": "❌ Gerenciador de IA Não Disponível",
@@ -1101,14 +1135,33 @@
       "errors": {
         "tool_not_found": "❌ Ferramenta não encontrada! Use o comando sem argumentos para ver as opções.",
         "no_input": "⚠️ Por favor, forneça um texto ou código para processar!",
-        "processing_error": "❌ Ocorreu um erro ao executar a ferramenta."
+        "processing_error": "❌ Ocorreu um erro ao executar a ferramenta.",
+        "author_only_menu": "Somente quem executou o comando pode usar este menu.",
+        "author_only_buttons": "Somente quem executou o comando pode usar estes botões.",
+        "no_result": "Não foi possível processar sua solicitação.",
+        "title": "❌ Erro"
       },
       "messages": {
         "select_tool": "🛠️ Ferramentas de IA Disponíveis",
         "select_description": "Selecione uma ferramenta no menu abaixo ou use:\n!tools [ferramenta] [seu texto/código]",
         "tool_selected": "Você selecionou: {emoji} {name}\n\nAgora use: !tools {key} [seu input]",
         "processing": "{emoji} Processando com {name}...",
-        "result_title": "{emoji} {name} - Resultado"
+        "result_title": "{emoji} {name} - Resultado",
+        "footer": "Powered by NVIDIA AI",
+        "selector_placeholder": "Escolha uma ferramenta",
+        "usage_line": "Uso: {command}",
+        "help_usage_title": "📝 Como usar",
+        "help_examples_title": "💡 Exemplos",
+        "help_footer": "Envie um texto ou trecho de código para processar.",
+        "copy_ready": "Resultado formatado para cópia:",
+        "export_title": "Resultado",
+        "export_input": "Entrada",
+        "export_output": "Saída"
+      },
+      "buttons": {
+        "export": "Exportar resultado",
+        "retry": "Tentar novamente",
+        "copy": "Copiar"
       },
       "sentiment": {
         "name": "💭 Análise de Sentimento",
@@ -1152,17 +1205,28 @@
       "errors": {
         "no_image": "⚠️ Por favor, anexe uma imagem à sua mensagem!",
         "invalid_image": "❌ Por favor, forneça uma imagem válida!",
-        "analysis_failed": "❌ Não foi possível analisar a imagem."
+        "analysis_failed": "❌ Não foi possível analisar a imagem.",
+        "author_only_buttons": "Somente quem executou o comando pode usar estes botões.",
+        "no_result": "Não foi possível analisar a imagem."
       },
       "messages": {
         "analyzing": "🖼️ Analisando imagem...",
+        "footer": "Powered by NVIDIA Vision AI",
         "help_title": "🖼️ Comando Vision - Análise de Imagens com IA",
         "help_description": "Envie uma imagem junto com o comando para analisá-la!",
         "how_to_use": "📋 Como usar",
         "how_to_steps": "1. Anexe uma imagem à sua mensagem\n2. Use o comando com um modo ou pergunta\n3. Aguarde a análise da IA",
         "available_modes": "🔧 Modos disponíveis",
+        "mode_usage": "Use o comando com um destes modos:",
         "custom_questions": "❓ Perguntas personalizadas",
-        "attach_image": "Anexe uma imagem para começar!"
+        "custom_examples": "Você também pode fazer perguntas específicas:\n!vision O que as pessoas estão fazendo?\n!vision Que tipo de lugar é este?",
+        "attach_image": "Anexe uma imagem para começar.",
+        "export_title": "Análise de imagem",
+        "export_date": "Data",
+        "export_image": "Imagem",
+        "export_result": "Resultado da análise",
+        "no_name": "Sem nome",
+        "unknown_type": "Desconhecido"
       },
       "modes": {
         "analyze": {
@@ -1188,7 +1252,19 @@
         "technical": {
           "name": "📊 Análise Técnica",
           "title": "Análise Técnica"
+        },
+        "custom": {
+          "name": "💬 Resposta",
+          "title": "Resposta"
         }
+      },
+      "mode_descriptions": {
+        "analyze": "Análise detalhada e completa",
+        "describe": "Descrição simples da imagem",
+        "ocr": "Extração de texto da imagem",
+        "art": "Análise artística",
+        "detect": "Detecção de objetos e pessoas",
+        "technical": "Análise técnica da imagem"
       },
       "metadata": {
         "dimensions": "📏 Dimensões",

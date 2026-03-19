@@ -6,7 +6,7 @@ export function ensureStreamRuntime(client: MahinaBot): string | null {
     return 'Os comandos de stream estão desativados neste runtime.'
   }
 
-  if (!client.selfbot?.isReady()) {
+  if (!client.selfbot.isReady()) {
     return 'O runtime de stream ainda não está pronto. Ative o selfbot e tente novamente.'
   }
 

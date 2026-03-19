@@ -32,7 +32,7 @@ async function bootstrap(): Promise<void> {
     await client.start(env.TOKEN)
 
     if (env.ENABLE_SELFBOT && env.SELF_USER_TOKEN) {
-      await client.selfbot?.start(env.SELF_USER_TOKEN)
+      await client.selfbot.start(env.SELF_USER_TOKEN)
     } else if (env.ENABLE_SELFBOT) {
       client.logger.warn('Selfbot runtime is enabled but SELF_USER_TOKEN is missing')
     }

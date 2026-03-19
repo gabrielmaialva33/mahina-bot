@@ -61,19 +61,27 @@ export default class AIStatus extends Command {
 
       // Service Status
       statusEmbed.addFields({
-        name: '📊 Status dos Serviços',
+        name: t('cmd.aistatus.ui.sections.service_status'),
         value: [
           t('cmd.aistatus.ui.service_status.initialized', {
-            value: status.initialized ? '✅ Sim' : '❌ Não',
+            value: status.initialized
+              ? t('cmd.aistatus.ui.values.yes')
+              : t('cmd.aistatus.ui.values.no'),
           }),
           t('cmd.aistatus.ui.service_status.nvidia', {
-            value: status.services.nvidia ? '✅ Ativo' : '❌ Inativo',
+            value: status.services.nvidia
+              ? t('cmd.aistatus.ui.values.active')
+              : t('cmd.aistatus.ui.values.inactive'),
           }),
           t('cmd.aistatus.ui.service_status.context', {
-            value: status.services.context ? '✅ Ativo' : '❌ Inativo',
+            value: status.services.context
+              ? t('cmd.aistatus.ui.values.active')
+              : t('cmd.aistatus.ui.values.inactive'),
           }),
           t('cmd.aistatus.ui.service_status.memory', {
-            value: status.services.memory ? '✅ Ativo' : '❌ Inativo',
+            value: status.services.memory
+              ? t('cmd.aistatus.ui.values.active')
+              : t('cmd.aistatus.ui.values.inactive'),
           }),
         ].join('\n'),
         inline: false,
@@ -82,7 +90,7 @@ export default class AIStatus extends Command {
       // Available Features
       if (status.features.length > 0) {
         statusEmbed.addFields({
-          name: '✨ Recursos Disponíveis',
+          name: t('cmd.aistatus.ui.sections.features'),
           value: status.features.map((f) => `• ${f}`).join('\n'),
           inline: false,
         })
@@ -90,7 +98,7 @@ export default class AIStatus extends Command {
 
       // Statistics
       statusEmbed.addFields({
-        name: '📈 Estatísticas de Uso',
+        name: t('cmd.aistatus.ui.sections.usage'),
         value: [
           t('cmd.aistatus.ui.usage.active_contexts', { total: stats.contextStats.totalContexts }),
           t('cmd.aistatus.ui.usage.total_messages', { total: stats.contextStats.totalMessages }),
@@ -106,9 +114,11 @@ export default class AIStatus extends Command {
 
       if (topChannels.length > 0) {
         statusEmbed.addFields({
-          name: '🔥 Canais Principais',
+          name: t('cmd.aistatus.ui.sections.top_channels'),
           value: topChannels
-            .map(([channelId, count]) => `<#${channelId}>: ${count} contextos`)
+            .map(([channelId, count]) =>
+              t('cmd.aistatus.ui.top_channels.item', { channelId, total: count as number })
+            )
             .join('\n'),
           inline: true,
         })
@@ -122,7 +132,7 @@ export default class AIStatus extends Command {
           (capability) => `• ${capability}`
         )
         statusEmbed.addFields({
-          name: '🧠 Modelos Disponíveis',
+          name: t('cmd.aistatus.ui.sections.models'),
           value: models
             .slice(0, 5)
             .map((m) => `• **${m.name}** (${m.category})`)
@@ -132,7 +142,7 @@ export default class AIStatus extends Command {
 
         if (capabilities.length > 0) {
           statusEmbed.addFields({
-            name: '🛠️ Capacidades Ativas',
+            name: t('cmd.aistatus.ui.sections.capabilities'),
             value: capabilities.join('\n'),
             inline: false,
           })
@@ -142,7 +152,7 @@ export default class AIStatus extends Command {
       // Health check
       const healthStatus = this.getHealthStatus(status, stats)
       statusEmbed.addFields({
-        name: '💚 Status de Saúde',
+        name: t('cmd.aistatus.ui.sections.health'),
         value: healthStatus,
         inline: false,
       })
@@ -153,7 +163,6 @@ export default class AIStatus extends Command {
       await ctx.editMessage({
         embeds: [
           {
-            title: '❌ Erro',
             title: t('cmd.aistatus.ui.errors.generic_title'),
             description: t('cmd.aistatus.ui.errors.generic'),
             fields: [
@@ -170,39 +179,44 @@ export default class AIStatus extends Command {
   }
 
   private getHealthStatus(status: any, stats: any): string {
+    const t = this.client.i18n.__.bind(this.client.i18n)
     const checks = []
 
     // Service checks
     if (status.initialized) {
-      checks.push('✅ Serviços principais inicializados')
+      checks.push(t('cmd.aistatus.ui.health.checks.core_ready'))
     } else {
-      checks.push('❌ Serviços principais não inicializados')
+      checks.push(t('cmd.aistatus.ui.health.checks.core_not_ready'))
     }
 
     if (status.services.nvidia) {
-      checks.push('✅ Serviço de modelo de IA saudável')
+      checks.push(t('cmd.aistatus.ui.health.checks.model_ready'))
     } else {
-      checks.push('⚠️ Serviço de modelo de IA indisponível')
+      checks.push(t('cmd.aistatus.ui.health.checks.model_unavailable'))
     }
 
     // Performance checks
     if (stats.contextStats.totalContexts > 100) {
-      checks.push('⚠️ Alto uso de memória detectado')
+      checks.push(t('cmd.aistatus.ui.health.checks.memory_high'))
     } else {
-      checks.push('✅ Uso de memória normal')
+      checks.push(t('cmd.aistatus.ui.health.checks.memory_normal'))
     }
 
     // Overall status
     const healthScore = checks.filter((c) => c.startsWith('✅')).length / checks.length
 
     if (healthScore === 1) {
-      checks.push('\n**Geral:** 🟢 Excelente')
+      checks.push('')
+      checks.push(t('cmd.aistatus.ui.health.overall.excellent'))
     } else if (healthScore >= 0.7) {
-      checks.push('\n**Geral:** 🟡 Bom')
+      checks.push('')
+      checks.push(t('cmd.aistatus.ui.health.overall.good'))
     } else if (healthScore >= 0.5) {
-      checks.push('\n**Geral:** 🟠 Regular')
+      checks.push('')
+      checks.push(t('cmd.aistatus.ui.health.overall.fair'))
     } else {
-      checks.push('\n**Geral:** 🔴 Ruim')
+      checks.push('')
+      checks.push(t('cmd.aistatus.ui.health.overall.poor'))
     }
 
     return checks.join('\n')

@@ -88,7 +88,7 @@ export default class VisionCommand extends Command {
       .setColor(this.client.config.color.violet)
       .setDescription(t('ai.vision.messages.analyzing'))
       .setThumbnail(attachment.url)
-      .setFooter({ text: 'Powered by NVIDIA Vision AI' })
+      .setFooter({ text: t('ai.vision.messages.footer') })
 
     const msg = await ctx.sendMessage({ embeds: [loadingEmbed] })
 
@@ -111,8 +111,7 @@ export default class VisionCommand extends Command {
         max_tokens: 2048,
       })
 
-      const response =
-        completion.choices[0]?.message?.content || 'Não foi possível analisar a imagem.'
+      const response = completion.choices[0]?.message?.content || t('ai.vision.errors.no_result')
 
       await this.sendAnalysisResult(ctx, msg, response, mode, attachment)
     } catch (error) {
@@ -199,14 +198,15 @@ export default class VisionCommand extends Command {
     mode: string,
     attachment: any
   ) {
+    const t = (key: string, params?: Record<string, unknown>) => ctx.locale(key, params)
     const modeInfo: Record<string, { emoji: string; title: string }> = {
-      analyze: { emoji: '🔍', title: 'Análise Detalhada' },
-      describe: { emoji: '📝', title: 'Descrição da Imagem' },
-      ocr: { emoji: '📄', title: 'Texto Extraído' },
-      art: { emoji: '🎨', title: 'Análise Artística' },
-      detect: { emoji: '👥', title: 'Objetos Detectados' },
-      technical: { emoji: '📊', title: 'Análise Técnica' },
-      custom: { emoji: '💬', title: 'Resposta' },
+      analyze: { emoji: '🔍', title: t('ai.vision.modes.analyze.title') },
+      describe: { emoji: '📝', title: t('ai.vision.modes.describe.title') },
+      ocr: { emoji: '📄', title: t('ai.vision.modes.ocr.title') },
+      art: { emoji: '🎨', title: t('ai.vision.modes.art.title') },
+      detect: { emoji: '👥', title: t('ai.vision.modes.detect.title') },
+      technical: { emoji: '📊', title: t('ai.vision.modes.technical.title') },
+      custom: { emoji: '💬', title: t('ai.vision.modes.custom.title') },
     }
 
     const info = modeInfo[mode] || modeInfo.custom
@@ -217,7 +217,7 @@ export default class VisionCommand extends Command {
       .setDescription(response.length > 4000 ? response.substring(0, 4000) + '...' : response)
       .setThumbnail(attachment.url)
       .setFooter({
-        text: 'Powered by NVIDIA Vision AI',
+        text: t('ai.vision.messages.footer'),
         iconURL:
           'https://upload.wikimedia.org/wikipedia/commons/thumb/2/21/Nvidia_logo.svg/1200px-Nvidia_logo.svg.png',
       })
@@ -226,26 +226,38 @@ export default class VisionCommand extends Command {
     // Add metadata fields
     if (mode === 'technical' || mode === 'analyze') {
       embed.addFields(
-        { name: '📏 Dimensões', value: `${attachment.width}x${attachment.height}`, inline: true },
-        { name: '📦 Tamanho', value: this.formatFileSize(attachment.size), inline: true },
-        { name: '📄 Tipo', value: attachment.contentType || 'Desconhecido', inline: true }
+        {
+          name: t('ai.vision.metadata.dimensions'),
+          value: `${attachment.width}x${attachment.height}`,
+          inline: true,
+        },
+        {
+          name: t('ai.vision.metadata.size'),
+          value: this.formatFileSize(attachment.size),
+          inline: true,
+        },
+        {
+          name: t('ai.vision.metadata.type'),
+          value: attachment.contentType || t('ai.vision.messages.unknown_type'),
+          inline: true,
+        }
       )
     }
 
     const buttons = new ActionRowBuilder<ButtonBuilder>().addComponents(
       new ButtonBuilder()
         .setCustomId('vision_reanalyze')
-        .setLabel('Analisar novamente')
+        .setLabel(t('ai.vision.buttons.reanalyze'))
         .setEmoji('🔄')
         .setStyle(ButtonStyle.Primary),
       new ButtonBuilder()
         .setCustomId('vision_export')
-        .setLabel('Exportar análise')
+        .setLabel(t('ai.vision.buttons.export'))
         .setEmoji('📤')
         .setStyle(ButtonStyle.Secondary),
       new ButtonBuilder()
         .setCustomId('vision_modes')
-        .setLabel('Outros modos')
+        .setLabel(t('ai.vision.buttons.modes'))
         .setEmoji('🔧')
         .setStyle(ButtonStyle.Secondary)
     )
@@ -261,7 +273,7 @@ export default class VisionCommand extends Command {
     collector.on('collect', async (interaction) => {
       if (interaction.user.id !== ctx.author?.id) {
         return interaction.reply({
-          content: 'Apenas o autor pode usar esses botões!',
+          content: t('ai.vision.errors.author_only_buttons'),
           flags: MessageFlags.Ephemeral,
         })
       }
@@ -273,16 +285,20 @@ export default class VisionCommand extends Command {
           break
 
         case 'vision_export':
-          const exportContent =
-            `# Análise de Imagem - ${info.title}\n\n` +
-            `**Data:** ${new Date().toLocaleString('pt-BR')}\n` +
-            `**Imagem:** ${attachment.name || 'Sem nome'}\n` +
-            `**Dimensões:** ${attachment.width}x${attachment.height}\n` +
-            `**Tamanho:** ${this.formatFileSize(attachment.size)}\n\n` +
-            `## Resultado da Análise\n\n${response}`
+          const exportContent = [
+            `${t('ai.vision.messages.export_title')} - ${info.title}`,
+            '',
+            `${t('ai.vision.messages.export_date')}: ${new Date().toLocaleString('pt-BR')}`,
+            `${t('ai.vision.messages.export_image')}: ${attachment.name || t('ai.vision.messages.no_name')}`,
+            `${t('ai.vision.metadata.dimensions')}: ${attachment.width}x${attachment.height}`,
+            `${t('ai.vision.metadata.size')}: ${this.formatFileSize(attachment.size)}`,
+            '',
+            `${t('ai.vision.messages.export_result')}:`,
+            response,
+          ].join('\n')
 
           const exportFile = new AttachmentBuilder(Buffer.from(exportContent), {
-            name: `analise_imagem_${Date.now()}.md`,
+            name: `analise_imagem_${Date.now()}.txt`,
           })
 
           await interaction.reply({
@@ -294,15 +310,23 @@ export default class VisionCommand extends Command {
         case 'vision_modes':
           const modesEmbed = new EmbedBuilder()
             .setColor(this.client.config.color.main)
-            .setTitle('🔧 Modos de análise disponíveis')
-            .setDescription('Use o comando com um desses modos:')
+            .setTitle(t('ai.vision.messages.available_modes'))
+            .setDescription(t('ai.vision.messages.mode_usage'))
             .addFields(
-              { name: '🔍 analyze', value: 'Análise detalhada e completa', inline: true },
-              { name: '📝 describe', value: 'Descrição simples da imagem', inline: true },
-              { name: '📄 ocr', value: 'Extração de texto (OCR)', inline: true },
-              { name: '🎨 art', value: 'Análise artística', inline: true },
-              { name: '👥 detect', value: 'Detecção de objetos/pessoas', inline: true },
-              { name: '📊 technical', value: 'Análise técnica da imagem', inline: true }
+              { name: '🔍 analyze', value: t('ai.vision.mode_descriptions.analyze'), inline: true },
+              {
+                name: '📝 describe',
+                value: t('ai.vision.mode_descriptions.describe'),
+                inline: true,
+              },
+              { name: '📄 ocr', value: t('ai.vision.mode_descriptions.ocr'), inline: true },
+              { name: '🎨 art', value: t('ai.vision.mode_descriptions.art'), inline: true },
+              { name: '👥 detect', value: t('ai.vision.mode_descriptions.detect'), inline: true },
+              {
+                name: '📊 technical',
+                value: t('ai.vision.mode_descriptions.technical'),
+                inline: true,
+              }
             )
 
           await interaction.reply({
@@ -315,32 +339,33 @@ export default class VisionCommand extends Command {
   }
 
   private showHelp(ctx: Context) {
+    const t = (key: string, params?: Record<string, unknown>) => ctx.locale(key, params)
     const embed = new EmbedBuilder()
       .setColor(this.client.config.color.main)
-      .setTitle('🖼️ Comando Vision - Análise de Imagens com IA')
-      .setDescription('Envie uma imagem junto com o comando para analisá-la!')
+      .setTitle(t('ai.vision.messages.help_title'))
+      .setDescription(t('ai.vision.messages.help_description'))
       .addFields(
         {
-          name: '📋 Como usar',
-          value:
-            '1. Anexe uma imagem à sua mensagem\n2. Use o comando com um modo ou pergunta\n3. Aguarde a análise da IA',
+          name: t('ai.vision.messages.how_to_use'),
+          value: t('ai.vision.messages.how_to_steps'),
         },
         {
-          name: '🔧 Modos disponíveis',
-          value: `• \`!vision\` - Descrição básica
-• \`!vision analyze\` - Análise detalhada
-• \`!vision ocr\` - Extrair texto
-• \`!vision art\` - Análise artística
-• \`!vision detect\` - Detectar objetos
-• \`!vision technical\` - Análise técnica`,
+          name: t('ai.vision.messages.available_modes'),
+          value: [
+            `• !vision - ${t('ai.vision.mode_descriptions.describe')}`,
+            `• !vision analyze - ${t('ai.vision.mode_descriptions.analyze')}`,
+            `• !vision ocr - ${t('ai.vision.mode_descriptions.ocr')}`,
+            `• !vision art - ${t('ai.vision.mode_descriptions.art')}`,
+            `• !vision detect - ${t('ai.vision.mode_descriptions.detect')}`,
+            `• !vision technical - ${t('ai.vision.mode_descriptions.technical')}`,
+          ].join('\n'),
         },
         {
-          name: '❓ Perguntas personalizadas',
-          value:
-            'Você também pode fazer perguntas específicas:\n`!vision O que as pessoas estão fazendo?`\n`!vision Que tipo de lugar é este?`',
+          name: t('ai.vision.messages.custom_questions'),
+          value: t('ai.vision.messages.custom_examples'),
         }
       )
-      .setFooter({ text: 'Anexe uma imagem para começar!' })
+      .setFooter({ text: t('ai.vision.messages.attach_image') })
 
     return ctx.sendMessage({ embeds: [embed] })
   }
