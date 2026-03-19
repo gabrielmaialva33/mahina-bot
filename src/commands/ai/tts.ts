@@ -80,7 +80,7 @@ export default class TTSCommand extends Command {
     })
   }
 
-  async run(client: MahinaBot, ctx: Context, args: string[]): Promise<any> {
+  async run(client: MahinaBot, ctx: Context, args: string[]): Promise<void> {
     // Parse arguments
     let text: string
     let voice: string

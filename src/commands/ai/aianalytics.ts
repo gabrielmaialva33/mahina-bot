@@ -1,10 +1,33 @@
 import { ApplicationCommandOptionType, EmbedBuilder } from 'discord.js'
+import type { Prisma, PrismaClient } from '@prisma/client'
 import { getPreferredAIService } from '#common/ai_runtime'
 import Command from '#common/command'
 import type Context from '#common/context'
 import type MahinaBot from '#common/mahina_bot'
+import {
+  createAIAnalyticsLoadingEmbed,
+  createExportAnalyticsEmbed,
+  createModelAnalyticsEmbed,
+  createPatternAnalyticsEmbed,
+  createSearchAnalyticsEmbed,
+  createSentimentAnalyticsEmbed,
+  createUserAnalyticsEmbed,
+  getAnalyticsDateFromPeriod,
+} from '#common/aianalytics_runtime'
 
 type Period = '1h' | '24h' | '7d' | '30d' | 'all'
+type AnalyticsPrisma = PrismaClient
+type AnalyticsChatMessage = { content?: string }
+type AnalyticsSentiment = { positive: number; neutral: number; negative: number }
+type AnalyticsMemoryData = {
+  interactions?: {
+    sentiment?: Partial<AnalyticsSentiment>
+    favoriteCommands?: Record<string, number | string>
+  }
+  learning?: {
+    patterns?: string[]
+  }
+}
 
 function createPeriodOption() {
   return {
@@ -90,7 +113,7 @@ export default class AIAnalytics extends Command {
     })
   }
 
-  async run(client: MahinaBot, ctx: Context, args: string[]): Promise<any> {
+  async run(client: MahinaBot, ctx: Context, args: string[]): Promise<void> {
     const t = (key: string, params?: Record<string, unknown>) => ctx.locale(key, params)
     const subcommand = ctx.isInteraction
       ? ctx.options.getSubCommand()
@@ -111,11 +134,7 @@ export default class AIAnalytics extends Command {
     }
 
     await ctx.sendMessage({
-      embeds: [
-        new EmbedBuilder()
-          .setColor(client.config.color.blue)
-          .setDescription(t('cmd.aianalytics.ui.loading')),
-      ],
+      embeds: [createAIAnalyticsLoadingEmbed(client.config.color.blue, t)],
     })
 
     switch (subcommand) {
@@ -136,10 +155,14 @@ export default class AIAnalytics extends Command {
     }
   }
 
-  private async userAnalytics(ctx: Context, client: MahinaBot, prisma: any): Promise<void> {
+  private async userAnalytics(
+    ctx: Context,
+    client: MahinaBot,
+    prisma: AnalyticsPrisma
+  ): Promise<void> {
     const t = (key: string, params?: Record<string, unknown>) => ctx.locale(key, params)
     const period = ctx.isInteraction ? (ctx.options.get('period')?.value as Period) || '7d' : '7d'
-    const since = this.getDateFromPeriod(period)
+    const since = getAnalyticsDateFromPeriod(period)
     const where = since
       ? {
           userId: ctx.author.id,
@@ -159,41 +182,24 @@ export default class AIAnalytics extends Command {
     })
 
     const totalMessages = histories.reduce(
-      (sum: number, history: { messages: unknown[] }) =>
-        sum + (Array.isArray(history.messages) ? history.messages.length : 0),
+      (sum: number, history) => sum + this.readHistoryMessages(history.messages).length,
       0
     )
 
-    const embed = new EmbedBuilder()
-      .setTitle(t('cmd.aianalytics.ui.user.title'))
-      .setColor(client.config.color.blue)
-      .addFields(
-        {
-          name: t('cmd.aianalytics.ui.user.period'),
-          value: this.getPeriodLabel(period),
-          inline: true,
-        },
-        {
-          name: t('cmd.aianalytics.ui.user.conversations'),
-          value: histories.length.toString(),
-          inline: true,
-        },
-        {
-          name: t('cmd.aianalytics.ui.user.messages'),
-          value: totalMessages.toString(),
-          inline: true,
-        },
-        {
-          name: t('cmd.aianalytics.ui.user.last_activity'),
-          value: histories[0]
+    await ctx.editMessage({
+      embeds: [
+        createUserAnalyticsEmbed(
+          client.config.color.blue,
+          t,
+          period,
+          histories.length,
+          totalMessages,
+          histories[0]
             ? new Date(histories[0].updatedAt).toLocaleString('pt-BR')
-            : t('cmd.aianalytics.ui.no_data'),
-          inline: false,
-        }
-      )
-      .setTimestamp()
-
-    await ctx.editMessage({ embeds: [embed] })
+            : t('cmd.aianalytics.ui.no_data')
+        ),
+      ],
+    })
   }
 
   private async modelAnalytics(ctx: Context, client: MahinaBot): Promise<void> {
@@ -201,31 +207,16 @@ export default class AIAnalytics extends Command {
     const modelService = getPreferredAIService(client)
     const stats = (await modelService?.getModelStats?.('7d')) || []
 
-    const embed = new EmbedBuilder()
-      .setTitle(t('cmd.aianalytics.ui.models.title'))
-      .setColor(client.config.color.blue)
-      .setTimestamp()
-
-    if (stats.length === 0) {
-      embed.setDescription(t('cmd.aianalytics.ui.models.empty'))
-    } else {
-      for (const stat of stats.slice(0, 5)) {
-        embed.addFields({
-          name: stat.model_name,
-          value: [
-            `Requisições: **${stat.total_requests}**`,
-            `Tempo médio: **${Math.round(stat.avg_response_time)}ms**`,
-            `Sucesso: **${Math.round(stat.success_rate * 100)}%**`,
-          ].join('\n'),
-          inline: true,
-        })
-      }
-    }
-
-    await ctx.editMessage({ embeds: [embed] })
+    await ctx.editMessage({
+      embeds: [createModelAnalyticsEmbed(client.config.color.blue, t, stats)],
+    })
   }
 
-  private async sentimentAnalytics(ctx: Context, client: MahinaBot, prisma: any): Promise<void> {
+  private async sentimentAnalytics(
+    ctx: Context,
+    client: MahinaBot,
+    prisma: AnalyticsPrisma
+  ): Promise<void> {
     const t = (key: string, params?: Record<string, unknown>) => ctx.locale(key, params)
     const memory = await prisma.aIMemory.findUnique({
       where: {
@@ -236,37 +227,23 @@ export default class AIAnalytics extends Command {
       },
     })
 
-    const sentiment = (memory?.data as any)?.interactions?.sentiment || {
-      positive: 0,
-      neutral: 0,
-      negative: 0,
+    const sentimentSource = this.readMemoryData(memory?.data).interactions?.sentiment
+    const sentiment: AnalyticsSentiment = {
+      positive: Number(sentimentSource?.positive || 0),
+      neutral: Number(sentimentSource?.neutral || 0),
+      negative: Number(sentimentSource?.negative || 0),
     }
 
-    const embed = new EmbedBuilder()
-      .setTitle(t('cmd.aianalytics.ui.sentiment.title'))
-      .setColor(client.config.color.blue)
-      .addFields(
-        {
-          name: t('cmd.aianalytics.ui.sentiment.positive'),
-          value: String(sentiment.positive || 0),
-          inline: true,
-        },
-        {
-          name: t('cmd.aianalytics.ui.sentiment.neutral'),
-          value: String(sentiment.neutral || 0),
-          inline: true,
-        },
-        {
-          name: t('cmd.aianalytics.ui.sentiment.negative'),
-          value: String(sentiment.negative || 0),
-          inline: true,
-        }
-      )
-
-    await ctx.editMessage({ embeds: [embed] })
+    await ctx.editMessage({
+      embeds: [createSentimentAnalyticsEmbed(client.config.color.blue, t, sentiment)],
+    })
   }
 
-  private async searchAnalytics(ctx: Context, client: MahinaBot, prisma: any): Promise<void> {
+  private async searchAnalytics(
+    ctx: Context,
+    client: MahinaBot,
+    prisma: AnalyticsPrisma
+  ): Promise<void> {
     const t = (key: string, params?: Record<string, unknown>) => ctx.locale(key, params)
     const query = ctx.isInteraction
       ? String(ctx.options.get('query')?.value || '')
@@ -279,14 +256,10 @@ export default class AIAnalytics extends Command {
     })
 
     const matches = histories
-      .flatMap((history: { messages: unknown[]; updatedAt: Date }) =>
-        (Array.isArray(history.messages) ? history.messages : [])
+      .flatMap((history) =>
+        this.readHistoryMessages(history.messages)
           .map((message) => {
-            if (!message || typeof message !== 'object') {
-              return null
-            }
-
-            const content = 'content' in message ? String(message.content) : ''
+            const content = message.content ?? ''
             if (!content.toLowerCase().includes(query.toLowerCase())) {
               return null
             }
@@ -297,17 +270,16 @@ export default class AIAnalytics extends Command {
       )
       .slice(0, 8)
 
-    const embed = new EmbedBuilder()
-      .setTitle(t('cmd.aianalytics.ui.search.title'))
-      .setColor(client.config.color.blue)
-      .setDescription(
-        matches.length > 0 ? matches.join('\n') : t('cmd.aianalytics.ui.search.empty')
-      )
-
-    await ctx.editMessage({ embeds: [embed] })
+    await ctx.editMessage({
+      embeds: [createSearchAnalyticsEmbed(client.config.color.blue, t, matches)],
+    })
   }
 
-  private async patternAnalytics(ctx: Context, client: MahinaBot, prisma: any): Promise<void> {
+  private async patternAnalytics(
+    ctx: Context,
+    client: MahinaBot,
+    prisma: AnalyticsPrisma
+  ): Promise<void> {
     const t = (key: string, params?: Record<string, unknown>) => ctx.locale(key, params)
     const memory = await prisma.aIMemory.findUnique({
       where: {
@@ -318,7 +290,7 @@ export default class AIAnalytics extends Command {
       },
     })
 
-    const data = (memory?.data as any) || {}
+    const data = this.readMemoryData(memory?.data)
     const topCommands = Object.entries(data.interactions?.favoriteCommands || {})
       .sort(([, left], [, right]) => Number(right) - Number(left))
       .slice(0, 5)
@@ -328,67 +300,53 @@ export default class AIAnalytics extends Command {
       ? data.learning.patterns.slice(0, 5)
       : []
 
-    const embed = new EmbedBuilder()
-      .setTitle(t('cmd.aianalytics.ui.patterns.title'))
-      .setColor(client.config.color.blue)
-      .addFields(
-        {
-          name: t('cmd.aianalytics.ui.patterns.frequent_commands'),
-          value: topCommands.length > 0 ? topCommands.join('\n') : t('cmd.aianalytics.ui.no_data'),
-          inline: false,
-        },
-        {
-          name: t('cmd.aianalytics.ui.patterns.learned_patterns'),
-          value: patterns.length > 0 ? patterns.join('\n') : t('cmd.aianalytics.ui.patterns.empty'),
-          inline: false,
-        }
-      )
-
-    await ctx.editMessage({ embeds: [embed] })
+    await ctx.editMessage({
+      embeds: [createPatternAnalyticsEmbed(client.config.color.blue, t, topCommands, patterns)],
+    })
   }
 
-  private async exportAnalytics(ctx: Context, client: MahinaBot, prisma: any): Promise<void> {
+  private async exportAnalytics(
+    ctx: Context,
+    client: MahinaBot,
+    prisma: AnalyticsPrisma
+  ): Promise<void> {
     const t = (key: string, params?: Record<string, unknown>) => ctx.locale(key, params)
     const historyCount = await prisma.chatHistory.count({ where: { userId: ctx.author.id } })
     const memoryCount = await prisma.aIMemory.count({ where: { userId: ctx.author.id } })
 
     const exportText = [
-      '# AI Analytics Export',
-      `- User: ${ctx.author.id}`,
-      `- Histories: ${historyCount}`,
-      `- Memory Entries: ${memoryCount}`,
-      `- Generated At: ${new Date().toISOString()}`,
+      t('cmd.aianalytics.ui.export.header'),
+      `${t('cmd.aianalytics.ui.export.user')}: ${ctx.author.id}`,
+      `${t('cmd.aianalytics.ui.export.histories')}: ${historyCount}`,
+      `${t('cmd.aianalytics.ui.export.memory_entries')}: ${memoryCount}`,
+      `${t('cmd.aianalytics.ui.export.generated_at')}: ${new Date().toISOString()}`,
     ].join('\n')
 
-    const embed = new EmbedBuilder()
-      .setTitle(t('cmd.aianalytics.ui.export.title'))
-      .setColor(client.config.color.green)
-      .setDescription(`\`\`\`md\n${exportText}\n\`\`\``)
-
-    await ctx.editMessage({ embeds: [embed] })
+    await ctx.editMessage({
+      embeds: [createExportAnalyticsEmbed(client.config.color.green, t, exportText)],
+    })
   }
 
-  private getDateFromPeriod(period: Period): Date | null {
-    const now = Date.now()
-    const map: Record<Exclude<Period, 'all'>, number> = {
-      '1h': 60 * 60 * 1000,
-      '24h': 24 * 60 * 60 * 1000,
-      '7d': 7 * 24 * 60 * 60 * 1000,
-      '30d': 30 * 24 * 60 * 60 * 1000,
+  private readHistoryMessages(value: Prisma.JsonValue | null | undefined): AnalyticsChatMessage[] {
+    if (!Array.isArray(value)) {
+      return []
     }
 
-    return period === 'all' ? null : new Date(now - map[period])
+    return value.flatMap((entry) => {
+      if (!entry || typeof entry !== 'object') {
+        return []
+      }
+
+      const content = 'content' in entry ? String(entry.content ?? '') : ''
+      return [{ content }]
+    })
   }
 
-  private getPeriodLabel(period: Period): string {
-    const labels: Record<Period, string> = {
-      '1h': 'Última hora',
-      '24h': 'Últimas 24 horas',
-      '7d': 'Últimos 7 dias',
-      '30d': 'Últimos 30 dias',
-      'all': 'Todos os tempos',
+  private readMemoryData(value: Prisma.JsonValue | null | undefined): AnalyticsMemoryData {
+    if (!value || typeof value !== 'object' || Array.isArray(value)) {
+      return {}
     }
 
-    return labels[period]
+    return value as AnalyticsMemoryData
   }
 }

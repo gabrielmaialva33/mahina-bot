@@ -50,7 +50,7 @@ export default class Reason extends Command {
     })
   }
 
-  async run(client: MahinaBot, ctx: Context, args: string[]): Promise<any> {
+  async run(client: MahinaBot, ctx: Context, args: string[]): Promise<void> {
     if (!client.services.nvidia && !client.services.nvidiaMultimodal) {
       return await ctx.sendMessage({
         embeds: [createAIErrorEmbed(client, 'NVIDIA AI service is not configured')],

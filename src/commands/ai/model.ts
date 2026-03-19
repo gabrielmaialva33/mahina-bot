@@ -7,9 +7,15 @@ import {
   getPreferredAIService,
   setUserAIModel,
 } from '#common/ai_runtime'
+import {
+  createFilteredModelListEmbed,
+  createModelInfoEmbed,
+  createModelStatsEmbed,
+  createSelectedModelEmbed,
+} from '#common/model_runtime'
 import type Context from '#common/context'
 import type MahinaBot from '#common/mahina_bot'
-import { ApplicationCommandOptionType, EmbedBuilder } from 'discord.js'
+import { ApplicationCommandOptionType } from 'discord.js'
 
 export default class Model extends Command {
   constructor(client: MahinaBot) {
@@ -144,7 +150,7 @@ export default class Model extends Command {
     })
   }
 
-  async run(client: MahinaBot, ctx: Context, args: string[]): Promise<any> {
+  async run(client: MahinaBot, ctx: Context, args: string[]): Promise<void> {
     const t = (key: string, params?: Record<string, unknown>) => ctx.locale(key, params)
     const subcommand = ctx.isInteraction
       ? ctx.options.getSubCommand() || 'current'
@@ -174,27 +180,9 @@ export default class Model extends Command {
           const models = getAllAvailableAIModels(client).filter(
             (model) => model.category === category
           )
-          const embed = new EmbedBuilder()
-            .setTitle(t('cmd.model.ui.list.title', { category }))
-            .setColor(client.config.color.blue)
-            .setTimestamp()
-
-          if (models.length === 0) {
-            embed.setDescription(t('cmd.model.ui.list.empty_category'))
-          } else {
-            for (const model of models) {
-              embed.addFields({
-                name: model.name,
-                value: t('cmd.model.ui.list.item', {
-                  description: model.description,
-                  contextLength: model.contextLength.toLocaleString(),
-                }),
-                inline: false,
-              })
-            }
-          }
-
-          return await ctx.sendMessage({ embeds: [embed] })
+          return await ctx.sendMessage({
+            embeds: [createFilteredModelListEmbed(client.config.color.blue, t, category, models)],
+          })
         }
 
         const catalogEmbed = createAIModelCatalogEmbed(client)
@@ -239,28 +227,9 @@ export default class Model extends Command {
         }
 
         const model = selection.model
-        const embed = new EmbedBuilder()
-          .setTitle(t('cmd.model.ui.select.title'))
-          .setDescription(t('cmd.model.ui.select.description', { model: model!.name }))
-          .setColor(client.config.color.green)
-          .addFields(
-            { name: t('cmd.model.ui.fields.category'), value: model!.category, inline: true },
-            {
-              name: t('cmd.model.ui.fields.context'),
-              value: `${model!.contextLength.toLocaleString()} tokens`,
-              inline: true,
-            },
-            {
-              name: t('cmd.model.ui.fields.streaming'),
-              value: model!.streaming
-                ? t('cmd.model.ui.streaming.enabled')
-                : t('cmd.model.ui.streaming.disabled'),
-              inline: true,
-            }
-          )
-          .setFooter({ text: t('cmd.model.ui.select.footer') })
-
-        return await ctx.sendMessage({ embeds: [embed] })
+        return await ctx.sendMessage({
+          embeds: [createSelectedModelEmbed(client.config.color.green, t, model!)],
+        })
       }
 
       case 'info': {
@@ -290,65 +259,9 @@ export default class Model extends Command {
           })
         }
 
-        const embed = new EmbedBuilder()
-          .setTitle(`🤖 ${model.name}`)
-          .setDescription(model.description)
-          .setColor(client.config.color.main)
-          .addFields(
-            { name: t('cmd.model.ui.fields.model_id'), value: `\`${model.id}\``, inline: false },
-            { name: t('cmd.model.ui.fields.category'), value: model.category, inline: true },
-            {
-              name: t('cmd.model.ui.fields.context'),
-              value: `${model.contextLength.toLocaleString()} tokens`,
-              inline: true,
-            },
-            {
-              name: t('cmd.model.ui.fields.max_tokens'),
-              value: `${model.maxTokens.toLocaleString()}`,
-              inline: true,
-            },
-            {
-              name: t('cmd.model.ui.fields.temperature'),
-              value: `${model.temperature}`,
-              inline: true,
-            },
-            { name: t('cmd.model.ui.fields.top_p'), value: `${model.topP}`, inline: true },
-            {
-              name: t('cmd.model.ui.fields.streaming'),
-              value: model.streaming
-                ? t('cmd.model.ui.streaming.supported')
-                : t('cmd.model.ui.streaming.unsupported'),
-              inline: true,
-            }
-          )
-
-        // Add features if enhanced model
-        if (model.features && model.features.length > 0) {
-          embed.addFields({
-            name: t('cmd.model.ui.fields.features'),
-            value: model.features.map((f) => `• ${f}`).join('\n'),
-            inline: false,
-          })
-        }
-
-        // Add cost if available
-        if (model.costPerMillion) {
-          embed.addFields({
-            name: t('cmd.model.ui.fields.cost'),
-            value: t('cmd.model.ui.cost_value', { cost: model.costPerMillion }),
-            inline: true,
-          })
-        }
-
-        if (model.latency) {
-          embed.addFields({
-            name: t('cmd.model.ui.fields.latency'),
-            value: model.latency,
-            inline: true,
-          })
-        }
-
-        return await ctx.sendMessage({ embeds: [embed] })
+        return await ctx.sendMessage({
+          embeds: [createModelInfoEmbed(client.config.color.main, t, model)],
+        })
       }
 
       case 'stats': {
@@ -368,36 +281,9 @@ export default class Model extends Command {
         }
 
         const stats = await nvidiaService.getModelStats(period)
-        const embed = new EmbedBuilder()
-          .setTitle(t('cmd.model.ui.stats.title', { period }))
-          .setColor(client.config.color.blue)
-          .setDescription(t('cmd.model.ui.stats.description'))
-          .setTimestamp()
-
-        if (Array.isArray(stats) && stats.length > 0) {
-          for (const stat of stats.slice(0, 10)) {
-            embed.addFields({
-              name: stat.model_name,
-              value: [
-                t('cmd.model.ui.stats.requests', { total: stat.total_requests }),
-                t('cmd.model.ui.stats.tokens', {
-                  total: Number(stat.total_tokens).toLocaleString(),
-                }),
-                t('cmd.model.ui.stats.avg_time', {
-                  time: Math.round(stat.avg_response_time),
-                }),
-                t('cmd.model.ui.stats.success_rate', {
-                  rate: Math.round(stat.success_rate * 100),
-                }),
-              ].join(' | '),
-              inline: false,
-            })
-          }
-        } else {
-          embed.setDescription(t('cmd.model.ui.stats.empty'))
-        }
-
-        return await ctx.sendMessage({ embeds: [embed] })
+        return await ctx.sendMessage({
+          embeds: [createModelStatsEmbed(client.config.color.blue, t, period, stats)],
+        })
       }
 
       case 'current':

@@ -1,7 +1,8 @@
 import Command from '#common/command'
 import type Context from '#common/context'
 import type MahinaBot from '#common/mahina_bot'
-import { ApplicationCommandOptionType, EmbedBuilder, MessageFlags } from 'discord.js'
+import type { ContentSafetyResponse, NvidiaGuardService } from '#src/services/nvidia_guard_service'
+import { ApplicationCommandOptionType, EmbedBuilder, Message, MessageFlags } from 'discord.js'
 
 export default class GuardCommand extends Command {
   constructor(client: MahinaBot) {
@@ -53,7 +54,8 @@ export default class GuardCommand extends Command {
     })
   }
 
-  async run(client: MahinaBot, ctx: Context, args: string[]): Promise<any> {
+  async run(client: MahinaBot, ctx: Context, args: string[]): Promise<void> {
+    const t = (key: string, params?: Record<string, unknown>) => ctx.locale(key, params)
     // Parse arguments
     let action: string
     let text: string
@@ -73,22 +75,22 @@ export default class GuardCommand extends Command {
       return await ctx.sendMessage({
         embeds: [
           {
-            title: '🛡️ NVIDIA NemoGuard',
-            description: 'Sistema de segurança e moderação de IA',
+            title: t('cmd.guard.ui.help.title'),
+            description: t('cmd.guard.ui.help.description'),
             fields: [
               {
-                name: '🔍 Verificar Texto',
-                value: '`!guard check <texto>` - Analisa a segurança de um texto',
+                name: t('cmd.guard.ui.help.check_name'),
+                value: t('cmd.guard.ui.help.check_value'),
                 inline: false,
               },
               {
-                name: '📊 Estatísticas',
-                value: '`!guard stats` - Mostra estatísticas dos sistemas de segurança',
+                name: t('cmd.guard.ui.help.stats_name'),
+                value: t('cmd.guard.ui.help.stats_value'),
                 inline: false,
               },
               {
-                name: '🧪 Testes',
-                value: '`!guard test_jailbreak <texto>` - Testa detecção de jailbreak',
+                name: t('cmd.guard.ui.help.tests_name'),
+                value: t('cmd.guard.ui.help.tests_value'),
                 inline: false,
               },
             ],
@@ -104,7 +106,7 @@ export default class GuardCommand extends Command {
       return await ctx.sendMessage({
         embeds: [
           {
-            description: '❌ Serviço de segurança não está disponível.',
+            description: t('cmd.guard.ui.errors.service_unavailable'),
             color: client.config.color.red,
           },
         ],
@@ -116,7 +118,7 @@ export default class GuardCommand extends Command {
       return await ctx.sendMessage({
         embeds: [
           {
-            description: '❌ Serviço NemoGuard não está configurado. Configure NVIDIA_API_KEY.',
+            description: t('cmd.guard.ui.errors.not_configured'),
             color: client.config.color.red,
           },
         ],
@@ -139,7 +141,7 @@ export default class GuardCommand extends Command {
           return await ctx.sendMessage({
             embeds: [
               {
-                description: '❌ Por favor, forneça um texto para verificar!',
+                description: t('cmd.guard.ui.errors.missing_text_check'),
                 color: client.config.color.red,
               },
             ],
@@ -154,7 +156,7 @@ export default class GuardCommand extends Command {
           return await ctx.sendMessage({
             embeds: [
               {
-                description: '❌ Por favor, forneça um texto para testar!',
+                description: t('cmd.guard.ui.errors.missing_text_test'),
                 color: client.config.color.red,
               },
             ],
@@ -169,7 +171,7 @@ export default class GuardCommand extends Command {
           return await ctx.sendMessage({
             embeds: [
               {
-                description: '❌ Por favor, forneça um texto para testar!',
+                description: t('cmd.guard.ui.errors.missing_text_test'),
                 color: client.config.color.red,
               },
             ],
@@ -183,8 +185,7 @@ export default class GuardCommand extends Command {
         return await ctx.sendMessage({
           embeds: [
             {
-              description:
-                '❌ Ação inválida! Use: check, stats, test_jailbreak, test_safety, ou topics.',
+              description: t('cmd.guard.ui.errors.invalid_action'),
               color: client.config.color.red,
             },
           ],
@@ -193,32 +194,39 @@ export default class GuardCommand extends Command {
     }
   }
 
-  private async handleStats(ctx: Context, guardService: any, client: MahinaBot): Promise<any> {
+  private async handleStats(
+    ctx: Context,
+    guardService: NvidiaGuardService,
+    client: MahinaBot
+  ): Promise<Message | void> {
+    const t = (key: string, params?: Record<string, unknown>) => ctx.locale(key, params)
     const stats = guardService.getGuardStats()
 
     const embed = new EmbedBuilder()
       .setColor(client.config.color.blue)
-      .setTitle('📊 Estatísticas do NemoGuard')
-      .setDescription('Sistema de segurança e moderação de IA')
+      .setTitle(t('cmd.guard.ui.stats.title'))
+      .setDescription(t('cmd.guard.ui.stats.description'))
       .addFields(
         {
-          name: '🤖 Modelos Disponíveis',
+          name: t('cmd.guard.ui.stats.models'),
           value: stats.models.map((model: string) => `• ${model}`).join('\n'),
           inline: false,
         },
         {
-          name: '🛡️ Recursos',
+          name: t('cmd.guard.ui.stats.features'),
           value: stats.features.map((feature: string) => `• ${feature}`).join('\n'),
           inline: false,
         },
         {
-          name: '📈 Status',
-          value: stats.availability ? '✅ Operacional' : '❌ Indisponível',
+          name: t('cmd.guard.ui.stats.status'),
+          value: stats.availability
+            ? t('cmd.guard.ui.values.available')
+            : t('cmd.guard.ui.values.unavailable'),
           inline: true,
         }
       )
       .setFooter({
-        text: `Solicitado por ${ctx.author.username} • NVIDIA NemoGuard`,
+        text: t('cmd.guard.ui.stats.footer', { user: ctx.author.username }),
         iconURL: ctx.author.avatarURL() || undefined,
       })
       .setTimestamp()
@@ -226,20 +234,25 @@ export default class GuardCommand extends Command {
     return await ctx.sendMessage({ embeds: [embed] })
   }
 
-  private async handleTopics(ctx: Context, guardService: any, client: MahinaBot): Promise<any> {
+  private async handleTopics(
+    ctx: Context,
+    guardService: NvidiaGuardService,
+    client: MahinaBot
+  ): Promise<Message | void> {
+    const t = (key: string, params?: Record<string, unknown>) => ctx.locale(key, params)
     const allowedTopics = guardService.getMusicAllowedTopics()
 
     const embed = new EmbedBuilder()
       .setColor(client.config.color.green)
-      .setTitle('📋 Tópicos Permitidos')
-      .setDescription('Lista de tópicos aprovados para conversas com IA')
+      .setTitle(t('cmd.guard.ui.topics.title'))
+      .setDescription(t('cmd.guard.ui.topics.description'))
       .addFields({
-        name: '✅ Tópicos Aprovados',
+        name: t('cmd.guard.ui.topics.allowed'),
         value: allowedTopics.map((topic: string) => `• ${topic}`).join('\n'),
         inline: false,
       })
       .setFooter({
-        text: `${allowedTopics.length} tópicos configurados • Controle de Tópicos`,
+        text: t('cmd.guard.ui.topics.footer', { total: allowedTopics.length }),
         iconURL: ctx.author.avatarURL() || undefined,
       })
       .setTimestamp()
@@ -249,18 +262,23 @@ export default class GuardCommand extends Command {
 
   private async handleComprehensiveCheck(
     ctx: Context,
-    guardService: any,
+    guardService: NvidiaGuardService,
     client: MahinaBot,
     text: string,
     strictMode: boolean
-  ): Promise<any> {
+  ): Promise<void> {
+    const t = (key: string, params?: Record<string, unknown>) => ctx.locale(key, params)
     // Show loading message
     const loadingEmbed = new EmbedBuilder()
       .setColor(client.config.color.main)
-      .setDescription('🔍 Analisando segurança do texto...')
+      .setDescription(t('cmd.guard.ui.check.loading'))
       .addFields(
-        { name: '📝 Texto', value: text.substring(0, 500), inline: false },
-        { name: '⚙️ Modo', value: strictMode ? 'Estrito' : 'Normal', inline: true }
+        { name: t('cmd.guard.ui.check.text'), value: text.substring(0, 500), inline: false },
+        {
+          name: t('cmd.guard.ui.check.mode'),
+          value: strictMode ? t('cmd.guard.ui.values.strict') : t('cmd.guard.ui.values.normal'),
+          inline: true,
+        }
       )
 
     await ctx.sendDeferMessage({ embeds: [loadingEmbed] })
@@ -273,32 +291,44 @@ export default class GuardCommand extends Command {
 
       const resultEmbed = new EmbedBuilder()
         .setColor(result.is_safe ? client.config.color.green : client.config.color.red)
-        .setTitle(`🛡️ Resultado da Análise de Segurança`)
-        .setDescription(`**Status:** ${result.is_safe ? '✅ Seguro' : '⚠️ Risco Detectado'}`)
+        .setTitle(t('cmd.guard.ui.check.result_title'))
+        .setDescription(
+          t('cmd.guard.ui.check.result_status', {
+            status: result.is_safe
+              ? t('cmd.guard.ui.values.safe')
+              : t('cmd.guard.ui.values.risk_detected'),
+          })
+        )
         .addFields(
           {
-            name: '📊 Nível de Risco',
+            name: t('cmd.guard.ui.check.risk'),
             value: this.getRiskEmoji(result.overall_risk) + ' ' + result.overall_risk.toUpperCase(),
             inline: true,
           },
           {
-            name: '🎯 Ação Recomendada',
+            name: t('cmd.guard.ui.check.action'),
             value: this.getActionEmoji(result.action) + ' ' + result.action.toUpperCase(),
             inline: true,
           },
           {
-            name: '🧪 Jailbreak',
-            value: result.jailbreak_risk ? '❌ Detectado' : '✅ Não detectado',
+            name: t('cmd.guard.ui.check.jailbreak'),
+            value: result.jailbreak_risk
+              ? t('cmd.guard.ui.values.detected')
+              : t('cmd.guard.ui.values.not_detected'),
             inline: true,
           },
           {
-            name: '📋 Conteúdo',
-            value: result.content_violations ? '❌ Violações encontradas' : '✅ Aprovado',
+            name: t('cmd.guard.ui.check.content'),
+            value: result.content_violations
+              ? t('cmd.guard.ui.values.violations_found')
+              : t('cmd.guard.ui.values.approved'),
             inline: true,
           },
           {
-            name: '💭 Tópicos',
-            value: result.topic_violations ? '❌ Fora do escopo' : '✅ Apropriado',
+            name: t('cmd.guard.ui.check.topics'),
+            value: result.topic_violations
+              ? t('cmd.guard.ui.values.out_of_scope')
+              : t('cmd.guard.ui.values.appropriate'),
             inline: true,
           }
         )
@@ -307,8 +337,11 @@ export default class GuardCommand extends Command {
       if (result.details.jailbreak && result.jailbreak_risk) {
         const jailbreak = result.details.jailbreak
         resultEmbed.addFields({
-          name: '🚨 Detalhes do Jailbreak',
-          value: `**Confiança:** ${Math.round(jailbreak.confidence * 100)}%\n**Técnicas:** ${jailbreak.techniques_detected.join(', ') || 'N/A'}`,
+          name: t('cmd.guard.ui.check.jailbreak_details'),
+          value: t('cmd.guard.ui.check.jailbreak_details_value', {
+            confidence: Math.round(jailbreak.confidence * 100),
+            techniques: jailbreak.techniques_detected.join(', ') || 'N/A',
+          }),
           inline: false,
         })
       }
@@ -317,9 +350,12 @@ export default class GuardCommand extends Command {
         const violations = result.details.content.content_policy_violations
         if (violations.length > 0) {
           resultEmbed.addFields({
-            name: '⚠️ Violações de Conteúdo',
+            name: t('cmd.guard.ui.check.content_violations'),
             value: violations
-              .map((v: any) => `• **${v.policy}:** ${v.violation_type} (${v.severity})`)
+              .map(
+                (v: ContentSafetyResponse['content_policy_violations'][number]) =>
+                  `• **${v.policy}:** ${v.violation_type} (${v.severity})`
+              )
               .join('\n'),
             inline: false,
           })
@@ -328,7 +364,7 @@ export default class GuardCommand extends Command {
 
       resultEmbed
         .setFooter({
-          text: `Analisado por ${ctx.author.username} • NemoGuard Security`,
+          text: t('cmd.guard.ui.check.footer', { user: ctx.author.username }),
           iconURL: ctx.author.avatarURL() || undefined,
         })
         .setTimestamp()
@@ -339,8 +375,8 @@ export default class GuardCommand extends Command {
       await ctx.editMessage({
         embeds: [
           {
-            title: '❌ Erro na análise',
-            description: 'Ocorreu um erro durante a análise de segurança.',
+            title: t('cmd.guard.ui.errors.analysis_title'),
+            description: t('cmd.guard.ui.errors.analysis'),
             color: client.config.color.red,
           },
         ],
@@ -350,13 +386,14 @@ export default class GuardCommand extends Command {
 
   private async handleJailbreakTest(
     ctx: Context,
-    guardService: any,
+    guardService: NvidiaGuardService,
     client: MahinaBot,
     text: string
-  ): Promise<any> {
+  ): Promise<void> {
+    const t = (key: string, params?: Record<string, unknown>) => ctx.locale(key, params)
     const loadingEmbed = new EmbedBuilder()
       .setColor(client.config.color.main)
-      .setDescription('🧪 Testando detecção de jailbreak...')
+      .setDescription(t('cmd.guard.ui.jailbreak.loading'))
 
     await ctx.sendDeferMessage({ embeds: [loadingEmbed] })
 
@@ -367,7 +404,7 @@ export default class GuardCommand extends Command {
         return await ctx.editMessage({
           embeds: [
             {
-              description: '❌ Erro ao executar teste de jailbreak.',
+              description: t('cmd.guard.ui.errors.jailbreak'),
               color: client.config.color.red,
             },
           ],
@@ -376,16 +413,22 @@ export default class GuardCommand extends Command {
 
       const embed = new EmbedBuilder()
         .setColor(result.is_jailbreak ? client.config.color.red : client.config.color.green)
-        .setTitle('🧪 Teste de Detecção de Jailbreak')
+        .setTitle(t('cmd.guard.ui.jailbreak.title'))
         .addFields(
           {
-            name: '🎯 Resultado',
-            value: result.is_jailbreak ? '❌ Jailbreak detectado' : '✅ Texto seguro',
+            name: t('cmd.guard.ui.jailbreak.result'),
+            value: result.is_jailbreak
+              ? t('cmd.guard.ui.values.jailbreak_detected')
+              : t('cmd.guard.ui.values.safe_text'),
             inline: true,
           },
-          { name: '📊 Confiança', value: `${Math.round(result.confidence * 100)}%`, inline: true },
           {
-            name: '⚠️ Risco',
+            name: t('cmd.guard.ui.jailbreak.confidence'),
+            value: `${Math.round(result.confidence * 100)}%`,
+            inline: true,
+          },
+          {
+            name: t('cmd.guard.ui.jailbreak.risk'),
             value:
               this.getRiskEmoji(result.risk_assessment) +
               ' ' +
@@ -396,7 +439,7 @@ export default class GuardCommand extends Command {
 
       if (result.techniques_detected && result.techniques_detected.length > 0) {
         embed.addFields({
-          name: '🔍 Técnicas Detectadas',
+          name: t('cmd.guard.ui.jailbreak.techniques'),
           value: result.techniques_detected.map((tech: string) => `• ${tech}`).join('\n'),
           inline: false,
         })
@@ -404,7 +447,7 @@ export default class GuardCommand extends Command {
 
       embed
         .setFooter({
-          text: `Teste realizado por ${ctx.author.username} • Jailbreak Detection`,
+          text: t('cmd.guard.ui.jailbreak.footer', { user: ctx.author.username }),
           iconURL: ctx.author.avatarURL() || undefined,
         })
         .setTimestamp()
@@ -415,8 +458,8 @@ export default class GuardCommand extends Command {
       await ctx.editMessage({
         embeds: [
           {
-            title: '❌ Erro no teste',
-            description: 'Ocorreu um erro durante o teste de jailbreak.',
+            title: t('cmd.guard.ui.errors.test_title'),
+            description: t('cmd.guard.ui.errors.jailbreak_test'),
             color: client.config.color.red,
           },
         ],
@@ -426,13 +469,14 @@ export default class GuardCommand extends Command {
 
   private async handleSafetyTest(
     ctx: Context,
-    guardService: any,
+    guardService: NvidiaGuardService,
     client: MahinaBot,
     text: string
-  ): Promise<any> {
+  ): Promise<void> {
+    const t = (key: string, params?: Record<string, unknown>) => ctx.locale(key, params)
     const loadingEmbed = new EmbedBuilder()
       .setColor(client.config.color.main)
-      .setDescription('🛡️ Testando segurança de conteúdo...')
+      .setDescription(t('cmd.guard.ui.safety.loading'))
 
     await ctx.sendDeferMessage({ embeds: [loadingEmbed] })
 
@@ -443,7 +487,7 @@ export default class GuardCommand extends Command {
         return await ctx.editMessage({
           embeds: [
             {
-              description: '❌ Erro ao executar teste de segurança.',
+              description: t('cmd.guard.ui.errors.safety'),
               color: client.config.color.red,
             },
           ],
@@ -452,15 +496,17 @@ export default class GuardCommand extends Command {
 
       const embed = new EmbedBuilder()
         .setColor(result.is_safe ? client.config.color.green : client.config.color.red)
-        .setTitle('🛡️ Teste de Segurança de Conteúdo')
+        .setTitle(t('cmd.guard.ui.safety.title'))
         .addFields(
           {
-            name: '🎯 Resultado',
-            value: result.is_safe ? '✅ Conteúdo seguro' : '❌ Violações detectadas',
+            name: t('cmd.guard.ui.safety.result'),
+            value: result.is_safe
+              ? t('cmd.guard.ui.values.safe_content')
+              : t('cmd.guard.ui.values.violations_detected'),
             inline: true,
           },
           {
-            name: '💡 Recomendação',
+            name: t('cmd.guard.ui.safety.recommendation'),
             value:
               this.getRecommendationEmoji(result.recommendation) +
               ' ' +
@@ -471,10 +517,10 @@ export default class GuardCommand extends Command {
 
       if (result.content_policy_violations && result.content_policy_violations.length > 0) {
         embed.addFields({
-          name: '⚠️ Violações Encontradas',
+          name: t('cmd.guard.ui.safety.violations'),
           value: result.content_policy_violations
             .map(
-              (v: any) =>
+              (v: ContentSafetyResponse['content_policy_violations'][number]) =>
                 `• **${v.policy}:** ${v.violation_type} (${v.severity}) - Score: ${Math.round(v.score * 100)}%`
             )
             .join('\n'),
@@ -484,7 +530,7 @@ export default class GuardCommand extends Command {
 
       embed
         .setFooter({
-          text: `Teste realizado por ${ctx.author.username} • Content Safety`,
+          text: t('cmd.guard.ui.safety.footer', { user: ctx.author.username }),
           iconURL: ctx.author.avatarURL() || undefined,
         })
         .setTimestamp()
@@ -495,8 +541,8 @@ export default class GuardCommand extends Command {
       await ctx.editMessage({
         embeds: [
           {
-            title: '❌ Erro no teste',
-            description: 'Ocorreu um erro durante o teste de segurança.',
+            title: t('cmd.guard.ui.errors.test_title'),
+            description: t('cmd.guard.ui.errors.safety_test'),
             color: client.config.color.red,
           },
         ],

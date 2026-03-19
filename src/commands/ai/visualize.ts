@@ -3,10 +3,18 @@ import type Context from '#common/context'
 import type MahinaBot from '#common/mahina_bot'
 import {
   ApplicationCommandOptionType,
+  Attachment,
   AttachmentBuilder,
   EmbedBuilder,
   MessageFlags,
+  type MessageEditOptions,
 } from 'discord.js'
+
+type VisualizationType = 'nowplaying' | 'custom' | 'physics'
+type VisualizationStyle = 'abstract' | 'realistic' | 'cyberpunk' | 'neon' | 'minimalist'
+type CosmosResult = NonNullable<
+  Awaited<ReturnType<NonNullable<MahinaBot['services']['nvidiaCosmos']>['generateVideo']>>
+>
 
 export default class VisualizeCommand extends Command {
   constructor(client: MahinaBot) {
@@ -83,19 +91,19 @@ export default class VisualizeCommand extends Command {
     })
   }
 
-  async run(client: MahinaBot, ctx: Context, args: string[]): Promise<any> {
+  async run(client: MahinaBot, ctx: Context, args: string[]): Promise<void> {
     // Parse arguments
-    let type: string
+    let type: VisualizationType
     let prompt: string
-    let style: string
+    let style: VisualizationStyle
     let frames: number
     let includeText: boolean
-    let imageAttachment: any
+    let imageAttachment: Attachment | undefined
 
     if (ctx.isInteraction) {
-      type = (ctx.options.get('tipo')?.value as string) || 'custom'
+      type = (ctx.options.get('tipo')?.value as VisualizationType) || 'custom'
       prompt = (ctx.options.get('prompt')?.value as string) || ''
-      style = (ctx.options.get('estilo')?.value as string) || 'abstract'
+      style = (ctx.options.get('estilo')?.value as VisualizationStyle) || 'abstract'
       frames = (ctx.options.get('frames')?.value as number) || 16
       includeText = (ctx.options.get('incluir_texto')?.value as boolean) || false
       imageAttachment = ctx.options.get('imagem')?.attachment
@@ -201,13 +209,13 @@ export default class VisualizeCommand extends Command {
     await ctx.sendDeferMessage({ embeds: [loadingEmbed] })
 
     try {
-      let result = null
+      let result: CosmosResult | null = null
 
       switch (type) {
         case 'nowplaying':
           if (ctx.guild) {
             result = await cosmosService.createNowPlayingVisualization(ctx.guild.id, {
-              style: style as any,
+              style,
               includeText,
             })
           }
@@ -292,7 +300,7 @@ export default class VisualizeCommand extends Command {
       }
 
       // Send response
-      const messageOptions: any = {
+      const messageOptions: MessageEditOptions = {
         embeds: [successEmbed],
       }
 

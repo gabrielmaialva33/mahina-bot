@@ -1,13 +1,10 @@
 import {
-  ActionRowBuilder,
-  ApplicationCommandOptionType,
-  AttachmentBuilder,
-  ButtonBuilder,
-  ButtonStyle,
+  ButtonInteraction,
   ComponentType,
   EmbedBuilder,
   Message,
   MessageFlags,
+  ApplicationCommandOptionType,
 } from 'discord.js'
 
 import Command from '#common/command'
@@ -20,6 +17,17 @@ import {
   runReasoningTask,
   setUserAIModel,
 } from '#common/ai_runtime'
+import {
+  createChatButtons,
+  createChatExportAttachment,
+  createChatLoadingEmbed,
+  createChatResponseEmbed,
+  extractFormattedCodeAttachment,
+  getChatModeColor,
+  getChatSystemPrompt,
+  resolveChatMode,
+  splitChatResponse,
+} from '#common/chat_runtime'
 import MahinaBot from '#common/mahina_bot'
 import Context from '#common/context'
 
@@ -118,7 +126,7 @@ export default class ChatCommand extends Command {
     })
   }
 
-  public async run(client: MahinaBot, ctx: Context, args: string[]): Promise<any> {
+  public async run(client: MahinaBot, ctx: Context, args: string[]): Promise<void> {
     const t = (key: string, params?: Record<string, unknown>) => ctx.locale(key, params)
     let mode: string
     let prompt: string
@@ -133,16 +141,7 @@ export default class ChatCommand extends Command {
       modelKey = ctx.options.get('model')?.value as string
       imageUrl = ctx.options.get('image')?.value as string
     } else {
-      mode =
-        args[0]?.toLowerCase() === 'code' ||
-        args[0]?.toLowerCase() === 'analyze' ||
-        args[0]?.toLowerCase() === 'explain' ||
-        args[0]?.toLowerCase() === 'debug' ||
-        args[0]?.toLowerCase() === 'design' ||
-        args[0]?.toLowerCase() === 'vision' ||
-        args[0]?.toLowerCase() === 'reasoning'
-          ? args[0].toLowerCase()
-          : 'chat'
+      mode = resolveChatMode(args)
 
       const actualArgs = mode === 'chat' ? args : args.slice(1)
       prompt = actualArgs.join(' ')
@@ -171,14 +170,11 @@ export default class ChatCommand extends Command {
       })
     }
 
-    const loadingEmbed = new EmbedBuilder()
-      .setColor(this.client.config.color.violet)
-      .setDescription(
-        t('cmd.chat.ui.loading', {
-          model: modelKey || t('cmd.chat.ui.default_model_label'),
-        })
-      )
-      .setFooter({ text: t('cmd.chat.ui.footer') })
+    const loadingEmbed = createChatLoadingEmbed(
+      this.client.config.color.violet,
+      t,
+      modelKey || t('cmd.chat.ui.default_model_label')
+    )
 
     const msg = await ctx.sendMessage({ embeds: [loadingEmbed] })
 
@@ -210,7 +206,7 @@ export default class ChatCommand extends Command {
       }
 
       // Build system prompt based on mode
-      const systemPrompt = this.getSystemPrompt(mode, language)
+      const systemPrompt = getChatSystemPrompt(mode, language)
 
       // Add conversation context
       const context = conversation
@@ -272,31 +268,7 @@ export default class ChatCommand extends Command {
       await this.sendFormattedResponse(ctx, msg, response, mode)
 
       // Add control buttons
-      const buttons = new ActionRowBuilder<ButtonBuilder>().addComponents(
-        new ButtonBuilder()
-          .setCustomId('ai_new_chat')
-          .setLabel(t('cmd.chat.ui.actions.new_chat'))
-          .setEmoji('🔄')
-          .setStyle(ButtonStyle.Secondary),
-        new ButtonBuilder()
-          .setCustomId('ai_continue')
-          .setLabel(t('cmd.chat.ui.actions.continue'))
-          .setEmoji('💬')
-          .setStyle(ButtonStyle.Primary),
-        new ButtonBuilder()
-          .setCustomId('ai_code_format')
-          .setLabel(t('cmd.chat.ui.actions.format_code'))
-          .setEmoji('📝')
-          .setStyle(ButtonStyle.Secondary)
-          .setDisabled(mode !== 'code' && mode !== 'analyze' && mode !== 'debug'),
-        new ButtonBuilder()
-          .setCustomId('ai_export')
-          .setLabel(t('cmd.chat.ui.actions.export'))
-          .setEmoji('📤')
-          .setStyle(ButtonStyle.Secondary)
-      )
-
-      await msg.edit({ components: [buttons] })
+      await msg.edit({ components: [createChatButtons(t, mode)] })
 
       // Handle button interactions
       const collector = msg.createMessageComponentCollector({
@@ -304,46 +276,39 @@ export default class ChatCommand extends Command {
         time: 300000, // 5 minutes
       })
 
-      collector.on(
-        'collect',
-        async (interaction: {
-          user: { id: any }
-          reply: (arg0: { content: string; flags: any }) => any
-          customId: any
-        }) => {
-          if (interaction.user.id !== ctx.author?.id) {
-            return interaction.reply({
-              content: t('cmd.chat.ui.errors.button_author_only'),
+      collector.on('collect', async (interaction: ButtonInteraction) => {
+        if (interaction.user.id !== ctx.author?.id) {
+          return interaction.reply({
+            content: t('cmd.chat.ui.errors.button_author_only'),
+            flags: MessageFlags.Ephemeral,
+          })
+        }
+
+        switch (interaction.customId) {
+          case 'ai_new_chat':
+            this.conversations.delete(conversationKey)
+            await interaction.reply({
+              content: t('cmd.chat.ui.actions.new_chat_success'),
               flags: MessageFlags.Ephemeral,
             })
-          }
+            break
 
-          switch (interaction.customId) {
-            case 'ai_new_chat':
-              this.conversations.delete(conversationKey)
-              await interaction.reply({
-                content: t('cmd.chat.ui.actions.new_chat_success'),
-                flags: MessageFlags.Ephemeral,
-              })
-              break
+          case 'ai_continue':
+            await interaction.reply({
+              content: t('cmd.chat.ui.actions.continue_success'),
+              flags: MessageFlags.Ephemeral,
+            })
+            break
 
-            case 'ai_continue':
-              await interaction.reply({
-                content: t('cmd.chat.ui.actions.continue_success'),
-                flags: MessageFlags.Ephemeral,
-              })
-              break
+          case 'ai_code_format':
+            await this.formatCodeResponse(ctx, interaction, response)
+            break
 
-            case 'ai_code_format':
-              await this.formatCodeResponse(ctx, interaction, response)
-              break
-
-            case 'ai_export':
-              await this.exportResponse(ctx, interaction, response, mode)
-              break
-          }
+          case 'ai_export':
+            await this.exportResponse(ctx, interaction, response, mode)
+            break
         }
-      )
+      })
     } catch (error) {
       console.error('Error in chat command:', error)
 
@@ -357,81 +322,32 @@ export default class ChatCommand extends Command {
     }
   }
 
-  private getSystemPrompt(mode: string, language?: string): string {
-    const basePrompts = {
-      chat: `Você é um assistente inteligente e amigável. Responda de forma clara, útil e concisa.
-             Use markdown para formatar suas respostas quando apropriado.`,
-
-      code: `Você é um expert em programação${language ? ` especializado em ${language}` : ''}.
-             Gere código limpo, eficiente e bem comentado.
-             Sempre formate o código em blocos markdown com syntax highlighting.
-             Inclua explicações breves sobre partes importantes do código.`,
-
-      analyze: `Você é um analisador de código experiente.
-                Analise o código fornecido identificando:
-                - Possíveis bugs ou problemas
-                - Melhorias de performance
-                - Boas práticas não seguidas
-                - Sugestões de refatoração
-                Seja construtivo e educativo em suas análises.`,
-
-      explain: `Você é um professor de programação paciente e didático.
-                Explique conceitos de forma clara e progressiva.
-                Use analogias quando apropriado.
-                Inclua exemplos de código simples para ilustrar conceitos.
-                Divida explicações complexas em passos menores.`,
-
-      debug: `Você é um debugger especialista.
-              Analise o código ou erro fornecido e:
-              - Identifique a causa raiz do problema
-              - Explique por que o erro está ocorrendo
-              - Forneça soluções passo a passo
-              - Sugira como prevenir erros similares no futuro`,
-
-      design: `Você é um especialista em UI/UX e front-end.
-               Forneça sugestões de design, melhores práticas de interface,
-               e código para componentes visuais modernos e acessíveis.
-               Considere responsividade e experiência do usuário.`,
-
-      vision: `Você é um especialista em análise de imagens e visão computacional.
-               Analise imagens fornecidas e:
-               - Descreva o que vê em detalhes
-               - Identifique objetos, pessoas, texto ou elementos importantes
-               - Forneça insights sobre composição, cores e contexto
-               - Responda perguntas específicas sobre a imagem`,
-
-      reasoning: `Você é um especialista em raciocínio lógico e resolução de problemas complexos.
-                  Analise problemas passo a passo:
-                  - Decomponha o problema em partes menores
-                  - Identifique padrões e relações
-                  - Use lógica dedutiva e indutiva
-                  - Forneça soluções bem fundamentadas
-                  - Considere múltiplas perspectivas`,
-    }
-
-    return basePrompts[mode as keyof typeof basePrompts] || basePrompts.chat
-  }
-
   private async sendFormattedResponse(ctx: Context, msg: Message, response: string, mode: string) {
     const t = (key: string, params?: Record<string, unknown>) => ctx.locale(key, params)
-    // Split response if too long
-    const chunks = this.splitResponse(response, 4000)
+    const chunks = splitChatResponse(response, 4000)
 
     for (const [i, chunk] of chunks.entries()) {
-      const embed = new EmbedBuilder()
-        .setColor(this.getModeColor(mode))
-        .setDescription(chunk)
-        .setFooter({
-          text: t('cmd.chat.ui.response.footer', {
-            emoji: this.getModeEmoji(mode),
-            mode: mode.charAt(0).toUpperCase() + mode.slice(1),
-          }),
-          iconURL:
-            'https://upload.wikimedia.org/wikipedia/commons/thumb/2/21/Nvidia_logo.svg/1200px-Nvidia_logo.svg.png',
-        })
+      const embed = createChatResponseEmbed(
+        getChatModeColor(
+          {
+            chat: this.client.config.color.main,
+            code: this.client.config.color.green,
+            analyze: this.client.config.color.yellow,
+            explain: this.client.config.color.blue,
+            debug: this.client.config.color.red,
+            design: this.client.config.color.violet,
+            vision: this.client.config.color.green,
+            reasoning: this.client.config.color.main,
+          },
+          mode
+        ),
+        t,
+        mode,
+        chunk,
+        i === 0
+      )
 
       if (i === 0) {
-        embed.setTitle(t('cmd.chat.ui.response.title', { emoji: this.getModeEmoji(mode) }))
         await msg.edit({ embeds: [embed] })
       } else {
         await ctx.sendMessage({ embeds: [embed] })
@@ -439,73 +355,15 @@ export default class ChatCommand extends Command {
     }
   }
 
-  private splitResponse(text: string, maxLength: number): string[] {
-    const chunks: string[] = []
-    let currentChunk = ''
+  private async formatCodeResponse(ctx: Context, interaction: ButtonInteraction, response: string) {
+    const attachment = extractFormattedCodeAttachment(response)
 
-    const lines = text.split('\n')
-    for (const line of lines) {
-      if (currentChunk.length + line.length + 1 > maxLength) {
-        chunks.push(currentChunk)
-        currentChunk = line
-      } else {
-        currentChunk += (currentChunk ? '\n' : '') + line
-      }
-    }
-
-    if (currentChunk) {
-      chunks.push(currentChunk)
-    }
-
-    return chunks
-  }
-
-  private getModeColor(mode: string): number {
-    const colors: Record<string, number> = {
-      chat: this.client.config.color.main,
-      code: this.client.config.color.green,
-      analyze: this.client.config.color.yellow,
-      explain: this.client.config.color.blue,
-      debug: this.client.config.color.red,
-      design: this.client.config.color.violet,
-      vision: this.client.config.color.green,
-      reasoning: this.client.config.color.main,
-    }
-    return colors[mode] || this.client.config.color.main
-  }
-
-  private getModeEmoji(mode: string): string {
-    const emojis: Record<string, string> = {
-      chat: '💬',
-      code: '💻',
-      analyze: '🔍',
-      explain: '📚',
-      debug: '🐛',
-      design: '🎨',
-      vision: '👁️',
-      reasoning: '🧠',
-    }
-    return emojis[mode] || '🤖'
-  }
-
-  private async formatCodeResponse(ctx: Context, interaction: any, response: string) {
-    // Extract code blocks from response
-    const codeBlocks = response.match(/```[\s\S]*?```/g) || []
-
-    if (codeBlocks.length === 0) {
+    if (!attachment) {
       return interaction.reply({
         content: ctx.locale('cmd.chat.ui.code.no_blocks'),
         flags: MessageFlags.Ephemeral,
       })
     }
-
-    let formattedCode = ''
-    for (const block of codeBlocks) {
-      const cleanBlock = block.replace(/```(\w+)?\n?/, '').replace(/```$/, '')
-      formattedCode += cleanBlock + '\n\n'
-    }
-
-    const attachment = new AttachmentBuilder(Buffer.from(formattedCode), { name: 'code.txt' })
 
     await interaction.reply({
       content: ctx.locale('cmd.chat.ui.code.formatted'),
@@ -514,9 +372,13 @@ export default class ChatCommand extends Command {
     })
   }
 
-  private async exportResponse(ctx: Context, interaction: any, response: string, mode: string) {
-    const filename = `ai_${mode}_${Date.now()}.md`
-    const attachment = new AttachmentBuilder(Buffer.from(response), { name: filename })
+  private async exportResponse(
+    ctx: Context,
+    interaction: ButtonInteraction,
+    response: string,
+    mode: string
+  ) {
+    const { filename, attachment } = createChatExportAttachment(response, mode)
 
     await interaction.reply({
       content: ctx.locale('cmd.chat.ui.export.success', { filename }),

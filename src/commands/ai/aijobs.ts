@@ -1,14 +1,11 @@
-import {
-  ApplicationCommandOptionType,
-  EmbedBuilder,
-  ActionRowBuilder,
-  ButtonBuilder,
-  ButtonStyle,
-} from 'discord.js'
+import { ApplicationCommandOptionType, EmbedBuilder } from 'discord.js'
 import { getPreferredAIService } from '#common/ai_runtime'
+import type { AIModelStatsRow } from '#common/ai_types'
 import Command from '#common/command'
 import type Context from '#common/context'
 import type MahinaBot from '#common/mahina_bot'
+
+type QueueableJobType = 'embedding' | 'analysis' | 'generation' | 'batch'
 
 export default class AIJobs extends Command {
   constructor(client: MahinaBot) {
@@ -123,7 +120,7 @@ export default class AIJobs extends Command {
     })
   }
 
-  async run(client: MahinaBot, ctx: Context, args: string[]): Promise<any> {
+  async run(client: MahinaBot, ctx: Context, args: string[]): Promise<void> {
     const subcommand = ctx.isInteraction
       ? ctx.options.getSubCommand()
       : args[0]?.toLowerCase() || 'stats'
@@ -171,7 +168,9 @@ export default class AIJobs extends Command {
   }
 
   private async queueJob(ctx: Context, client: MahinaBot): Promise<void> {
-    const jobType = ctx.isInteraction ? (ctx.options.get('type')?.value as string) : 'embedding'
+    const jobType = ctx.isInteraction
+      ? (ctx.options.get('type')?.value as QueueableJobType) || 'embedding'
+      : 'embedding'
     const data = ctx.isInteraction
       ? (ctx.options.get('data')?.value as string)
       : ctx.args.slice(2).join(' ')
@@ -242,6 +241,18 @@ export default class AIJobs extends Command {
                 temperature: 0.7,
                 maxTokens: 1024,
               },
+            },
+            priority,
+          })
+          break
+
+        case 'batch':
+          jobId = await jobService.queueJob({
+            type: 'batch_processing',
+            userId: ctx.author.id,
+            guildId: ctx.guild?.id || 'DM',
+            data: {
+              items: [{ type: 'analysis', message: data }],
             },
             priority,
           })
@@ -415,7 +426,7 @@ export default class AIJobs extends Command {
             value: modelStats
               .slice(0, 3)
               .map(
-                (stat: any) =>
+                (stat: AIModelStatsRow) =>
                   `${stat.model_name}: ${stat.total_requests} req, ${Math.round(stat.avg_response_time)}ms`
               )
               .join('\n'),
@@ -531,11 +542,11 @@ export default class AIJobs extends Command {
 
   private formatQueueName(queue: string): string {
     const names: Record<string, string> = {
-      'ai:embedding': 'Fila de Embeddings',
-      'ai:analysis': 'Fila de Análise',
-      'ai:generation': 'Fila de Geração',
-      'ai:training': 'Fila de Treinamento',
-      'ai:batch': 'Fila de Lote',
+      'ai-embedding': 'Fila de Embeddings',
+      'ai-analysis': 'Fila de Análise',
+      'ai-generation': 'Fila de Geração',
+      'ai-training': 'Fila de Treinamento',
+      'ai-batch': 'Fila de Lote',
     }
     return names[queue] || queue
   }

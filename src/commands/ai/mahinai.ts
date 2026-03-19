@@ -9,12 +9,15 @@ import {
 import type Context from '#common/context'
 import { T } from '#common/i18n'
 import type MahinaBot from '#common/mahina_bot'
+import { type AIContextService, type ContextMessage } from '#src/services/ai_context_service'
+import { type AIMemoryService, type UserMemory } from '#src/services/ai_memory_service'
 import {
   TextChannel,
   ApplicationCommandOptionType,
   EmbedBuilder,
   Message,
   MessageFlags,
+  type MessageComponentInteraction,
 } from 'discord.js'
 
 interface MahinaAIRequest {
@@ -27,10 +30,14 @@ interface MahinaAIRequest {
 
 interface MahinaAIServices {
   nvidiaService: NonNullable<ReturnType<typeof getPreferredAIService>>
-  contextService: NonNullable<MahinaBot['services']['aiContext']>
-  memoryService: NonNullable<MahinaBot['services']['aiMemory']>
+  contextService: AIContextService
+  memoryService: AIMemoryService
   guardService: MahinaBot['services']['nvidiaGuard']
 }
+
+type MessageAnalysis = Awaited<ReturnType<AIContextService['analyzeMessage']>>
+type UserInsights = Awaited<ReturnType<AIMemoryService['getUserInsights']>>
+type UserRecommendations = Awaited<ReturnType<AIMemoryService['getRecommendations']>>
 
 export default class MahinaAI extends Command {
   constructor(client: MahinaBot) {
@@ -104,7 +111,7 @@ export default class MahinaAI extends Command {
     })
   }
 
-  async run(client: MahinaBot, ctx: Context, args: string[]): Promise<any> {
+  async run(client: MahinaBot, ctx: Context, args: string[]): Promise<void> {
     const locale = ctx.guildLocale || 'PortugueseBR'
     const t = (key: string, params?: Record<string, unknown>) => ctx.locale(key, params)
     const request = this.parseRequest(ctx, args)
@@ -342,7 +349,7 @@ export default class MahinaAI extends Command {
     channelId: string,
     guildId: string,
     request: MahinaAIRequest,
-    analysis: any
+    analysis: MessageAnalysis
   ) {
     services.contextService.addMessage(userId, channelId, {
       role: 'user',
@@ -381,7 +388,7 @@ export default class MahinaAI extends Command {
     client: MahinaBot,
     message: string,
     systemPrompt: string,
-    analysis: any
+    analysis: MessageAnalysis
   ): Promise<string> {
     let enhancedPrompt = systemPrompt
 
@@ -405,7 +412,7 @@ export default class MahinaAI extends Command {
     }
 
     enhancedPrompt += '\n\nInformações relevantes sobre comandos:\n'
-    relevantHelp.forEach((result: any) => {
+    relevantHelp.forEach((result) => {
       enhancedPrompt += `- ${result.content}\n`
     })
 
@@ -448,9 +455,9 @@ export default class MahinaAI extends Command {
   private buildEnhancedSystemPrompt(
     personality: string,
     mode: string,
-    memory: any,
-    insights: any,
-    analysis: any,
+    memory: UserMemory,
+    insights: UserInsights,
+    analysis: MessageAnalysis,
     ctx: Context
   ): string {
     // Base personalities
@@ -524,7 +531,7 @@ export default class MahinaAI extends Command {
     return prompt
   }
 
-  private buildContextMessages(history: any[], mode: string): string {
+  private buildContextMessages(history: ContextMessage[], mode: string): string {
     if (history.length === 0) return ''
 
     let context = 'Recent conversation:\n'
@@ -556,8 +563,8 @@ export default class MahinaAI extends Command {
     response: string,
     personality: string,
     mode: string,
-    analysis: any,
-    insights: any,
+    analysis: MessageAnalysis,
+    insights: UserInsights,
     client: MahinaBot,
     translate: (key: string, params?: Record<string, unknown>) => string
   ): EmbedBuilder {
@@ -573,7 +580,7 @@ export default class MahinaAI extends Command {
   }
 
   private createInteractiveComponents(
-    insights: any,
+    insights: UserInsights,
     translate: (key: string, params?: Record<string, unknown>) => string
   ) {
     return createMahinaInteractiveComponents(insights, translate)
@@ -585,15 +592,15 @@ export default class MahinaAI extends Command {
     channelId: string,
     guildId: string,
     locale: string,
-    contextService: any,
-    memoryService: any,
+    contextService: AIContextService,
+    memoryService: AIMemoryService,
     client: MahinaBot
   ): Promise<void> {
     const collector = message.createMessageComponentCollector({
       time: 600000, // 10 minutes
     })
 
-    collector.on('collect', async (interaction) => {
+    collector.on('collect', async (interaction: MessageComponentInteraction) => {
       // Verify user
       if (interaction.user.id !== userId) {
         await interaction.reply({
@@ -829,10 +836,10 @@ export default class MahinaAI extends Command {
 
   private async sendFollowUpSuggestions(
     ctx: Context,
-    memory: any,
-    insights: any,
-    analysis: any,
-    memoryService: any,
+    memory: UserMemory,
+    insights: UserInsights,
+    analysis: MessageAnalysis,
+    memoryService: AIMemoryService,
     userId: string,
     guildId: string,
     locale: string,
@@ -845,7 +852,10 @@ export default class MahinaAI extends Command {
 
     // Wait a bit before sending suggestions
     setTimeout(async () => {
-      const recommendations = await memoryService.getRecommendations(userId, guildId)
+      const recommendations: UserRecommendations = await memoryService.getRecommendations(
+        userId,
+        guildId
+      )
 
       if (analysis.intent === 'music' && ctx.guild) {
         await (ctx.channel as TextChannel)?.send({

@@ -1,23 +1,10 @@
 import type MahinaBot from '#common/mahina_bot'
+import type { AIModelStatsRow, LegacyAIChatResponse } from '#common/ai_types'
 import type { NvidiaModel } from '#src/services/nvidia_ai_service'
 import type { NvidiaMultimodalModel } from '#src/services/nvidia_multimodal_service'
 import { EmbedBuilder } from 'discord.js'
 
-type LegacyChatResponse = {
-  content: string
-  usage?: unknown
-}
-
 type AIModelSummary = NvidiaModel | NvidiaMultimodalModel
-
-type ModelStatsRow = {
-  model_name: string
-  total_requests: number
-  total_tokens?: number
-  avg_response_time: number
-  total_errors?: number
-  success_rate: number
-}
 
 export type AICapability =
   | 'chat'
@@ -69,7 +56,7 @@ export interface PreferredAIService
   getModelInfo?: AIServiceWithModels['getModelInfo']
   setUserModel?: AIServiceWithModels['setUserModel']
   getAllModels: () => AIModelSummary[]
-  getModelStats?: (timeRange?: string) => Promise<ModelStatsRow[]>
+  getModelStats?: (timeRange?: string) => Promise<AIModelStatsRow[]>
   generateWithRAG?: (userId: string, message: string, retrievalQuery?: string) => Promise<string>
   reasoning?: (userId: string, problem: string, context?: string) => Promise<string>
   analyzeCode?: (

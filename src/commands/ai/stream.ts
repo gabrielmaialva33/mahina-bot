@@ -1,5 +1,6 @@
 import Command from '#common/command'
 import { createAIModelStatusEmbed, resolveAIServiceForCapability } from '#common/ai_runtime'
+import { createStreamCompletionEmbed } from '#common/stream_ai_runtime'
 import type Context from '#common/context'
 import type MahinaBot from '#common/mahina_bot'
 import { ApplicationCommandOptionType } from 'discord.js'
@@ -35,7 +36,7 @@ export default class Stream extends Command {
     })
   }
 
-  async run(client: MahinaBot, ctx: Context, args: string[]): Promise<any> {
+  async run(client: MahinaBot, ctx: Context, args: string[]): Promise<void> {
     const t = (key: string, params?: Record<string, unknown>) => ctx.locale(key, params)
     const message = ctx.isInteraction
       ? (ctx.options.get('message')?.value as string)
@@ -140,21 +141,7 @@ export default class Stream extends Command {
 
       // Send completion embed
       await ctx.sendMessage({
-        embeds: [
-          {
-            title: t('cmd.stream.ui.complete.title'),
-            fields: [
-              { name: t('cmd.stream.ui.complete.model'), value: model.name, inline: true },
-              {
-                name: t('cmd.stream.ui.complete.tokens'),
-                value: `~${chunks.length}`,
-                inline: true,
-              },
-            ],
-            color: 0x76b900,
-            timestamp: new Date().toISOString(),
-          },
-        ],
+        embeds: [createStreamCompletionEmbed(t, model.name, chunks.length)],
       })
     } catch (error) {
       console.error('Stream error:', error)

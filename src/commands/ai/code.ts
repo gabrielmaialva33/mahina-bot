@@ -10,6 +10,8 @@ import type Context from '#common/context'
 import type MahinaBot from '#common/mahina_bot'
 import { ApplicationCommandOptionType, AttachmentBuilder } from 'discord.js'
 
+type CodeTask = 'explain' | 'review' | 'optimize' | 'debug'
+
 export default class Code extends Command {
   constructor(client: MahinaBot) {
     super(client, {
@@ -158,19 +160,19 @@ export default class Code extends Command {
     })
   }
 
-  async run(client: MahinaBot, ctx: Context, args: string[]): Promise<any> {
+  async run(client: MahinaBot, ctx: Context, args: string[]): Promise<void> {
     if (!client.services.nvidia && !client.services.nvidiaMultimodal) {
       return await ctx.sendMessage({
         embeds: [createAIErrorEmbed(client, 'NVIDIA AI service is not configured')],
       })
     }
 
-    let task: 'explain' | 'review' | 'optimize' | 'debug'
+    let task: CodeTask
     let language: string
     let code: string
 
     if (ctx.isInteraction) {
-      task = ctx.options.getSubCommand() as any
+      task = ctx.options.getSubCommand() as CodeTask
       language = ctx.options.get('language', true)?.value as string
       code = ctx.options.get('code', true)?.value as string
     } else {
@@ -186,7 +188,7 @@ export default class Code extends Command {
           ],
         })
       }
-      task = taskMatch as any
+      task = taskMatch as CodeTask
 
       // Extract language and code from the message
       const content = args.slice(1).join(' ')

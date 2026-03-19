@@ -4,6 +4,17 @@ import type Context from '#common/context'
 import type MahinaBot from '#common/mahina_bot'
 import { ApplicationCommandOptionType, EmbedBuilder, MessageFlags } from 'discord.js'
 
+type SearchKnowledgeBaseItem = {
+  content: string
+  metadata?: Record<string, unknown>
+}
+
+type SearchResultItem = {
+  content: string
+  similarity: number
+  metadata?: Record<string, unknown>
+}
+
 export default class SearchCommand extends Command {
   constructor(client: MahinaBot) {
     super(client, {
@@ -56,7 +67,7 @@ export default class SearchCommand extends Command {
     })
   }
 
-  async run(client: MahinaBot, ctx: Context, args: string[]): Promise<any> {
+  async run(client: MahinaBot, ctx: Context, args: string[]): Promise<void> {
     // Parse arguments
     let query: string
     let category: string | undefined
@@ -124,12 +135,12 @@ export default class SearchCommand extends Command {
 
     try {
       // Build knowledge base
-      let knowledgeBase = embeddingService.buildMusicKnowledgeBase()
+      let knowledgeBase = embeddingService.buildMusicKnowledgeBase() as SearchKnowledgeBaseItem[]
 
       // Filter by category if specified
       if (category) {
         knowledgeBase = knowledgeBase.filter(
-          (item: any) => item.metadata?.category === category || item.metadata?.type === category
+          (item) => item.metadata?.category === category || item.metadata?.type === category
         )
       }
 
@@ -172,7 +183,7 @@ export default class SearchCommand extends Command {
         .setTimestamp()
 
       // Add results as fields
-      results.forEach((result: any, index: number) => {
+      results.forEach((result: SearchResultItem, index: number) => {
         const similarity = Math.round(result.similarity * 100)
         const categoryIcon = this.getCategoryIcon(
           result.metadata?.category || result.metadata?.type
