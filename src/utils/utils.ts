@@ -22,7 +22,11 @@ export class Utils {
     return `${Math.floor(ms / dayMs)}d ${Math.floor((ms % dayMs) / hourMs)}h`
   }
 
-  public static async setVoiceStatus(client: MahinaBot, channelId: string, status: string = ''): Promise<void> {
+  public static async setVoiceStatus(
+    client: MahinaBot,
+    channelId: string,
+    status: string = ''
+  ): Promise<void> {
     try {
       await client.rest.put(`/channels/${channelId}/voice-status` as any, {
         body: { status },

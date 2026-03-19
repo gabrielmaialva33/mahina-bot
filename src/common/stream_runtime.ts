@@ -13,10 +13,7 @@ export function ensureStreamRuntime(client: MahinaBot): string | null {
   return null
 }
 
-export async function ensureStreamCommandReady(
-  client: MahinaBot,
-  ctx: Context
-): Promise<boolean> {
+export async function ensureStreamCommandReady(client: MahinaBot, ctx: Context): Promise<boolean> {
   const runtimeError = ensureStreamRuntime(client)
   if (!runtimeError) {
     return true

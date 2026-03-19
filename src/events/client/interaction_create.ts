@@ -225,7 +225,12 @@ export default class InteractionCreate extends Event {
             }
 
             const member = interaction.member as GuildMember
-            if (!hasDjAccess(member, djRole.map((role) => role.roleId))) {
+            if (
+              !hasDjAccess(
+                member,
+                djRole.map((role) => role.roleId)
+              )
+            ) {
               return await interaction.reply({
                 content: T(locale, 'event.interaction.no_dj_permission'),
                 flags: MessageFlags.Ephemeral,
@@ -303,7 +308,9 @@ export default class InteractionCreate extends Event {
 
       try {
         if (!command.autocomplete) {
-          this.client.logger.warn(`Autocomplete handler missing for command: ${interaction.commandName}`)
+          this.client.logger.warn(
+            `Autocomplete handler missing for command: ${interaction.commandName}`
+          )
           return
         }
 

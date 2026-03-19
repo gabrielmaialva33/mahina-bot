@@ -28,11 +28,7 @@ export function getMissingClientPermissions(
   return permissions.filter((permission) => !member.permissions.has(permission))
 }
 
-export function hasDjAccess(
-  member: GuildMember,
-  djRoles: string[],
-  isDev = false
-): boolean {
+export function hasDjAccess(member: GuildMember, djRoles: string[], isDev = false): boolean {
   if (isDev) return true
 
   const hasManageGuild = member.permissions.has('ManageGuild')

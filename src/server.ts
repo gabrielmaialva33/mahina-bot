@@ -12,7 +12,11 @@ const downloadFolder = path.join(process.cwd(), 'downloads')
 const cacheFolder = path.join(process.cwd(), 'cache')
 
 function escapeHtml(str: string): string {
-  return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
+  return str
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
 }
 
 function safePath(base: string, userInput: string): string | null {
@@ -65,7 +69,13 @@ app.post('/api/remote_upload', upload.single('link'), async (req, res) => {
       res.status(400).send('Invalid URL protocol')
       return
     }
-    const blockedHosts = ['169.254.169.254', 'metadata.google.internal', 'localhost', '127.0.0.1', '0.0.0.0']
+    const blockedHosts = [
+      '169.254.169.254',
+      'metadata.google.internal',
+      'localhost',
+      '127.0.0.1',
+      '0.0.0.0',
+    ]
     if (blockedHosts.includes(url.hostname)) {
       res.status(400).send('Blocked host')
       return

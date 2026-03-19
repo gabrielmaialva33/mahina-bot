@@ -90,7 +90,9 @@ export default class Context {
   setArgs(args: unknown[]): void {
     this.args = this.isInteraction
       ? args
-          .map((arg) => (typeof arg === 'object' && arg !== null && 'value' in arg ? arg.value : arg))
+          .map((arg) =>
+            typeof arg === 'object' && arg !== null && 'value' in arg ? arg.value : arg
+          )
           .filter((value): value is string => typeof value === 'string')
       : args.filter((value): value is string => typeof value === 'string')
   }

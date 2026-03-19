@@ -233,7 +233,13 @@ export default class MessageCreate extends Event {
           }
 
           const member = message.member as GuildMember
-          if (!hasDjAccess(member, djRole.map((role) => role.roleId), isDev)) {
+          if (
+            !hasDjAccess(
+              member,
+              djRole.map((role) => role.roleId),
+              isDev
+            )
+          ) {
             return await message.reply({
               content: T(locale, 'event.message.no_dj_permission'),
             })

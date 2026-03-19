@@ -38,9 +38,7 @@ export default class Ready extends Event {
       this.client.logger.warn('Top.gg token not found. Skipping auto poster.')
     }
     if (this.client.runtime.music) {
-      const normalizedUsername = this.client.user?.username
-        ?.normalize('NFKD')
-        .replace(/[^\w]/g, '')
+      const normalizedUsername = this.client.user?.username?.normalize('NFKD').replace(/[^\w]/g, '')
 
       await this.client.manager.init({
         ...this.client.user!,
@@ -48,7 +46,9 @@ export default class Ready extends Event {
         shards: 'auto',
       })
     } else {
-      this.client.logger.info('Skipping Lavalink manager initialization because music runtime is disabled')
+      this.client.logger.info(
+        'Skipping Lavalink manager initialization because music runtime is disabled'
+      )
     }
 
     // Start proactive interaction service - DISABLED to reduce spam messages
