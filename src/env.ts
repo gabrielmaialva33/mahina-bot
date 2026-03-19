@@ -98,6 +98,9 @@ const envSchema = z.object({
   NVIDIA_API_KEY: z.string().optional(),
   OPENAI_API_KEY: z.string().optional(),
   GEMINI_API_KEY: z.string().optional(),
+  GROQ_API_KEY: z.string().optional(),
+  AI_PRIMARY_MODEL: z.string().default('nvidia/llama-3.1-nemotron-ultra-253b-v1'),
+  AI_FAST_MODEL: z.string().default('llama-3.3-70b-versatile'),
 })
 
 type Env = z.infer<typeof envSchema>

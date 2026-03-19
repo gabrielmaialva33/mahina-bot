@@ -40,6 +40,7 @@ import { NvidiaCosmosService } from '#src/services/nvidia_cosmos_service'
 import { NvidiaGuardService } from '#src/services/nvidia_guard_service'
 import { NvidiaMultimodalService } from '#src/services/nvidia_multimodal_service'
 import { AIQueueService } from '#src/services/ai_queue_service'
+import type { MahinaBrain } from '#src/services/mahina_brain'
 import type { Command as CommandInstance } from '#common/command'
 
 const dirname = path.dirname(fileURLToPath(import.meta.url))
@@ -52,6 +53,7 @@ interface BotServices {
   aiContext?: AIContextService
   aiMemory?: AIMemoryService
   aiQueue?: AIQueueService
+  brain?: MahinaBrain
   nvidiaTTS?: NvidiaTTSService
   nvidiaEmbedding?: NvidiaEmbeddingService
   nvidiaCosmos?: NvidiaCosmosService
@@ -154,6 +156,7 @@ export default class MahinaBot extends Client {
       this.services.aiContext = this.aiManager.context
       this.services.aiMemory = this.aiManager.memory
       this.services.aiQueue = this.aiManager.queue
+      this.services.brain = this.aiManager.brain
 
       this.logger.info('AI Manager and services initialized successfully')
     } catch (error) {
