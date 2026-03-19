@@ -28,18 +28,13 @@ export default class AIMention extends Event {
 
   async run(message: Message): Promise<any> {
     try {
-      // Check if brain is available
-      if (!this.brain || !this.brain.isAvailable()) {
-        return
-      }
+      if (!this.brain || !this.brain.isAvailable()) return
 
-      // Get AI config for guild
       const aiConfig = await this.client.db.getAIConfig(message.guildId!)
 
-      // Check if AI is enabled
       if (!aiConfig.enabled) return
 
-      // Check if channel is allowed
+      // Channel allowlist check
       if (
         aiConfig.allowedChannels.length > 0 &&
         !aiConfig.allowedChannels.includes(message.channelId)
@@ -47,28 +42,24 @@ export default class AIMention extends Event {
         return
       }
 
-      // Check if user is blocked
       if (aiConfig.blockedUsers.includes(message.author.id)) return
 
-      // Check rate limit
       if (!this.brain.checkRateLimit(message.author.id, aiConfig.rateLimit)) {
         return await message.reply({
           content: 'calma aí mano, tá metralhando mensagem. espera uns segundos 💀',
         })
       }
 
-      // Start typing
       if ('sendTyping' in message.channel) {
         await message.channel.sendTyping()
       }
 
-      // Get user personality preference or guild default
       const userPersonality =
         this.userPersonalities.get(message.author.id) ||
         aiConfig.defaultPersonality ||
         'humor_negro'
 
-      // Get chat history from database
+      // Load chat history from database
       const chatHistory = await this.client.db.getChatHistory(message.channelId)
       const historyMessages: ChatMessage[] = chatHistory?.messages
         ? Array.isArray(chatHistory.messages)
@@ -76,7 +67,7 @@ export default class AIMention extends Event {
           : []
         : []
 
-      // Clean message content — remove bot mentions
+      // Strip bot mentions from message content
       let cleanContent = message.content
         .replace(new RegExp(`<@!?${this.client.user?.id}>`, 'g'), '')
         .replace(/mahina/gi, '')
@@ -86,20 +77,17 @@ export default class AIMention extends Event {
         cleanContent = 'Olá!'
       }
 
-      // Build messages array for the brain (use context window from config)
+      // Build conversation context from recent history
       const recentHistory = historyMessages
         .slice(-aiConfig.contextWindow)
         .map((m) => ({ role: m.role as 'user' | 'assistant', content: m.content }))
         .filter((m) => m.role !== 'system')
 
-      // Add current message
       recentHistory.push({ role: 'user' as const, content: cleanContent })
 
-      // Get guild name
       const guildName = message.guild?.name ?? 'Server Desconhecido'
       const channelName = 'name' in message.channel ? message.channel.name || 'geral' : 'geral'
 
-      // Think!
       const response = await this.brain.think(
         recentHistory,
         message.author.id,
@@ -110,7 +98,6 @@ export default class AIMention extends Event {
         userPersonality
       )
 
-      // Buttons — minimal, natural
       const buttons = new ActionRowBuilder<ButtonBuilder>().addComponents(
         new ButtonBuilder()
           .setCustomId('ai_memory')
@@ -129,13 +116,13 @@ export default class AIMention extends Event {
           .setStyle(ButtonStyle.Secondary)
       )
 
-      // Reply naturally — text, not embed
+      // Reply as plain text, not embed
       const reply = await message.reply({
         content: response,
         components: [buttons],
       })
 
-      // Save to chat history
+      // Persist to chat history
       const userMsg: ChatMessage = { role: 'user', content: cleanContent, timestamp: Date.now() }
       const assistantMsg: ChatMessage = {
         role: 'assistant',
@@ -151,10 +138,9 @@ export default class AIMention extends Event {
         aiConfig.maxHistory
       )
 
-      // Update stats
       await this.client.db.updateAIStats(message.guildId!, message.channelId, message.author.id)
 
-      // Handle button interactions
+      // Collect button interactions
       const collector = reply.createMessageComponentCollector({
         componentType: ComponentType.Button,
         time: 120_000,
@@ -209,7 +195,7 @@ export default class AIMention extends Event {
               .setDescription('A base é sempre a mesma — só muda o tom.')
               .setFooter({ text: `Atual: ${userPersonality}` })
 
-            for (const [key, p] of Object.entries(personalities)) {
+            for (const p of Object.values(personalities)) {
               personalityEmbed.addFields({
                 name: `${p.emoji} ${p.name}`,
                 value: p.overlay || 'Identidade core — sem filtro',
