@@ -21,7 +21,11 @@ export default class SearchCommand extends Command {
       name: 'aisearch',
       description: {
         content: 'Busca por comandos e informações usando IA semântica',
-        examples: ['aisearch como tocar música', 'aisearch pausar som', 'aisearch fila de reprodução'],
+        examples: [
+          'aisearch como tocar música',
+          'aisearch pausar som',
+          'aisearch fila de reprodução',
+        ],
         usage: 'aisearch <pergunta>',
       },
       category: 'ai',
