@@ -3,9 +3,11 @@ import {
   ApplicationCommandOptionType,
   ButtonBuilder,
   ButtonStyle,
-  CollectedInteraction,
   EmbedBuilder,
-  ModalMessageModalSubmitInteraction,
+  StringSelectMenuBuilder,
+  type ButtonInteraction,
+  type CollectedInteraction,
+  type StringSelectMenuInteraction,
 } from 'discord.js'
 
 import Command from '#common/command'
@@ -13,12 +15,25 @@ import MahinaBot from '#common/mahina_bot'
 import Context from '#common/context'
 import { ensureStreamCommandReady } from '#common/stream_runtime'
 
-import moment from 'moment'
-
-import { FileResponse, SearchDataResponse, SearchResponse } from '#src/platforms/animezey'
+import {
+  type FileResponse,
+  type SearchDataResponse,
+  type SearchResponse,
+  formatFileSize,
+  formatDisplayName,
+} from '#src/platforms/animezey'
 import type { StreamTrack } from '#common/stream_queue'
 
-interface Cache {
+const ITEMS_PER_PAGE = 5
+const COLLECTOR_TIMEOUT = 120_000
+const EMOJI_NUMBERS = ['1️⃣', '2️⃣', '3️⃣', '4️⃣', '5️⃣']
+
+const dateFormatter = new Intl.DateTimeFormat('pt-BR', {
+  dateStyle: 'short',
+  timeStyle: 'medium',
+})
+
+interface PageCache {
   pages: Array<SearchDataResponse>
   nextPageTokens: string[]
 }
@@ -29,8 +44,8 @@ export default class MSearch extends Command {
       name: 'msearch',
       description: {
         content: 'cmd.msearch.description',
-        examples: ['msearch', 'msearch <nome do anime>'],
-        usage: 'msearch',
+        examples: ['msearch naruto', 'msearch one piece', 'msearch interstellar'],
+        usage: 'msearch <nome>',
       },
       category: 'stream',
       aliases: ['ms'],
@@ -55,12 +70,6 @@ export default class MSearch extends Command {
           type: ApplicationCommandOptionType.String,
           required: true,
         },
-        {
-          name: 'audio',
-          description: 'cmd.mplay.options.audioTrack',
-          type: ApplicationCommandOptionType.Integer,
-          required: false,
-        },
       ],
     })
   }
@@ -70,324 +79,309 @@ export default class MSearch extends Command {
     if (!(await ensureStreamCommandReady(client, ctx))) return
 
     const search = args.join(' ').trim()
-    const audioTrack = args[1] ? Number.parseInt(args[1], 10) : 0
-
-    const cache: Cache = { pages: [], nextPageTokens: [] }
-
-    const emojiNumbers = ['1️⃣', '2️⃣', '3️⃣', '4️⃣', '5️⃣']
-
+    const cache: PageCache = { pages: [], nextPageTokens: [] }
     let contentType: 'anime' | 'movie' = 'anime'
 
-    const fetchPage = async (pageIndex: number) => {
-      if (cache.pages[pageIndex]) return cache.pages[pageIndex]
+    // --- Content type selection via StringSelectMenu ---
+    const selectMenu = new StringSelectMenuBuilder()
+      .setCustomId('msearch-type')
+      .setPlaceholder(ctx.locale('cmd.msearch.messages.choose_type_description'))
+      .addOptions([
+        { label: ctx.locale('cmd.msearch.buttons.anime'), value: 'anime', emoji: '📺' },
+        { label: ctx.locale('cmd.msearch.buttons.movie'), value: 'movie', emoji: '🎬' },
+      ])
 
-      const nextPageToken = cache.nextPageTokens[pageIndex - 1] || null
-      let response: SearchResponse | null = null
+    const typeRow = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(selectMenu)
 
-      if (contentType === 'anime') {
-        response = await client.animezey.searchAnime(search, nextPageToken)
-      } else if (contentType === 'movie') {
-        response = await client.animezey.searchMovie(search, nextPageToken)
-      }
-
-      if (!response) return null
-
-      const { data } = response
-      const filteredData = {
-        ...data,
-        files: data.files.filter(
-          (file) => file.mimeType === 'video/x-matroska' || file.mimeType === 'video/mp4'
-        ),
-      }
-
-      cache.pages[pageIndex] = filteredData
-      cache.nextPageTokens[pageIndex] = data.nextPageToken
-
-      return filteredData
-    }
-
-    // Function to create embed for a page
-    const createEmbed = (
-      pageData: Array<FileResponse>,
-      pageIndex: number,
-      itemPageIndex: number,
-      totalItems: number
-    ) => {
-      const itemsPerPage = 5
-      const startIndex = itemPageIndex * itemsPerPage
-      const paginatedData = pageData.slice(startIndex, startIndex + itemsPerPage)
-
-      const embed = new EmbedBuilder().setTitle(
-        ctx.locale('cmd.msearch.messages.results_title', { query: search })
-      )
-      if (paginatedData.length === 0)
-        return embed
-          .setDescription(ctx.locale('cmd.msearch.messages.results_empty'))
-          .setColor(client.color.red)
-
-      embed
-        .setDescription(
-          paginatedData
-            .map(
-              (video, index) =>
-                `${emojiNumbers[index]} ${video.name}\n` +
-                `Tamanho: ${(Number.parseInt(video.size) / 1024 / 1024 / 1024).toFixed(2)} GB\n` +
-                `[Download](${client.animezey.BASE_URL + video.link})`
-            )
-            .join('\n\n')
-        )
-        .setFooter({
-          text: ctx.locale('cmd.msearch.footer.page', {
-            page: String(pageIndex + 1),
-            start: String(startIndex + 1),
-            end: String(startIndex + paginatedData.length),
-            total: String(totalItems),
-          }),
-          iconURL: ctx.author!.avatarURL() || undefined,
-        })
-        .setColor(client.color.violet)
-
-      return embed
-    }
-
-    // Function to handle pagination with download buttons
-    const handlePage = async (
-      pageIndex: number,
-      itemPageIndex: number,
-      interaction: ModalMessageModalSubmitInteraction
-    ) => {
-      const pageData = await fetchPage(pageIndex)
-      if (!pageData)
-        return interaction.update({
-          content: ctx.locale('cmd.msearch.messages.fetch_error'),
-          components: [],
-        })
-
-      const totalItems = pageData.files.length
-      const embed = createEmbed(pageData.files, pageIndex, itemPageIndex, totalItems)
-
-      const itemsPerPage = 5
-      const startIndex = itemPageIndex * itemsPerPage
-
-      const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
-        new ButtonBuilder()
-          .setCustomId('prevPage')
-          .setLabel(ctx.locale('cmd.msearch.buttons.previous_page'))
-          .setStyle(ButtonStyle.Primary)
-          .setDisabled(pageIndex === 0),
-        new ButtonBuilder()
-          .setCustomId('nextPage')
-          .setLabel(ctx.locale('cmd.msearch.buttons.next_page'))
-          .setStyle(ButtonStyle.Primary)
-          .setDisabled(!cache.nextPageTokens[pageIndex]),
-        new ButtonBuilder()
-          .setCustomId('prevItemPage')
-          .setLabel(ctx.locale('cmd.msearch.buttons.previous_items'))
-          .setStyle(ButtonStyle.Secondary)
-          .setDisabled(itemPageIndex === 0),
-        new ButtonBuilder()
-          .setCustomId('nextItemPage')
-          .setLabel(ctx.locale('cmd.msearch.buttons.next_items'))
-          .setStyle(ButtonStyle.Secondary)
-          .setDisabled((itemPageIndex + 1) * itemsPerPage >= totalItems)
-      )
-
-      const downloadRow = new ActionRowBuilder<ButtonBuilder>()
-      for (let i = 0; i < Math.min(itemsPerPage, totalItems - startIndex); i++) {
-        downloadRow.addComponents(
-          new ButtonBuilder()
-            .setCustomId(`play_${i + 1}`)
-            .setLabel(ctx.locale('cmd.msearch.buttons.watch', { number: emojiNumbers[i] }))
-            .setStyle(ButtonStyle.Success)
-        )
-      }
-
-      await interaction.update({ content: '', embeds: [embed], components: [row, downloadRow] })
-    }
-
-    // Perguntar ao usuário que tipo de conteúdo ele quer
-    const contentSelectionEmbed = new EmbedBuilder()
+    const typeEmbed = new EmbedBuilder()
       .setTitle(ctx.locale('cmd.msearch.messages.choose_type_title'))
       .setDescription(ctx.locale('cmd.msearch.messages.choose_type_description'))
       .setColor(client.color.blue)
 
-    const contentSelectionRow = new ActionRowBuilder<ButtonBuilder>().addComponents(
-      new ButtonBuilder()
-        .setCustomId('search_anime')
-        .setLabel(ctx.locale('cmd.msearch.buttons.anime'))
-        .setStyle(ButtonStyle.Primary),
-      new ButtonBuilder()
-        .setCustomId('search_movie')
-        .setLabel(ctx.locale('cmd.msearch.buttons.movie'))
-        .setStyle(ButtonStyle.Primary)
-    )
+    const typeMessage = await ctx.sendMessage({ embeds: [typeEmbed], components: [typeRow] })
+    if (!typeMessage) return
 
-    const contentSelectionMessage = await ctx.sendMessage({
-      embeds: [contentSelectionEmbed],
-      components: [contentSelectionRow],
+    const typeCollector = typeMessage.createMessageComponentCollector({
+      filter: (i: CollectedInteraction) => i.user.id === ctx.author!.id,
+      max: 1,
+      time: 30_000,
     })
 
-    if (!contentSelectionMessage) return
+    typeCollector.on('collect', async (interaction: StringSelectMenuInteraction) => {
+      contentType = interaction.values[0] as 'anime' | 'movie'
 
-    const contentFilter = (i: CollectedInteraction) => i.user.id === ctx.author!.id
-    const contentCollector = contentSelectionMessage.createMessageComponentCollector({
-      filter: contentFilter,
-      time: 100_000,
-    })
+      // --- Loading state ---
+      const loadingEmbed = new EmbedBuilder()
+        .setTitle(ctx.locale('cmd.msearch.messages.searching', { query: search }))
+        .setDescription(ctx.locale('cmd.msearch.messages.searching_description'))
+        .setColor(client.color.yellow)
 
-    contentCollector.on('collect', async (interaction: ModalMessageModalSubmitInteraction) => {
-      const selectedContent = interaction.customId
+      await interaction.update({ embeds: [loadingEmbed], components: [] })
 
-      if (selectedContent === 'search_anime') {
-        contentType = 'anime'
-      } else if (selectedContent === 'search_movie') {
-        contentType = 'movie'
+      // --- Fetch results ---
+      const fetchPage = async (pageIndex: number): Promise<SearchDataResponse | null> => {
+        if (cache.pages[pageIndex]) return cache.pages[pageIndex]
+
+        const token = cache.nextPageTokens[pageIndex - 1] || null
+        let response: SearchResponse | null = null
+
+        if (contentType === 'anime') {
+          response = await client.animezey.searchAnime(search, token)
+        } else {
+          response = await client.animezey.searchMovie(search, token)
+        }
+
+        if (!response) return null
+
+        const filtered: SearchDataResponse = {
+          ...response.data,
+          files: response.data.files.filter(
+            (f) => f.mimeType === 'video/x-matroska' || f.mimeType === 'video/mp4'
+          ),
+        }
+
+        cache.pages[pageIndex] = filtered
+        cache.nextPageTokens[pageIndex] = response.data.nextPageToken
+        return filtered
       }
 
-      // Continue com a busca e paginamento após a escolha do usuário
-      const initialPageIndex = 0
-      const initialItemPageIndex = 0
-      const initialPageData = await fetchPage(initialPageIndex)
-
-      if (!initialPageData) return ctx.sendMessage(ctx.locale('cmd.msearch.messages.fetch_error'))
-
-      const totalItems = initialPageData.files.length
-      const initialEmbed = createEmbed(
-        initialPageData.files,
-        initialPageIndex,
-        initialItemPageIndex,
-        totalItems
-      )
-
-      const initialRow = new ActionRowBuilder<ButtonBuilder>().addComponents(
-        new ButtonBuilder()
-          .setCustomId('prevPage')
-          .setLabel(ctx.locale('cmd.msearch.buttons.previous_page'))
-          .setStyle(ButtonStyle.Primary)
-          .setDisabled(true),
-        new ButtonBuilder()
-          .setCustomId('nextPage')
-          .setLabel(ctx.locale('cmd.msearch.buttons.next_page'))
-          .setStyle(ButtonStyle.Primary)
-          .setDisabled(!cache.nextPageTokens[initialPageIndex]),
-        new ButtonBuilder()
-          .setCustomId('prevItemPage')
-          .setLabel(ctx.locale('cmd.msearch.buttons.previous_items'))
-          .setStyle(ButtonStyle.Secondary)
-          .setDisabled(true),
-        new ButtonBuilder()
-          .setCustomId('nextItemPage')
-          .setLabel(ctx.locale('cmd.msearch.buttons.next_items'))
-          .setStyle(ButtonStyle.Secondary)
-          .setDisabled(totalItems <= 5)
-      )
-
-      const initialDownloadRow = new ActionRowBuilder<ButtonBuilder>()
-      for (let i = 0; i < Math.min(5, totalItems); i++) {
-        initialDownloadRow.addComponents(
-          new ButtonBuilder()
-            .setCustomId(`play_${i + 1}`)
-            .setLabel(ctx.locale('cmd.msearch.buttons.watch', { number: emojiNumbers[i] }))
-            .setStyle(ButtonStyle.Success)
-        )
-      }
-
-      if (totalItems === 0) {
-        const embed = new EmbedBuilder()
+      const initialData = await fetchPage(0)
+      if (!initialData || initialData.files.length === 0) {
+        const emptyEmbed = new EmbedBuilder()
           .setTitle(ctx.locale('cmd.msearch.messages.results_title', { query: search }))
           .setDescription(ctx.locale('cmd.msearch.messages.results_empty'))
           .setColor(client.color.red)
 
-        await interaction.update({ embeds: [embed] })
+        await typeMessage.edit({ embeds: [emptyEmbed], components: [] })
         return
-      } else if (totalItems > 0) {
-        await interaction.update({
-          embeds: [initialEmbed],
-          components: [initialRow, initialDownloadRow],
+      }
+
+      // --- Build results UI ---
+      let pageIdx = 0
+      let itemIdx = 0
+
+      const buildResultEmbed = (files: FileResponse[], page: number, itemPage: number) => {
+        const start = itemPage * ITEMS_PER_PAGE
+        const slice = files.slice(start, start + ITEMS_PER_PAGE)
+        const typeLabel = contentType === 'anime' ? '📺 Anime' : '🎬 Filme'
+
+        return new EmbedBuilder()
+          .setTitle(ctx.locale('cmd.msearch.messages.results_title', { query: search }))
+          .setDescription(
+            slice
+              .map(
+                (f, i) =>
+                  `${EMOJI_NUMBERS[i]} **${formatDisplayName(f.name)}**\n` +
+                  `╰ ${formatFileSize(f.size)} · ${f.mimeType.split('/')[1].toUpperCase()}`
+              )
+              .join('\n\n')
+          )
+          .setColor(client.color.main)
+          .setFooter({
+            text: `${typeLabel} · Pág ${page + 1} · ${start + 1}-${start + slice.length} de ${files.length}`,
+            iconURL: ctx.author!.avatarURL() || undefined,
+          })
+      }
+
+      const buildNavRow = (page: number, itemPage: number, totalItems: number) => {
+        return new ActionRowBuilder<ButtonBuilder>().addComponents(
+          new ButtonBuilder()
+            .setCustomId('prevPage')
+            .setEmoji('⏪')
+            .setStyle(ButtonStyle.Primary)
+            .setDisabled(page === 0),
+          new ButtonBuilder()
+            .setCustomId('prevItems')
+            .setEmoji('⬅️')
+            .setStyle(ButtonStyle.Secondary)
+            .setDisabled(itemPage === 0),
+          new ButtonBuilder().setCustomId('cancel').setEmoji('⏹️').setStyle(ButtonStyle.Danger),
+          new ButtonBuilder()
+            .setCustomId('nextItems')
+            .setEmoji('➡️')
+            .setStyle(ButtonStyle.Secondary)
+            .setDisabled((itemPage + 1) * ITEMS_PER_PAGE >= totalItems),
+          new ButtonBuilder()
+            .setCustomId('nextPage')
+            .setEmoji('⏩')
+            .setStyle(ButtonStyle.Primary)
+            .setDisabled(!cache.nextPageTokens[page])
+        )
+      }
+
+      const buildPlayRow = (itemPage: number, totalItems: number) => {
+        const start = itemPage * ITEMS_PER_PAGE
+        const count = Math.min(ITEMS_PER_PAGE, totalItems - start)
+        const row = new ActionRowBuilder<ButtonBuilder>()
+
+        for (let i = 0; i < count; i++) {
+          row.addComponents(
+            new ButtonBuilder()
+              .setCustomId(`play_${i}`)
+              .setLabel(ctx.locale('cmd.msearch.buttons.watch', { number: EMOJI_NUMBERS[i] }))
+              .setStyle(ButtonStyle.Success)
+          )
+        }
+        return row
+      }
+
+      const updateResults = async (inter: ButtonInteraction) => {
+        const data = await fetchPage(pageIdx)
+        if (!data) {
+          await inter.update({
+            content: ctx.locale('cmd.msearch.messages.fetch_error'),
+            embeds: [],
+            components: [],
+          })
+          return
+        }
+
+        const total = data.files.length
+        await inter.update({
+          content: '',
+          embeds: [buildResultEmbed(data.files, pageIdx, itemIdx)],
+          components: [buildNavRow(pageIdx, itemIdx, total), buildPlayRow(itemIdx, total)],
         })
-        const message = await interaction.fetchReply()
+      }
 
-        if (!message) return
+      // Show initial results
+      const total = initialData.files.length
+      await typeMessage.edit({
+        embeds: [buildResultEmbed(initialData.files, 0, 0)],
+        components: [buildNavRow(0, 0, total), buildPlayRow(0, total)],
+      })
 
-        const filter = (i: CollectedInteraction) => i.user.id === ctx.author!.id
-        const collector = message.createMessageComponentCollector({
-          filter,
-          time: 100_000,
-        })
+      // --- Results collector ---
+      const collector = typeMessage.createMessageComponentCollector({
+        filter: (i: CollectedInteraction) => i.user.id === ctx.author!.id,
+        time: COLLECTOR_TIMEOUT,
+      })
 
-        let currentPageIndex = initialPageIndex
-        let currentItemPageIndex = initialItemPageIndex
+      collector.on('collect', async (btnInteraction: ButtonInteraction) => {
+        const id = btnInteraction.customId
 
-        collector.on('collect', async (cInteraction: ModalMessageModalSubmitInteraction) => {
-          if (cInteraction.customId.startsWith('play_')) {
-            const playIndex = Number.parseInt(cInteraction.customId.split('_')[1], 10) - 1
-            const startIndex = currentItemPageIndex * 5
-            const file = cache.pages[currentPageIndex].files[startIndex + playIndex]
+        if (id === 'cancel') {
+          collector.stop('cancelled')
+          return
+        }
 
-            const embed = new EmbedBuilder()
-              .setTitle(ctx.locale('cmd.msearch.messages.watching_title'))
-              .setDescription(ctx.locale('cmd.msearch.messages.watching_description'))
-              .setColor(client.color.yellow)
+        if (id.startsWith('play_')) {
+          const playIdx = Number.parseInt(id.split('_')[1], 10)
+          const start = itemIdx * ITEMS_PER_PAGE
+          const file = cache.pages[pageIdx]?.files[start + playIdx]
+          if (!file) return
 
-            await cInteraction.reply({ embeds: [embed] })
+          await btnInteraction.deferReply()
 
-            const streamTrack: StreamTrack = {
-              type: 'url',
-              source: client.animezey.BASE_URL + file.link,
-              title: file.name,
-              requester: { id: ctx.author!.id, username: ctx.author!.username },
-              deleteAfterPlay: false,
-            }
-
-            await client.selfbot.enqueue(ctx.guild.id, ctx.member, streamTrack, ctx.channel!.id)
-
-            embed.setAuthor({
-              name: ctx.locale('cmd.msearch.messages.live_author'),
-              iconURL: this.client.config.links.live,
-            })
-            embed.setTitle(file.name)
-            embed.setDescription(ctx.locale('cmd.msearch.messages.playing_description'))
-            embed.setColor(client.color.red)
-
-            embed.addFields({
-              name: ctx.locale('cmd.msearch.fields.size'),
-              value: `${(Number.parseInt(file.size) / 1024 / 1024 / 1024).toFixed(2)} GB`,
-            })
-            embed.addFields({
-              name: ctx.locale('cmd.msearch.fields.modified_at'),
-              value: `${moment(file.modifiedTime).format('DD/MM/YYYY HH:mm:ss')}`,
-            })
-            embed.addFields({
-              name: ctx.locale('cmd.msearch.fields.download'),
-              value: `[Download](${client.animezey.BASE_URL + file.link})`,
-            })
-
-            await cInteraction.editReply({ embeds: [embed] })
-          } else {
-            if (cInteraction.customId === 'prevPage') {
-              currentPageIndex--
-              currentItemPageIndex = 0
-            } else if (cInteraction.customId === 'nextPage') {
-              currentPageIndex++
-              currentItemPageIndex = 0
-            } else if (cInteraction.customId === 'prevItemPage') {
-              currentItemPageIndex--
-            } else if (cInteraction.customId === 'nextItemPage') {
-              currentItemPageIndex++
-            }
-
-            await handlePage(currentPageIndex, currentItemPageIndex, cInteraction)
+          const track: StreamTrack = {
+            type: 'url',
+            source: client.animezey.getStreamUrl(file),
+            title: file.name,
+            requester: { id: ctx.author!.id, username: ctx.author!.username },
+            deleteAfterPlay: false,
           }
-        })
 
-        collector.on('end', async () => {
-          const embed = new EmbedBuilder()
-            .setTitle(ctx.locale('cmd.msearch.messages.search_closed_title'))
-            .setDescription(ctx.locale('cmd.msearch.messages.search_closed_description'))
-            .setColor(client.color.red)
+          try {
+            const position = await client.selfbot.enqueue(
+              ctx.guild!.id,
+              ctx.member!,
+              track,
+              ctx.channel!.id
+            )
 
-          await message.edit({ components: [], embeds: [embed] })
-        })
+            const embed = new EmbedBuilder().setTimestamp()
+
+            if (position === 0) {
+              embed
+                .setAuthor({
+                  name: ctx.locale('cmd.msearch.messages.live_author'),
+                  iconURL: client.config.links.live,
+                })
+                .setTitle(formatDisplayName(file.name))
+                .setDescription(ctx.locale('cmd.msearch.messages.now_streaming'))
+                .setColor(client.color.green)
+            } else {
+              embed
+                .setTitle(formatDisplayName(file.name))
+                .setDescription(
+                  ctx.locale('cmd.msearch.messages.queued_position', { position: String(position) })
+                )
+                .setColor(client.color.blue)
+            }
+
+            embed.addFields(
+              {
+                name: ctx.locale('cmd.msearch.fields.size'),
+                value: formatFileSize(file.size),
+                inline: true,
+              },
+              {
+                name: ctx.locale('cmd.msearch.fields.modified_at'),
+                value: dateFormatter.format(new Date(file.modifiedTime)),
+                inline: true,
+              },
+              {
+                name: ctx.locale('cmd.msearch.fields.download'),
+                value: `[Download](${client.animezey.getStreamUrl(file)})`,
+                inline: true,
+              }
+            )
+
+            embed.setFooter({
+              text: ctx.locale('player.trackStart.requested_by', { user: ctx.author!.username }),
+              iconURL: ctx.author!.avatarURL() || ctx.author!.defaultAvatarURL,
+            })
+
+            await btnInteraction.editReply({ embeds: [embed] })
+          } catch (error) {
+            const msg = error instanceof Error ? error.message : 'Erro ao enfileirar'
+            const errEmbed = new EmbedBuilder()
+              .setDescription(`❌ ${msg}`)
+              .setColor(client.color.red)
+
+            await btnInteraction.editReply({ embeds: [errEmbed] })
+          }
+          return
+        }
+
+        // Navigation
+        if (id === 'prevPage') {
+          pageIdx--
+          itemIdx = 0
+        } else if (id === 'nextPage') {
+          pageIdx++
+          itemIdx = 0
+        } else if (id === 'prevItems') {
+          itemIdx--
+        } else if (id === 'nextItems') {
+          itemIdx++
+        }
+
+        await updateResults(btnInteraction)
+      })
+
+      collector.on('end', async (_collected, reason) => {
+        const closedEmbed = new EmbedBuilder()
+          .setTitle(ctx.locale('cmd.msearch.messages.search_closed_title'))
+          .setDescription(
+            reason === 'cancelled'
+              ? ctx.locale('cmd.msearch.messages.search_closed_description')
+              : ctx.locale('cmd.msearch.messages.timeout_description')
+          )
+          .setColor(client.color.red)
+
+        await typeMessage.edit({ embeds: [closedEmbed], components: [] }).catch(() => {})
+      })
+    })
+
+    typeCollector.on('end', async (collected) => {
+      if (collected.size === 0) {
+        const timeoutEmbed = new EmbedBuilder()
+          .setTitle(ctx.locale('cmd.msearch.messages.timeout_title'))
+          .setDescription(ctx.locale('cmd.msearch.messages.timeout_description'))
+          .setColor(client.color.red)
+
+        await typeMessage.edit({ embeds: [timeoutEmbed], components: [] }).catch(() => {})
       }
     })
   }

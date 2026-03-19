@@ -64,9 +64,6 @@ importers:
       module-alias:
         specifier: ^2.2.3
         version: 2.3.4
-      moment:
-        specifier: ^2.30.1
-        version: 2.30.1
       multer:
         specifier: 2.0.2
         version: 2.0.2
@@ -5276,12 +5273,6 @@ packages:
     resolution:
       {
         integrity: sha512-bOclZt8hkpuGgSSoG07PKmvzTizROilUTvLNyrMqvlC9snhs7y7GzjNWAVbISIOlhCP1T14rH1PDAV9iNyBq/w==,
-      }
-
-  moment@2.30.1:
-    resolution:
-      {
-        integrity: sha512-uEmtNhbDOrWPFS+hdjFCBfy9f2YoyzRpwcl+DqpC6taX21FzsTLQVbMV/W7PzNSX6x/bhC1zA3c2UQ5NzH6how==,
       }
 
   moo@0.5.3:
@@ -10918,8 +10909,6 @@ snapshots:
       ufo: 1.6.3
 
   module-alias@2.3.4: {}
-
-  moment@2.30.1: {}
 
   moo@0.5.3: {}
 

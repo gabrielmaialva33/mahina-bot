@@ -645,36 +645,35 @@
       },
       "messages": {
         "no_results": "⚠️ Nenhum resultado encontrado.",
-        "searching": "🔍 Procurando por {query}...",
+        "searching": "🔍 Buscando \"{query}\"...",
+        "searching_description": "Aguarde enquanto procuramos resultados...",
         "select": "📋 Escolha o vídeo que deseja transmitir.",
-        "results_title": "🔎 Resultados da pesquisa: {query}",
-        "results_empty": "⚠️ Nenhum resultado encontrado.",
-        "fetch_error": "❌ Erro ao buscar informações.",
-        "choose_type_title": "🎬 Escolha o tipo de conteúdo",
+        "results_title": "🔎 Resultados: {query}",
+        "results_empty": "⚠️ Nenhum resultado encontrado para vídeos (MKV/MP4).",
+        "fetch_error": "❌ Erro ao buscar informações. Tente novamente.",
+        "choose_type_title": "🎬 O que você quer assistir?",
         "choose_type_description": "Selecione o tipo de conteúdo que deseja buscar.",
-        "watching_title": "▶️ Preparando transmissão",
-        "watching_description": "O vídeo será reproduzido em instantes.",
         "live_author": "Live Stream",
-        "playing_description": "O vídeo está sendo reproduzido.",
+        "now_streaming": "▶️ Reproduzindo agora via stream.",
+        "queued_position": "📃 Adicionado à fila na posição #{position}.",
         "search_closed_title": "🔒 Pesquisa encerrada",
-        "search_closed_description": "A pesquisa foi encerrada."
+        "search_closed_description": "A pesquisa foi encerrada.",
+        "timeout_title": "⏰ Tempo esgotado",
+        "timeout_description": "Você não selecionou nenhuma opção a tempo."
       },
       "buttons": {
         "anime": "Anime",
         "movie": "Filme",
-        "previous_page": "Página anterior",
-        "next_page": "Próxima página",
-        "previous_items": "Itens anteriores",
-        "next_items": "Próximos itens",
+        "cancel": "Cancelar",
         "watch": "Assistir {number}"
       },
       "fields": {
         "size": "Tamanho",
-        "modified_at": "Data de modificação",
+        "modified_at": "Modificado",
         "download": "Link"
       },
       "footer": {
-        "page": "Página {page} | Itens {start}-{end} de {total}"
+        "page": "{type} · Página {page} · {start}-{end} de {total}"
       }
     },
     "mstop": {
