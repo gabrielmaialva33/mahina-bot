@@ -9,6 +9,7 @@ import MahinaBot from '#common/mahina_bot'
 import Context from '#common/context'
 import { ensureStreamCommandReady } from '#common/stream_runtime'
 import { T } from '#common/i18n'
+import type { StreamTrack } from '#common/stream_queue'
 
 import { env } from '#src/env'
 import { ApplicationCommandOptionType } from 'discord.js'
@@ -80,12 +81,8 @@ export default class VPlay extends Command {
       // eslint-disable-next-line @typescript-eslint/naming-convention
       const { title, webpage_url, thumbnail, channel, duration } = videoInfo
 
-      // escape the title to avoid any issues with the file name
       const safeTitle = this.sanitizeFilename(title)
-
       const outputPath = path.join(process.cwd(), 'downloads', `${safeTitle}.%(ext)s`)
-
-      console.log(`Downloading to ${outputPath}`)
 
       await ctx.editMessage(ctx.locale('cmd.vplay.downloading'))
       await youtubedl(query, { output: outputPath })
@@ -99,44 +96,79 @@ export default class VPlay extends Command {
       }
 
       const filePath = path.join(downloadsPath, matchedFile)
-
       const locale = await client.db.getLanguage(ctx.guild.id)
-      const embed = client
-        .embed()
-        .setAuthor({
-          name: T(locale, 'player.trackStart.now_playing'),
-          iconURL: client.config.icons['youtube'],
-        })
-        .setColor(client.color.main)
-        .setDescription(`**[${title}](${webpage_url})**`)
-        .setFooter({
-          text: T(locale, 'player.trackStart.requested_by', { user: ctx.author.username }),
-          iconURL: ctx.author.avatarURL() || ctx.author.defaultAvatarURL,
-        })
-        .setThumbnail(thumbnail)
-        .addFields(
-          {
-            name: T(locale, 'player.trackStart.duration'),
-            value: client.utils.formatTime(duration),
-            inline: true,
-          },
-          {
-            name: T(locale, 'player.trackStart.author'),
-            value: channel,
-            inline: true,
-          }
-        )
-        .setTimestamp()
 
-      await ctx.editMessage({ content: '', embeds: [embed] })
+      const track: StreamTrack = {
+        type: 'youtube',
+        source: query,
+        resolvedPath: filePath,
+        title,
+        thumbnail,
+        duration: duration ? duration * 1000 : undefined,
+        author: channel,
+        url: webpage_url,
+        requester: { id: ctx.author.id, username: ctx.author.username },
+        deleteAfterPlay: true,
+      }
 
-      await client.selfbot.play(ctx.guild.id, ctx.member, filePath, title).finally(async () => {
-        fs.unlinkSync(filePath)
-        await ctx.editMessage(ctx.locale('cmd.vplay.cleanup'))
-      })
+      const position = await client.selfbot.enqueue(
+        ctx.guild.id,
+        ctx.member,
+        track,
+        ctx.channel!.id
+      )
+
+      if (position === 0) {
+        const embed = client
+          .embed()
+          .setAuthor({
+            name: T(locale, 'player.trackStart.now_playing'),
+            iconURL: client.config.icons['youtube'],
+          })
+          .setColor(client.color.main)
+          .setDescription(`**[${title}](${webpage_url})**`)
+          .setFooter({
+            text: T(locale, 'player.trackStart.requested_by', { user: ctx.author.username }),
+            iconURL: ctx.author.avatarURL() || ctx.author.defaultAvatarURL,
+          })
+          .setThumbnail(thumbnail)
+          .addFields(
+            {
+              name: T(locale, 'player.trackStart.duration'),
+              value: client.utils.formatTime(duration * 1000),
+              inline: true,
+            },
+            {
+              name: T(locale, 'player.trackStart.author'),
+              value: channel,
+              inline: true,
+            }
+          )
+          .setTimestamp()
+
+        await ctx.editMessage({ content: '', embeds: [embed] })
+      } else {
+        const embed = client
+          .embed()
+          .setColor(client.color.main)
+          .setDescription(
+            T(locale, 'cmd.vplay.added_to_queue', {
+              title,
+              uri: webpage_url,
+              position: String(position),
+            })
+          )
+          .setFooter({
+            text: T(locale, 'player.trackStart.requested_by', { user: ctx.author.username }),
+            iconURL: ctx.author.avatarURL() || ctx.author.defaultAvatarURL,
+          })
+          .setTimestamp()
+
+        await ctx.editMessage({ content: '', embeds: [embed] })
+      }
     } catch (error) {
       this.client.logger.error(error)
-      await ctx.sendMessage(ctx.locale('cmd.vplay.errors.general_error'))
+      await ctx.editMessage(ctx.locale('cmd.vplay.errors.general_error'))
     }
   }
 

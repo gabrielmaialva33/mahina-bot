@@ -16,6 +16,7 @@ import { ensureStreamCommandReady } from '#common/stream_runtime'
 import moment from 'moment'
 
 import { FileResponse, SearchDataResponse, SearchResponse } from '#src/platforms/animezey'
+import type { StreamTrack } from '#common/stream_queue'
 
 interface Cache {
   pages: Array<SearchDataResponse>
@@ -319,13 +320,15 @@ export default class MSearch extends Command {
 
             await cInteraction.reply({ embeds: [embed], fetchReply: true })
 
-            await client.selfbot.play(
-              ctx.guild.id,
-              ctx.member,
-              client.animezey.BASE_URL + file.link,
-              file.name,
-              audioTrack
-            )
+            const streamTrack: StreamTrack = {
+              type: 'url',
+              source: client.animezey.BASE_URL + file.link,
+              title: file.name,
+              requester: { id: ctx.author!.id, username: ctx.author!.username },
+              deleteAfterPlay: false,
+            }
+
+            await client.selfbot.enqueue(ctx.guild.id, ctx.member, streamTrack, ctx.channel!.id)
 
             embed.setAuthor({ name: 'Live Stream', iconURL: this.client.config.links.live })
             embed.setTitle(`${file.name}`)

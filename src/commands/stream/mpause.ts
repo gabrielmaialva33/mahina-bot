@@ -40,7 +40,7 @@ export default class MPause extends Command {
 
     const locale = await client.db.getLanguage(ctx.guild.id)
 
-    client.selfbot.pauseStream()
+    client.selfbot.pauseStream(ctx.guild.id)
 
     const embed = this.client
       .embed()

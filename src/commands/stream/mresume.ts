@@ -40,7 +40,7 @@ export default class MResume extends Command {
 
     const locale = await client.db.getLanguage(ctx.guild.id)
 
-    client.selfbot.resumeStream()
+    client.selfbot.resumeStream(ctx.guild.id)
 
     const embed = this.client
       .embed()

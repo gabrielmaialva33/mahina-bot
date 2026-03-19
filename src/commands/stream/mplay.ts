@@ -6,6 +6,7 @@ import MahinaBot from '#common/mahina_bot'
 import Context from '#common/context'
 import { ensureStreamCommandReady } from '#common/stream_runtime'
 import { T } from '#common/i18n'
+import type { StreamTrack } from '#common/stream_queue'
 import { ApplicationCommandOptionType } from 'discord.js'
 
 export default class MPlay extends Command {
@@ -14,7 +15,7 @@ export default class MPlay extends Command {
       name: 'mplay',
       description: {
         content: 'cmd.mplay.description',
-        examples: ['mplay <movie name>', 'mplay Frozen', 'mplay Frozen 1'], // 1 to select audio track index 1
+        examples: ['mplay <movie name>', 'mplay Frozen', 'mplay Frozen 1'],
         usage: 'mplay',
       },
       category: 'stream',
@@ -61,7 +62,7 @@ export default class MPlay extends Command {
       return
     }
 
-    let videos = downloadsFiles
+    const videos = downloadsFiles
       .map((file) => {
         const fileName = path.parse(file).name
         return {
@@ -77,9 +78,6 @@ export default class MPlay extends Command {
       return
     }
 
-    const audioTrackArg = args.shift()
-    const audioTrack = audioTrackArg ? Number.parseInt(audioTrackArg, 10) : undefined
-
     const movie = videos.find((m) => m!.name === movieName)
     if (!movie) {
       await ctx.sendMessage(T(locale, 'cmd.mplay.errors.movie_not_found'))
@@ -88,18 +86,46 @@ export default class MPlay extends Command {
 
     await ctx.sendMessage(T(locale, 'cmd.mplay.messages.waiting'))
 
-    const embed = this.client
-      .embed()
-      .setColor(client.color.main)
-      .setTitle(T(locale, 'cmd.mplay.messages.playing_movie', { movie: movieName }))
-      .setFooter({
-        text: T(locale, 'player.trackStart.requested_by', { user: ctx.author.username }),
-        iconURL: ctx.author.avatarURL() || ctx.author.defaultAvatarURL,
-      })
-      .setTimestamp()
+    const track: StreamTrack = {
+      type: 'local',
+      source: movie.path,
+      title: movieName,
+      requester: { id: ctx.author.id, username: ctx.author.username },
+      deleteAfterPlay: false,
+    }
 
-    await ctx.editMessage({ content: '', embeds: [embed] })
+    const position = await client.selfbot.enqueue(ctx.guild.id, ctx.member, track, ctx.channel!.id)
 
-    await client.selfbot.play(ctx.guild.id, ctx.member, movie!.path, movieName, audioTrack)
+    if (position === 0) {
+      const embed = this.client
+        .embed()
+        .setColor(client.color.main)
+        .setTitle(T(locale, 'cmd.mplay.messages.playing_movie', { movie: movieName }))
+        .setFooter({
+          text: T(locale, 'player.trackStart.requested_by', { user: ctx.author.username }),
+          iconURL: ctx.author.avatarURL() || ctx.author.defaultAvatarURL,
+        })
+        .setTimestamp()
+
+      await ctx.editMessage({ content: '', embeds: [embed] })
+    } else {
+      const embed = this.client
+        .embed()
+        .setColor(client.color.main)
+        .setDescription(
+          T(locale, 'cmd.vplay.added_to_queue', {
+            title: movieName,
+            uri: '',
+            position: String(position),
+          })
+        )
+        .setFooter({
+          text: T(locale, 'player.trackStart.requested_by', { user: ctx.author.username }),
+          iconURL: ctx.author.avatarURL() || ctx.author.defaultAvatarURL,
+        })
+        .setTimestamp()
+
+      await ctx.editMessage({ content: '', embeds: [embed] })
+    }
   }
 }
