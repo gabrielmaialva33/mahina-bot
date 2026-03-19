@@ -31,6 +31,7 @@ No automated test suite yet. `pnpm lint && pnpm build` is the minimum pre-PR che
 
 `src/index.ts` → displays logo, starts `ShardingManager` (`src/shard.ts`) → each shard instantiates `MahinaBot`
 (`src/common/mahina_bot.ts`) → calls `client.start(token)` which initializes in order:
+
 1. i18n (locales)
 2. AIManager + Prisma (if API keys present)
 3. Commands (86, with slash command registration + i18n name/description localizations)
@@ -96,10 +97,11 @@ File manager with Basic Auth. Endpoints: upload, remote upload, preview (FFmpeg 
 ### Path Aliases
 
 Always use configured aliases over relative imports:
+
 ```typescript
-import { MahinaBot } from '#common/mahina_bot'   // src/common/
-import { Utils } from '#utils/utils'               // src/utils/
-import Play from '#commands/music/play'            // src/commands/
+import { MahinaBot } from '#common/mahina_bot' // src/common/
+import { Utils } from '#utils/utils' // src/utils/
+import Play from '#commands/music/play' // src/commands/
 ```
 
 ### i18n Usage

@@ -181,6 +181,7 @@ const jobId = await aiQueueService.queueJob({
 
 - **[NVIDIA AI](https://build.nvidia.com/)** - 14+ AI models including Llama 4
 - **[OpenAI](https://openai.com/)** - Fallback AI provider
+
 ### Infrastructure
 
 - **[Docker](https://www.docker.com/)** - Containerization
