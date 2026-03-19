@@ -3,8 +3,26 @@ import type { AIModelStatsRow, LegacyAIChatResponse } from '#common/ai_types'
 import type { NvidiaModel } from '#src/services/nvidia_ai_service'
 import type { NvidiaMultimodalModel } from '#src/services/nvidia_multimodal_service'
 import { EmbedBuilder } from 'discord.js'
+import OpenAI from 'openai'
+import { env } from '#src/env'
 
 type AIModelSummary = NvidiaModel | NvidiaMultimodalModel
+type AIRouteProvider = 'nvidia-multimodal' | 'nvidia-legacy' | 'groq' | 'gemini' | 'openai'
+
+interface AIRouteTrace {
+  capability: AICapability | 'chat'
+  provider: AIRouteProvider
+  model: string
+  source: 'router' | 'service'
+  timestamp: number
+}
+
+interface OpenAICompatibleProvider {
+  provider: Extract<AIRouteProvider, 'groq' | 'gemini' | 'openai'>
+  model: string
+  client: OpenAI
+  supportsVision: boolean
+}
 
 export type AICapability =
   | 'chat'
@@ -24,7 +42,7 @@ type AIServiceWithChat = {
     context?: string,
     systemPrompt?: string,
     options?: MultimodalChatOptions | string
-  ) => Promise<string | LegacyChatResponse>
+  ) => Promise<string | LegacyAIChatResponse>
 }
 
 type AIServiceWithStreaming = {
@@ -83,6 +101,186 @@ interface ChatRequest {
   options?: MultimodalChatOptions
 }
 
+const lastAIRoutes = new Map<string, AIRouteTrace>()
+
+const recordRoute = (
+  userId: string,
+  capability: AIRouteTrace['capability'],
+  provider: AIRouteProvider,
+  model: string,
+  source: AIRouteTrace['source']
+) => {
+  lastAIRoutes.set(userId, {
+    capability,
+    provider,
+    model,
+    source,
+    timestamp: Date.now(),
+  })
+}
+
+const buildOpenAICompatibleProviders = (): OpenAICompatibleProvider[] => {
+  const providers: OpenAICompatibleProvider[] = []
+
+  if (env.GROQ_API_KEY) {
+    providers.push({
+      provider: 'groq',
+      model: env.AI_FAST_MODEL,
+      client: new OpenAI({
+        apiKey: env.GROQ_API_KEY,
+        baseURL: 'https://api.groq.com/openai/v1',
+      }),
+      supportsVision: false,
+    })
+  }
+
+  if (env.GEMINI_API_KEY) {
+    providers.push({
+      provider: 'gemini',
+      model: 'gemini-2.5-flash',
+      client: new OpenAI({
+        apiKey: env.GEMINI_API_KEY,
+        baseURL: 'https://generativelanguage.googleapis.com/v1beta/openai/',
+      }),
+      supportsVision: true,
+    })
+  }
+
+  if (env.OPENAI_API_KEY) {
+    providers.push({
+      provider: 'openai',
+      model: 'gpt-4o-mini',
+      client: new OpenAI({ apiKey: env.OPENAI_API_KEY }),
+      supportsVision: true,
+    })
+  }
+
+  return providers
+}
+
+const openAICompatibleProviders = buildOpenAICompatibleProviders()
+
+const getOpenAICompatibleProvider = (
+  providerName: OpenAICompatibleProvider['provider']
+): OpenAICompatibleProvider | null =>
+  openAICompatibleProviders.find((provider) => provider.provider === providerName) || null
+
+const isFastChatCandidate = (request: ChatRequest): boolean => {
+  if (request.imageUrl) {
+    return false
+  }
+
+  const messageLength = request.message.trim().length
+  const contextLength = request.context?.trim().length || 0
+  const systemPromptLength = request.systemPrompt?.trim().length || 0
+
+  return messageLength <= 180 && contextLength <= 500 && systemPromptLength <= 1000
+}
+
+const getChatRoutePlan = (request: ChatRequest): AIRouteProvider[] => {
+  if (request.imageUrl) {
+    return ['nvidia-multimodal', 'gemini', 'openai', 'nvidia-legacy']
+  }
+
+  if (isFastChatCandidate(request)) {
+    return ['groq', 'nvidia-multimodal', 'gemini', 'openai', 'nvidia-legacy']
+  }
+
+  return ['nvidia-multimodal', 'gemini', 'openai', 'groq', 'nvidia-legacy']
+}
+
+async function runOpenAICompatibleChat(
+  provider: OpenAICompatibleProvider,
+  request: ChatRequest
+): Promise<string> {
+  const messages: OpenAI.Chat.ChatCompletionMessageParam[] = []
+
+  if (request.systemPrompt) {
+    messages.push({ role: 'system', content: request.systemPrompt })
+  }
+
+  if (request.context) {
+    messages.push({ role: 'system', content: `Context: ${request.context}` })
+  }
+
+  messages.push({
+    role: 'user',
+    content: request.imageUrl
+      ? [
+          { type: 'text', text: request.message },
+          {
+            type: 'image_url',
+            image_url: {
+              url: request.imageUrl,
+            },
+          },
+        ]
+      : request.message,
+  })
+
+  const completion = await provider.client.chat.completions.create({
+    model: provider.model,
+    messages,
+    temperature: request.options?.temperature ?? 0.7,
+    max_tokens: request.options?.maxTokens ?? 2048,
+    stream: false,
+  })
+
+  return completion.choices[0]?.message?.content || 'No response generated'
+}
+
+async function runServiceChat(
+  client: MahinaBot,
+  route: Extract<AIRouteProvider, 'nvidia-multimodal' | 'nvidia-legacy'>,
+  request: ChatRequest
+): Promise<string | null> {
+  if (route === 'nvidia-multimodal' && client.services.nvidiaMultimodal) {
+    const response = await client.services.nvidiaMultimodal.chat(
+      request.userId,
+      request.message,
+      request.context,
+      request.systemPrompt,
+      request.options || (request.imageUrl ? { images: [request.imageUrl] } : undefined)
+    )
+    const modelKey = client.services.nvidiaMultimodal.getUserModel(request.userId)
+    const model = client.services.nvidiaMultimodal.getModelInfo(modelKey)
+
+    recordRoute(
+      request.userId,
+      request.imageUrl ? 'vision' : 'chat',
+      'nvidia-multimodal',
+      model?.name || modelKey,
+      'service'
+    )
+
+    return response
+  }
+
+  if (route === 'nvidia-legacy' && client.services.nvidia) {
+    const response = (await client.services.nvidia.chat(
+      request.userId,
+      request.message,
+      request.context,
+      request.systemPrompt,
+      request.imageUrl
+    )) as string | LegacyAIChatResponse
+    const modelKey = client.services.nvidia.getUserModel(request.userId)
+    const model = client.services.nvidia.getModelInfo(modelKey)
+
+    recordRoute(
+      request.userId,
+      request.imageUrl ? 'vision' : 'chat',
+      'nvidia-legacy',
+      model?.name || modelKey,
+      'service'
+    )
+
+    return typeof response === 'string' ? response : response.content
+  }
+
+  return null
+}
+
 type TaskModelSelectionResult =
   | { success: true; service: PreferredAIService; model: AIModelSummary }
   | { success: false; error: 'service-unavailable' | 'model-not-found' | 'unsupported-model' }
@@ -97,6 +295,44 @@ export function getFallbackAIService(client: MahinaBot): PreferredAIService | nu
   }
 
   return getPreferredAIService(client)
+}
+
+export function getLastAIRoute(userId: string): AIRouteTrace | null {
+  return lastAIRoutes.get(userId) || null
+}
+
+export function getAIProviderOverview(client: MahinaBot): Array<{
+  provider: string
+  role: string
+  status: 'ready' | 'off'
+}> {
+  return [
+    {
+      provider: 'NVIDIA Multimodal',
+      role: 'base de chat e visão',
+      status: client.services.nvidiaMultimodal ? 'ready' : 'off',
+    },
+    {
+      provider: 'NVIDIA Legacy',
+      role: 'reasoning, code e fallback',
+      status: client.services.nvidia ? 'ready' : 'off',
+    },
+    {
+      provider: 'Groq',
+      role: 'chat rápido e lurker',
+      status: env.GROQ_API_KEY ? 'ready' : 'off',
+    },
+    {
+      provider: 'Gemini',
+      role: 'contexto e fallback leve',
+      status: env.GEMINI_API_KEY ? 'ready' : 'off',
+    },
+    {
+      provider: 'OpenAI',
+      role: 'fallback genérico',
+      status: env.OPENAI_API_KEY ? 'ready' : 'off',
+    },
+  ]
 }
 
 export function getAIServiceCapabilities(service: PreferredAIService | null): Set<AICapability> {
@@ -214,30 +450,53 @@ export async function chatWithPreferredAI(
   client: MahinaBot,
   request: ChatRequest
 ): Promise<string> {
+  for (const route of getChatRoutePlan(request)) {
+    if (route === 'nvidia-multimodal' || route === 'nvidia-legacy') {
+      try {
+        const response = await runServiceChat(client, route, request)
+        if (response) {
+          return response
+        }
+      } catch {
+        // continue to next route
+      }
+
+      continue
+    }
+
+    const provider = getOpenAICompatibleProvider(route)
+
+    if (!provider || (request.imageUrl && !provider.supportsVision)) {
+      continue
+    }
+
+    try {
+      const response = await runOpenAICompatibleChat(provider, request)
+      recordRoute(
+        request.userId,
+        request.imageUrl ? 'vision' : 'chat',
+        provider.provider,
+        provider.model,
+        'router'
+      )
+      return response
+    } catch {
+      // continue to next route
+    }
+  }
+
   const service = request.imageUrl
     ? resolveAIServiceForCapability(client, 'vision')
     : resolveAIServiceForCapability(client, 'chat')
 
-  if (service === client.services.nvidiaMultimodal && client.services.nvidiaMultimodal) {
-    return client.services.nvidiaMultimodal.chat(
-      request.userId,
-      request.message,
-      request.context,
-      request.systemPrompt,
-      request.options || (request.imageUrl ? { images: [request.imageUrl] } : undefined)
-    )
-  }
+  if (service === client.services.nvidiaMultimodal || service === client.services.nvidia) {
+    const route =
+      service === client.services.nvidiaMultimodal ? 'nvidia-multimodal' : 'nvidia-legacy'
+    const response = await runServiceChat(client, route, request)
 
-  if (service === client.services.nvidia && client.services.nvidia) {
-    const response = (await client.services.nvidia.chat(
-      request.userId,
-      request.message,
-      request.context,
-      request.systemPrompt,
-      request.imageUrl
-    )) as string | LegacyChatResponse
-
-    return typeof response === 'string' ? response : response.content
+    if (response) {
+      return response
+    }
   }
 
   throw new Error('AI service is not available')
@@ -254,8 +513,17 @@ export async function runReasoningTask(
   if (!service?.reasoning) {
     throw new Error('Reasoning service is not available')
   }
-
-  return service.reasoning(userId, problem, context)
+  const response = await service.reasoning(userId, problem, context)
+  if (service === client.services.nvidiaMultimodal && client.services.nvidiaMultimodal) {
+    const modelKey = client.services.nvidiaMultimodal.getUserModel(userId)
+    const model = client.services.nvidiaMultimodal.getModelInfo(modelKey)
+    recordRoute(userId, 'reasoning', 'nvidia-multimodal', model?.name || modelKey, 'service')
+  } else if (service === client.services.nvidia && client.services.nvidia) {
+    const modelKey = client.services.nvidia.getUserModel(userId)
+    const model = client.services.nvidia.getModelInfo(modelKey)
+    recordRoute(userId, 'reasoning', 'nvidia-legacy', model?.name || modelKey, 'service')
+  }
+  return response
 }
 
 export async function runCodeTask(
@@ -270,8 +538,17 @@ export async function runCodeTask(
   if (!service?.analyzeCode) {
     throw new Error('Code analysis service is not available')
   }
-
-  return service.analyzeCode(userId, code, language, task)
+  const response = await service.analyzeCode(userId, code, language, task)
+  if (service === client.services.nvidiaMultimodal && client.services.nvidiaMultimodal) {
+    const modelKey = client.services.nvidiaMultimodal.getUserModel(userId)
+    const model = client.services.nvidiaMultimodal.getModelInfo(modelKey)
+    recordRoute(userId, 'code', 'nvidia-multimodal', model?.name || modelKey, 'service')
+  } else if (service === client.services.nvidia && client.services.nvidia) {
+    const modelKey = client.services.nvidia.getUserModel(userId)
+    const model = client.services.nvidia.getModelInfo(modelKey)
+    recordRoute(userId, 'code', 'nvidia-legacy', model?.name || modelKey, 'service')
+  }
+  return response
 }
 
 export async function runRagTask(
@@ -285,8 +562,13 @@ export async function runRagTask(
   if (!service?.generateWithRAG) {
     throw new Error('RAG service is not available')
   }
-
-  return service.generateWithRAG(userId, message, retrievalQuery)
+  const response = await service.generateWithRAG(userId, message, retrievalQuery)
+  if (service === client.services.nvidiaMultimodal && client.services.nvidiaMultimodal) {
+    const modelKey = client.services.nvidiaMultimodal.getUserModel(userId)
+    const model = client.services.nvidiaMultimodal.getModelInfo(modelKey)
+    recordRoute(userId, 'rag', 'nvidia-multimodal', model?.name || modelKey, 'service')
+  }
+  return response
 }
 
 export function createAIModelCatalogEmbed(client: MahinaBot): unknown | null {
