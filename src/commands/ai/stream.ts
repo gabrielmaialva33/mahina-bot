@@ -42,6 +42,12 @@ export default class Stream extends Command {
       ? (ctx.options.get('message')?.value as string)
       : args.join(' ')
     const aiService = resolveAIServiceForCapability(client, 'stream')
+    const providerLabel =
+      aiService === client.services.nvidiaMultimodal
+        ? 'nvidia-multimodal'
+        : aiService === client.services.nvidia
+          ? 'nvidia-legacy'
+          : undefined
 
     if (!aiService?.chatStream || !aiService.getUserModel || !aiService.getModelInfo) {
       return await ctx.sendMessage({
@@ -141,7 +147,7 @@ export default class Stream extends Command {
 
       // Send completion embed
       await ctx.sendMessage({
-        embeds: [createStreamCompletionEmbed(t, model.name, chunks.length)],
+        embeds: [createStreamCompletionEmbed(t, model.name, chunks.length, providerLabel)],
       })
     } catch (error) {
       console.error('Stream error:', error)
