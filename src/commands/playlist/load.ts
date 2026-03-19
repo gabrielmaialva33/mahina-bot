@@ -2,6 +2,7 @@ import type { AutocompleteInteraction, GuildMember } from 'discord.js'
 import Command from '#common/command'
 import type MahinaBot from '#common/mahina_bot'
 import type Context from '#common/context'
+import { getMemberVoiceChannel } from '#common/player_runtime'
 
 export default class LoadPlaylist extends Command {
   constructor(client: MahinaBot) {
@@ -41,7 +42,7 @@ export default class LoadPlaylist extends Command {
     })
   }
 
-  async run(client: MahinaBot, ctx: Context, args: string[]): Promise<any> {
+  async run(client: MahinaBot, ctx: Context, args: string[]): Promise<void> {
     let player = client.manager.getPlayer(ctx.guild!.id)
     const playlistName = args.join(' ').trim()
     const playlistData = await client.db.getPlaylist(ctx.author?.id!, playlistName)
@@ -56,8 +57,10 @@ export default class LoadPlaylist extends Command {
       })
     }
 
-    const songs = await client.db.getTracksFromPlaylist(ctx.author?.id!, playlistName)
-    if (songs.length === 0) {
+    const songs = (await client.db.getTracksFromPlaylist(ctx.author?.id!, playlistName)) as
+      | string[]
+      | null
+    if (!songs || songs.length === 0) {
       return await ctx.sendMessage({
         embeds: [
           {
@@ -68,22 +71,26 @@ export default class LoadPlaylist extends Command {
       })
     }
 
-    const member = ctx.member as GuildMember
+    const memberVoiceChannel = getMemberVoiceChannel(ctx.member)
+    if (!memberVoiceChannel) {
+      return
+    }
+
     if (!player) {
       player = client.manager.createPlayer({
         guildId: ctx.guild!.id,
-        voiceChannelId: member.voice.channelId!,
+        voiceChannelId: memberVoiceChannel.id,
         textChannelId: ctx.channel.id,
         selfMute: false,
         selfDeaf: true,
-        vcRegion: member.voice.channel?.rtcRegion!,
+        vcRegion: memberVoiceChannel.rtcRegion!,
       })
       if (!player.connected) await player.connect()
     }
 
     const nodes = client.manager.nodeManager.leastUsedNodes()
     const node = nodes[Math.floor(Math.random() * nodes.length)]
-    const tracks = await node.decode.multipleTracks(songs as any, ctx.author)
+    const tracks = await node.decode.multipleTracks(songs, ctx.author)
     if (tracks.length === 0) {
       return await ctx.sendMessage({
         embeds: [
@@ -122,7 +129,7 @@ export default class LoadPlaylist extends Command {
     )
 
     await interaction.respond(
-      filtered.map((playlist: { name: any }) => ({
+      filtered.map((playlist: { name: string }) => ({
         name: playlist.name,
         value: playlist.name,
       }))

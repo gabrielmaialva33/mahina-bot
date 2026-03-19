@@ -1,8 +1,8 @@
 import { ApplicationCommandOptionType, EmbedBuilder, User } from 'discord.js'
 import Command from '#common/command'
+import type Context from '#common/context'
+import type MahinaBot from '#common/mahina_bot'
 import { PersonalityRLService } from '#src/services/personality_rl_service'
-import MahinaBot from '#common/mahina_bot'
-import { Context } from 'node:vm'
 
 export default class PersonalityCommand extends Command {
   private personalityService: PersonalityRLService
@@ -45,7 +45,7 @@ export default class PersonalityCommand extends Command {
     this.personalityService = new PersonalityRLService(client)
   }
 
-  public async run(client: MahinaBot, ctx: Context, args: string[]): Promise<any> {
+  public async run(client: MahinaBot, ctx: Context, args: string[]): Promise<void> {
     // Get target user
     let targetUser: User
     if (ctx.isInteraction) {
@@ -128,7 +128,7 @@ export default class PersonalityCommand extends Command {
           '🔥 **Segredo Descoberto!** A Fênix noturna é especialmente poderosa! Você desbloqueou uma conquista secreta.'
         )
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Personality Analysis Error:', error)
 
       const errorEmbed = new EmbedBuilder()

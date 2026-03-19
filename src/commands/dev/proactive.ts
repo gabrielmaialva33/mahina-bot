@@ -1,4 +1,4 @@
-import { ApplicationCommandOptionType, EmbedBuilder } from 'discord.js'
+import { ApplicationCommandOptionType, EmbedBuilder, TextChannel } from 'discord.js'
 import Command from '#common/command'
 import type Context from '#common/context'
 import type MahinaBot from '#common/mahina_bot'
@@ -42,7 +42,7 @@ export default class ProactiveCommand extends Command {
     })
   }
 
-  async run(client: MahinaBot, ctx: Context, args: string[]): Promise<any> {
+  async run(client: MahinaBot, ctx: Context, args: string[]): Promise<void> {
     const subcommand = ctx.isInteraction
       ? ctx.options.getSubCommand() || 'stats'
       : args[0] || 'stats'
@@ -120,7 +120,18 @@ export default class ProactiveCommand extends Command {
 
         // Force a proactive interaction in current channel
         try {
-          await client.services.proactiveInteraction.sendTestMessage(ctx.channel as any)
+          if (!(ctx.channel instanceof TextChannel)) {
+            return await ctx.sendMessage({
+              embeds: [
+                {
+                  description: '❌ This command can only be used in text channels',
+                  color: 0xff0000,
+                },
+              ],
+            })
+          }
+
+          await client.services.proactiveInteraction.sendTestMessage(ctx.channel)
 
           return await ctx.sendMessage({
             embeds: [
