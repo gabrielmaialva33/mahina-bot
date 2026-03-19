@@ -5,8 +5,36 @@ interface LavalinkHealthNode {
   id: string
   isAlive: boolean
   connected: boolean
+  stats?: {
+    players: number
+    playingPlayers: number
+    uptime: number
+    cpu: {
+      cores: number
+      systemLoad: number
+      lavalinkLoad: number
+    }
+    memory: {
+      used: number
+      reservable: number
+    }
+  }
   connect(): Promise<void>
   disconnect(): Promise<void>
+}
+
+export interface LavalinkNodeSnapshot {
+  id: string
+  status: 'healthy' | 'reconnecting' | 'down'
+  players: number
+  playingPlayers: number
+  uptime: number
+  cpuCores: number
+  systemLoad: number
+  lavalinkLoad: number
+  memoryUsed: number
+  memoryReservable: number
+  reconnectAttempts: number
 }
 
 export class LavalinkHealthService {
@@ -125,6 +153,57 @@ export class LavalinkHealthService {
       healthyNodes: healthy,
       unhealthyNodes: unhealthy,
       reconnectingNodes: reconnecting,
+    }
+  }
+
+  getNodeSnapshots(): LavalinkNodeSnapshot[] {
+    if (!this.client.manager) {
+      return []
+    }
+
+    return Array.from(this.client.manager.nodeManager.nodes.values()).map((node) => {
+      const reconnectAttempts = this.reconnectAttempts.get(node.id) || 0
+      const status: LavalinkNodeSnapshot['status'] =
+        node.isAlive && node.connected ? 'healthy' : reconnectAttempts > 0 ? 'reconnecting' : 'down'
+      const stats = node.stats || {
+        players: 0,
+        playingPlayers: 0,
+        uptime: 0,
+        cpu: { cores: 0, systemLoad: 0, lavalinkLoad: 0 },
+        memory: { used: 0, reservable: 0 },
+      }
+
+      return {
+        id: node.id,
+        status,
+        players: stats.players,
+        playingPlayers: stats.playingPlayers,
+        uptime: stats.uptime,
+        cpuCores: stats.cpu.cores,
+        systemLoad: stats.cpu.systemLoad,
+        lavalinkLoad: stats.cpu.lavalinkLoad,
+        memoryUsed: stats.memory.used,
+        memoryReservable: stats.memory.reservable,
+        reconnectAttempts,
+      }
+    })
+  }
+
+  getRuntimeSummary(): {
+    totalNodes: number
+    healthyNodes: number
+    unhealthyNodes: number
+    reconnectingNodes: number
+    totalPlayers: number
+    totalPlayingPlayers: number
+  } {
+    const health = this.getHealthStats()
+    const snapshots = this.getNodeSnapshots()
+
+    return {
+      ...health,
+      totalPlayers: snapshots.reduce((sum, node) => sum + node.players, 0),
+      totalPlayingPlayers: snapshots.reduce((sum, node) => sum + node.playingPlayers, 0),
     }
   }
 
