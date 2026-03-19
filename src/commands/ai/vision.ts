@@ -7,7 +7,7 @@ import {
   MessageFlags,
   Message,
 } from 'discord.js'
-import OpenAI from 'openai'
+import { chatWithPreferredAI, getLastAIRoute } from '#common/ai_runtime'
 import Command from '#common/command'
 import type Context from '#common/context'
 import type MahinaBot from '#common/mahina_bot'
@@ -25,8 +25,6 @@ import {
 } from '#common/vision_runtime'
 
 export default class VisionCommand extends Command {
-  private openai: OpenAI
-
   constructor(client: MahinaBot) {
     super(client, {
       name: 'vision',
@@ -74,11 +72,6 @@ export default class VisionCommand extends Command {
         },
       ],
     })
-
-    this.openai = new OpenAI({
-      apiKey: process.env.NVIDIA_API_KEY,
-      baseURL: 'https://integrate.api.nvidia.com/v1',
-    })
   }
 
   public async run(client: MahinaBot, ctx: Context, args: string[]): Promise<void> {
@@ -101,23 +94,17 @@ export default class VisionCommand extends Command {
     try {
       const systemPrompt = getVisionSystemPrompt(mode)
       const userPrompt = customQuestion || getVisionDefaultPrompt(mode)
-
-      // For NVIDIA API, we'll analyze the image using text description
-      // In a real implementation, you'd use a vision-capable model
-      const imageAnalysisPrompt = `Analise esta imagem: ${attachment.url}\n\n${userPrompt}`
-
-      const completion = await this.openai.chat.completions.create({
-        model: 'meta/llama-3.1-405b-instruct',
-        messages: [
-          { role: 'system', content: systemPrompt },
-          { role: 'user', content: imageAnalysisPrompt },
-        ],
-        temperature: 0.7,
-        top_p: 0.9,
-        max_tokens: 2048,
+      const response = await chatWithPreferredAI(this.client, {
+        userId: ctx.author!.id,
+        message: userPrompt,
+        systemPrompt,
+        imageUrl: attachment.url,
+        options: {
+          temperature: 0.7,
+          maxTokens: 2048,
+          images: [attachment.url],
+        },
       })
-
-      const response = completion.choices[0]?.message?.content || t('ai.vision.errors.no_result')
 
       await this.sendAnalysisResult(ctx, msg, response, mode, attachment)
     } catch (error) {
@@ -140,12 +127,14 @@ export default class VisionCommand extends Command {
     attachment: Attachment
   ): Promise<void> {
     const t = (key: string, params?: Record<string, unknown>) => ctx.locale(key, params)
+    const route = getLastAIRoute(ctx.author!.id)
     const embed = createVisionResultEmbed(
       this.client.config.color.blue,
       t,
       response,
       mode,
-      attachment
+      attachment,
+      route ? `${route.provider} · ${route.model}` : undefined
     )
     const buttons = createVisionButtons(t)
 

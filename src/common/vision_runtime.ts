@@ -117,7 +117,8 @@ export function createVisionResultEmbed(
   translate: Translate,
   response: string,
   mode: VisionMode,
-  attachment: VisionAttachmentLike
+  attachment: VisionAttachmentLike,
+  routeLabel?: string
 ) {
   const info = getVisionModeInfo(translate, mode)
 
@@ -127,7 +128,9 @@ export function createVisionResultEmbed(
     .setDescription(response.length > 4000 ? `${response.substring(0, 4000)}...` : response)
     .setThumbnail(attachment.url)
     .setFooter({
-      text: translate('ai.vision.messages.footer'),
+      text: routeLabel
+        ? `${translate('ai.vision.messages.footer')} · ${routeLabel}`
+        : translate('ai.vision.messages.footer'),
       iconURL:
         'https://upload.wikimedia.org/wikipedia/commons/thumb/2/21/Nvidia_logo.svg/1200px-Nvidia_logo.svg.png',
     })
