@@ -86,7 +86,7 @@ export class AIMemoryService {
 
       if (dbMemory) {
         memory = JSON.parse(dbMemory.data as string) as UserMemory
-        // Migrate old memories without facts/relationships
+        // Migrate legacy memories missing facts/relationships fields
         if (!memory.facts) memory.facts = []
         if (!memory.relationships) {
           memory.relationships = { closeness: 0, lastRoast: '', insideJokes: [] }
@@ -279,10 +279,7 @@ export class AIMemoryService {
   }
 
   /**
-   * Create default memory structure
-   */
-  /**
-   * Add a fact about a user, deduplicating similar facts
+   * Add a fact about a user, deduplicating similar ones.
    */
   async addFact(
     userId: string,
@@ -294,14 +291,14 @@ export class AIMemoryService {
     const memory = await this.getUserMemory(userId, guildId)
     const lowerFact = fact.toLowerCase().trim()
 
-    // Deduplicate: check if a similar fact already exists
+    // Deduplicate against existing facts
     const isDuplicate = memory.facts.some((f) => {
       const existing = f.fact.toLowerCase()
       return existing === lowerFact || existing.includes(lowerFact) || lowerFact.includes(existing)
     })
 
     if (isDuplicate) {
-      // Update lastMentioned on existing similar fact
+      // Bump confidence and timestamp on existing match
       const existing = memory.facts.find((f) => {
         const e = f.fact.toLowerCase()
         return e === lowerFact || e.includes(lowerFact) || lowerFact.includes(e)
@@ -321,7 +318,7 @@ export class AIMemoryService {
       lastMentioned: new Date(),
     })
 
-    // Keep max 50 facts, remove lowest confidence oldest first
+    // Cap at 50 facts, evict lowest confidence / oldest first
     if (memory.facts.length > 50) {
       memory.facts.sort(
         (a, b) =>
@@ -334,7 +331,7 @@ export class AIMemoryService {
   }
 
   /**
-   * Get top relevant facts about a user
+   * Get top relevant facts about a user, sorted by confidence and recency.
    */
   async getFacts(userId: string, guildId: string, limit: number = 20): Promise<UserFact[]> {
     const memory = await this.getUserMemory(userId, guildId)
@@ -347,7 +344,7 @@ export class AIMemoryService {
   }
 
   /**
-   * Increment closeness score for user-Mahina relationship
+   * Increment closeness score for the user-Mahina relationship.
    */
   async updateCloseness(userId: string, guildId: string, increment: number = 1): Promise<number> {
     const memory = await this.getUserMemory(userId, guildId)
@@ -356,7 +353,7 @@ export class AIMemoryService {
   }
 
   /**
-   * Set a nickname Mahina gave to the user
+   * Set a nickname Mahina gave to the user.
    */
   async setNickname(userId: string, guildId: string, nickname: string): Promise<void> {
     const memory = await this.getUserMemory(userId, guildId)
@@ -364,7 +361,7 @@ export class AIMemoryService {
   }
 
   /**
-   * Add an inside joke
+   * Add an inside joke to the relationship.
    */
   async addInsideJoke(userId: string, guildId: string, joke: string): Promise<void> {
     const memory = await this.getUserMemory(userId, guildId)
@@ -377,7 +374,7 @@ export class AIMemoryService {
   }
 
   /**
-   * Get the relationship data
+   * Get the relationship data for a user.
    */
   async getRelationships(userId: string, guildId: string): Promise<UserRelationships> {
     const memory = await this.getUserMemory(userId, guildId)
