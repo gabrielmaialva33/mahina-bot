@@ -1,4 +1,4 @@
-import type { AutocompleteInteraction } from 'discord.js'
+import type { AutocompleteInteraction, User } from 'discord.js'
 import Command from '#common/command'
 import type MahinaBot from '#common/mahina_bot'
 import type Context from '#common/context'
@@ -47,35 +47,36 @@ export default class StealPlaylist extends Command {
     })
   }
 
-  async run(client: MahinaBot, ctx: Context): Promise<any> {
+  async run(client: MahinaBot, ctx: Context): Promise<void> {
     let targetUser = ctx.args[0]
     const playlistName = ctx.args[1]
     let targetUserId: string | null = null
+    let resolvedUser: User | undefined
 
     if (targetUser?.startsWith('<@') && targetUser.endsWith('>')) {
       targetUser = targetUser.slice(2, -1)
       if (targetUser.startsWith('!')) {
         targetUser = targetUser.slice(1)
       }
-      targetUser = await client.users.fetch(targetUser)
-      targetUserId = targetUser.id
+      resolvedUser = await client.users.fetch(targetUser)
+      targetUserId = resolvedUser.id
     } else if (targetUser) {
       try {
-        targetUser = await client.users.fetch(targetUser)
-        targetUserId = targetUser.id
+        resolvedUser = await client.users.fetch(targetUser)
+        targetUserId = resolvedUser.id
       } catch (_error) {
         const users = client.users.cache.filter(
           (user) => user.username.toLowerCase() === targetUser.toLowerCase()
         )
 
         if (users.size > 0) {
-          targetUser = users.first()
-          targetUserId = targetUser.id
+          resolvedUser = users.first()
+          targetUserId = resolvedUser?.id || null
         } else {
           return await ctx.sendMessage({
             embeds: [
               {
-                description: 'Invalid username or user not found.',
+                description: ctx.locale('cmd.steal.messages.invalid_user'),
                 color: this.client.color.red,
               },
             ],
@@ -140,13 +141,21 @@ export default class StealPlaylist extends Command {
 
       return await ctx.sendMessage({
         embeds: [
-          {
-            description: ctx.locale('cmd.steal.messages.playlist_stolen', {
-              playlist: playlistName,
-              user: targetUser.username,
+          this.client
+            .embed()
+            .setColor(this.client.color.main)
+            .setTitle(ctx.locale('cmd.steal.messages.playlist_stolen_title'))
+            .setDescription(
+              ctx.locale('cmd.steal.messages.playlist_stolen', {
+                playlist: playlistName,
+                user: resolvedUser?.username || ctx.locale('cmd.steal.messages.unknown_user'),
+              })
+            )
+            .addFields({
+              name: ctx.locale('cmd.steal.messages.fields.tracks'),
+              value: String(targetSongs.length),
+              inline: true,
             }),
-            color: this.client.color.main,
-          },
         ],
       })
     } catch (error) {
@@ -162,14 +171,24 @@ export default class StealPlaylist extends Command {
     }
   }
 
-  async autocomplete(interaction: AutocompleteInteraction) {
+  async autocomplete(interaction: AutocompleteInteraction): Promise<void> {
     try {
       const focusedValue = interaction.options.getFocused()
       const userOptionId = interaction.options.get('user')?.value as string
 
       if (!userOptionId) {
         await interaction
-          .respond([{ name: 'Please specify a user to search their playlists.', value: 'NoUser' }])
+          .respond([
+            {
+              name: this.client.utils.cutText(
+                interaction.locale === 'pt-BR'
+                  ? 'Escolhe um usuário antes de buscar a playlist.'
+                  : 'Choose a user before searching playlists.',
+                100
+              ),
+              value: 'NoUser',
+            },
+          ])
           .catch(console.error)
         return
       }
@@ -177,7 +196,12 @@ export default class StealPlaylist extends Command {
       const user = await interaction.client.users.fetch(userOptionId)
       if (!user) {
         await interaction
-          .respond([{ name: 'User not found.', value: 'NoUserFound' }])
+          .respond([
+            {
+              name: interaction.locale === 'pt-BR' ? 'Usuário não encontrado.' : 'User not found.',
+              value: 'NoUserFound',
+            },
+          ])
           .catch(console.error)
         return
       }
@@ -186,7 +210,15 @@ export default class StealPlaylist extends Command {
 
       if (!playlists || playlists.length === 0) {
         await interaction
-          .respond([{ name: 'No playlists found for this user.', value: 'NoPlaylists' }])
+          .respond([
+            {
+              name:
+                interaction.locale === 'pt-BR'
+                  ? 'Esse usuário não tem playlists.'
+                  : 'No playlists found for this user.',
+              value: 'NoPlaylists',
+            },
+          ])
           .catch(console.error)
         return
       }
@@ -202,7 +234,15 @@ export default class StealPlaylist extends Command {
         .catch(console.error)
     } catch (error) {
       return await interaction
-        .respond([{ name: 'An error occurred while fetching playlists.', value: 'Error' }])
+        .respond([
+          {
+            name:
+              interaction.locale === 'pt-BR'
+                ? 'Falha ao buscar playlists.'
+                : 'An error occurred while fetching playlists.',
+            value: 'Error',
+          },
+        ])
         .catch(console.error)
     }
   }

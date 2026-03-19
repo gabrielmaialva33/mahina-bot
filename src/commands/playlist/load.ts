@@ -90,6 +90,17 @@ export default class LoadPlaylist extends Command {
 
     const nodes = client.manager.nodeManager.leastUsedNodes()
     const node = nodes[Math.floor(Math.random() * nodes.length)]
+    if (!node) {
+      return await ctx.sendMessage({
+        embeds: [
+          {
+            description: ctx.locale('cmd.load.messages.no_nodes'),
+            color: client.color.red,
+          },
+        ],
+      })
+    }
+
     const tracks = await node.decode.multipleTracks(songs, ctx.author)
     if (tracks.length === 0) {
       return await ctx.sendMessage({
@@ -102,18 +113,46 @@ export default class LoadPlaylist extends Command {
       })
     }
     player.queue.add(tracks)
+    const startsPlayback = !player.playing && player.queue.tracks.length > 0
 
-    if (!player.playing && player.queue.tracks.length > 0) await player.play({ paused: false })
+    if (startsPlayback) await player.play({ paused: false })
 
     return await ctx.sendMessage({
       embeds: [
-        {
-          description: ctx.locale('cmd.load.messages.playlist_loaded', {
-            name: playlistData.name,
-            count: songs.length,
+        this.client
+          .embed()
+          .setColor(this.client.color.main)
+          .setTitle(ctx.locale('cmd.load.messages.playlist_loaded_title'))
+          .setDescription(
+            ctx.locale('cmd.load.messages.playlist_loaded', {
+              name: playlistData.name,
+              count: songs.length,
+            })
+          )
+          .addFields(
+            {
+              name: ctx.locale('cmd.load.messages.fields.queue'),
+              value: String(player.queue.tracks.length),
+              inline: true,
+            },
+            {
+              name: ctx.locale('cmd.load.messages.fields.voice'),
+              value: `<#${memberVoiceChannel.id}>`,
+              inline: true,
+            },
+            {
+              name: ctx.locale('cmd.load.messages.fields.playback'),
+              value: startsPlayback
+                ? ctx.locale('cmd.load.messages.playback_started')
+                : ctx.locale('cmd.load.messages.playback_queued'),
+              inline: true,
+            }
+          )
+          .setFooter({
+            text: ctx.locale('cmd.load.messages.footer', {
+              name: playlistData.name,
+            }),
           }),
-          color: this.client.color.main,
-        },
       ],
     })
   }

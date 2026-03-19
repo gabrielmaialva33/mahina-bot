@@ -50,7 +50,7 @@ export default class AddSong extends Command {
     })
   }
 
-  async run(client: MahinaBot, ctx: Context, args: string[]): Promise<any> {
+  async run(client: MahinaBot, ctx: Context, args: string[]): Promise<void> {
     const playlist = args.shift()
     const song = args.join(' ')
 
@@ -99,7 +99,7 @@ export default class AddSong extends Command {
       })
     }
 
-    let trackStrings: any
+    let trackStrings: string[] = []
     let count = 0
     if (res.loadType === 'playlist') {
       trackStrings = res.tracks.map((track) => track.encoded)
@@ -116,13 +116,21 @@ export default class AddSong extends Command {
 
     return await ctx.sendMessage({
       embeds: [
-        {
-          description: ctx.locale('cmd.addsong.messages.added', {
-            playlist: playlistData.name,
-            count,
+        this.client
+          .embed()
+          .setColor(this.client.color.green)
+          .setTitle(ctx.locale('cmd.addsong.messages.added_title'))
+          .setDescription(
+            ctx.locale('cmd.addsong.messages.added', {
+              playlist: playlistData.name,
+              count,
+            })
+          )
+          .addFields({
+            name: ctx.locale('cmd.addsong.messages.fields.song'),
+            value: song,
+            inline: false,
           }),
-          color: this.client.color.green,
-        },
       ],
     })
   }

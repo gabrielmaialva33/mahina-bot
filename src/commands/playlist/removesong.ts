@@ -47,7 +47,7 @@ export default class RemoveSong extends Command {
     })
   }
 
-  async run(client: MahinaBot, ctx: Context, args: string[]): Promise<any> {
+  async run(client: MahinaBot, ctx: Context, args: string[]): Promise<void> {
     const playlist = args.shift()
     const song = args.join(' ')
 
@@ -77,39 +77,70 @@ export default class RemoveSong extends Command {
       return await ctx.sendMessage({ embeds: [playlistNotFoundError] })
     }
 
-    /* const res = await client.queue.search(song);
+    const tracks = (await client.db.getTracksFromPlaylist(ctx.author?.id!, playlist)) || []
 
-            if (!res || res.loadType !== LoadType.TRACK) {
-                const noSongsFoundError = this.client
-                    .embed()
-                    .setDescription(ctx.locale("cmd.removesong.messages.song_not_found"))
-                    .setColor(this.client.color.red);
-                return await ctx.sendMessage({ embeds: [noSongsFoundError] });
-            }
+    if (!tracks.length) {
+      const noSongsFoundError = this.client
+        .embed()
+        .setDescription(ctx.locale('cmd.removesong.messages.song_not_found'))
+        .setColor(this.client.color.red)
+      return await ctx.sendMessage({ embeds: [noSongsFoundError] })
+    }
 
-            const trackToRemove = res.data;
+    const nodes = client.manager.nodeManager.leastUsedNodes()
+    const node = nodes[Math.floor(Math.random() * nodes.length)]
 
-            try {
-                await client.db.removeSong(ctx.author.id, playlist, trackToRemove.encoded);
+    if (!node) {
+      const genericError = this.client
+        .embed()
+        .setDescription(ctx.locale('cmd.removesong.messages.error_occurred'))
+        .setColor(this.client.color.red)
+      return await ctx.sendMessage({ embeds: [genericError] })
+    }
 
-                const successMessage = this.client
-                    .embed()
-                    .setDescription(
-                        ctx.locale("cmd.removesong.messages.song_removed", {
-                            song: trackToRemove.info.title,
-                            playlist: playlistData.name,
-                        }),
-                    )
-                    .setColor(this.client.color.green);
-                await ctx.sendMessage({ embeds: [successMessage] });
-            } catch (error) {
-                console.error(error);
-                const genericError = this.client
-                    .embed()
-                    .setDescription(ctx.locale("cmd.removesong.messages.error_occurred"))
-                    .setColor(this.client.color.red);
-                return await ctx.sendMessage({ embeds: [genericError] });
-            } */
+    try {
+      const decodedTracks = await node.decode.multipleTracks(tracks, ctx.author)
+      const trackToRemove = decodedTracks.find(
+        (track) =>
+          track.info.title.toLowerCase().includes(song.toLowerCase()) ||
+          track.info.author.toLowerCase().includes(song.toLowerCase())
+      )
+
+      if (!trackToRemove?.encoded) {
+        const noSongsFoundError = this.client
+          .embed()
+          .setDescription(ctx.locale('cmd.removesong.messages.song_not_found'))
+          .setColor(this.client.color.red)
+        return await ctx.sendMessage({ embeds: [noSongsFoundError] })
+      }
+
+      await client.db.removeSong(ctx.author!.id, playlist, trackToRemove.encoded)
+
+      const successMessage = this.client
+        .embed()
+        .setTitle(ctx.locale('cmd.removesong.messages.song_removed_title'))
+        .setDescription(
+          ctx.locale('cmd.removesong.messages.song_removed', {
+            song: trackToRemove.info.title,
+            playlist: playlistData.name,
+          })
+        )
+        .setColor(this.client.color.green)
+        .addFields({
+          name: ctx.locale('cmd.removesong.messages.fields.match'),
+          value: `${trackToRemove.info.title} · ${trackToRemove.info.author}`,
+          inline: false,
+        })
+
+      await ctx.sendMessage({ embeds: [successMessage] })
+    } catch (error) {
+      client.logger.error(error)
+      const genericError = this.client
+        .embed()
+        .setDescription(ctx.locale('cmd.removesong.messages.error_occurred'))
+        .setColor(this.client.color.red)
+      return await ctx.sendMessage({ embeds: [genericError] })
+    }
   }
 
   async autocomplete(interaction: AutocompleteInteraction): Promise<void> {
@@ -123,7 +154,7 @@ export default class RemoveSong extends Command {
     )
 
     await interaction.respond(
-      filtered.map((playlist: { name: any }) => ({
+      filtered.map((playlist: { name: string }) => ({
         name: playlist.name,
         value: playlist.name,
       }))

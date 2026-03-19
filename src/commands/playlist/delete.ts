@@ -41,15 +41,15 @@ export default class DeletePlaylist extends Command {
     })
   }
 
-  async run(client: MahinaBot, ctx: Context, args: string[]): Promise<any> {
+  async run(client: MahinaBot, ctx: Context, args: string[]): Promise<void> {
     const playlistName = args.join(' ').trim()
-    const embed = this.client.embed()
 
     const playlistExists = await client.db.getPlaylist(ctx.author?.id!, playlistName)
     if (!playlistExists) {
       return await ctx.sendMessage({
         embeds: [
-          embed
+          this.client
+            .embed()
             .setDescription(ctx.locale('cmd.delete.messages.playlist_not_found'))
             .setColor(this.client.color.red),
         ],
@@ -62,13 +62,20 @@ export default class DeletePlaylist extends Command {
     await client.db.deletePlaylist(ctx.author?.id!, playlistName)
     return await ctx.sendMessage({
       embeds: [
-        embed
+        this.client
+          .embed()
+          .setTitle(ctx.locale('cmd.delete.messages.playlist_deleted_title'))
           .setDescription(
             ctx.locale('cmd.delete.messages.playlist_deleted', {
               playlistName,
             })
           )
-          .setColor(this.client.color.green),
+          .setColor(this.client.color.green)
+          .addFields({
+            name: ctx.locale('cmd.delete.messages.fields.name'),
+            value: playlistName,
+            inline: false,
+          }),
       ],
     })
   }

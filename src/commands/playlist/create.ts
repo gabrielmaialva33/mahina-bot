@@ -39,14 +39,14 @@ export default class CreatePlaylist extends Command {
     })
   }
 
-  async run(client: MahinaBot, ctx: Context, args: string[]): Promise<any> {
+  async run(client: MahinaBot, ctx: Context, args: string[]): Promise<void> {
     const name = args.join(' ').trim()
-    const embed = this.client.embed()
 
     if (name.length > 50) {
       return await ctx.sendMessage({
         embeds: [
-          embed
+          this.client
+            .embed()
             .setDescription(ctx.locale('cmd.create.messages.name_too_long'))
             .setColor(this.client.color.red),
         ],
@@ -57,7 +57,8 @@ export default class CreatePlaylist extends Command {
     if (playlistExists) {
       return await ctx.sendMessage({
         embeds: [
-          embed
+          this.client
+            .embed()
             .setDescription(ctx.locale('cmd.create.messages.playlist_exists'))
             .setColor(this.client.color.red),
         ],
@@ -67,13 +68,20 @@ export default class CreatePlaylist extends Command {
     await client.db.createPlaylist(ctx.author?.id!, name)
     return await ctx.sendMessage({
       embeds: [
-        embed
+        this.client
+          .embed()
+          .setTitle(ctx.locale('cmd.create.messages.playlist_created_title'))
           .setDescription(
             ctx.locale('cmd.create.messages.playlist_created', {
               name,
             })
           )
-          .setColor(this.client.color.green),
+          .setColor(this.client.color.green)
+          .addFields({
+            name: ctx.locale('cmd.create.messages.fields.name'),
+            value: name,
+            inline: false,
+          }),
       ],
     })
   }
