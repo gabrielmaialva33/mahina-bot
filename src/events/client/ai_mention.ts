@@ -155,7 +155,7 @@ export default class AIMention extends Event {
           userPersonality,
           {
             onStart: async (content) => {
-              reply = await message.reply({ content: content + ' ▌' })
+              reply = await message.reply({ content: content + ' ▌' }).catch(() => null)
             },
             onUpdate: async (content) => {
               if (reply) {
@@ -169,7 +169,7 @@ export default class AIMention extends Event {
                 await reply.edit({ content, components: [buttons] }).catch(() => {})
               } else {
                 // Fallback if streaming never started
-                reply = await message.reply({ content, components: [buttons] })
+                reply = await message.reply({ content, components: [buttons] }).catch(() => null)
               }
             },
           },
@@ -180,7 +180,7 @@ export default class AIMention extends Event {
       // If streaming callbacks never fired (non-streaming fallback)
       if (!reply) {
         const buttons = this.buildButtons()
-        reply = await message.reply({ content: response, components: [buttons] })
+        reply = await message.reply({ content: response, components: [buttons] }).catch(() => null)
       }
 
       // Persist chat history
@@ -211,7 +211,7 @@ export default class AIMention extends Event {
       })
       await message.reply({
         content: 'deu ruim aqui nos meus circuitos. tenta dnv 💀',
-      })
+      }).catch(() => {})
     }
   }
 

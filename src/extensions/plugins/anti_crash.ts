@@ -32,10 +32,16 @@ const AntiCrash: BotPlugin = {
       // Handle specific Lavalink errors
       if ((err as any).code === 'ERR_UNHANDLED_ERROR' && err.message.includes('LavalinkNode')) {
         client.logger.warn('Lavalink node exception detected, attempting to handle gracefully...')
-        return // Don't crash on Lavalink errors
+        return
       }
 
-      // Exit on all uncaught exceptions — process may be in corrupt state
+      // Don't crash on Discord API errors (rate limits, invalid form body, etc)
+      if (err.name === 'DiscordAPIError' || err.name === 'HTTPError') {
+        client.logger.warn(`Discord API error handled gracefully: ${err.message}`)
+        return
+      }
+
+      // Exit on truly fatal exceptions — process may be in corrupt state
       client.logger.error('Fatal uncaught exception, shutting down...')
       process.exit(1)
     })
