@@ -1,66 +1,80 @@
-name: Deploy to VPS
+name: Build & Deploy
 
 on:
   push:
-    branches:
-      - master
+    branches: [master]
   workflow_dispatch:
 
+env:
+  IMAGE: ghcr.io/gabrielmaialva33/mahina-bot
+
 jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.IMAGE }}
+          tags: |
+            type=sha,prefix=
+            type=raw,value=latest
+
+      - uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
   deploy:
+    needs: build
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
+      - uses: actions/checkout@v4
         with:
-          version: 9
+          sparse-checkout: |
+            docker-compose.prod.yml
+            application.yml
+            lavalink
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          cache: 'pnpm'
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-
-      - name: Build application
-        run: pnpm run build
-
-      - name: Deploy to server
-        uses: appleboy/ssh-action@v1.0.3
+      - name: Sync files to VPS
+        uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USERNAME }}
           key: ${{ secrets.VPS_SSH_KEY }}
-          port: ${{ secrets.VPS_PORT }}
+          source: docker-compose.prod.yml,application.yml,lavalink/
+          target: /opt/mahina-bot
+          overwrite: true
+
+      - name: Deploy
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USERNAME }}
+          key: ${{ secrets.VPS_SSH_KEY }}
           script: |
-            cd /root/mahina-bot
-
-            # Pull latest changes
-            git pull origin master
-
-            # Install pnpm if not already installed
-            npm install -g pnpm
-
-            # Install dependencies
-            pnpm install --frozen-lockfile
-
-            # Build the application
-            pnpm run build
-
-            # Push database schema
-            pnpm run db:push
-
-            # Restart the bot using PM2
-            pm2 restart mahina-bot || pm2 start ecosystem.config.cjs --name mahina-bot
-
-            # Save PM2 process list
-            pm2 save
-
-            # Display status
-            pm2 status
+            set -e
+            cd /opt/mahina-bot
+            cp -f docker-compose.prod.yml docker-compose.yml
+            docker compose pull mahina
+            docker compose up -d --remove-orphans
+            docker image prune -f
+            echo "✅ deployed"

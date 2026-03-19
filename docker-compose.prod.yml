@@ -1,0 +1,46 @@
+services:
+  lavalink:
+    image: ghcr.io/lavalink-devs/lavalink:4.2.2
+    container_name: mahina-lavalink
+    restart: unless-stopped
+    environment:
+      SERVER_PORT: 2333
+      _JAVA_OPTIONS: -Xmx2G
+      LAVALINK_PASSWORD: ${LAVALINK_PASSWORD:-youshallnotpass}
+      SPOTIFY_CLIENT_ID: ${SPOTIFY_CLIENT_ID:-}
+      SPOTIFY_CLIENT_SECRET: ${SPOTIFY_CLIENT_SECRET:-}
+    volumes:
+      - ./application.yml:/opt/Lavalink/application.yml:ro
+      - ./lavalink/plugins:/opt/Lavalink/plugins:ro
+    healthcheck:
+      test:
+        [
+          'CMD-SHELL',
+          'curl -H "Authorization: ${LAVALINK_PASSWORD:-youshallnotpass}" -s http://localhost:2333/version >/dev/null || exit 1',
+        ]
+      interval: 15s
+      timeout: 10s
+      retries: 5
+      start_period: 20s
+    networks:
+      - shared
+
+  mahina:
+    image: ghcr.io/gabrielmaialva33/mahina-bot:latest
+    container_name: mahina-bot
+    restart: unless-stopped
+    env_file:
+      - .env
+    depends_on:
+      lavalink:
+        condition: service_healthy
+    environment:
+      REDIS_URL: redis://redis:6379
+      NODES: '[{"id":"docker","host":"mahina-lavalink","port":2333,"authorization":"${LAVALINK_PASSWORD:-youshallnotpass}","retryAmount":5,"retryDelay":60000,"secure":false}]'
+    networks:
+      - shared
+
+networks:
+  shared:
+    external: true
+    name: shared_network
