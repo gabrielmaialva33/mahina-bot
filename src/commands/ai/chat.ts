@@ -192,7 +192,7 @@ export default class ChatCommand extends Command {
       // Add conversation context
       const context = conversation
         .slice(-5)
-        .map((msg) => `${msg.role}: ${msg.content}`)
+        .map((m) => `${m.role}: ${m.content}`)
         .join('\n')
 
       // Prepare options for enhanced service
