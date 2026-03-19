@@ -37,6 +37,27 @@ interface AILastRouteLike {
   model: string
 }
 
+interface AISocialPulseLike {
+  guildVibe: string[]
+  channelFocus: string[]
+  slang: string[]
+  recurringPhrases: string[]
+  recentSummaries: string[]
+  relationship?: {
+    closeness: number
+    nickname?: string
+    insideJokes: string[]
+  }
+}
+
+interface AIWillSnapshotLike {
+  mood: string
+  initiativeScore: number
+  dominantDrives: string[]
+  currentFixations: string[]
+  currentTargets: string[]
+}
+
 export function createAIStatusEmbed(
   color: number,
   translate: Translate,
@@ -45,7 +66,9 @@ export function createAIStatusEmbed(
   models: AIModelLike[] = [],
   capabilities: string[] = [],
   providers: AIProviderLike[] = [],
-  lastRoute?: AILastRouteLike | null
+  lastRoute?: AILastRouteLike | null,
+  socialPulse?: AISocialPulseLike | null,
+  willSnapshot?: AIWillSnapshotLike | null
 ) {
   const embed = new EmbedBuilder()
     .setTitle(translate('cmd.aistatus.ui.title'))
@@ -160,6 +183,75 @@ export function createAIStatusEmbed(
         provider: lastRoute.provider,
         model: lastRoute.model,
       }),
+      inline: false,
+    })
+  }
+
+  if (socialPulse) {
+    embed.addFields({
+      name: translate('cmd.aistatus.ui.sections.social'),
+      value: [
+        socialPulse.guildVibe.length > 0
+          ? translate('cmd.aistatus.ui.social.guild_vibe', {
+              value: socialPulse.guildVibe.join(', '),
+            })
+          : translate('cmd.aistatus.ui.social.guild_vibe_empty'),
+        socialPulse.channelFocus.length > 0
+          ? translate('cmd.aistatus.ui.social.channel_focus', {
+              value: socialPulse.channelFocus.join(', '),
+            })
+          : translate('cmd.aistatus.ui.social.channel_focus_empty'),
+        socialPulse.slang.length > 0
+          ? translate('cmd.aistatus.ui.social.slang', {
+              value: socialPulse.slang.join(', '),
+            })
+          : translate('cmd.aistatus.ui.social.slang_empty'),
+      ].join('\n'),
+      inline: false,
+    })
+
+    if (socialPulse.relationship) {
+      embed.addFields({
+        name: translate('cmd.aistatus.ui.sections.relationship'),
+        value: [
+          translate('cmd.aistatus.ui.relationship.closeness', {
+            value: socialPulse.relationship.closeness,
+          }),
+          socialPulse.relationship.nickname
+            ? translate('cmd.aistatus.ui.relationship.nickname', {
+                value: socialPulse.relationship.nickname,
+              })
+            : translate('cmd.aistatus.ui.relationship.nickname_empty'),
+          socialPulse.relationship.insideJokes.length > 0
+            ? translate('cmd.aistatus.ui.relationship.jokes', {
+                value: socialPulse.relationship.insideJokes.join('; '),
+              })
+            : translate('cmd.aistatus.ui.relationship.jokes_empty'),
+        ].join('\n'),
+        inline: false,
+      })
+    }
+  }
+
+  if (willSnapshot) {
+    embed.addFields({
+      name: translate('cmd.aistatus.ui.sections.will'),
+      value: [
+        translate('cmd.aistatus.ui.will.mood', { value: willSnapshot.mood }),
+        translate('cmd.aistatus.ui.will.initiative', {
+          value: willSnapshot.initiativeScore.toFixed(2),
+        }),
+        willSnapshot.dominantDrives.length > 0
+          ? translate('cmd.aistatus.ui.will.drives', {
+              value: willSnapshot.dominantDrives.join(', '),
+            })
+          : translate('cmd.aistatus.ui.will.drives_empty'),
+        willSnapshot.currentFixations.length > 0
+          ? translate('cmd.aistatus.ui.will.fixations', {
+              value: willSnapshot.currentFixations.join(', '),
+            })
+          : translate('cmd.aistatus.ui.will.fixations_empty'),
+      ].join('\n'),
       inline: false,
     })
   }

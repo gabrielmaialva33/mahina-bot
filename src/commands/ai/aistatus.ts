@@ -58,6 +58,18 @@ export default class AIStatus extends Command {
       const capabilities = aiService ? [...getAIServiceCapabilities(aiService)] : []
       const providers = getAIProviderOverview(client)
       const lastRoute = ctx.author?.id ? getLastAIRoute(ctx.author.id) : null
+      const socialPulse =
+        ctx.guild?.id && ctx.channelId
+          ? await client.services.serverLearning?.getSocialPulseSnapshot(
+              ctx.guild.id,
+              ctx.channelId,
+              ctx.author?.id
+            )
+          : null
+      const willSnapshot =
+        ctx.guild?.id && ctx.channelId
+          ? await client.services.mahinaWill?.getStateSnapshot(ctx.guild.id, ctx.channelId)
+          : null
 
       await ctx.editMessage({
         embeds: [
@@ -69,12 +81,14 @@ export default class AIStatus extends Command {
             models,
             capabilities,
             providers,
-            lastRoute
+            lastRoute,
+            socialPulse,
+            willSnapshot
           ),
         ],
       })
     } catch (error) {
-      console.error('AI Status error:', error)
+      client.logger.error('AI status error:', error)
       await ctx.editMessage({
         embeds: [
           {
