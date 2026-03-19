@@ -531,7 +531,6 @@ lavalink/Lavalink.jar
 prisma/migrations
 prisma/mahinabot.db
 package-lock.json
-pnpm-lock.yaml
 
 downloads
 cache
