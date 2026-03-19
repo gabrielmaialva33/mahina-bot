@@ -19,6 +19,10 @@ export class ProactiveInteractionService {
   private client: MahinaBot
   private channelActivity: Map<string, ChannelActivity> = new Map()
   private interactionInterval: NodeJS.Timeout | null = null
+  private recapCooldown: Map<string, number> = new Map()
+  private callbackCooldown: Map<string, number> = new Map()
+  private totalRecapsSent = 0
+  private totalCallbacksSent = 0
   private readonly INACTIVITY_THRESHOLD = 3 * 60 * 60 * 1000 // 3 hours
   private readonly CHECK_INTERVAL = 30 * 60 * 1000 // Check every 30 minutes
 
@@ -260,6 +264,28 @@ export class ProactiveInteractionService {
     const willContext = channel.guildId
       ? await this.client.services.mahinaWill?.getPromptContext(channel.guildId, channel.id)
       : undefined
+    const socialPulse = channel.guildId
+      ? await this.client.services.serverLearning?.getSocialPulseSnapshot(
+          channel.guildId,
+          channel.id
+        )
+      : null
+
+    if (socialPulse && (await this.maybeSendSocialRecap(channel, socialPulse))) {
+      await this.client.services.mahinaWill?.markSpoke(channel.guildId, channel.id)
+      return
+    }
+
+    if (socialPulse) {
+      const callback = this.buildContextCallback(channel.id, channel.name, socialPulse)
+      if (callback) {
+        await channel.send({ content: callback }).catch(() => {})
+        this.callbackCooldown.set(channel.id, Date.now())
+        this.totalCallbacksSent++
+        await this.client.services.mahinaWill?.markSpoke(channel.guildId, channel.id)
+        return
+      }
+    }
 
     // Randomly select a category
     const category =
@@ -333,7 +359,11 @@ export class ProactiveInteractionService {
         title: '🎮 Vamos nos Divertir!',
         description: 'Comandos para entretenimento',
         fields: [
-          { name: '/personality', value: 'Descubra seu animal espiritual do WoW', inline: true },
+          {
+            name: '/personality',
+            value: 'Veja a leitura de vibe e personalidade de alguém',
+            inline: true,
+          },
           { name: '/tools imagine', value: 'Crie imagens com IA', inline: true },
           { name: '/help', value: 'Veja todos os comandos', inline: true },
         ],
@@ -378,8 +408,8 @@ export class ProactiveInteractionService {
           .setTitle('🎵 Olá! Eu sou a Mahina!')
           .setDescription(
             `Muito obrigada por me adicionar ao **${guild.name}**! 💜\n\n` +
-              '🎶 Sou especialista em música e tenho recursos de IA avançados!\n' +
-              '🤖 Posso conversar, ajudar com código, analisar imagens e muito mais!'
+              '🎶 Cuido da parte musical e também tenho IA multimodal.\n' +
+              '🤖 Posso conversar, analisar imagens, reagir ao clima do server e criar uma presença viva por aqui.'
           )
           .addFields(
             {
@@ -396,7 +426,7 @@ export class ProactiveInteractionService {
             {
               name: '✨ Recursos Especiais',
               value:
-                '`/personality` - Descubra seu animal espiritual\n`/help` - Ver todos os comandos',
+                '`/personality` - Leitura de vibe\n`/aistatus` - Status social da IA\n`/help` - Ver tudo',
               inline: true,
             }
           )
@@ -429,7 +459,12 @@ export class ProactiveInteractionService {
   }
 
   // Get statistics
-  getStatistics(): { totalChannels: number; inactiveChannels: number } {
+  getStatistics(): {
+    totalChannels: number
+    inactiveChannels: number
+    totalRecapsSent: number
+    totalCallbacksSent: number
+  } {
     const now = new Date()
     let inactiveCount = 0
 
@@ -443,6 +478,8 @@ export class ProactiveInteractionService {
     return {
       totalChannels: this.channelActivity.size,
       inactiveChannels: inactiveCount,
+      totalRecapsSent: this.totalRecapsSent,
+      totalCallbacksSent: this.totalCallbacksSent,
     }
   }
 
@@ -454,5 +491,96 @@ export class ProactiveInteractionService {
   // Public method for forcing interaction check
   async forceInteractionCheck(): Promise<void> {
     await this.checkAndInteract()
+  }
+
+  private async maybeSendSocialRecap(
+    channel: TextChannel,
+    socialPulse: NonNullable<
+      Awaited<
+        ReturnType<NonNullable<MahinaBot['services']['serverLearning']>['getSocialPulseSnapshot']>
+      >
+    >
+  ): Promise<boolean> {
+    const lastRecap = this.recapCooldown.get(channel.id) ?? 0
+    const now = Date.now()
+    if (now - lastRecap < 12 * 60 * 60 * 1000) return false
+    if (socialPulse.recentSummaries.length < 3) return false
+    if (Math.random() > 0.22) return false
+
+    const embed = new EmbedBuilder()
+      .setColor(this.client.config.color.main)
+      .setTitle('🧠 Recap do clima daqui')
+      .setDescription('dei uma lida no que rolou e o resumo tá mais ou menos assim:')
+      .addFields(
+        {
+          name: '🌆 Vibe',
+          value:
+            socialPulse.guildVibe.length > 0
+              ? socialPulse.guildVibe.join(', ')
+              : 'ainda entendendo melhor a vibe daqui',
+          inline: false,
+        },
+        {
+          name: '🎯 Assunto do canal',
+          value:
+            socialPulse.channelFocus.length > 0
+              ? socialPulse.channelFocus.join(', ')
+              : 'sem um foco dominante agora',
+          inline: false,
+        },
+        {
+          name: '🗣️ Jeito de falar',
+          value:
+            socialPulse.slang.length > 0
+              ? socialPulse.slang.join(', ')
+              : 'sem gíria dominante forte ainda',
+          inline: false,
+        },
+        {
+          name: '📝 Últimos sinais',
+          value: socialPulse.recentSummaries
+            .slice(0, 3)
+            .map((item) => `• ${item}`)
+            .join('\n'),
+          inline: false,
+        }
+      )
+      .setFooter({
+        text: 'Mahina recap social',
+        iconURL: this.client.user?.displayAvatarURL(),
+      })
+
+    await channel.send({ embeds: [embed] }).catch(() => {})
+    this.recapCooldown.set(channel.id, now)
+    this.totalRecapsSent++
+    return true
+  }
+
+  private buildContextCallback(
+    channelId: string,
+    channelName: string,
+    socialPulse: NonNullable<
+      Awaited<
+        ReturnType<NonNullable<MahinaBot['services']['serverLearning']>['getSocialPulseSnapshot']>
+      >
+    >
+  ): string | null {
+    const lastCallback = this.callbackCooldown.get(channelId) ?? 0
+    if (Date.now() - lastCallback < 3 * 60 * 60 * 1000) return null
+    if (Math.random() > 0.35) return null
+
+    if (socialPulse.recurringPhrases.length > 0) {
+      return `ceis sempre voltam em ${socialPulse.recurringPhrases[0]} nesse canto, impressionante kkkkk`
+    }
+
+    if (socialPulse.channelFocus.length > 0 && socialPulse.guildVibe.length > 0) {
+      return `o ${channelName} tá muito ${socialPulse.guildVibe[0]} hoje. assunto do momento: ${socialPulse.channelFocus[0]}.`
+    }
+
+    if (socialPulse.slang.length > 0) {
+      return `já deu pra sacar que o dialeto daqui gira em torno de ${socialPulse.slang.slice(0, 3).join(', ')}.`
+    }
+
+    return null
   }
 }
