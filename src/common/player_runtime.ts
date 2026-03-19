@@ -1,8 +1,21 @@
-import type { VoiceChannel } from 'discord.js'
+import type { GuildMember, VoiceChannel } from 'discord.js'
 import type { Player, Track } from 'lavalink-client'
 
 import type MahinaBot from '#common/mahina_bot'
 import type Context from '#common/context'
+
+export function getMemberVoiceChannel(member: Context['member']): VoiceChannel | null {
+  if (!member || !('voice' in member)) {
+    return null
+  }
+
+  const channel = member.voice?.channel
+  return channel instanceof VoiceChannel ? channel : null
+}
+
+export function isGuildMember(member: Context['member']): member is GuildMember {
+  return Boolean(member && 'voice' in member)
+}
 
 export async function ensureConnectedPlayer(
   client: MahinaBot,

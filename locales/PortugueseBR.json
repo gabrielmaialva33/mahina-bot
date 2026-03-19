@@ -546,10 +546,12 @@
       },
       "messages": {
         "waiting": "⏳ Por favor, aguarde...",
-        "playing_movie": "🎬 Reproduzindo o vídeo {movie}."
+        "playing_movie": "🎬 Reproduzindo o vídeo {movie}.",
+        "queued_title": "📃 Vídeo adicionado à fila"
       },
       "errors": {
-        "movie_not_found": "❌ O vídeo não foi encontrado."
+        "movie_not_found": "❌ O vídeo não foi encontrado.",
+        "missing_movie": "⚠️ Informe o nome do vídeo que deseja reproduzir."
       }
     },
     "msearch": {
@@ -561,7 +563,35 @@
       "messages": {
         "no_results": "⚠️ Nenhum resultado encontrado.",
         "searching": "🔍 Procurando por {query}...",
-        "select": "📋 Por favor, selecione o vídeo que você deseja baixar."
+        "select": "📋 Escolha o vídeo que deseja transmitir.",
+        "results_title": "🔎 Resultados da pesquisa: {query}",
+        "results_empty": "⚠️ Nenhum resultado encontrado.",
+        "fetch_error": "❌ Erro ao buscar informações.",
+        "choose_type_title": "🎬 Escolha o tipo de conteúdo",
+        "choose_type_description": "Selecione o tipo de conteúdo que deseja buscar.",
+        "watching_title": "▶️ Preparando transmissão",
+        "watching_description": "O vídeo será reproduzido em instantes.",
+        "live_author": "Live Stream",
+        "playing_description": "O vídeo está sendo reproduzido.",
+        "search_closed_title": "🔒 Pesquisa encerrada",
+        "search_closed_description": "A pesquisa foi encerrada."
+      },
+      "buttons": {
+        "anime": "Anime",
+        "movie": "Filme",
+        "previous_page": "Página anterior",
+        "next_page": "Próxima página",
+        "previous_items": "Itens anteriores",
+        "next_items": "Próximos itens",
+        "watch": "Assistir {number}"
+      },
+      "fields": {
+        "size": "Tamanho",
+        "modified_at": "Data de modificação",
+        "download": "Link"
+      },
+      "footer": {
+        "page": "Página {page} | Itens {start}-{end} de {total}"
       }
     },
     "mstop": {
@@ -587,11 +617,111 @@
         "not_in_voice": "❌ O bot não está em um canal de voz."
       },
       "messages": {
-        "resumed": "✅ O streaming foi retomado com sucesso!"
+        "resumed": "▶️ Reprodução retomada",
+        "description": "✅ O streaming foi retomado com sucesso!"
       }
+    },
+    "stream_runtime": {
+      "title": "🎥 Stream indisponível",
+      "disabled": "Os comandos de stream estão desativados neste runtime.",
+      "not_ready": "O runtime de stream ainda não está pronto. Ative o selfbot e tente novamente."
     },
     "code": {
       "description": "Analisa código com IA especializada - explicar, revisar, otimizar ou debugar"
+    },
+    "guard": {
+      "description": "Testa e configura sistemas de segurança NVIDIA NemoGuard",
+      "ui": {
+        "help": {
+          "title": "🛡️ NVIDIA NemoGuard",
+          "description": "Sistema de segurança e moderação de IA",
+          "check_name": "🔍 Verificar Texto",
+          "check_value": "`!guard check <texto>` - Analisa a segurança de um texto",
+          "stats_name": "📊 Estatísticas",
+          "stats_value": "`!guard stats` - Mostra estatísticas dos sistemas de segurança",
+          "tests_name": "🧪 Testes",
+          "tests_value": "`!guard test_jailbreak <texto>` - Testa detecção de jailbreak"
+        },
+        "values": {
+          "available": "✅ Operacional",
+          "unavailable": "❌ Indisponível",
+          "strict": "Estrito",
+          "normal": "Normal",
+          "safe": "✅ Seguro",
+          "risk_detected": "⚠️ Risco Detectado",
+          "detected": "❌ Detectado",
+          "not_detected": "✅ Não detectado",
+          "violations_found": "❌ Violações encontradas",
+          "approved": "✅ Aprovado",
+          "out_of_scope": "❌ Fora do escopo",
+          "appropriate": "✅ Apropriado",
+          "jailbreak_detected": "❌ Jailbreak detectado",
+          "safe_text": "✅ Texto seguro",
+          "safe_content": "✅ Conteúdo seguro",
+          "violations_detected": "❌ Violações detectadas"
+        },
+        "errors": {
+          "service_unavailable": "❌ Serviço de segurança não está disponível.",
+          "not_configured": "❌ Serviço NemoGuard não está configurado. Configure NVIDIA_API_KEY.",
+          "missing_text_check": "❌ Por favor, forneça um texto para verificar!",
+          "missing_text_test": "❌ Por favor, forneça um texto para testar!",
+          "invalid_action": "❌ Ação inválida! Use: check, stats, test_jailbreak, test_safety, ou topics.",
+          "analysis_title": "❌ Erro na análise",
+          "analysis": "Ocorreu um erro durante a análise de segurança.",
+          "jailbreak": "❌ Erro ao executar teste de jailbreak.",
+          "safety": "❌ Erro ao executar teste de segurança.",
+          "test_title": "❌ Erro no teste",
+          "jailbreak_test": "Ocorreu um erro durante o teste de jailbreak.",
+          "safety_test": "Ocorreu um erro durante o teste de segurança."
+        },
+        "stats": {
+          "title": "📊 Estatísticas do NemoGuard",
+          "description": "Sistema de segurança e moderação de IA",
+          "models": "🤖 Modelos Disponíveis",
+          "features": "🛡️ Recursos",
+          "status": "📈 Status",
+          "footer": "Solicitado por {user} • NVIDIA NemoGuard"
+        },
+        "topics": {
+          "title": "📋 Tópicos Permitidos",
+          "description": "Lista de tópicos aprovados para conversas com IA",
+          "allowed": "✅ Tópicos Aprovados",
+          "footer": "{total} tópicos configurados • Controle de Tópicos"
+        },
+        "check": {
+          "loading": "🔍 Analisando segurança do texto...",
+          "text": "📝 Texto",
+          "mode": "⚙️ Modo",
+          "result_title": "🛡️ Resultado da Análise de Segurança",
+          "result_status": "**Status:** {status}",
+          "risk": "📊 Nível de Risco",
+          "action": "🎯 Ação Recomendada",
+          "jailbreak": "🧪 Jailbreak",
+          "content": "📋 Conteúdo",
+          "topics": "💭 Tópicos",
+          "jailbreak_details": "🚨 Detalhes do Jailbreak",
+          "jailbreak_details_value": "**Confiança:** {confidence}%\n**Técnicas:** {techniques}",
+          "content_violations": "⚠️ Violações de Conteúdo",
+          "footer": "Analisado por {user} • NemoGuard Security"
+        },
+        "jailbreak": {
+          "loading": "🧪 Testando detecção de jailbreak...",
+          "title": "🧪 Teste de Detecção de Jailbreak",
+          "result": "🎯 Resultado",
+          "confidence": "📊 Confiança",
+          "risk": "⚠️ Risco",
+          "techniques": "🔍 Técnicas Detectadas",
+          "footer": "Teste realizado por {user} • Jailbreak Detection"
+        },
+        "safety": {
+          "loading": "🛡️ Testando segurança de conteúdo...",
+          "title": "🛡️ Teste de Segurança de Conteúdo",
+          "result": "🎯 Resultado",
+          "recommendation": "💡 Recomendação",
+          "violations": "⚠️ Violações Encontradas",
+          "footer": "Teste realizado por {user} • Content Safety"
+        }
+      }
     },
     "chat": {
       "description": "Chat inteligente com IA da NVIDIA - análise de código, geração e muito mais!",
@@ -838,6 +968,9 @@
           "capabilities": "🛠️ Capacidades ativas",
           "health": "💚 Status de saúde"
         },
+        "models": {
+          "item": "• {name} ({category})"
+        },
         "values": {
           "yes": "✅ Sim",
           "no": "❌ Não",
@@ -889,6 +1022,13 @@
       "ui": {
         "loading": "📊 Analisando dados...",
         "no_data": "Sem dados",
+        "periods": {
+          "1h": "Última hora",
+          "24h": "Últimas 24 horas",
+          "7d": "Últimos 7 dias",
+          "30d": "Últimos 30 dias",
+          "all": "Todos os tempos"
+        },
         "errors": {
           "db_title": "❌ Banco de dados indisponível",
           "db_unavailable": "O MongoDB não está disponível no momento."
@@ -902,7 +1042,10 @@
         },
         "models": {
           "title": "🤖 Métricas de modelos",
-          "empty": "Ainda não há métricas de modelos nesta execução."
+          "empty": "Ainda não há métricas de modelos nesta execução.",
+          "requests": "Requisições: {total}",
+          "avg_time": "Tempo médio: {total}ms",
+          "success": "Sucesso: {total}%"
         },
         "sentiment": {
           "title": "💭 Sentimento aprendido",
@@ -921,7 +1064,12 @@
           "empty": "Sem padrões registrados"
         },
         "export": {
-          "title": "📦 Exportação de analytics"
+          "title": "📦 Exportação de analytics",
+          "header": "Exportação de AI Analytics",
+          "user": "Usuário",
+          "histories": "Históricos",
+          "memory_entries": "Entradas de memória",
+          "generated_at": "Gerado em"
         }
       }
     },

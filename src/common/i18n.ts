@@ -6,6 +6,21 @@ import { Logger } from '#common/logger'
 import { Language } from '#src/types'
 
 const logger = new Logger()
+type TranslationInput = string | i18n.TranslateOptions
+
+export interface LocalizationEntry {
+  locale: string
+  name: string
+  description: string
+}
+
+function resolveDiscordLocale(locale: string): string {
+  if (locale in Locale) {
+    return Locale[locale as keyof typeof Locale]
+  }
+
+  return locale
+}
 
 export function initI18n() {
   i18n.configure({
@@ -31,26 +46,25 @@ export function initI18n() {
 
 export { i18n }
 
-export function T(locale: string, text: string | i18n.TranslateOptions, ...params: any) {
+export function T(locale: string, text: TranslationInput, ...params: unknown[]) {
   i18n.setLocale(locale)
   return i18n.__mf(text, ...params)
 }
 
-export function localization(lan: keyof typeof Locale, name: any, desc: any) {
+export function localization(
+  locale: string,
+  name: string,
+  desc: TranslationInput
+): LocalizationEntry {
+  const discordLocale = resolveDiscordLocale(locale)
+
   return {
-    name: [Locale[lan], name],
-    description: [Locale[lan], T(lan, desc)],
+    locale: discordLocale,
+    name,
+    description: T(locale, desc),
   }
 }
 
-export function descriptionLocalization(name: any, text: any) {
-  return i18n.getLocales().map((locale: string) => {
-    // Check if the locale is a valid key of the Locale enum
-    if (locale in Locale) {
-      const localeValue = Locale[locale as keyof typeof Locale]
-      return localization(localeValue as any, name, text)
-    }
-    // If locale is not in the enum, handle it accordingly
-    return localization(locale as any, name, text) // You can choose how to handle this case
-  })
+export function descriptionLocalization(name: string, text: TranslationInput): LocalizationEntry[] {
+  return i18n.getLocales().map((locale) => localization(locale, name, text))
 }

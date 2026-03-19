@@ -4,6 +4,7 @@ import { fileURLToPath } from 'node:url'
 
 import { Api } from '@top-gg/sdk'
 import {
+  type APIApplicationCommandOption,
   ApplicationCommandType,
   Client,
   ClientOptions,
@@ -232,79 +233,61 @@ export default class MahinaBot extends Client {
             options: command.options || [],
             default_member_permissions:
               Array.isArray(command.permissions.user) && command.permissions.user.length > 0
-                ? PermissionsBitField.resolve(command.permissions.user as any).toString()
+                ? PermissionsBitField.resolve(command.permissions.user).toString()
                 : null,
             name_localizations: null,
             description_localizations: null,
           }
 
-          const localizations: { name: any[]; description: string[] }[] = []
-          i18n.getLocales().map((locale: any) => {
-            localizations.push(localization(locale, command.name, command.description.content))
-          })
+          const localizations = i18n
+            .getLocales()
+            .map((locale) => localization(locale, command.name, command.description.content))
 
           for (const local of localizations) {
-            const [language, name] = local.name
-            const [language2, description] = local.description
             data.name_localizations = {
               ...data.name_localizations,
-              [language]: name,
+              [local.locale]: local.name,
             }
             data.description_localizations = {
               ...data.description_localizations,
-              [language2]: description,
+              [local.locale]: local.description,
             }
           }
 
           if (command.options.length > 0) {
-            command.options.map(
-              (option: {
-                name: any
-                description: string | i18n.TranslateOptions
-                name_localizations: any
-                description_localizations: any
-              }) => {
-                const optionsLocalizations: { name: any[]; description: string[] }[] = []
-                i18n.getLocales().map((locale: any) => {
-                  optionsLocalizations.push(localization(locale, option.name, option.description))
-                })
+            command.options.map((option) => {
+              const optionLocalizations = i18n
+                .getLocales()
+                .map((locale) => localization(locale, option.name, option.description))
 
-                for (const l of optionsLocalizations) {
-                  const [language, name] = l.name
-                  const [language2, description] = l.description
-                  option.name_localizations = {
-                    ...option.name_localizations,
-                    [language]: name,
-                  }
-                  option.description_localizations = {
-                    ...option.description_localizations,
-                    [language2]: description,
-                  }
+              for (const local of optionLocalizations) {
+                option.name_localizations = {
+                  ...option.name_localizations,
+                  [local.locale]: local.name,
                 }
-                option.description = T(Locale.PortugueseBR, option.description)
+                option.description_localizations = {
+                  ...option.description_localizations,
+                  [local.locale]: local.description,
+                }
               }
-            )
+              option.description = T(Locale.PortugueseBR, option.description)
+            })
 
             data.options?.map((option) => {
               if ('options' in option && option.options!.length > 0) {
                 option.options?.map((subOption) => {
-                  const subOptionsLocalizations: { name: any[]; description: string[] }[] = []
-                  i18n.getLocales().map((locale: any) => {
-                    subOptionsLocalizations.push(
-                      localization(locale, subOption.name, subOption.description)
-                    )
-                  })
+                  const subOptionsLocalizations = i18n
+                    .getLocales()
+                    .map((locale) => localization(locale, subOption.name, subOption.description))
 
-                  for (const l of subOptionsLocalizations) {
-                    const [language, name] = l.name
-                    const [language2, description] = l.description
+                  for (const local of subOptionsLocalizations) {
                     subOption.name_localizations = {
                       ...subOption.name_localizations,
-                      [language]: name,
+                      [local.locale]: local.name,
                     }
                     subOption.description_localizations = {
                       ...subOption.description_localizations,
-                      [language2]: description,
+                      [local.locale]: local.description,
                     }
                   }
                   subOption.description = T(Locale.PortugueseBR, subOption.description)
@@ -332,7 +315,7 @@ export default class MahinaBot extends Client {
 
         switch (dir) {
           case 'player':
-            this.manager.on(evt.name, (...args: any) => evt.run(...args))
+            this.manager.on(evt.name, (...args: unknown[]) => evt.run(...args))
             break
           default:
             this.on(evt.name, (...args) => evt.run(...args))

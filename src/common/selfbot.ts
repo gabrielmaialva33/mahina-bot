@@ -4,7 +4,15 @@ import { NewApi, Streamer, Utils } from '@dank074/discord-video-stream'
 import type MahinaBot from '#common/mahina_bot'
 import StreamQueue, { type StreamTrack } from '#common/stream_queue'
 
+interface StreamMemberLike {
+  voice?: {
+    channelId?: string | null
+    channel?: unknown
+  }
+}
+
 export default class SelfBot extends Client {
+  private static readonly IDLE_STATUS = '🎥 𝘾𝙡𝙪𝙗𝙚 𝘽𝙖𝙠𝙠𝙤 🍷'
   streamer: Streamer
   mahinaBot: MahinaBot
   private ready = false
@@ -24,7 +32,7 @@ export default class SelfBot extends Client {
     this.streamer.client.on('ready', async (client) => {
       this.ready = true
       this.mahinaBot.logger.info(`${client.user.username} is ready`)
-      this.updateStatus('🎥 𝘾𝙡𝙪𝙗𝙚 𝘽𝙖𝙠𝙠𝙤 🍷')
+      this.updateStatus(SelfBot.IDLE_STATUS)
     })
 
     await this.streamer.client.login(token).catch(console.error)
@@ -62,7 +70,7 @@ export default class SelfBot extends Client {
    */
   async enqueue(
     guildId: string,
-    member: any,
+    member: StreamMemberLike,
     track: StreamTrack,
     textChannelId: string
   ): Promise<number> {
@@ -86,7 +94,7 @@ export default class SelfBot extends Client {
     return position
   }
 
-  async playNext(guildId: string, member?: any): Promise<void> {
+  async playNext(guildId: string, member?: StreamMemberLike): Promise<void> {
     const queue = this.getQueue(guildId)
     if (!queue) return
 
@@ -100,7 +108,7 @@ export default class SelfBot extends Client {
 
     if (!track) {
       this.streamer.leaveVoice()
-      this.updateStatus('🎥 𝘾𝙡𝙪𝙗𝙚 𝘽𝙖𝙠𝙠𝙤 🍷')
+      this.updateStatus(SelfBot.IDLE_STATUS)
       this.queues.delete(guildId)
       this.playbackCommands.delete(guildId)
       queue.emit('queueEnd')
@@ -157,7 +165,7 @@ export default class SelfBot extends Client {
     }
   }
 
-  async skipTrack(guildId: string, member?: any): Promise<StreamTrack | null> {
+  async skipTrack(guildId: string, member?: StreamMemberLike): Promise<StreamTrack | null> {
     const queue = this.getQueue(guildId)
     if (!queue) return null
 
@@ -166,7 +174,7 @@ export default class SelfBot extends Client {
     return skipped
   }
 
-  async goBack(guildId: string, member?: any): Promise<StreamTrack | null> {
+  async goBack(guildId: string, member?: StreamMemberLike): Promise<StreamTrack | null> {
     const queue = this.getQueue(guildId)
     if (!queue) return null
 
@@ -192,7 +200,7 @@ export default class SelfBot extends Client {
     this.killCurrentProcess(guildId)
     this.streamer.stopStream()
     this.streamer.leaveVoice()
-    this.updateStatus('🎥 𝘾𝙡𝙪𝙗𝙚 𝘽𝙖𝙠𝙠𝙤 🍷')
+    this.updateStatus(SelfBot.IDLE_STATUS)
     this.queues.delete(guildId)
     this.playbackCommands.delete(guildId)
   }
@@ -222,7 +230,7 @@ export default class SelfBot extends Client {
     }
   }
 
-  private async playCurrentTrack(guildId: string, member?: any): Promise<void> {
+  private async playCurrentTrack(guildId: string, member?: StreamMemberLike): Promise<void> {
     const queue = this.getQueue(guildId)
     if (!queue?.current) return
 

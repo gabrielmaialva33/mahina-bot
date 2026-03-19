@@ -57,7 +57,7 @@ export default class Context {
       return this.interaction?.options.get(name, required)?.channel
     },
     getSubCommand: () => {
-      return this.interaction?.options.data[0].name
+      return this.interaction?.options.data[0]?.name
     },
   }
 
@@ -77,7 +77,7 @@ export default class Context {
     this.args = []
     this.msg = null
     this.setArgs(args)
-    this.setUpLocale()
+    void this.setUpLocale()
   }
 
   get isInteraction(): boolean {
@@ -182,10 +182,10 @@ export default class Context {
   }
 }
 
-function isInteractionReplyOptions(content: any): content is InteractionReplyOptions {
-  return content instanceof Object
+function isInteractionReplyOptions(content: unknown): content is InteractionReplyOptions {
+  return typeof content === 'object' && content !== null
 }
 
-function isMessagePayload(content: any): content is MessagePayload {
-  return content instanceof Object
+function isMessagePayload(content: unknown): content is MessagePayload {
+  return typeof content === 'object' && content !== null
 }

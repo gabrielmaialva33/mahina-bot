@@ -35,7 +35,7 @@ export default class Event {
     this.fileName = file.split('.')[0]
   }
 
-  async run(..._args: any): Promise<void> {
+  async run(..._args: unknown[]): Promise<void> {
     return await Promise.resolve()
   }
 }
