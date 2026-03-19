@@ -75,7 +75,7 @@ jobs:
             cd /opt/mahina-bot
             docker pull ghcr.io/gabrielmaialva33/mahina-bot:latest
             docker compose up -d --remove-orphans
-            docker compose exec -T -e HOME=/tmp mahina npx prisma db push
+            docker compose exec -T mahina sh -c 'node $(find node_modules -path "*/prisma/build/index.js" | head -1) db push --skip-generate'
             docker image prune -f
             docker compose ps
 
