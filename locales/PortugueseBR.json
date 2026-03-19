@@ -1051,7 +1051,10 @@
           "capabilities": "🛠️ Capacidades ativas",
           "health": "💚 Status de saúde",
           "providers": "🛰️ Roteamento de providers",
-          "last_route": "🧭 Última rota"
+          "last_route": "🧭 Última rota",
+          "social": "🌆 Pulso social",
+          "relationship": "🫂 Relação com você",
+          "will": "🧠 Vontade da Mahina"
         },
         "models": {
           "item": "• {name} ({category})"
@@ -1078,6 +1081,29 @@
         },
         "last_route": {
           "item": "{provider} · {model}"
+        },
+        "social": {
+          "guild_vibe": "• vibe do server: {value}",
+          "guild_vibe_empty": "• vibe do server: ainda aprendendo",
+          "channel_focus": "• foco do canal: {value}",
+          "channel_focus_empty": "• foco do canal: sem padrão forte ainda",
+          "slang": "• jeito de falar: {value}",
+          "slang_empty": "• jeito de falar: ainda coletando gírias"
+        },
+        "relationship": {
+          "closeness": "• proximidade: {value}/100",
+          "nickname": "• apelido salvo: {value}",
+          "nickname_empty": "• apelido salvo: nenhum ainda",
+          "jokes": "• piadas internas: {value}",
+          "jokes_empty": "• piadas internas: nada forte ainda"
+        },
+        "will": {
+          "mood": "• humor atual: {value}",
+          "initiative": "• impulso de iniciativa: {value}/1",
+          "drives": "• drives dominantes: {value}",
+          "drives_empty": "• drives dominantes: ainda nivelando",
+          "fixations": "• fixações recentes: {value}",
+          "fixations_empty": "• fixações recentes: nada dominante agora"
         },
         "health": {
           "checks": {
@@ -1172,7 +1198,323 @@
       "current_none": "Nenhum canal específico está definido para mensagens proativas da IA. A IA escolherá um canal adequado automaticamente.",
       "current": "Mensagens proativas da IA são enviadas atualmente para: {channels}",
       "invalid_channel": "❌ Por favor, forneça um canal de texto válido.",
-      "usage": "❌ Uso: aichannel <#canal|clear>"
+      "usage": "❌ Uso: aichannel <#canal|clear>",
+      "ui": {
+        "cleared": {
+          "title": "🧹 Canal liberado"
+        },
+        "set": {
+          "title": "✅ Canal definido"
+        },
+        "current": {
+          "title": "📡 Canal atual da IA"
+        },
+        "current_none": {
+          "title": "📡 Canal automático"
+        },
+        "invalid_channel": {
+          "title": "❌ Canal inválido"
+        },
+        "usage": {
+          "title": "ℹ️ Como usar"
+        }
+      }
+    },
+    "aiconfig": {
+      "description": "Configura o comportamento da IA da Mahina no servidor",
+      "ui": {
+        "menu": {
+          "title": "⚙️ Central de IA da Mahina",
+          "description": "Escolha o que você quer ajustar no comportamento social e conversacional da Mahina.",
+          "footer": "Use os botões para navegar pelas opções.",
+          "fields": {
+            "personality": {
+              "name": "🎭 Personalidade",
+              "value": "Troque a personalidade padrão usada nas interações do servidor."
+            },
+            "toggle": {
+              "name": "🔀 Ativar ou desativar",
+              "value": "Liga ou desliga as respostas automáticas quando falarem com a Mahina."
+            },
+            "stats": {
+              "name": "📊 Estatísticas",
+              "value": "Veja volume de uso, canais ativos e o perfil atual da IA."
+            },
+            "clear": {
+              "name": "🧹 Limpar memória",
+              "value": "Apaga o histórico de conversa salvo para a IA neste servidor."
+            },
+            "settings": {
+              "name": "⚙️ Configurações",
+              "value": "Mostra o estado atual da IA, limites e canais liberados."
+            }
+          }
+        },
+        "actions": {
+          "personality": "Personalidade",
+          "toggle": "Ativar ou desativar",
+          "stats": "Estatísticas",
+          "clear": "Limpar",
+          "settings": "Configurações"
+        },
+        "errors": {
+          "author_only": "Só quem abriu esse painel pode usar os botões.",
+          "author_only_menu": "Só quem abriu esse painel pode mudar a personalidade.",
+          "author_only_confirm": "Só quem abriu esse painel pode confirmar essa limpeza."
+        },
+        "personality": {
+          "title": "🎭 Personalidade padrão",
+          "description": "Escolha como a Mahina deve soar por padrão neste servidor.",
+          "placeholder": "Selecione a personalidade do servidor",
+          "updated_title": "✅ Personalidade atualizada",
+          "updated": "{emoji} A Mahina agora vai usar {name} como personalidade padrão."
+        },
+        "toggle": {
+          "enabled_title": "✅ IA ativada",
+          "enabled": "A Mahina voltou a responder normalmente quando o pessoal chamar ela.",
+          "disabled_title": "❌ IA desativada",
+          "disabled": "A Mahina vai ficar quieta nas menções automáticas até você ligar de novo."
+        },
+        "stats": {
+          "title": "📊 Estatísticas de IA · {guild}",
+          "description": "Resumo rápido do uso da Mahina neste servidor.",
+          "footer": "Coletando dados desde {date}",
+          "fields": {
+            "total_messages": "Mensagens processadas",
+            "unique_users": "Pessoas únicas",
+            "personality": "Personalidade padrão",
+            "top_channel": "Canal mais ativo",
+            "status": "Status",
+            "rate_limit": "Rate limit"
+          }
+        },
+        "clear": {
+          "title": "⚠️ Confirmar limpeza",
+          "description": "Isso apaga o histórico de conversa salvo para a IA neste servidor.",
+          "footer": "Essa ação é irreversível.",
+          "confirm": "Confirmar",
+          "cancel": "Cancelar",
+          "success_title": "✅ Histórico limpo",
+          "success": "A memória de conversa da IA neste servidor foi apagada.",
+          "cancelled_title": "❎ Limpeza cancelada",
+          "cancelled": "Nada foi removido."
+        },
+        "settings": {
+          "title": "⚙️ Configurações atuais da IA",
+          "footer": "Servidor: {guild} • criado em {date}",
+          "fields": {
+            "status": "Status",
+            "personality": "Personalidade padrão",
+            "rate_limit": "Rate limit",
+            "max_history": "Histórico máximo",
+            "context_window": "Janela de contexto",
+            "provider": "Provider principal",
+            "allowed_channels": "Canais permitidos",
+            "blocked_users": "Usuários bloqueados"
+          }
+        },
+        "values": {
+          "enabled": "✅ Ativada",
+          "disabled": "❌ Desativada",
+          "none": "Nenhum",
+          "all_channels": "Todos",
+          "rate_limit": "{value} msgs/min",
+          "messages": "{value} mensagens"
+        }
+      }
+    },
+    "personality": {
+      "description": "Descobre o animal espiritual de alguém com base no estilo de conversa no servidor",
+      "options": {
+        "user": "Usuário que você quer analisar"
+      },
+      "ui": {
+        "loading": {
+          "title": "🔮 Lendo a vibe",
+          "self": "A Mahina está analisando sua energia no servidor...",
+          "other": "A Mahina está analisando a energia de {user}...",
+          "footer": "Mahina | análise de personalidade"
+        },
+        "result": {
+          "server": "🏠 Servidor",
+          "server_value": "Leitura feita em {guild}"
+        },
+        "easter_egg": {
+          "phoenix_night": "🔥 Segredo liberado: a Fênix noturna tem uma energia absurda por aqui."
+        },
+        "error": {
+          "title": "❌ Não consegui fechar a leitura",
+          "description": "Deu ruim ao montar essa análise agora. Tenta de novo daqui a pouco.",
+          "footer": "Mahina | análise de personalidade"
+        }
+      }
+    },
+    "proactive": {
+      "description": "Gerencia a presença proativa da Mahina no servidor",
+      "options": {
+        "stats": "Mostra estatísticas do sistema proativo",
+        "test": "Envia uma mensagem de teste no canal atual",
+        "force": "Força uma verificação proativa imediatamente"
+      },
+      "ui": {
+        "values": {
+          "running": "✅ Rodando",
+          "check_interval": "30 minutos",
+          "threshold": "3 horas"
+        },
+        "errors": {
+          "unavailable": {
+            "title": "❌ Serviço indisponível",
+            "description": "O sistema de interações proativas não está disponível agora."
+          },
+          "text_only": {
+            "title": "❌ Canal incompatível",
+            "description": "Esse comando só funciona em canais de texto."
+          }
+        },
+        "stats": {
+          "description": "Resumo do estado atual do sistema de presença proativa da Mahina.",
+          "footer": "Mahina | sistema proativo",
+          "fields": {
+            "total_channels": "Canais monitorados",
+            "inactive_channels": "Canais inativos",
+            "active_channels": "Canais ativos",
+            "status": "Status do serviço",
+            "check_interval": "Intervalo de checagem",
+            "threshold": "Limite de inatividade",
+            "recaps": "Recaps enviados",
+            "callbacks": "Callbacks sociais"
+          }
+        },
+        "test": {
+          "success_title": "✅ Teste enviado",
+          "success": "A Mahina mandou uma mensagem proativa de teste neste canal.",
+          "error_title": "❌ Falha no teste",
+          "error": "Não consegui mandar a mensagem de teste agora.\n`{error}`"
+        },
+        "force": {
+          "success_title": "✅ Verificação concluída",
+          "success": "A checagem proativa foi executada manualmente com sucesso.",
+          "error_title": "❌ Falha na verificação",
+          "error": "Não consegui forçar a checagem agora.\n`{error}`"
+        },
+        "help": {
+          "title": "🤖 Comandos do sistema proativo",
+          "description": "Esses subcomandos ajudam a observar e testar a presença espontânea da Mahina.",
+          "stats": "Mostra métricas e o estado atual do serviço.",
+          "test": "Dispara uma mensagem proativa de teste no canal atual.",
+          "force": "Executa uma checagem imediata de intervenção."
+        }
+      }
+    },
+    "tts": {
+      "ui": {
+        "fields": {
+          "text": "📝 Texto",
+          "voice": "🎤 Voz",
+          "voice_used": "🎤 Voz usada",
+          "speed": "⚡ Velocidade",
+          "pitch": "🎵 Tom",
+          "original_text": "📝 Texto original",
+          "duration": "⏱️ Duração"
+        },
+        "values": {
+          "pitch": {
+            "normal": "Normal",
+            "higher": "Mais alto",
+            "lower": "Mais baixo"
+          }
+        },
+        "loading": {
+          "title": "🎵 Gerando áudio",
+          "description": "A Mahina está sintetizando a fala. Isso pode levar alguns segundos.",
+          "footer": "Mahina TTS • NVIDIA Magpie Multilingual"
+        },
+        "success": {
+          "title": "✅ Áudio pronto",
+          "footer": "Solicitado por {user} • Mahina TTS"
+        },
+        "errors": {
+          "missing_text": {
+            "title": "❌ Texto ausente",
+            "description": "Você precisa mandar um texto para eu transformar em áudio."
+          },
+          "unavailable": {
+            "title": "❌ Serviço indisponível",
+            "description": "O serviço de TTS não está disponível no runtime atual."
+          },
+          "not_configured": {
+            "title": "❌ TTS não configurado",
+            "description": "Configure `NVIDIA_API_KEY` para liberar a síntese de voz."
+          },
+          "invalid_text": {
+            "title": "❌ Texto inválido"
+          },
+          "generation_failed": {
+            "title": "❌ Não consegui gerar o áudio",
+            "description": "A geração falhou desta vez. Tenta de novo daqui a pouco."
+          },
+          "runtime": {
+            "title": "❌ Erro na geração",
+            "description": "Deu ruim durante a geração do áudio.",
+            "field": "Detalhes",
+            "unknown": "Erro desconhecido"
+          }
+        }
+      }
+    },
+    "visualize": {
+      "ui": {
+        "fields": {
+          "type": "🎯 Tipo",
+          "style": "🎨 Estilo",
+          "frames": "🎞️ Frames",
+          "prompt": "📝 Prompt",
+          "duration": "⏱️ Duração",
+          "resolution": "📺 Resolução",
+          "fps": "🎥 FPS",
+          "download": "🔗 Download",
+          "track": "🎵 Música visualizada"
+        },
+        "loading": {
+          "title": "🎬 Gerando visualização",
+          "description": "A Mahina está criando a cena com física simulada. Isso pode levar alguns minutos.",
+          "footer": "Mahina Visualize • NVIDIA Cosmos"
+        },
+        "success": {
+          "title": "✅ Visualização pronta",
+          "footer": "Solicitado por {user} • Mahina Visualize",
+          "download": "[Clique aqui para baixar]({url})"
+        },
+        "errors": {
+          "missing_prompt": {
+            "title": "❌ Prompt ausente",
+            "description": "Para uma visualização customizada, você precisa descrever o que quer ver."
+          },
+          "no_music": {
+            "title": "❌ Nada tocando",
+            "description": "Não tem música tocando agora para eu transformar em visual."
+          },
+          "unavailable": {
+            "title": "❌ Serviço indisponível",
+            "description": "O sistema de visualização não está disponível no runtime atual."
+          },
+          "not_configured": {
+            "title": "❌ Visualize não configurado",
+            "description": "Configure `NVIDIA_API_KEY` para liberar o NVIDIA Cosmos."
+          },
+          "invalid_image": {
+            "title": "❌ Imagem inválida",
+            "description": "Não consegui processar a imagem enviada."
+          },
+          "runtime": {
+            "title": "❌ Erro na geração",
+            "description": "Deu ruim durante a geração da visualização.",
+            "field": "Detalhes",
+            "unknown": "Erro desconhecido"
+          }
+        }
+      }
     },
     "mskip": {
       "description": "⏭️ Pula o vídeo atual da stream",
