@@ -5,163 +5,62 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [1.0.0] - 2026-03-19
+
+Definitive release. Full version reboot.
 
 ### Added
 
-- Lazy initialization for Prisma database client for improved startup performance
+- **MahinaBrain**: sentient personality system with uncensored humor and streaming responses
+- **AI Streaming**: real-time responses with typing cursor via Discord message editing
+- **AI Tools**: music control, web search, code execution via tool calling
+- **AI Vision**: image analysis with NVIDIA multimodal service
+- **AI Memory**: remembers user facts and actively uses them in conversations
+- **Personality System**: 4 overlays (Classic, Friendly, Professional, DJ) with reinforcement learning
+- **Server Learning Service**: learns server culture, memes, and social dynamics
+- **Mahina Will Service**: autonomous decision-making for proactive behavior
+- **Proactive Interactions**: spontaneously comments on conversations
+- **AI Context Service**: conversation context management between messages
+- **AI Queue Service**: async job queue with pg-boss for long-running tasks
+- **YouTube OAuth + remoteCipher**: playback + direct links fully working
+- **Self-hosted yt-cipher**: private YouTube signature deciphering server
+- **Anti-crash Resilience**: Discord API errors no longer kill the process
+- **Auto-deploy Slash Commands**: updates commands across all guilds on startup
+- **Runtime Modules**: logic extracted from AI commands into `*_runtime.ts` files
+- **86 commands** across 8 categories (ai, music, playlist, filters, config, info, dev, stream)
+- **17 languages** supported
+- **Docker + CI/CD**: GitHub Actions → GHCR → VPS auto-deploy via SSH + Watchtower fallback
 
-### Changed
+### Stack
 
-- Standardized imports and improved formatting consistency across the codebase
-- Updated interaction response flags to use `InteractionResponseFlags.Ephemeral` consistently
+- **Runtime**: Node.js 22+ (ESM, TypeScript)
+- **Audio**: Lavalink 4.2.2, youtube-source 1.18.0, LavaSrc 4.8.1, LavaSearch, SponsorBlock
+- **AI**: NVIDIA API (14+ models), OpenAI-compatible, Gemini
+- **Database**: PostgreSQL (Prisma ORM), Redis, Qdrant (RAG)
+- **Infra**: Docker Compose, GitHub Actions, GHCR
 
-## [3.1.2] - 2025-01-08
+### Music Sources
 
-### Added
+- YouTube (OAuth + remoteCipher + 6 clients)
+- Spotify (search + playlist resolve)
+- SoundCloud, Bandcamp, Twitch, Vimeo, NicoNico
+- HTTP streams
 
-- Advanced AI commands suite:
-  - `guard` - AI-powered moderation and safety features
-  - `search` - AI-enhanced search capabilities
-  - `tts` - Text-to-speech functionality
-  - `aistatus` - Check AI service status
-  - `mahinai` - Advanced AI interaction features
-  - `code` - AI code generation capabilities
-  - `model` - AI model selection and management
-  - `reason` - AI reasoning and analysis
-  - `stream` - AI streaming responses
-  - `tools` - AI tool integration
-  - `vision` - AI image analysis
-  - `visualize` - AI visualization features
-  - `ai_config` - Configure AI settings
-- Personality system with reinforcement learning
-- AI memory and context management for users and guilds
-- Proactive AI interaction capabilities
-- WoW-themed personality command
-- Russian locale with improved translations
-- Multilingual support for all new AI features
+### AI Commands
 
-### Changed
+- `/chat` — conversation with modes (code, analyze, explain, debug, design, vision, reasoning)
+- `/stream` — streaming AI response
+- `/vision` — image analysis
+- `/tools` — tool calling (music, search, code)
+- `/model` — AI model selection
+- `/aistatus` — AI service status
+- `/aianalytics` — usage analytics
+- `/guard` — AI-powered moderation
+- `/tts` — text-to-speech
+- `/code` — code generation
+- `/reason` — advanced reasoning
+- `/mahinai` — advanced AI interaction
+- `/search` — AI-enhanced search
+- `/visualize` — data visualization
 
-- Enhanced Lavalink stability with proactive systems
-- Improved AI response personalization
-- Updated copyright year to 2025
-
-### Fixed
-
-- Various formatting and consistency issues
-
-## [3.1.1] - 2024-12-31
-
-### Added
-
-- Initial AI integration features
-- Database models for AI configuration and memory
-
-## [3.1.0] - 2024-12-30
-
-### Added
-
-- Video playback command messages
-- Enhanced music streaming capabilities
-
-### Changed
-
-- Updated discord-video-stream to v3.4.0
-- Changed default PORT from 3000 to 3050
-
-## [3.0.9] - 2024-10-20
-
-### Added
-
-- CLAUDE.md project guidelines documentation
-
-### Changed
-
-- Updated various dependencies
-- Improved README formatting and consistency
-
-## [3.0.0] - 2024-09-15
-
-### Added
-
-- Complete TypeScript rewrite of the bot
-- Prisma ORM integration with MongoDB support
-- Docker and Docker Compose support
-- Hot reload development mode
-- Comprehensive internationalization (i18n) system
-- Support for multiple languages:
-  - English (US)
-  - Chinese (CN/TW)
-  - French
-  - German
-  - Hindi
-  - Indonesian
-  - Japanese
-  - Korean
-  - Norwegian
-  - Polish
-  - Portuguese (BR/PT)
-  - Russian
-  - Spanish (ES)
-  - Turkish
-  - Vietnamese
-
-### Changed
-
-- Migrated from JavaScript to TypeScript
-- Restructured command system with base Command class
-- Improved event handling system
-- Enhanced database operations with Prisma
-
-### Removed
-
-- Legacy JavaScript codebase
-
-## [2.0.0] - 2024-01-01
-
-### Added
-
-- Lavalink integration for improved audio quality
-- Advanced audio filters:
-  - 8D audio
-  - Bass boost
-  - Karaoke
-  - Lowpass
-  - Nightcore
-  - Pitch adjustment
-  - Playback rate control
-  - Rotation effect
-  - Speed control
-  - Tremolo
-  - Vibrato
-- Playlist management system
-- Auto-play functionality
-- 24/7 mode for continuous playback
-
-### Changed
-
-- Improved queue management
-- Enhanced search functionality
-- Better error handling
-
-## [1.0.0] - 2023-06-01
-
-### Added
-
-- Initial release
-- Basic music playback features
-- Queue system
-- Volume control
-- Skip, pause, resume functionality
-- Now playing display
-- Basic search capabilities
-
-[Unreleased]: https://github.com/yourusername/mahina-bot/compare/v3.1.2...HEAD
-[3.1.2]: https://github.com/yourusername/mahina-bot/compare/v3.1.1...v3.1.2
-[3.1.1]: https://github.com/yourusername/mahina-bot/compare/v3.1.0...v3.1.1
-[3.1.0]: https://github.com/yourusername/mahina-bot/compare/v3.0.9...v3.1.0
-[3.0.9]: https://github.com/yourusername/mahina-bot/compare/v3.0.0...v3.0.9
-[3.0.0]: https://github.com/yourusername/mahina-bot/compare/v2.0.0...v3.0.0
-[2.0.0]: https://github.com/yourusername/mahina-bot/compare/v1.0.0...v2.0.0
-[1.0.0]: https://github.com/yourusername/mahina-bot/releases/tag/v1.0.0
+[1.0.0]: https://github.com/gabrielmaialva33/mahina-bot/releases/tag/v1.0.0
