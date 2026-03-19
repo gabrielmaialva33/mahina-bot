@@ -39,13 +39,11 @@ export default class Help extends Command {
     })
   }
 
-  async run(client: MahinaBot, ctx: Context, args: string[]): Promise<any> {
+  async run(client: MahinaBot, ctx: Context, args: string[]): Promise<void> {
     const embed = this.client.embed()
     const guild = await client.db.get(ctx.guild!.id)
-    const commands = this.client.commands.filter(
-      (cmd: { category: string }) => cmd.category !== 'dev'
-    )
-    const categories = [...new Set(commands.map((cmd: { category: any }) => cmd.category))]
+    const commands = this.client.commands.filter((cmd) => cmd.category !== 'dev')
+    const categories = [...new Set(commands.map((cmd) => cmd.category))]
 
     if (args[0]) {
       const command = this.client.commands.get(args[0].toLowerCase())
@@ -93,8 +91,8 @@ export default class Help extends Command {
     const fields = categories.map((category) => ({
       name: category,
       value: commands
-        .filter((cmd: { category: unknown }) => cmd.category === category)
-        .map((cmd: { name: any }) => `\`${cmd.name}\``)
+        .filter((cmd) => cmd.category === category)
+        .map((cmd) => `\`${cmd.name}\``)
         .join(', '),
       inline: false,
     }))
@@ -113,6 +111,6 @@ export default class Help extends Command {
       })
       .addFields(...fields)
 
-    return await ctx.sendMessage({ embeds: [helpEmbed] })
+    await ctx.sendMessage({ embeds: [helpEmbed] })
   }
 }

@@ -39,7 +39,7 @@ export default class GetPlaylists extends Command {
     })
   }
 
-  async run(client: MahinaBot, ctx: Context): Promise<any> {
+  async run(client: MahinaBot, ctx: Context): Promise<void> {
     try {
       let userId: string | undefined
       let targetUser = ctx.args[0]
@@ -105,12 +105,15 @@ export default class GetPlaylists extends Command {
         })
       }
 
-      const targetUsername = targetUser ? targetUser.username : ctx.locale('cmd.list.messages.your')
+      const targetUsername =
+        typeof targetUser === 'object' && targetUser
+          ? targetUser.username
+          : ctx.locale('cmd.list.messages.your')
       return await ctx.sendMessage({
         embeds: [
           {
             title: ctx.locale('cmd.list.messages.playlists_title', { username: targetUsername }),
-            description: playlists.map((playlist: any) => playlist.name).join('\n'),
+            description: playlists.map((playlist) => playlist.name).join('\n'),
             color: this.client.color.main,
           },
         ],

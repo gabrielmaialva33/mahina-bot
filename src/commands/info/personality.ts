@@ -124,7 +124,7 @@ export default class PersonalityCommand extends Command {
 
       // Easter egg: Special message for specific combinations
       if (spiritAnimal.name === 'Fênix Elemental' && userStats.activityTime === 'madrugada') {
-        await ctx.followUp(
+        await ctx.sendFollowUp(
           '🔥 **Segredo Descoberto!** A Fênix noturna é especialmente poderosa! Você desbloqueou uma conquista secreta.'
         )
       }

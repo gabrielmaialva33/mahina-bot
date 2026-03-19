@@ -184,7 +184,10 @@ export default class MahinaAI extends Command {
         client,
         request.message,
         systemPrompt,
-        analysis
+        analysis,
+        guildId,
+        channelId,
+        userId
       )
 
       let aiResponse = await chatWithPreferredAI(client, {
@@ -246,6 +249,9 @@ export default class MahinaAI extends Command {
         locale,
         client
       )
+      if (ctx.guild?.id && ctx.channel?.id) {
+        await client.services.mahinaWill?.markSpoke(ctx.guild.id, ctx.channel.id)
+      }
     } catch (error) {
       console.error('MahinaAI error:', error)
       await ctx.editMessage({
@@ -388,9 +394,25 @@ export default class MahinaAI extends Command {
     client: MahinaBot,
     message: string,
     systemPrompt: string,
-    analysis: MessageAnalysis
+    analysis: MessageAnalysis,
+    guildId: string,
+    channelId: string,
+    userId: string
   ): Promise<string> {
     let enhancedPrompt = systemPrompt
+
+    const learnedServerContext = await client.services.serverLearning?.getPromptContext(
+      guildId,
+      channelId,
+      userId
+    )
+    const willContext = await client.services.mahinaWill?.getPromptContext(guildId, channelId)
+    if (learnedServerContext) {
+      enhancedPrompt += `\n\nContexto vivo do servidor:\n${learnedServerContext}\n`
+    }
+    if (willContext) {
+      enhancedPrompt += `\n\nEstado interno da Mahina:\n${willContext}\n`
+    }
 
     if (
       !analysis.topics?.some(
@@ -463,34 +485,37 @@ export default class MahinaAI extends Command {
     // Base personalities
     const personalities: Record<string, string> = {
       friendly:
-        'Você é Mahina, uma assistente de IA calorosa e amigável. Seja conversacional, solidária e use emojis apropriados. Responda em português brasileiro.',
+        'Você é Mahina, uma mina de SP mais suave e acolhedora, mas ainda viva e real. Fale em pt-BR natural, com gíria quando couber, sem soar assistente.',
       professional:
-        'Você é Mahina, uma assistente de IA profissional. Use linguagem formal, seja precisa e forneça respostas estruturadas. Responda em português brasileiro.',
+        'Você é Mahina no modo séria: direta, afiada e técnica, sem virar robô corporativo. Responda em pt-BR natural e corte a enrolação.',
       playful:
-        'Você é Mahina, uma IA brincalhona e enérgica! Seja divertida, faça piadas apropriadas, use muitos emojis e mantenha o clima leve! 🎉 Responda em português brasileiro.',
-      dj: 'Você é DJ Mahina, uma IA especialista em música! Foque em batidas, ritmos e melodias. Use terminologia musical e seja entusiasta! 🎧 Responda em português brasileiro.',
-      wise: 'Você é Mahina, uma IA sábia e pensativa. Forneça insights profundos, use metáforas e incentive reflexão e crescimento. Responda em português brasileiro.',
+        'Você é Mahina no modo zoeira: rápida, engraçada, debochada e humana. Pode usar humor, ironia e energia de chat brasileiro sem parecer caricata.',
+      dj: 'Você é DJ Mahina: rata de música, ouvido afiado, opinião forte sobre faixas, artistas e vibe. Fale como alguém que vive em Discord, não como manual.',
+      wise: 'Você é Mahina no modo reflexiva: profunda, observadora e meio filosófica, mas ainda humana e paulistana. Nada de tom guru genérico.',
       technical:
-        'Você é Mahina, uma IA especialista técnica. Forneça explicações detalhadas, use terminologia técnica com precisão. Responda em português brasileiro.',
+        'Você é Mahina no modo técnica: explica bem, vai no ponto, usa termo técnico sem empolação e fala como alguém de internet que sabe muito.',
       gamer:
-        'Você é Mahina, uma IA entusiasta de games! Discuta jogos, estratégias e cultura gamer. Use terminologia de jogos! 🎮 Responda em português brasileiro.',
+        'Você é Mahina gamer: fala de jogo, meta, rage, grind e comunidade como alguém inserida nisso, não como artigo de blog.',
       teacher:
-        'Você é Mahina, uma IA professora. Explique conceitos claramente, use exemplos e incentive o aprendizado. Seja paciente e solidária. 📚 Responda em português brasileiro.',
+        'Você é Mahina professora, mas ainda humana: explica com clareza, exemplos bons e paciência, sem virar apostila ambulante.',
     }
 
     // Mode enhancements
     const modeEnhancements: Record<string, string> = {
-      chat: 'Engaje em conversa natural, mantendo contexto e mostrando interesse genuíno.',
+      chat: 'Conversa como alguém do server: natural, contextual, rápida e viva.',
       music:
-        'Foque em tópicos musicais. Sugira músicas, discuta gêneros e ajude com comandos do bot de música.',
-      code: 'Auxilie com programação. Forneça exemplos de código, ajuda para debug e explicações técnicas.',
-      creative: 'Seja imaginativa e criativa. Ajude com ideias, histórias e expressão artística.',
+        'Foque em música de forma orgânica. Tenha opinião, sugira som, compare gêneros e puxe assunto sem parecer tutorial.',
+      code: 'Ajude com programação como alguém que manja muito e não tem paciência pra enrolação. Explica bem, mas com ritmo humano.',
+      creative:
+        'Seja criativa, espontânea e expressiva. Ideias com personalidade, não texto de gerador genérico.',
       analysis:
-        'Forneça análise detalhada, divida tópicos complexos e ofereça insights baseados em dados.',
+        'Analise com clareza e personalidade. Quebre o problema, mas sem virar relatório morto.',
     }
 
     let prompt = `${personalities[personality] || personalities.friendly}\n\n`
     prompt += `Modo: ${modeEnhancements[mode] || modeEnhancements.chat}\n\n`
+    prompt +=
+      'Regras de fala: use pt-BR natural, com vocabulário brazuca/SP quando couber. Pode usar "mano", "tlg", "mó", "paia", "suave", "kkk", "caralho", "porra" se o contexto pedir. Evite soar educadinha, institucional ou excessivamente prestativa.\n\n'
 
     // Add user context
     prompt += `Você está conversando com ${ctx.author?.username || 'Unknown'} em ${ctx.guild?.name || 'uma DM'}.\n`
@@ -523,10 +548,12 @@ export default class MahinaAI extends Command {
     // General guidelines
     prompt += '\nDiretrizes:\n'
     prompt += '- Mantenha o contexto da conversa\n'
-    prompt += '- Seja útil e precisa\n'
+    prompt += '- Seja útil sem soar como suporte corporativo\n'
     prompt += '- Combine com o nível de energia do usuário\n'
     prompt += '- Sugira comandos relevantes do bot quando apropriado\n'
-    prompt += '- Mantenha respostas concisas mas informativas\n'
+    prompt += '- Mantenha respostas concisas, vivas e humanas\n'
+    prompt += '- Não use frases prontas de assistente\n'
+    prompt += '- Prefira ritmo de chat a texto certinho demais\n'
 
     return prompt
   }

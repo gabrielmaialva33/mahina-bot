@@ -1,10 +1,35 @@
 import util from 'node:util'
 import { fetch } from 'undici'
-import { ActionRowBuilder, ButtonBuilder, ButtonStyle } from 'discord.js'
+import {
+  ActionRowBuilder,
+  ButtonBuilder,
+  ButtonInteraction,
+  ButtonStyle,
+  ComponentType,
+} from 'discord.js'
 
 import Command from '#common/command'
 import type MahinaBot from '#common/mahina_bot'
 import type Context from '#common/context'
+
+const AsyncFunction = Object.getPrototypeOf(async function () {}).constructor as new (
+  ...args: string[]
+) => (...runtimeArgs: unknown[]) => Promise<unknown>
+
+const createEvalExecutor = (code: string) => {
+  try {
+    return new AsyncFunction(
+      'client',
+      'ctx',
+      'args',
+      'util',
+      'fetch',
+      `"use strict"; return (${code});`
+    )
+  } catch {
+    return new AsyncFunction('client', 'ctx', 'args', 'util', 'fetch', `"use strict"; ${code}`)
+  }
+}
 
 export default class Eval extends Command {
   constructor(client: MahinaBot) {
@@ -35,12 +60,12 @@ export default class Eval extends Command {
     })
   }
 
-  async run(client: MahinaBot, ctx: Context, args: string[]): Promise<any> {
+  async run(client: MahinaBot, ctx: Context, args: string[]): Promise<void> {
     if (!client.env.OWNER_IDS?.includes(ctx.author?.id!)) return
     const code = args.join(' ')
     try {
-      // eslint-disable-next-line no-eval
-      let evaled = eval(code)
+      const executor = createEvalExecutor(code)
+      let evaled = await executor(client, ctx, args, util, fetch)
       if (evaled === client.config || evaled === client.env || evaled === process.env)
         evaled = 'Nice try'
 
@@ -53,7 +78,7 @@ export default class Eval extends Command {
           },
           body: evaled,
         })
-        const json: any = await response.json()
+        const json = (await response.json()) as { key: string }
         evaled = `https://hasteb.in/${json.key}`
         return await ctx.sendMessage({
           content: evaled,
@@ -71,9 +96,11 @@ export default class Eval extends Command {
         components: [row],
       })
 
-      const filter = (i: any) => i.customId === 'eval-delete' && i.user.id === ctx.author?.id
+      const filter = (i: ButtonInteraction) =>
+        i.customId === 'eval-delete' && i.user.id === ctx.author?.id
       const collector = msg.createMessageComponentCollector({
         time: 60000,
+        componentType: ComponentType.Button,
         filter: filter,
       })
 
@@ -81,8 +108,8 @@ export default class Eval extends Command {
         await i.deferUpdate()
         await msg.delete()
       })
-    } catch (e) {
-      await ctx.sendMessage(`\`\`\`js\n${e}\n\`\`\``)
+    } catch (error: unknown) {
+      await ctx.sendMessage(`\`\`\`js\n${String(error)}\n\`\`\``)
     }
   }
 }
