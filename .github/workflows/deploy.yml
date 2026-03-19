@@ -13,14 +13,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
       - uses: pnpm/action-setup@v4
-
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
           cache: 'pnpm'
-
       - run: pnpm install --frozen-lockfile
       - run: pnpm lint
 
@@ -61,8 +58,9 @@ jobs:
   deploy:
     needs: build
     runs-on: ubuntu-latest
-    permissions:
-      packages: read
+    # Deploy is best-effort — Watchtower on VPS auto-pulls if SSH fails
+    continue-on-error: true
+    timeout-minutes: 5
 
     steps:
       - name: Deploy to VPS
@@ -71,11 +69,15 @@ jobs:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USERNAME }}
           key: ${{ secrets.VPS_SSH_KEY }}
+          command_timeout: 3m
           script: |
             set -e
             cd /opt/mahina-bot
-
             docker pull ghcr.io/gabrielmaialva33/mahina-bot:latest
             docker compose up -d --remove-orphans
             docker image prune -f
             docker compose ps
+
+      - name: Deploy status
+        if: failure()
+        run: echo "⚠️ SSH deploy failed — Watchtower will auto-pull the new image within ~2 minutes"
