@@ -33,7 +33,7 @@ export default class About extends Command {
     })
   }
 
-  async run(client: MahinaBot, ctx: Context): Promise<any> {
+  async run(client: MahinaBot, ctx: Context): Promise<void> {
     const inviteButton = new ButtonBuilder()
       .setLabel(ctx.locale('buttons.invite'))
       .setStyle(ButtonStyle.Link)
@@ -53,6 +53,7 @@ export default class About extends Command {
       })
       .setThumbnail('https://telegra.ph/file/9577e7eb196ae70607758.png')
       .setColor(this.client.color.main)
+      .setDescription(ctx.locale('cmd.about.summary'))
       .addFields(
         {
           name: ctx.locale('cmd.about.fields.creator'),
@@ -61,22 +62,21 @@ export default class About extends Command {
         },
         {
           name: ctx.locale('cmd.about.fields.repository'),
-          value: '[Here](https://github.com/gabrielmaialva33/mahina-bot)',
+          value: '[mahina-bot](https://github.com/gabrielmaialva33/mahina-bot)',
           inline: true,
         },
         {
           name: ctx.locale('cmd.about.fields.support'),
-          value: '[Here](https://discord.gg/AWGsEdWXun)',
+          value: '[discord.gg/AWGsEdWXun](https://discord.gg/AWGsEdWXun)',
           inline: true,
         },
         {
-          name: '\u200b',
+          name: ctx.locale('cmd.about.fields.project'),
           value: ctx.locale('cmd.about.fields.description'),
-          inline: true,
+          inline: false,
         }
       )
     await ctx.sendMessage({
-      content: '',
       embeds: [embed],
       components: [row],
     })

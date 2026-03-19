@@ -33,8 +33,7 @@ export default class Invite extends Command {
     })
   }
 
-  async run(client: MahinaBot, ctx: Context): Promise<any> {
-    const embed = this.client.embed()
+  async run(client: MahinaBot, ctx: Context): Promise<void> {
     const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
       new ButtonBuilder()
         .setLabel(ctx.locale('buttons.invite'))
@@ -47,9 +46,13 @@ export default class Invite extends Command {
         .setStyle(ButtonStyle.Link)
         .setURL('https://discord.gg/STXurwnZD5')
     )
-    return await ctx.sendMessage({
+    await ctx.sendMessage({
       embeds: [
-        embed.setColor(this.client.color.main).setDescription(ctx.locale('cmd.invite.content')),
+        this.client
+          .embed()
+          .setColor(this.client.color.main)
+          .setTitle(ctx.locale('cmd.invite.title'))
+          .setDescription(ctx.locale('cmd.invite.content')),
       ],
       components: [row],
     })

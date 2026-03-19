@@ -38,7 +38,7 @@ export default class Botinfo extends Command {
     })
   }
 
-  async run(client: MahinaBot, ctx: Context): Promise<any> {
+  async run(client: MahinaBot, ctx: Context): Promise<void> {
     const osInfo = `${os.type()} ${os.release()}`
     const osUptime = client.utils.formatTime(os.uptime())
     const osHostname = os.hostname()
@@ -58,32 +58,51 @@ export default class Botinfo extends Command {
       ),
       client.shard?.broadcastEval((c) => c.channels.cache.size),
     ]
-    return Promise.all(promises).then(async (results) => {
-      const guilds = results[0]?.reduce((acc, guildCount) => acc + guildCount, 0)
-      const users = results[1]?.reduce((acc, memberCount) => acc + memberCount, 0)
-      const channels = results[2]?.reduce((acc, channelCount) => acc + channelCount, 0)
+    const results = await Promise.all(promises)
+    const guilds = results[0]?.reduce((acc, guildCount) => acc + guildCount, 0) || 0
+    const users = results[1]?.reduce((acc, memberCount) => acc + memberCount, 0) || 0
+    const channels = results[2]?.reduce((acc, channelCount) => acc + channelCount, 0) || 0
 
-      const botInfo = ctx.locale('cmd.botinfo.content', {
-        osInfo,
-        osUptime,
-        osHostname,
-        cpuInfo,
-        cpuUsed,
-        memUsed,
-        memTotal,
-        nodeVersion,
-        discordJsVersion,
-        guilds,
-        channels,
-        users,
-        commands,
-      })
+    const embed = this.client
+      .embed()
+      .setColor(this.client.color.main)
+      .setTitle(ctx.locale('cmd.botinfo.title'))
+      .addFields(
+        {
+          name: ctx.locale('cmd.botinfo.fields.runtime'),
+          value: ctx.locale('cmd.botinfo.runtime', {
+            osInfo,
+            osUptime,
+            osHostname,
+            nodeVersion,
+            discordJsVersion,
+          }),
+          inline: false,
+        },
+        {
+          name: ctx.locale('cmd.botinfo.fields.resources'),
+          value: ctx.locale('cmd.botinfo.resources', {
+            cpuInfo,
+            cpuUsed,
+            memUsed,
+            memTotal,
+          }),
+          inline: false,
+        },
+        {
+          name: ctx.locale('cmd.botinfo.fields.scale'),
+          value: ctx.locale('cmd.botinfo.scale', {
+            guilds,
+            channels,
+            users,
+            commands,
+          }),
+          inline: false,
+        }
+      )
 
-      const embed = this.client.embed().setColor(this.client.color.main).setDescription(botInfo)
-
-      return await ctx.sendMessage({
-        embeds: [embed],
-      })
+    await ctx.sendMessage({
+      embeds: [embed],
     })
   }
 }

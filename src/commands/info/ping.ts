@@ -32,7 +32,7 @@ export default class Ping extends Command {
     })
   }
 
-  async run(client: MahinaBot, ctx: Context): Promise<any> {
+  async run(client: MahinaBot, ctx: Context): Promise<void> {
     const msg = await ctx.sendDeferMessage(ctx.locale('cmd.ping.content'))
 
     const botLatency = msg.createdTimestamp - ctx.createdTimestamp
@@ -44,7 +44,7 @@ export default class Ping extends Command {
     const embed = this.client
       .embed()
       .setAuthor({
-        name: 'Pong',
+        name: ctx.locale('cmd.ping.title'),
         iconURL: client.user?.displayAvatarURL(),
       })
       .setColor(this.client.color.main)
