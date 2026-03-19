@@ -5,52 +5,93 @@ import { logger } from '#common/logger'
 import type MahinaBot from '#common/mahina_bot'
 import { env } from '#src/env'
 
+type QueueJsonValue =
+  | string
+  | number
+  | boolean
+  | null
+  | QueueJsonValue[]
+  | { [key: string]: QueueJsonValue }
+
+interface EmbeddingPayload {
+  content: string
+  contentType: 'message' | 'command' | 'document'
+  metadata?: Record<string, QueueJsonValue>
+}
+
+interface AnalysisPayload {
+  messages: string[]
+  analysisType: 'sentiment' | 'topic' | 'behavior' | 'comprehensive'
+}
+
+interface GenerationPayload {
+  prompt: string
+  model: string
+  parameters?: {
+    temperature?: number
+    maxTokens?: number
+    topP?: number
+  }
+}
+
+interface TrainingPayload {
+  dataset: QueueJsonValue[]
+  modelType: 'rl' | 'embedding' | 'classifier'
+  parameters?: Record<string, QueueJsonValue>
+}
+
+interface BatchPayload {
+  items: Array<{ type: 'embedding'; content: string } | { type: 'analysis'; message: string }>
+}
+
 export interface AIQueueJobData {
   type: 'embedding' | 'analysis' | 'generation' | 'training' | 'batch_processing'
   userId: string
   guildId: string
-  data: any
+  data: EmbeddingPayload | AnalysisPayload | GenerationPayload | TrainingPayload | BatchPayload
   priority?: number
   retryLimit?: number
 }
 
 export interface EmbeddingQueueJobData extends AIQueueJobData {
   type: 'embedding'
-  data: {
-    content: string
-    contentType: 'message' | 'command' | 'document'
-    metadata?: any
-  }
+  data: EmbeddingPayload
 }
 
 export interface AnalysisQueueJobData extends AIQueueJobData {
   type: 'analysis'
-  data: {
-    messages: string[]
-    analysisType: 'sentiment' | 'topic' | 'behavior' | 'comprehensive'
-  }
+  data: AnalysisPayload
 }
 
 export interface GenerationQueueJobData extends AIQueueJobData {
   type: 'generation'
-  data: {
-    prompt: string
-    model: string
-    parameters?: {
-      temperature?: number
-      maxTokens?: number
-      topP?: number
-    }
-  }
+  data: GenerationPayload
 }
 
 export interface TrainingQueueJobData extends AIQueueJobData {
   type: 'training'
-  data: {
-    dataset: any[]
-    modelType: 'rl' | 'embedding' | 'classifier'
-    parameters?: any
-  }
+  data: TrainingPayload
+}
+
+export interface BatchQueueJobData extends AIQueueJobData {
+  type: 'batch_processing'
+  data: BatchPayload
+}
+
+interface QueueJobStatus {
+  id: string | undefined
+  name: QueueName
+  priority: number
+  created: number
+  created_on: number
+  started: number | null
+  started_on: number | null
+  completed: number | null
+  completed_on: number | null
+  state: string
+  data: AIQueueJobData
+  output: unknown
+  failedReason: string | null
 }
 
 type QueueName = 'ai-embedding' | 'ai-analysis' | 'ai-generation' | 'ai-training' | 'ai-batch'
@@ -143,7 +184,7 @@ export class AIQueueService extends EventEmitter {
     return job.id || ''
   }
 
-  async getJobStatus(jobId: string): Promise<any> {
+  async getJobStatus(jobId: string): Promise<QueueJobStatus | null> {
     const located = await this.findJob(jobId)
 
     if (!located) {
@@ -268,7 +309,7 @@ export class AIQueueService extends EventEmitter {
         return this.processTrainingJob(job.data as TrainingQueueJobData)
 
       case 'ai-batch':
-        return this.processBatchJob(job.data)
+        return this.processBatchJob(job.data as BatchQueueJobData)
 
       default:
         throw new Error(`Unsupported queue ${queueName}`)
@@ -344,8 +385,8 @@ export class AIQueueService extends EventEmitter {
     }
   }
 
-  private async processBatchJob(job: AIQueueJobData): Promise<unknown> {
-    const items = Array.isArray(job.data?.items) ? job.data.items : []
+  private async processBatchJob(job: BatchQueueJobData): Promise<unknown> {
+    const items = Array.isArray(job.data.items) ? job.data.items : []
     const results = []
 
     for (const item of items) {

@@ -42,6 +42,25 @@ export interface ToolResult {
   result: string
 }
 
+type ToolJsonValue =
+  | string
+  | number
+  | boolean
+  | null
+  | ToolJsonValue[]
+  | { [key: string]: ToolJsonValue }
+
+type ToolArguments = Record<string, ToolJsonValue>
+
+interface MemoryPointPayload {
+  text?: string
+  userId?: string
+  guildId?: string
+  timestamp?: number
+  type?: string
+  [key: string]: ToolJsonValue | undefined
+}
+
 interface ProviderHealthEntry {
   failures: number
   lastFailure: number
@@ -137,7 +156,7 @@ Em respostas técnicas ou quando fizer sentido: use blocos de código com lingua
 function tool(
   name: string,
   description: string,
-  properties: Record<string, any> = {},
+  properties: Record<string, unknown> = {},
   required: string[] = []
 ): ChatCompletionTool {
   return {
@@ -460,7 +479,7 @@ export class MahinaBrain {
     text: string,
     userId: string,
     guildId: string,
-    metadata: Record<string, any> = {}
+    metadata: Record<string, ToolJsonValue> = {}
   ): Promise<void> {
     if (!this.qdrantReady || !this.bot.services.nvidiaEmbedding) return
 
@@ -507,7 +526,7 @@ export class MahinaBrain {
 
       return results.points
         .filter((p) => p.score && p.score > 0.7)
-        .map((p) => (p.payload as any)?.text ?? '')
+        .map((p) => this.extractPayloadText(p.payload))
         .filter(Boolean)
     } catch {
       logger.debug('Qdrant search failed (non-critical)')
@@ -531,7 +550,7 @@ export class MahinaBrain {
 
       return results.points
         .filter((p) => p.score && p.score > 0.65)
-        .map((p) => (p.payload as any)?.text ?? '')
+        .map((p) => this.extractPayloadText(p.payload))
         .filter(Boolean)
     } catch {
       return []
@@ -565,6 +584,48 @@ export class MahinaBrain {
 
   private getErrorMessage(): string {
     return ERROR_MESSAGES[Math.floor(Math.random() * ERROR_MESSAGES.length)]
+  }
+
+  private extractPayloadText(payload: unknown): string {
+    if (!payload || typeof payload !== 'object') {
+      return ''
+    }
+
+    const text = (payload as MemoryPointPayload).text
+    return typeof text === 'string' ? text : ''
+  }
+
+  private getErrorMessageFromUnknown(error: unknown): string {
+    if (error instanceof Error) {
+      return error.message
+    }
+
+    if (typeof error === 'object' && error !== null && 'message' in error) {
+      const message = Reflect.get(error, 'message')
+      return typeof message === 'string' ? message : 'Unknown error'
+    }
+
+    return 'Unknown error'
+  }
+
+  private getErrorStatus(error: unknown): number | null {
+    if (typeof error === 'object' && error !== null && 'status' in error) {
+      const status = Reflect.get(error, 'status')
+      return typeof status === 'number' ? status : null
+    }
+
+    return null
+  }
+
+  private parseToolArguments(rawArgs: string): ToolArguments {
+    try {
+      const parsed = JSON.parse(rawArgs || '{}')
+      return parsed && typeof parsed === 'object' && !Array.isArray(parsed)
+        ? (parsed as ToolArguments)
+        : {}
+    } catch {
+      return {}
+    }
   }
 
   /** Strip DeepSeek R1 <think> reasoning blocks from output. */
@@ -834,8 +895,10 @@ export class MahinaBrain {
             await callbacks.onEnd(fullContent)
             return fullContent
           }
-        } catch (error: any) {
-          logger.warn(`Stream ${provider.name} / ${model} failed: ${error.message}`)
+        } catch (error: unknown) {
+          logger.warn(
+            `Stream ${provider.name} / ${model} failed: ${this.getErrorMessageFromUnknown(error)}`
+          )
           this.handleProviderError(providerName, error)
           continue
         }
@@ -915,8 +978,10 @@ export class MahinaBrain {
             this.recordProviderSuccess(providerName)
             return content
           }
-        } catch (error: any) {
-          logger.warn(`${provider.name} / ${model} failed: ${error.message}`)
+        } catch (error: unknown) {
+          logger.warn(
+            `${provider.name} / ${model} failed: ${this.getErrorMessageFromUnknown(error)}`
+          )
           this.handleProviderError(providerName, error)
           continue
         }
@@ -927,8 +992,8 @@ export class MahinaBrain {
   }
 
   /** Shared error handling: mark provider failure and flag NVIDIA 429s. */
-  private handleProviderError(providerName: string, error: any): void {
-    if (providerName === 'nvidia' && error.status === 429) {
+  private handleProviderError(providerName: string, error: unknown): void {
+    if (providerName === 'nvidia' && this.getErrorStatus(error) === 429) {
       // The key that just failed is the one before current index
       const failedIdx = (this.nvidiaKeyIndex - 1 + this.nvidiaKeys.length) % this.nvidiaKeys.length
       if (this.nvidiaKeys[failedIdx]) {
@@ -950,12 +1015,7 @@ export class MahinaBrain {
     const player = this.bot.manager?.getPlayer(guildId)
 
     for (const [, tc] of toolCalls) {
-      let args: any = {}
-      try {
-        args = JSON.parse(tc.args || '{}')
-      } catch {
-        args = {}
-      }
+      const args = this.parseToolArguments(tc.args)
 
       let result = ''
 
@@ -968,13 +1028,16 @@ export class MahinaBrain {
             break
           }
           try {
-            const res = await this.bot.manager.search(args.query, { requester: {} } as any)
+            const query = typeof args.query === 'string' ? args.query : ''
+            const res = await this.bot.manager.search(query, {
+              requester: this.bot.user ?? undefined,
+            })
             if (res.tracks.length > 0) {
               player.queue.add(res.tracks[0])
               if (!player.playing) await player.play()
               result = `Adicionei "${res.tracks[0].info.title}" de ${res.tracks[0].info.author} na fila`
             } else {
-              result = `Não encontrei nada pra "${args.query}"`
+              result = `Não encontrei nada pra "${query}"`
             }
           } catch {
             result = 'Erro ao buscar música'
@@ -1042,7 +1105,8 @@ export class MahinaBrain {
             result = 'Player não ativo'
             break
           }
-          const vol = Math.min(100, Math.max(0, args.volume || 50))
+          const volumeValue = typeof args.volume === 'number' ? args.volume : 50
+          const vol = Math.min(100, Math.max(0, volumeValue))
           await player.setVolume(vol)
           result = `Volume setado pra ${vol}%`
           break
@@ -1077,9 +1141,11 @@ export class MahinaBrain {
               result = 'Serviço de geração de imagens não disponível no momento'
               break
             }
-            const genResult = await cosmos.generateVideo(args.prompt, { style: args.style })
+            const prompt = typeof args.prompt === 'string' ? args.prompt : ''
+            const style = typeof args.style === 'string' ? args.style : undefined
+            const genResult = await cosmos.generateVideo(prompt, {})
             result = genResult
-              ? `Imagem gerada com sucesso para: "${args.prompt}"`
+              ? `Imagem gerada com sucesso para: "${prompt}"${style ? ` (${style})` : ''}`
               : 'Falha ao gerar imagem'
           } catch {
             result = 'Erro ao gerar imagem'
@@ -1088,21 +1154,25 @@ export class MahinaBrain {
         }
 
         case 'analyze_image': {
-          result = args.description
-            ? `Análise da imagem: ${args.description}`
-            : 'Nenhuma descrição de imagem fornecida'
+          result =
+            typeof args.description === 'string'
+              ? `Análise da imagem: ${args.description}`
+              : 'Nenhuma descrição de imagem fornecida'
           break
         }
 
         case 'roast_user': {
-          result = await this.buildRoast(args.target_username, guildId)
+          result = await this.buildRoast(
+            typeof args.target_username === 'string' ? args.target_username : '',
+            guildId
+          )
           break
         }
 
         case 'dj_mode': {
           if (args.action === 'start') {
-            const genre = args.genre || 'variado'
-            const djMood = args.mood || 'animado'
+            const genre = typeof args.genre === 'string' ? args.genre : 'variado'
+            const djMood = typeof args.mood === 'string' ? args.mood : 'animado'
             result = `DJ Mode ativado! Gênero: ${genre}, Mood: ${djMood}. Vou começar a escolher músicas.`
           } else {
             result = 'DJ Mode desativado.'
@@ -1111,7 +1181,7 @@ export class MahinaBrain {
         }
 
         case 'search_knowledge': {
-          if (!args.query) {
+          if (typeof args.query !== 'string' || !args.query) {
             result = 'Query vazia'
             break
           }
@@ -1222,8 +1292,8 @@ Mande UMA observação curta, espirituosa e debochada como se você tivesse vend
         )
         return response
       }
-    } catch (error: any) {
-      logger.debug(`Lurker call failed: ${error.message}`)
+    } catch (error: unknown) {
+      logger.debug(`Lurker call failed: ${this.getErrorMessageFromUnknown(error)}`)
     }
 
     return null

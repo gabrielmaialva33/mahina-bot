@@ -1,6 +1,20 @@
 import OpenAI from 'openai'
 import { EmbedBuilder } from 'discord.js'
 import { logger } from '#common/logger'
+import type {
+  AIFunctionCallResponse,
+  AIUsageSnapshot,
+  LegacyAIChatResponse,
+} from '#common/ai_types'
+
+type OpenAIMessage =
+  | { role: 'system' | 'user'; content: string }
+  | {
+      role: 'user'
+      content: Array<
+        { type: 'text'; text: string } | { type: 'image_url'; image_url: { url: string } }
+      >
+    }
 
 export interface NvidiaModel {
   id: string
@@ -226,10 +240,7 @@ export class NvidiaAIService {
   private client: OpenAI
   private activeModel: string = 'llama-70b'
   private userModels: Map<string, string> = new Map()
-  private usageStats: Map<
-    string,
-    { totalTokens: number; totalRequests: number; totalCost: number }
-  > = new Map()
+  private usageStats: Map<string, AIUsageSnapshot> = new Map()
 
   constructor(apiKey: string) {
     this.client = new OpenAI({
@@ -264,7 +275,7 @@ export class NvidiaAIService {
     context?: string,
     systemPrompt?: string,
     imageUrl?: string
-  ): Promise<{ content: string; usage?: any }> {
+  ): Promise<LegacyAIChatResponse> {
     const modelKey = this.getUserModel(userId)
     const model = NVIDIA_MODELS[modelKey]
 
@@ -273,7 +284,7 @@ export class NvidiaAIService {
     }
 
     try {
-      const messages: any[] = []
+      const messages: OpenAIMessage[] = []
 
       if (systemPrompt) {
         messages.push({ role: 'system', content: systemPrompt })
@@ -315,23 +326,27 @@ export class NvidiaAIService {
         content: completion.choices[0]?.message?.content || 'No response generated',
         usage: completion.usage,
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const apiError = error as {
+        response?: { status?: number }
+        message?: string
+      }
       logger.error('NVIDIA AI chat error:', error)
 
       // Enhanced error handling for specific NVIDIA API errors
-      if (error.response?.status === 401) {
+      if (apiError.response?.status === 401) {
         throw new Error('Invalid API key. Please check your NVIDIA API configuration.')
-      } else if (error.response?.status === 429) {
+      } else if (apiError.response?.status === 429) {
         throw new Error('Rate limit exceeded. Please try again in a moment.')
-      } else if (error.response?.status === 503) {
+      } else if (apiError.response?.status === 503) {
         throw new Error('Model temporarily unavailable. Please try a different model.')
-      } else if (error.message?.includes('context_length_exceeded')) {
+      } else if (apiError.message?.includes('context_length_exceeded')) {
         throw new Error(
           `Context length exceeded for ${model.name}. Try a shorter message or use a model with larger context.`
         )
       }
 
-      throw new Error(`Failed to generate AI response: ${error.message || 'Unknown error'}`)
+      throw new Error(`Failed to generate AI response: ${apiError.message || 'Unknown error'}`)
     }
   }
 
@@ -349,7 +364,7 @@ export class NvidiaAIService {
     }
 
     try {
-      const messages: any[] = []
+      const messages: OpenAIMessage[] = []
 
       if (systemPrompt) {
         messages.push({ role: 'system', content: systemPrompt })
@@ -494,9 +509,7 @@ export class NvidiaAIService {
     this.usageStats.set(userId, stats)
   }
 
-  getUserUsageStats(
-    userId: string
-  ): { totalTokens: number; totalRequests: number; totalCost: number } | null {
+  getUserUsageStats(userId: string): AIUsageSnapshot | null {
     return this.usageStats.get(userId) || null
   }
 
@@ -504,10 +517,7 @@ export class NvidiaAIService {
     this.usageStats.delete(userId)
   }
 
-  getAllUsageStats(): Map<
-    string,
-    { totalTokens: number; totalRequests: number; totalCost: number }
-  > {
+  getAllUsageStats(): Map<string, AIUsageSnapshot> {
     return new Map(this.usageStats)
   }
 
@@ -515,9 +525,9 @@ export class NvidiaAIService {
   async chatWithFunctions(
     userId: string,
     message: string,
-    functions: any[],
+    functions: unknown[],
     systemPrompt?: string
-  ): Promise<{ content: string; functionCall?: any; usage?: any }> {
+  ): Promise<AIFunctionCallResponse> {
     const modelKey = this.getUserModel(userId)
     const model = NVIDIA_MODELS[modelKey]
 
@@ -535,7 +545,7 @@ export class NvidiaAIService {
     }
 
     try {
-      const messages: any[] = []
+      const messages: OpenAIMessage[] = []
 
       if (systemPrompt) {
         messages.push({ role: 'system', content: systemPrompt })
@@ -566,9 +576,10 @@ export class NvidiaAIService {
         functionCall: choice?.message?.function_call,
         usage: completion.usage,
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const apiError = error as { message?: string }
       logger.error('NVIDIA AI function call error:', error)
-      throw new Error(`Failed to execute function call: ${error.message || 'Unknown error'}`)
+      throw new Error(`Failed to execute function call: ${apiError.message || 'Unknown error'}`)
     }
   }
 

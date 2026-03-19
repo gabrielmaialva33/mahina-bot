@@ -1,5 +1,6 @@
 import { Collection } from 'discord.js'
 import { logger } from '#common/logger'
+import type { AIContextStats } from '#common/ai_types'
 
 export interface ConversationContext {
   userId: string
@@ -8,7 +9,7 @@ export interface ConversationContext {
   metadata: {
     personality?: string
     language?: string
-    preferences?: Record<string, any>
+    preferences?: Record<string, string | number | boolean | string[]>
     lastInteraction: Date
   }
 }
@@ -116,7 +117,11 @@ export class AIContextService {
   /**
    * Update user preferences in context
    */
-  updateUserPreferences(userId: string, channelId: string, preferences: Record<string, any>): void {
+  updateUserPreferences(
+    userId: string,
+    channelId: string,
+    preferences: Record<string, string | number | boolean | string[]>
+  ): void {
     const context = this.getContext(userId, channelId)
     context.metadata.preferences = {
       ...context.metadata.preferences,
@@ -248,15 +253,11 @@ export class AIContextService {
   /**
    * Get context statistics
    */
-  getStats(): {
-    totalContexts: number
-    totalMessages: number
-    contextsByChannel: Record<string, number>
-  } {
-    const stats = {
+  getStats(): AIContextStats {
+    const stats: AIContextStats = {
       totalContexts: this.contexts.size,
       totalMessages: 0,
-      contextsByChannel: {} as Record<string, number>,
+      contextsByChannel: {},
     }
 
     for (const context of this.contexts.values()) {

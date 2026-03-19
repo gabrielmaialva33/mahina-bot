@@ -26,7 +26,7 @@ interface EmbeddingResponse {
 interface SearchResult {
   content: string
   similarity: number
-  metadata?: Record<string, any>
+  metadata?: Record<string, string>
 }
 
 export class NvidiaEmbeddingService {
@@ -136,7 +136,7 @@ export class NvidiaEmbeddingService {
    */
   async searchSimilar(
     query: string,
-    knowledgeBase: Array<{ content: string; metadata?: Record<string, any> }>,
+    knowledgeBase: Array<{ content: string; metadata?: Record<string, string> }>,
     threshold: number = 0.7,
     limit: number = 5
   ): Promise<SearchResult[]> {
@@ -183,7 +183,7 @@ export class NvidiaEmbeddingService {
   /**
    * Build knowledge base from music commands and bot information
    */
-  buildMusicKnowledgeBase(): Array<{ content: string; metadata?: Record<string, any> }> {
+  buildMusicKnowledgeBase(): Array<{ content: string; metadata?: Record<string, string> }> {
     return [
       {
         content:

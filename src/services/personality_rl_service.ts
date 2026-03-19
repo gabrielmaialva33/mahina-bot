@@ -31,6 +31,12 @@ export interface QValue {
   value: number
 }
 
+interface StoredChatMessage {
+  role?: string
+  userId?: string
+  content?: string
+}
+
 export class PersonalityRLService {
   private client: MahinaBot
   private webhookClient: WebhookClient
@@ -383,8 +389,8 @@ export class PersonalityRLService {
           animalKey:
             Array.from(this.wowAnimals.entries()).find(([k, v]) => v.name === animal.name)?.[0] ||
             '',
-          animalData: animal as any,
-          userStats: state as any,
+          animalData: animal,
+          userStats: state,
           qValue,
         },
       })
@@ -423,15 +429,19 @@ export class PersonalityRLService {
 
       // Filter histories that contain messages from the user
       const userHistories = chatHistories.filter((history) => {
-        const messages = history.messages as any[]
+        const messages = Array.isArray(history.messages)
+          ? (history.messages as StoredChatMessage[])
+          : []
         return messages.some((msg) => msg.userId === userId)
       })
 
       // Analisa mensagens
       userHistories.forEach((history) => {
-        const messages = history.messages as any[]
+        const messages = Array.isArray(history.messages)
+          ? (history.messages as StoredChatMessage[])
+          : []
         messages.forEach((msg) => {
-          if (msg.role === 'user' && msg.userId === userId) {
+          if (msg.role === 'user' && msg.userId === userId && typeof msg.content === 'string') {
             totalMessages++
             totalLength += msg.content.length
 
@@ -503,7 +513,9 @@ export class PersonalityRLService {
         emojiUsage: Math.floor(Math.random() * 40),
         averageMessageLength: Math.floor(Math.random() * 100) + 20,
         activityTime,
-        responseTime: ['rápido', 'médio', 'lento'][Math.floor(Math.random() * 3)] as any,
+        responseTime: ['rápido', 'médio', 'lento'][
+          Math.floor(Math.random() * 3)
+        ] as PersonalityState['responseTime'],
       }
     }
   }

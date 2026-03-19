@@ -1,5 +1,6 @@
 import { PrismaClient } from '@prisma/client'
 import { logger } from '#common/logger'
+import type { AIManagerStatistics, AIManagerStatus } from '#common/ai_types'
 import { env } from '#src/env'
 import type MahinaBot from '#common/mahina_bot'
 import { AIContextService } from './ai_context_service.js'
@@ -86,18 +87,7 @@ export class AIManager {
     return this.initialized && (!!this.nvidiaMultimodal || !!this.nvidia)
   }
 
-  getStatus(): {
-    initialized: boolean
-    services: {
-      nvidia: boolean
-      nvidiaMultimodal: boolean
-      context: boolean
-      memory: boolean
-      queue: boolean
-      brain: boolean
-    }
-    features: string[]
-  } {
+  getStatus(): AIManagerStatus {
     const features = []
 
     if (this.brain) {
@@ -180,11 +170,7 @@ export class AIManager {
     }
   }
 
-  async getStatistics(): Promise<{
-    contextStats: any
-    modelUsage: Record<string, number>
-    totalInteractions: number
-  }> {
+  async getStatistics(): Promise<AIManagerStatistics> {
     const contextStats = this.context?.getStats() || {
       totalContexts: 0,
       totalMessages: 0,

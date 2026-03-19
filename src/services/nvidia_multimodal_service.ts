@@ -1,6 +1,7 @@
 import OpenAI from 'openai'
 import { EmbedBuilder } from 'discord.js'
 import { logger } from '#common/logger'
+import type { AIModelStatsRow } from '#common/ai_types'
 import type MahinaBot from '#common/mahina_bot'
 
 export interface NvidiaMultimodalModel {
@@ -16,15 +17,6 @@ export interface NvidiaMultimodalModel {
   features: string[]
   costPerMillion: number
   latency: 'low' | 'medium' | 'high'
-}
-
-interface ModelMetricSnapshot {
-  model_name: string
-  total_requests: number
-  total_tokens: number
-  avg_response_time: number
-  total_errors: number
-  success_rate: number
 }
 
 interface ModelMetricAccumulator {
@@ -466,7 +458,7 @@ Use the provided context to give more accurate and personalized responses.`
     this.modelUsageStats.set(modelName, current)
   }
 
-  async getModelStats(_timeRange: string = '24h'): Promise<ModelMetricSnapshot[]> {
+  async getModelStats(_timeRange: string = '24h'): Promise<AIModelStatsRow[]> {
     return [...this.modelUsageStats.entries()]
       .map(([modelName, metric]) => ({
         model_name: modelName,

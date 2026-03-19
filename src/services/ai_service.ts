@@ -230,10 +230,10 @@ export class AIService {
       }
 
       // Prepare messages for API
-      const apiMessages = [
+      const apiMessages: OpenAI.Chat.ChatCompletionMessageParam[] = [
         { role: 'system', content: systemPrompt },
         ...messages.map((msg) => ({
-          role: msg.role as 'user' | 'assistant' | 'system',
+          role: msg.role,
           content: msg.content,
         })),
       ]
@@ -241,7 +241,7 @@ export class AIService {
       // Call AI API
       const completion = await this.openai.chat.completions.create({
         model: process.env.NVIDIA_API_KEY ? 'meta/llama-3.1-405b-instruct' : 'gpt-3.5-turbo',
-        messages: apiMessages as any,
+        messages: apiMessages,
         temperature: selectedPersonality.temperature,
         max_tokens: 500,
         stream: false,
@@ -279,7 +279,7 @@ export class AIService {
   createTypingEmbed(): EmbedBuilder {
     return new EmbedBuilder()
       .setColor(this.client.config.color.violet)
-      .setDescription('💭 **Mahina está pensando...**')
+      .setDescription('💭 Mahina está pensando...')
   }
 
   createRateLimitEmbed(timeLeft: number): EmbedBuilder {

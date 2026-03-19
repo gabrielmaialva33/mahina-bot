@@ -1,6 +1,14 @@
 import type MahinaBot from '#common/mahina_bot'
 import { logger } from '#common/logger'
 
+interface LavalinkHealthNode {
+  id: string
+  isAlive: boolean
+  connected: boolean
+  connect(): Promise<void>
+  disconnect(): Promise<void>
+}
+
 export class LavalinkHealthService {
   private client: MahinaBot
   private healthCheckInterval: NodeJS.Timeout | null = null
@@ -54,7 +62,7 @@ export class LavalinkHealthService {
     }
   }
 
-  private async handleUnhealthyNode(nodeId: string, node: any): Promise<void> {
+  private async handleUnhealthyNode(nodeId: string, node: LavalinkHealthNode): Promise<void> {
     const attempts = this.reconnectAttempts.get(nodeId) || 0
 
     if (attempts >= this.MAX_RECONNECT_ATTEMPTS) {

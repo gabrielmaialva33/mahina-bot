@@ -7,7 +7,7 @@ interface GuardRequest {
   model?: string
 }
 
-interface GuardResponse {
+export interface GuardResponse {
   is_safe: boolean
   risk_level: 'low' | 'medium' | 'high'
   categories: Array<{
@@ -19,14 +19,14 @@ interface GuardResponse {
   suggested_action?: 'allow' | 'warn' | 'block'
 }
 
-interface JailbreakDetectionResponse {
+export interface JailbreakDetectionResponse {
   is_jailbreak: boolean
   confidence: number
   techniques_detected: string[]
   risk_assessment: 'low' | 'medium' | 'high'
 }
 
-interface ContentSafetyResponse {
+export interface ContentSafetyResponse {
   is_safe: boolean
   content_policy_violations: Array<{
     policy: string
@@ -35,6 +35,20 @@ interface ContentSafetyResponse {
     score: number
   }>
   recommendation: 'approve' | 'review' | 'reject'
+}
+
+export interface ComprehensiveSafetyResult {
+  is_safe: boolean
+  jailbreak_risk: boolean
+  content_violations: boolean
+  topic_violations: boolean
+  overall_risk: 'low' | 'medium' | 'high'
+  action: 'allow' | 'warn' | 'block'
+  details: {
+    jailbreak?: JailbreakDetectionResponse
+    content?: ContentSafetyResponse
+    topics?: GuardResponse
+  }
 }
 
 export class NvidiaGuardService {
@@ -183,27 +197,15 @@ export class NvidiaGuardService {
       allowedTopics?: string[]
       strictMode?: boolean
     }
-  ): Promise<{
-    is_safe: boolean
-    jailbreak_risk: boolean
-    content_violations: boolean
-    topic_violations: boolean
-    overall_risk: 'low' | 'medium' | 'high'
-    action: 'allow' | 'warn' | 'block'
-    details: {
-      jailbreak?: JailbreakDetectionResponse
-      content?: ContentSafetyResponse
-      topics?: GuardResponse
-    }
-  }> {
-    const results = {
+  ): Promise<ComprehensiveSafetyResult> {
+    const results: ComprehensiveSafetyResult = {
       is_safe: true,
       jailbreak_risk: false,
       content_violations: false,
       topic_violations: false,
-      overall_risk: 'low' as 'low' | 'medium' | 'high',
-      action: 'allow' as 'allow' | 'warn' | 'block',
-      details: {} as any,
+      overall_risk: 'low',
+      action: 'allow',
+      details: {},
     }
 
     try {
