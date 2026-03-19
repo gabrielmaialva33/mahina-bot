@@ -2,11 +2,13 @@ import {
   ActionRowBuilder,
   ApplicationCommandOptionType,
   ButtonBuilder,
+  ButtonInteraction,
   ButtonStyle,
   ComponentType,
   EmbedBuilder,
   MessageFlags,
   StringSelectMenuBuilder,
+  StringSelectMenuInteraction,
 } from 'discord.js'
 import Command from '#common/command'
 import { AIService } from '#src/services/ai_service'
@@ -20,7 +22,7 @@ export default class AIConfigCommand extends Command {
     super(client, {
       name: 'aiconfig',
       description: {
-        content: 'Configura o comportamento da IA da Mahina',
+        content: 'cmd.aiconfig.description',
         examples: ['aiconfig', 'aiconfig personality', 'aiconfig toggle', 'aiconfig stats'],
         usage: 'aiconfig [opção]',
       },
@@ -60,7 +62,7 @@ export default class AIConfigCommand extends Command {
     this.aiService = new AIService(client)
   }
 
-  public async run(client: MahinaBot, ctx: Context, args: string[]): Promise<any> {
+  public async run(client: MahinaBot, ctx: Context, args: string[]): Promise<void> {
     const action = args[0]?.toLowerCase() || 'menu'
     const guildId = ctx.guild?.id
 
@@ -85,61 +87,61 @@ export default class AIConfigCommand extends Command {
   private async showMenu(ctx: Context) {
     const embed = new EmbedBuilder()
       .setColor(this.client.config.color.main)
-      .setTitle('⚙️ Configuração da IA - Mahina')
-      .setDescription('Escolha uma opção para configurar o comportamento da IA')
+      .setTitle(ctx.locale('cmd.aiconfig.ui.menu.title'))
+      .setDescription(ctx.locale('cmd.aiconfig.ui.menu.description'))
       .addFields(
         {
-          name: '🎭 Personalidade',
-          value: 'Altere a personalidade da Mahina (amigável, profissional, brincalhona, DJ)',
+          name: ctx.locale('cmd.aiconfig.ui.menu.fields.personality.name'),
+          value: ctx.locale('cmd.aiconfig.ui.menu.fields.personality.value'),
           inline: false,
         },
         {
-          name: '🔀 Ativar/Desativar',
-          value: 'Ative ou desative as respostas da IA quando mencionarem "mahina"',
+          name: ctx.locale('cmd.aiconfig.ui.menu.fields.toggle.name'),
+          value: ctx.locale('cmd.aiconfig.ui.menu.fields.toggle.value'),
           inline: false,
         },
         {
-          name: '📊 Estatísticas',
-          value: 'Veja estatísticas de uso da IA no servidor',
+          name: ctx.locale('cmd.aiconfig.ui.menu.fields.stats.name'),
+          value: ctx.locale('cmd.aiconfig.ui.menu.fields.stats.value'),
           inline: false,
         },
         {
-          name: '🧹 Limpar Memória',
-          value: 'Limpe o histórico de conversas da IA em todos os canais',
+          name: ctx.locale('cmd.aiconfig.ui.menu.fields.clear.name'),
+          value: ctx.locale('cmd.aiconfig.ui.menu.fields.clear.value'),
           inline: false,
         },
         {
-          name: '⚙️ Configurações',
-          value: 'Veja as configurações atuais da IA',
+          name: ctx.locale('cmd.aiconfig.ui.menu.fields.settings.name'),
+          value: ctx.locale('cmd.aiconfig.ui.menu.fields.settings.value'),
           inline: false,
         }
       )
-      .setFooter({ text: 'Use os botões abaixo para navegar' })
+      .setFooter({ text: ctx.locale('cmd.aiconfig.ui.menu.footer') })
 
     const buttons = new ActionRowBuilder<ButtonBuilder>().addComponents(
       new ButtonBuilder()
         .setCustomId('ai_cfg_personality')
-        .setLabel('Personalidade')
+        .setLabel(ctx.locale('cmd.aiconfig.ui.actions.personality'))
         .setEmoji('🎭')
         .setStyle(ButtonStyle.Primary),
       new ButtonBuilder()
         .setCustomId('ai_cfg_toggle')
-        .setLabel('Ativar/Desativar')
+        .setLabel(ctx.locale('cmd.aiconfig.ui.actions.toggle'))
         .setEmoji('🔀')
         .setStyle(ButtonStyle.Secondary),
       new ButtonBuilder()
         .setCustomId('ai_cfg_stats')
-        .setLabel('Estatísticas')
+        .setLabel(ctx.locale('cmd.aiconfig.ui.actions.stats'))
         .setEmoji('📊')
         .setStyle(ButtonStyle.Secondary),
       new ButtonBuilder()
         .setCustomId('ai_cfg_clear')
-        .setLabel('Limpar')
+        .setLabel(ctx.locale('cmd.aiconfig.ui.actions.clear'))
         .setEmoji('🧹')
         .setStyle(ButtonStyle.Danger),
       new ButtonBuilder()
         .setCustomId('ai_cfg_settings')
-        .setLabel('Config')
+        .setLabel(ctx.locale('cmd.aiconfig.ui.actions.settings'))
         .setEmoji('⚙️')
         .setStyle(ButtonStyle.Secondary)
     )
@@ -151,45 +153,37 @@ export default class AIConfigCommand extends Command {
       time: 60000,
     })
 
-    collector.on(
-      'collect',
-      async (interaction: {
-        user: { id: any }
-        reply: (arg0: { content: string; flags?: number }) => any
-        customId: any
-        deferUpdate: () => any
-      }) => {
-        if (interaction.user.id !== ctx.author?.id) {
-          return interaction.reply({
-            content: 'Apenas o autor do comando pode usar esses botões!',
-            flags: MessageFlags.Ephemeral,
-          })
-        }
-
-        switch (interaction.customId) {
-          case 'ai_cfg_personality':
-            await interaction.deferUpdate()
-            await this.handlePersonality(ctx)
-            break
-          case 'ai_cfg_toggle':
-            await interaction.deferUpdate()
-            await this.handleToggle(ctx, ctx.guild!.id)
-            break
-          case 'ai_cfg_stats':
-            await interaction.deferUpdate()
-            await this.handleStats(ctx, ctx.guild!.id)
-            break
-          case 'ai_cfg_clear':
-            await interaction.deferUpdate()
-            await this.handleClear(ctx)
-            break
-          case 'ai_cfg_settings':
-            await interaction.deferUpdate()
-            await this.handleSettings(ctx, ctx.guild!.id)
-            break
-        }
+    collector.on('collect', async (interaction: ButtonInteraction) => {
+      if (interaction.user.id !== ctx.author?.id) {
+        return interaction.reply({
+          content: ctx.locale('cmd.aiconfig.ui.errors.author_only'),
+          flags: MessageFlags.Ephemeral,
+        })
       }
-    )
+
+      switch (interaction.customId) {
+        case 'ai_cfg_personality':
+          await interaction.deferUpdate()
+          await this.handlePersonality(ctx)
+          break
+        case 'ai_cfg_toggle':
+          await interaction.deferUpdate()
+          await this.handleToggle(ctx, ctx.guild!.id)
+          break
+        case 'ai_cfg_stats':
+          await interaction.deferUpdate()
+          await this.handleStats(ctx, ctx.guild!.id)
+          break
+        case 'ai_cfg_clear':
+          await interaction.deferUpdate()
+          await this.handleClear(ctx)
+          break
+        case 'ai_cfg_settings':
+          await interaction.deferUpdate()
+          await this.handleSettings(ctx, ctx.guild!.id)
+          break
+      }
+    })
 
     collector.on('end', () => {
       msg.edit({ components: [] })
@@ -197,6 +191,7 @@ export default class AIConfigCommand extends Command {
   }
 
   private async handlePersonality(ctx: Context) {
+    const config = await this.client.db.getAIConfig(ctx.guild!.id)
     const personalities = this.aiService.getPersonalities()
     const options = Array.from(personalities.entries()).map(([key, personality]) => ({
       label: personality.name,
@@ -208,11 +203,14 @@ export default class AIConfigCommand extends Command {
     const selectMenu = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
       new StringSelectMenuBuilder()
         .setCustomId('ai_personality_guild')
-        .setPlaceholder('Escolha a personalidade padrão do servidor')
+        .setPlaceholder(ctx.locale('cmd.aiconfig.ui.personality.placeholder'))
         .addOptions(options)
     )
 
-    const embed = this.aiService.createPersonalityEmbed(personalities, 'friendly')
+    const embed = this.aiService.createPersonalityEmbed(personalities, config.defaultPersonality)
+    embed
+      .setTitle(ctx.locale('cmd.aiconfig.ui.personality.title'))
+      .setDescription(ctx.locale('cmd.aiconfig.ui.personality.description'))
 
     const msg = await ctx.sendMessage({ embeds: [embed], components: [selectMenu] })
 
@@ -221,32 +219,33 @@ export default class AIConfigCommand extends Command {
       time: 60000,
     })
 
-    collector.on(
-      'collect',
-      async (interaction: {
-        user: { id: any }
-        reply: (arg0: { content: string; flags?: number }) => any
-        values: any[]
-        update: (arg0: { content: string; embeds: never[]; components: never[] }) => any
-      }) => {
-        if (interaction.user.id !== ctx.author?.id) {
-          return interaction.reply({
-            content: 'Apenas o autor do comando pode usar este menu!',
-            flags: MessageFlags.Ephemeral,
-          })
-        }
-
-        const selected = interaction.values[0]
-        await this.client.db.setAIPersonality(ctx.guild!.id, selected)
-
-        const selectedPersonality = this.aiService.getPersonality(selected)!
-        await interaction.update({
-          content: `${selectedPersonality.emoji} Personalidade padrão do servidor alterada para: **${selectedPersonality.name}**`,
-          embeds: [],
-          components: [],
+    collector.on('collect', async (interaction: StringSelectMenuInteraction) => {
+      if (interaction.user.id !== ctx.author?.id) {
+        return interaction.reply({
+          content: ctx.locale('cmd.aiconfig.ui.errors.author_only_menu'),
+          flags: MessageFlags.Ephemeral,
         })
       }
-    )
+
+      const selected = interaction.values[0]
+      await this.client.db.setAIPersonality(ctx.guild!.id, selected)
+
+      const selectedPersonality = this.aiService.getPersonality(selected)!
+      await interaction.update({
+        embeds: [
+          new EmbedBuilder()
+            .setColor(this.client.config.color.green)
+            .setTitle(ctx.locale('cmd.aiconfig.ui.personality.updated_title'))
+            .setDescription(
+              ctx.locale('cmd.aiconfig.ui.personality.updated', {
+                emoji: selectedPersonality.emoji,
+                name: selectedPersonality.name,
+              })
+            ),
+        ],
+        components: [],
+      })
+    })
   }
 
   private async handleToggle(ctx: Context, guildId: string) {
@@ -254,11 +253,15 @@ export default class AIConfigCommand extends Command {
 
     const embed = new EmbedBuilder()
       .setColor(isEnabled ? this.client.config.color.green : this.client.config.color.red)
-      .setTitle(isEnabled ? '✅ IA Ativada' : '❌ IA Desativada')
+      .setTitle(
+        ctx.locale(
+          isEnabled
+            ? 'cmd.aiconfig.ui.toggle.enabled_title'
+            : 'cmd.aiconfig.ui.toggle.disabled_title'
+        )
+      )
       .setDescription(
-        isEnabled
-          ? 'A Mahina agora responderá quando mencionada em conversas!'
-          : 'A Mahina não responderá mais quando mencionada.'
+        ctx.locale(isEnabled ? 'cmd.aiconfig.ui.toggle.enabled' : 'cmd.aiconfig.ui.toggle.disabled')
       )
 
     await ctx.sendMessage({ embeds: [embed] })
@@ -276,17 +279,21 @@ export default class AIConfigCommand extends Command {
 
     const embed = new EmbedBuilder()
       .setColor(this.client.config.color.main)
-      .setTitle('📊 Estatísticas de IA - ' + ctx.guild?.name)
-      .setDescription('Uso da IA neste servidor')
+      .setTitle(ctx.locale('cmd.aiconfig.ui.stats.title', { guild: ctx.guild?.name ?? 'Servidor' }))
+      .setDescription(ctx.locale('cmd.aiconfig.ui.stats.description'))
       .addFields(
-        { name: 'Total de Mensagens', value: stats.totalMessages.toString(), inline: true },
         {
-          name: 'Usuários Únicos',
+          name: ctx.locale('cmd.aiconfig.ui.stats.fields.total_messages'),
+          value: stats.totalMessages.toString(),
+          inline: true,
+        },
+        {
+          name: ctx.locale('cmd.aiconfig.ui.stats.fields.unique_users'),
           value: (stats.uniqueUsers?.length || 0).toString(),
           inline: true,
         },
         {
-          name: 'Personalidade Padrão',
+          name: ctx.locale('cmd.aiconfig.ui.stats.fields.personality'),
           value:
             this.aiService.getPersonality(config.defaultPersonality)?.emoji +
             ' ' +
@@ -294,15 +301,31 @@ export default class AIConfigCommand extends Command {
           inline: true,
         },
         {
-          name: 'Canal Mais Ativo',
-          value: mostUsedChannel ? `<#${mostUsedChannel[0]}>` : 'Nenhum',
+          name: ctx.locale('cmd.aiconfig.ui.stats.fields.top_channel'),
+          value: mostUsedChannel
+            ? `<#${mostUsedChannel[0]}>`
+            : ctx.locale('cmd.aiconfig.ui.values.none'),
           inline: true,
         },
-        { name: 'Status', value: config.enabled ? '✅ Ativada' : '❌ Desativada', inline: true },
-        { name: 'Rate Limit', value: `${config.rateLimit} msgs/min`, inline: true }
+        {
+          name: ctx.locale('cmd.aiconfig.ui.stats.fields.status'),
+          value: ctx.locale(
+            config.enabled ? 'cmd.aiconfig.ui.values.enabled' : 'cmd.aiconfig.ui.values.disabled'
+          ),
+          inline: true,
+        },
+        {
+          name: ctx.locale('cmd.aiconfig.ui.stats.fields.rate_limit'),
+          value: ctx.locale('cmd.aiconfig.ui.values.rate_limit', {
+            value: String(config.rateLimit),
+          }),
+          inline: true,
+        }
       )
       .setFooter({
-        text: 'Estatísticas desde: ' + new Date(config.createdAt).toLocaleDateString('pt-BR'),
+        text: ctx.locale('cmd.aiconfig.ui.stats.footer', {
+          date: new Date(config.createdAt).toLocaleDateString('pt-BR'),
+        }),
       })
 
     await ctx.sendMessage({ embeds: [embed] })
@@ -311,19 +334,19 @@ export default class AIConfigCommand extends Command {
   private async handleClear(ctx: Context) {
     const confirmEmbed = new EmbedBuilder()
       .setColor(this.client.config.color.yellow)
-      .setTitle('⚠️ Confirmar Limpeza')
-      .setDescription('Tem certeza que deseja limpar todo o histórico de conversas da IA?')
-      .setFooter({ text: 'Esta ação não pode ser desfeita!' })
+      .setTitle(ctx.locale('cmd.aiconfig.ui.clear.title'))
+      .setDescription(ctx.locale('cmd.aiconfig.ui.clear.description'))
+      .setFooter({ text: ctx.locale('cmd.aiconfig.ui.clear.footer') })
 
     const buttons = new ActionRowBuilder<ButtonBuilder>().addComponents(
       new ButtonBuilder()
         .setCustomId('ai_clear_confirm')
-        .setLabel('Confirmar')
+        .setLabel(ctx.locale('cmd.aiconfig.ui.clear.confirm'))
         .setEmoji('✅')
         .setStyle(ButtonStyle.Danger),
       new ButtonBuilder()
         .setCustomId('ai_clear_cancel')
-        .setLabel('Cancelar')
+        .setLabel(ctx.locale('cmd.aiconfig.ui.clear.cancel'))
         .setEmoji('❌')
         .setStyle(ButtonStyle.Secondary)
     )
@@ -335,47 +358,38 @@ export default class AIConfigCommand extends Command {
       time: 30000,
     })
 
-    collector.on(
-      'collect',
-      async (interaction: {
-        user: { id: any }
-        reply: (arg0: { content: string; flags?: number }) => any
-        customId: string
-        update: (arg0: { embeds: EmbedBuilder[]; components: never[] }) => any
-      }) => {
-        if (interaction.user.id !== ctx.author?.id) {
-          return interaction.reply({
-            content: 'Apenas o autor do comando pode confirmar!',
-            flags: MessageFlags.Ephemeral,
-          })
-        }
-
-        if (interaction.customId === 'ai_clear_confirm') {
-          // Clear all chat history for guild
-          await this.client.db.clearAllChatHistory(ctx.guild!.id)
-
-          await interaction.update({
-            embeds: [
-              new EmbedBuilder()
-                .setColor(this.client.config.color.green)
-                .setTitle('✅ Histórico Limpo')
-                .setDescription('Todo o histórico de conversas da IA foi removido!'),
-            ],
-            components: [],
-          })
-        } else {
-          await interaction.update({
-            embeds: [
-              new EmbedBuilder()
-                .setColor(this.client.config.color.blue)
-                .setTitle('❌ Limpeza Cancelada')
-                .setDescription('O histórico de conversas foi mantido.'),
-            ],
-            components: [],
-          })
-        }
+    collector.on('collect', async (interaction: ButtonInteraction) => {
+      if (interaction.user.id !== ctx.author?.id) {
+        return interaction.reply({
+          content: ctx.locale('cmd.aiconfig.ui.errors.author_only_confirm'),
+          flags: MessageFlags.Ephemeral,
+        })
       }
-    )
+
+      if (interaction.customId === 'ai_clear_confirm') {
+        await this.client.db.clearAllChatHistory(ctx.guild!.id)
+
+        await interaction.update({
+          embeds: [
+            new EmbedBuilder()
+              .setColor(this.client.config.color.green)
+              .setTitle(ctx.locale('cmd.aiconfig.ui.clear.success_title'))
+              .setDescription(ctx.locale('cmd.aiconfig.ui.clear.success')),
+          ],
+          components: [],
+        })
+      } else {
+        await interaction.update({
+          embeds: [
+            new EmbedBuilder()
+              .setColor(this.client.config.color.blue)
+              .setTitle(ctx.locale('cmd.aiconfig.ui.clear.cancelled_title'))
+              .setDescription(ctx.locale('cmd.aiconfig.ui.clear.cancelled')),
+          ],
+          components: [],
+        })
+      }
+    })
   }
 
   private async handleSettings(ctx: Context, guildId: string) {
@@ -384,38 +398,68 @@ export default class AIConfigCommand extends Command {
 
     const embed = new EmbedBuilder()
       .setColor(this.client.config.color.main)
-      .setTitle('⚙️ Configurações Atuais da IA')
+      .setTitle(ctx.locale('cmd.aiconfig.ui.settings.title'))
       .addFields(
-        { name: 'Status', value: config.enabled ? '✅ Ativada' : '❌ Desativada', inline: true },
         {
-          name: 'Personalidade Padrão',
+          name: ctx.locale('cmd.aiconfig.ui.settings.fields.status'),
+          value: ctx.locale(
+            config.enabled ? 'cmd.aiconfig.ui.values.enabled' : 'cmd.aiconfig.ui.values.disabled'
+          ),
+          inline: true,
+        },
+        {
+          name: ctx.locale('cmd.aiconfig.ui.settings.fields.personality'),
           value: `${personality?.emoji} ${personality?.name}`,
           inline: true,
         },
-        { name: 'Rate Limit', value: `${config.rateLimit} msgs/min`, inline: true },
-        { name: 'Histórico Máximo', value: `${config.maxHistory} mensagens`, inline: true },
-        { name: 'Janela de Contexto', value: `${config.contextWindow} mensagens`, inline: true },
         {
-          name: 'API em Uso',
+          name: ctx.locale('cmd.aiconfig.ui.settings.fields.rate_limit'),
+          value: ctx.locale('cmd.aiconfig.ui.values.rate_limit', {
+            value: String(config.rateLimit),
+          }),
+          inline: true,
+        },
+        {
+          name: ctx.locale('cmd.aiconfig.ui.settings.fields.max_history'),
+          value: ctx.locale('cmd.aiconfig.ui.values.messages', {
+            value: String(config.maxHistory),
+          }),
+          inline: true,
+        },
+        {
+          name: ctx.locale('cmd.aiconfig.ui.settings.fields.context_window'),
+          value: ctx.locale('cmd.aiconfig.ui.values.messages', {
+            value: String(config.contextWindow),
+          }),
+          inline: true,
+        },
+        {
+          name: ctx.locale('cmd.aiconfig.ui.settings.fields.provider'),
           value: process.env.NVIDIA_API_KEY ? 'NVIDIA' : 'OpenAI',
           inline: true,
         },
         {
-          name: 'Canais Permitidos',
+          name: ctx.locale('cmd.aiconfig.ui.settings.fields.allowed_channels'),
           value:
             config.allowedChannels.length > 0
-              ? config.allowedChannels.map((c: any) => `<#${c}>`).join(', ')
-              : 'Todos',
+              ? config.allowedChannels.map((channelId: string) => `<#${channelId}>`).join(', ')
+              : ctx.locale('cmd.aiconfig.ui.values.all_channels'),
           inline: false,
         },
         {
-          name: 'Usuários Bloqueados',
-          value: config.blockedUsers.length > 0 ? config.blockedUsers.length.toString() : 'Nenhum',
+          name: ctx.locale('cmd.aiconfig.ui.settings.fields.blocked_users'),
+          value:
+            config.blockedUsers.length > 0
+              ? config.blockedUsers.length.toString()
+              : ctx.locale('cmd.aiconfig.ui.values.none'),
           inline: true,
         }
       )
       .setFooter({
-        text: `Servidor: ${ctx.guild?.name} | Criado em: ${new Date(config.createdAt).toLocaleDateString('pt-BR')}`,
+        text: ctx.locale('cmd.aiconfig.ui.settings.footer', {
+          guild: ctx.guild?.name ?? 'Servidor',
+          date: new Date(config.createdAt).toLocaleDateString('pt-BR'),
+        }),
       })
 
     await ctx.sendMessage({ embeds: [embed] })

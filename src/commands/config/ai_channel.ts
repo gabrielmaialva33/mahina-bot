@@ -1,4 +1,9 @@
-import { ApplicationCommandOptionType, ChannelType, PermissionFlagsBits } from 'discord.js'
+import {
+  ApplicationCommandOptionType,
+  ChannelType,
+  EmbedBuilder,
+  PermissionFlagsBits,
+} from 'discord.js'
 import Command from '#common/command'
 import type MahinaBot from '#common/mahina_bot'
 import type { Context } from '#common/context'
@@ -43,7 +48,7 @@ export default class AIChannelCommand extends Command {
           required: false,
           choices: [
             {
-              name: 'Clear',
+              name: 'Limpar',
               value: 'clear',
             },
           ],
@@ -52,11 +57,10 @@ export default class AIChannelCommand extends Command {
     })
   }
 
-  async run(client: MahinaBot, ctx: Context, args: string[]): Promise<any> {
+  async run(client: MahinaBot, ctx: Context, args: string[]): Promise<void> {
     const guildId = ctx.guild?.id
     if (!guildId) return
 
-    // Get current AI config
     const aiConfig = await client.db.getAIConfig(guildId)
 
     // Handle slash command
@@ -65,93 +69,107 @@ export default class AIChannelCommand extends Command {
       const action = ctx.interaction.options.getString('action')
 
       if (action === 'clear') {
-        // Clear the allowed channels
         await client.prisma.aIConfig.update({
           where: { guildId },
           data: { allowedChannels: [] },
         })
 
-        // Restart proactive service tracking for this guild
-        if (client.services?.proactiveInteraction) {
-          const guild = client.guilds.cache.get(guildId)
-          if (guild) {
-            await client.services.proactiveInteraction.handleGuildCreate(guild)
-          }
-        }
+        await this.refreshGuildTracking(client, guildId)
 
-        return await ctx.sendMessage({
-          content: ctx.locale('cmd.aichannel.cleared'),
+        await ctx.sendMessage({
+          embeds: [
+            this.createEmbed(
+              ctx,
+              'green',
+              'cmd.aichannel.ui.cleared.title',
+              'cmd.aichannel.cleared'
+            ),
+          ],
         })
+        return
       }
 
       if (channel) {
-        // Set the allowed channel
         await client.prisma.aIConfig.update({
           where: { guildId },
           data: { allowedChannels: [channel.id] },
         })
 
-        // Restart proactive service tracking for this guild
-        if (client.services?.proactiveInteraction) {
-          const guild = client.guilds.cache.get(guildId)
-          if (guild) {
-            await client.services.proactiveInteraction.handleGuildCreate(guild)
-          }
-        }
+        await this.refreshGuildTracking(client, guildId)
 
-        return await ctx.sendMessage({
-          content: ctx.locale('cmd.aichannel.set', { channel: channel.toString() }),
+        await ctx.sendMessage({
+          embeds: [
+            this.createEmbed(ctx, 'green', 'cmd.aichannel.ui.set.title', 'cmd.aichannel.set', {
+              channel: channel.toString(),
+            }),
+          ],
         })
+        return
       }
     }
 
-    // Handle text command
     if (args[0] === 'clear') {
       await client.prisma.aIConfig.update({
         where: { guildId },
         data: { allowedChannels: [] },
       })
 
-      // Restart proactive service tracking for this guild
-      if (client.services?.proactiveInteraction) {
-        const guild = client.guilds.cache.get(guildId)
-        if (guild) {
-          await client.services.proactiveInteraction.handleGuildCreate(guild)
-        }
-      }
+      await this.refreshGuildTracking(client, guildId)
 
-      return await ctx.sendMessage({
-        content: ctx.locale('cmd.aichannel.cleared'),
+      await ctx.sendMessage({
+        embeds: [
+          this.createEmbed(ctx, 'green', 'cmd.aichannel.ui.cleared.title', 'cmd.aichannel.cleared'),
+        ],
       })
+      return
     }
 
-    // Show current configuration
     if (!args[0]) {
       const currentChannels = aiConfig?.allowedChannels || []
 
       if (currentChannels.length === 0) {
-        return await ctx.sendMessage({
-          content: ctx.locale('cmd.aichannel.current_none'),
+        await ctx.sendMessage({
+          embeds: [
+            this.createEmbed(
+              ctx,
+              'yellow',
+              'cmd.aichannel.ui.current_none.title',
+              'cmd.aichannel.current_none'
+            ),
+          ],
         })
+        return
       }
 
       const channelMentions = currentChannels.map((id) => `<#${id}>`).join(', ')
 
-      return await ctx.sendMessage({
-        content: ctx.locale('cmd.aichannel.current', { channels: channelMentions }),
+      await ctx.sendMessage({
+        embeds: [
+          this.createEmbed(ctx, 'main', 'cmd.aichannel.ui.current.title', 'cmd.aichannel.current', {
+            channels: channelMentions,
+          }),
+        ],
       })
+      return
     }
 
-    // Parse channel mention
     const channelMatch = args[0].match(/^<#(\d+)>$/)
     if (channelMatch) {
       const channelId = channelMatch[1]
       const channel = ctx.guild?.channels.cache.get(channelId)
 
       if (!channel || channel.type !== ChannelType.GuildText) {
-        return await ctx.sendMessage({
-          content: ctx.locale('cmd.aichannel.invalid_channel'),
+        await ctx.sendMessage({
+          embeds: [
+            this.createEmbed(
+              ctx,
+              'red',
+              'cmd.aichannel.ui.invalid_channel.title',
+              'cmd.aichannel.invalid_channel'
+            ),
+          ],
         })
+        return
       }
 
       await client.prisma.aIConfig.update({
@@ -159,22 +177,40 @@ export default class AIChannelCommand extends Command {
         data: { allowedChannels: [channelId] },
       })
 
-      // Restart proactive service tracking for this guild
-      if (client.services?.proactiveInteraction) {
-        const guild = client.guilds.cache.get(guildId)
-        if (guild) {
-          await client.services.proactiveInteraction.handleGuildCreate(guild)
-        }
-      }
+      await this.refreshGuildTracking(client, guildId)
 
-      return await ctx.sendMessage({
-        content: ctx.locale('cmd.aichannel.set', { channel: channel.toString() }),
+      await ctx.sendMessage({
+        embeds: [
+          this.createEmbed(ctx, 'green', 'cmd.aichannel.ui.set.title', 'cmd.aichannel.set', {
+            channel: channel.toString(),
+          }),
+        ],
       })
+      return
     }
 
-    // Invalid input
-    return await ctx.sendMessage({
-      content: ctx.locale('cmd.aichannel.usage'),
+    await ctx.sendMessage({
+      embeds: [this.createEmbed(ctx, 'red', 'cmd.aichannel.ui.usage.title', 'cmd.aichannel.usage')],
     })
+  }
+
+  private async refreshGuildTracking(client: MahinaBot, guildId: string): Promise<void> {
+    if (!client.services?.proactiveInteraction) return
+    const guild = client.guilds.cache.get(guildId)
+    if (!guild) return
+    await client.services.proactiveInteraction.handleGuildCreate(guild)
+  }
+
+  private createEmbed(
+    ctx: Context,
+    color: 'green' | 'red' | 'yellow' | 'main',
+    titleKey: string,
+    descriptionKey: string,
+    params?: Record<string, string>
+  ): EmbedBuilder {
+    return new EmbedBuilder()
+      .setColor(this.client.config.color[color])
+      .setTitle(ctx.locale(titleKey))
+      .setDescription(ctx.locale(descriptionKey, params))
   }
 }

@@ -57,7 +57,7 @@ export default class LanguageCommand extends Command {
     })
   }
 
-  async run(client: MahinaBot, ctx: Context, args: string[]): Promise<any> {
+  async run(client: MahinaBot, ctx: Context, args: string[]): Promise<void> {
     let subCommand: string | undefined
 
     if (ctx.isInteraction) {
@@ -152,6 +152,8 @@ export default class LanguageCommand extends Command {
       language.name.toLowerCase().includes(focusedValue.toLowerCase())
     )
 
-    await interaction.respond(filtered.slice(0, 25)).catch(console.error)
+    await interaction
+      .respond(filtered.slice(0, 25))
+      .catch((error: unknown) => this.client.logger.warn('Language autocomplete failed:', error))
   }
 }
