@@ -18,11 +18,11 @@ type SearchResultItem = {
 export default class SearchCommand extends Command {
   constructor(client: MahinaBot) {
     super(client, {
-      name: 'search',
+      name: 'aisearch',
       description: {
         content: 'Busca por comandos e informações usando IA semântica',
-        examples: ['search como tocar música', 'search pausar som', 'search fila de reprodução'],
-        usage: 'search <pergunta>',
+        examples: ['aisearch como tocar música', 'aisearch pausar som', 'aisearch fila de reprodução'],
+        usage: 'aisearch <pergunta>',
       },
       category: 'ai',
       aliases: ['buscar', 'find', 'help-ai'],
