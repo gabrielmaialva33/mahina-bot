@@ -61,27 +61,11 @@ jobs:
   deploy:
     needs: build
     runs-on: ubuntu-latest
+    permissions:
+      packages: read
 
     steps:
-      - uses: actions/checkout@v4
-        with:
-          sparse-checkout: |
-            docker-compose.prod.yml
-            application.yml
-            lavalink
-
-      - name: Sync files to VPS
-        uses: appleboy/scp-action@v0.1.7
-        with:
-          host: ${{ secrets.VPS_HOST }}
-          username: ${{ secrets.VPS_USERNAME }}
-          key: ${{ secrets.VPS_SSH_KEY }}
-          source: docker-compose.prod.yml,application.yml,lavalink/
-          target: /opt/mahina-bot
-          overwrite: true
-          strip_components: 0
-
-      - name: Deploy
+      - name: Deploy to VPS
         uses: appleboy/ssh-action@v1
         with:
           host: ${{ secrets.VPS_HOST }}
@@ -90,8 +74,8 @@ jobs:
           script: |
             set -e
             cd /opt/mahina-bot
-            cp -f docker-compose.prod.yml docker-compose.yml
-            docker compose pull mahina
+
+            docker pull ghcr.io/gabrielmaialva33/mahina-bot:latest
             docker compose up -d --remove-orphans
             docker image prune -f
             docker compose ps
