@@ -8,7 +8,7 @@ export default class ProactiveCommand extends Command {
     super(client, {
       name: 'proactive',
       description: {
-        content: 'Manage proactive interaction settings',
+        content: 'cmd.proactive.description',
         examples: ['proactive stats', 'proactive toggle', 'proactive test'],
         usage: 'proactive <action>',
       },
@@ -25,17 +25,17 @@ export default class ProactiveCommand extends Command {
       options: [
         {
           name: 'stats',
-          description: 'Show proactive interaction statistics',
+          description: 'cmd.proactive.options.stats',
           type: ApplicationCommandOptionType.Subcommand,
         },
         {
           name: 'test',
-          description: 'Test proactive interaction in current channel',
+          description: 'cmd.proactive.options.test',
           type: ApplicationCommandOptionType.Subcommand,
         },
         {
           name: 'force',
-          description: 'Force proactive interaction check',
+          description: 'cmd.proactive.options.force',
           type: ApplicationCommandOptionType.Subcommand,
         },
       ],
@@ -50,10 +50,13 @@ export default class ProactiveCommand extends Command {
     if (!client.services.proactiveInteraction) {
       return await ctx.sendMessage({
         embeds: [
-          {
-            description: '❌ Proactive Interaction service is not available',
-            color: 0xff0000,
-          },
+          this.createEmbed(
+            ctx,
+            client,
+            'red',
+            'cmd.proactive.ui.errors.unavailable.title',
+            'cmd.proactive.ui.errors.unavailable.description'
+          ),
         ],
       })
     }
@@ -67,38 +70,49 @@ export default class ProactiveCommand extends Command {
           .setColor(0x5865f2)
           .addFields(
             {
-              name: '📈 Total Channels Monitored',
+              name: ctx.locale('cmd.proactive.ui.stats.fields.total_channels'),
               value: stats.totalChannels.toString(),
               inline: true,
             },
             {
-              name: '😴 Inactive Channels',
+              name: ctx.locale('cmd.proactive.ui.stats.fields.inactive_channels'),
               value: stats.inactiveChannels.toString(),
               inline: true,
             },
             {
-              name: '📱 Active Channels',
+              name: ctx.locale('cmd.proactive.ui.stats.fields.active_channels'),
               value: (stats.totalChannels - stats.inactiveChannels).toString(),
               inline: true,
             },
             {
-              name: '🤖 Service Status',
-              value: '✅ Running',
+              name: ctx.locale('cmd.proactive.ui.stats.fields.status'),
+              value: ctx.locale('cmd.proactive.ui.values.running'),
               inline: true,
             },
             {
-              name: '⏰ Check Interval',
-              value: '30 minutes',
+              name: ctx.locale('cmd.proactive.ui.stats.fields.check_interval'),
+              value: ctx.locale('cmd.proactive.ui.values.check_interval'),
               inline: true,
             },
             {
-              name: '🔄 Inactivity Threshold',
-              value: '3 hours',
+              name: ctx.locale('cmd.proactive.ui.stats.fields.threshold'),
+              value: ctx.locale('cmd.proactive.ui.values.threshold'),
+              inline: true,
+            },
+            {
+              name: ctx.locale('cmd.proactive.ui.stats.fields.recaps'),
+              value: stats.totalRecapsSent.toString(),
+              inline: true,
+            },
+            {
+              name: ctx.locale('cmd.proactive.ui.stats.fields.callbacks'),
+              value: stats.totalCallbacksSent.toString(),
               inline: true,
             }
           )
+          .setDescription(ctx.locale('cmd.proactive.ui.stats.description'))
           .setFooter({
-            text: 'Mahina Proactive Interaction System',
+            text: ctx.locale('cmd.proactive.ui.stats.footer'),
             iconURL: client.user?.displayAvatarURL(),
           })
           .setTimestamp()
@@ -110,10 +124,13 @@ export default class ProactiveCommand extends Command {
         if (!ctx.channel?.isTextBased()) {
           return await ctx.sendMessage({
             embeds: [
-              {
-                description: '❌ This command can only be used in text channels',
-                color: 0xff0000,
-              },
+              this.createEmbed(
+                ctx,
+                client,
+                'red',
+                'cmd.proactive.ui.errors.text_only.title',
+                'cmd.proactive.ui.errors.text_only.description'
+              ),
             ],
           })
         }
@@ -123,10 +140,13 @@ export default class ProactiveCommand extends Command {
           if (!(ctx.channel instanceof TextChannel)) {
             return await ctx.sendMessage({
               embeds: [
-                {
-                  description: '❌ This command can only be used in text channels',
-                  color: 0xff0000,
-                },
+                this.createEmbed(
+                  ctx,
+                  client,
+                  'red',
+                  'cmd.proactive.ui.errors.text_only.title',
+                  'cmd.proactive.ui.errors.text_only.description'
+                ),
               ],
             })
           }
@@ -135,19 +155,26 @@ export default class ProactiveCommand extends Command {
 
           return await ctx.sendMessage({
             embeds: [
-              {
-                description: '✅ Test proactive message sent!',
-                color: 0x00ff00,
-              },
+              this.createEmbed(
+                ctx,
+                client,
+                'green',
+                'cmd.proactive.ui.test.success_title',
+                'cmd.proactive.ui.test.success'
+              ),
             ],
           })
         } catch (error) {
           return await ctx.sendMessage({
             embeds: [
-              {
-                description: `❌ Failed to send test message: ${(error as Error).message}`,
-                color: 0xff0000,
-              },
+              this.createEmbed(
+                ctx,
+                client,
+                'red',
+                'cmd.proactive.ui.test.error_title',
+                'cmd.proactive.ui.test.error',
+                { error: (error as Error).message }
+              ),
             ],
           })
         }
@@ -160,19 +187,26 @@ export default class ProactiveCommand extends Command {
 
           return await ctx.sendMessage({
             embeds: [
-              {
-                description: '✅ Forced proactive interaction check completed!',
-                color: 0x00ff00,
-              },
+              this.createEmbed(
+                ctx,
+                client,
+                'green',
+                'cmd.proactive.ui.force.success_title',
+                'cmd.proactive.ui.force.success'
+              ),
             ],
           })
         } catch (error) {
           return await ctx.sendMessage({
             embeds: [
-              {
-                description: `❌ Failed to force check: ${(error as Error).message}`,
-                color: 0xff0000,
-              },
+              this.createEmbed(
+                ctx,
+                client,
+                'red',
+                'cmd.proactive.ui.force.error_title',
+                'cmd.proactive.ui.force.error',
+                { error: (error as Error).message }
+              ),
             ],
           })
         }
@@ -181,31 +215,44 @@ export default class ProactiveCommand extends Command {
       default: {
         return await ctx.sendMessage({
           embeds: [
-            {
-              title: '🤖 Proactive Interaction Commands',
-              description: 'Available subcommands:',
-              fields: [
+            new EmbedBuilder()
+              .setColor(client.config.color.main)
+              .setTitle(ctx.locale('cmd.proactive.ui.help.title'))
+              .setDescription(ctx.locale('cmd.proactive.ui.help.description'))
+              .addFields(
                 {
                   name: '/proactive stats',
-                  value: 'Show interaction statistics',
+                  value: ctx.locale('cmd.proactive.ui.help.stats'),
                   inline: false,
                 },
                 {
                   name: '/proactive test',
-                  value: 'Test interaction in current channel',
+                  value: ctx.locale('cmd.proactive.ui.help.test'),
                   inline: false,
                 },
                 {
                   name: '/proactive force',
-                  value: 'Force interaction check now',
+                  value: ctx.locale('cmd.proactive.ui.help.force'),
                   inline: false,
-                },
-              ],
-              color: 0x5865f2,
-            },
+                }
+              ),
           ],
         })
       }
     }
+  }
+
+  private createEmbed(
+    ctx: Context,
+    client: MahinaBot,
+    color: 'red' | 'green' | 'main',
+    titleKey: string,
+    descriptionKey: string,
+    params?: Record<string, string>
+  ): EmbedBuilder {
+    return new EmbedBuilder()
+      .setColor(client.config.color[color])
+      .setTitle(ctx.locale(titleKey))
+      .setDescription(ctx.locale(descriptionKey, params))
   }
 }

@@ -11,8 +11,7 @@ export default class PersonalityCommand extends Command {
     super(client, {
       name: 'personality',
       description: {
-        content:
-          '🍁 Descubra seu animal espiritual do World of Warcraft através de análise de personalidade com IA',
+        content: 'cmd.personality.description',
         examples: ['personality', 'personality @usuario'],
         usage: 'personality [usuário]',
       },
@@ -35,7 +34,7 @@ export default class PersonalityCommand extends Command {
       options: [
         {
           name: 'user',
-          description: '👤 O usuário que você deseja analisar',
+          description: 'cmd.personality.options.user',
           type: ApplicationCommandOptionType.User,
           required: false,
         },
@@ -46,7 +45,6 @@ export default class PersonalityCommand extends Command {
   }
 
   public async run(client: MahinaBot, ctx: Context, args: string[]): Promise<void> {
-    // Get target user
     let targetUser: User
     if (ctx.isInteraction) {
       targetUser = ctx.interaction?.options.getUser('user') || ctx.author
@@ -55,54 +53,46 @@ export default class PersonalityCommand extends Command {
       targetUser = mentionedUser || ctx.author
     }
 
-    // Check if analyzing self or others
     const isAnalyzingSelf = targetUser.id === ctx.author.id
 
-    // Create loading embed
     const loadingEmbed = new EmbedBuilder()
       .setColor(client.config.color.violet)
-      .setTitle('🔮 Analisando Personalidade...')
+      .setTitle(ctx.locale('cmd.personality.ui.loading.title'))
       .setDescription(
         isAnalyzingSelf
-          ? '🍁 O Oráculo Espiritual de Warcraft está analisando sua essência...'
-          : `🍁 Analisando a essência de **${targetUser.username}**...`
+          ? ctx.locale('cmd.personality.ui.loading.self')
+          : ctx.locale('cmd.personality.ui.loading.other', { user: targetUser.username })
       )
       .setThumbnail('https://i.imgur.com/wSTFkRM.png')
-      .setFooter({ text: 'Weed Of Warcraft | Análise com Aprendizado por Reforço' })
+      .setFooter({ text: ctx.locale('cmd.personality.ui.loading.footer') })
 
     const msg = await ctx.sendMessage({ embeds: [loadingEmbed] })
 
     try {
-      // Get user stats for analysis
       const userStats = await this.personalityService.getUserStats(targetUser.id, ctx.guild!.id)
-
-      // Analyze personality using RL
       const spiritAnimal = await this.personalityService.analyzePersonality(
         targetUser.id,
         ctx.guild!.id,
         userStats
       )
 
-      // Create result embed
       const resultEmbed = this.personalityService.createPersonalityEmbed(
         spiritAnimal,
         userStats,
         targetUser.username
       )
 
-      // Add special fields for server
       resultEmbed.addFields({
-        name: '🍁 Servidor',
-        value: `Análise realizada em **${ctx.guild?.name}**`,
+        name: ctx.locale('cmd.personality.ui.result.server'),
+        value: ctx.locale('cmd.personality.ui.result.server_value', {
+          guild: ctx.guild?.name ?? 'Servidor',
+        }),
         inline: false,
       })
 
-      // Update message with result
       await msg.edit({ embeds: [resultEmbed] })
 
-      // Send to webhook if it's the specific server
-      if (ctx.guild?.id === '1203411439025704970') {
-        // Replace with actual Weed of Warcraft server ID
+      if (process.env.PERSONALITY_WEBHOOK_URL) {
         await this.personalityService.sendAnalysisViaWebhook(
           resultEmbed,
           targetUser.username,
@@ -110,7 +100,6 @@ export default class PersonalityCommand extends Command {
         )
       }
 
-      // Add special reactions based on rarity
       if (spiritAnimal.rarity === 'lendário') {
         await msg.react('🌟')
         await msg.react('🔥')
@@ -122,22 +111,17 @@ export default class PersonalityCommand extends Command {
         await msg.react('💙')
       }
 
-      // Easter egg: Special message for specific combinations
       if (spiritAnimal.name === 'Fênix Elemental' && userStats.activityTime === 'madrugada') {
-        await ctx.sendFollowUp(
-          '🔥 **Segredo Descoberto!** A Fênix noturna é especialmente poderosa! Você desbloqueou uma conquista secreta.'
-        )
+        await ctx.sendFollowUp(ctx.locale('cmd.personality.ui.easter_egg.phoenix_night'))
       }
     } catch (error: unknown) {
-      console.error('Personality Analysis Error:', error)
+      this.client.logger.error('Personality analysis error:', error)
 
       const errorEmbed = new EmbedBuilder()
         .setColor(client.config.color.red)
-        .setTitle('❌ Erro na Análise')
-        .setDescription(
-          'O Oráculo teve dificuldades em ler sua essência. Tente novamente mais tarde.'
-        )
-        .setFooter({ text: 'Weed Of Warcraft' })
+        .setTitle(ctx.locale('cmd.personality.ui.error.title'))
+        .setDescription(ctx.locale('cmd.personality.ui.error.description'))
+        .setFooter({ text: ctx.locale('cmd.personality.ui.error.footer') })
 
       await msg.edit({ embeds: [errorEmbed] })
     }

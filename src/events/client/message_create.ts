@@ -49,6 +49,7 @@ export default class MessageCreate extends Event {
     }
     if (this.client.services.ambientPresence && !isPrefixedCommand) {
       this.client.services.ambientPresence.maybeReactToMessage(message).catch(() => {})
+      this.client.services.ambientPresence.maybeCelebrateActivity(message).catch(() => {})
     }
 
     if ((mahinaMention || botMention) && !isPrefixedCommand) {
