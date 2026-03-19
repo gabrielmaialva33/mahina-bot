@@ -130,18 +130,14 @@ export default class AIJobs extends Command {
     if (!jobService?.isAvailable()) {
       return await ctx.sendMessage({
         embeds: [
-          {
-            title: '❌ Serviço Indisponível',
-            description: 'O serviço de fila de trabalhos não está configurado ou disponível.',
-            color: client.config.color.red,
-            fields: [
-              {
-                name: 'Solução',
-                value:
-                  'Certifique-se de que o Redis e a fila assíncrona estão configurados corretamente.',
-              },
-            ],
-          },
+          new EmbedBuilder()
+            .setTitle('❌ Serviço indisponível')
+            .setDescription('A fila assíncrona não está pronta agora.')
+            .setColor(client.config.color.red)
+            .addFields({
+              name: 'Como destravar',
+              value: 'Confere Redis, `AI_QUEUE_ENABLED` e a inicialização do runtime de IA.',
+            }),
         ],
       })
     }
@@ -271,7 +267,7 @@ export default class AIJobs extends Command {
           { name: 'Prioridade', value: priority.toString(), inline: true },
           { name: 'Status', value: '⏳ Pendente', inline: true }
         )
-        .setFooter({ text: 'Use /aijobs status <id> para acompanhar' })
+        .setFooter({ text: 'Usa /aijobs status <id> para acompanhar' })
         .setTimestamp()
 
       await ctx.editMessage({ embeds: [embed] })
@@ -291,10 +287,9 @@ export default class AIJobs extends Command {
     if (!jobId) {
       return await ctx.sendMessage({
         embeds: [
-          {
-            description: '❌ Por favor, forneça o ID do trabalho!',
-            color: client.config.color.red,
-          },
+          new EmbedBuilder()
+            .setColor(client.config.color.red)
+            .setDescription('❌ Manda o ID do trabalho para eu consultar.'),
         ],
       })
     }
@@ -306,10 +301,9 @@ export default class AIJobs extends Command {
       if (!job) {
         return await ctx.sendMessage({
           embeds: [
-            {
-              description: `❌ Trabalho com ID \`${jobId}\` não encontrado!`,
-              color: client.config.color.red,
-            },
+            new EmbedBuilder()
+              .setColor(client.config.color.red)
+              .setDescription(`❌ Não achei nenhum trabalho com ID \`${jobId}\`.`),
           ],
         })
       }
@@ -361,11 +355,10 @@ export default class AIJobs extends Command {
     } catch (error) {
       await ctx.sendMessage({
         embeds: [
-          {
-            title: '❌ Erro',
-            description: (error as Error).message,
-            color: client.config.color.red,
-          },
+          new EmbedBuilder()
+            .setTitle('❌ Erro')
+            .setDescription((error as Error).message)
+            .setColor(client.config.color.red),
         ],
       })
     }
@@ -457,10 +450,10 @@ export default class AIJobs extends Command {
     const embed = new EmbedBuilder()
       .setTitle('📋 Trabalhos Recentes')
       .setColor(client.config.color.main)
-      .setDescription('Lista de trabalhos processados recentemente')
+      .setDescription('A listagem detalhada ainda vai ficar mais parruda.')
       .addFields({
-        name: 'Em desenvolvimento',
-        value: 'Esta funcionalidade será implementada em breve!',
+        name: 'Status',
+        value: 'Por enquanto o melhor caminho é `/aijobs status <id>` e `/aijobs stats`.',
       })
       .setTimestamp()
 
@@ -473,10 +466,9 @@ export default class AIJobs extends Command {
     if (!jobId) {
       return await ctx.sendMessage({
         embeds: [
-          {
-            description: '❌ Por favor, forneça o ID do trabalho!',
-            color: client.config.color.red,
-          },
+          new EmbedBuilder()
+            .setColor(client.config.color.red)
+            .setDescription('❌ Manda o ID do trabalho que você quer cancelar.'),
         ],
       })
     }
@@ -487,21 +479,19 @@ export default class AIJobs extends Command {
 
       await ctx.sendMessage({
         embeds: [
-          {
-            title: '✅ Trabalho Cancelado',
-            description: `O trabalho \`${jobId}\` foi cancelado com sucesso.`,
-            color: client.config.color.green,
-          },
+          new EmbedBuilder()
+            .setTitle('✅ Trabalho cancelado')
+            .setDescription(`O trabalho \`${jobId}\` foi cancelado.`)
+            .setColor(client.config.color.green),
         ],
       })
     } catch (error) {
       await ctx.sendMessage({
         embeds: [
-          {
-            title: '❌ Erro ao Cancelar',
-            description: (error as Error).message,
-            color: client.config.color.red,
-          },
+          new EmbedBuilder()
+            .setTitle('❌ Erro ao cancelar')
+            .setDescription((error as Error).message)
+            .setColor(client.config.color.red),
         ],
       })
     }
