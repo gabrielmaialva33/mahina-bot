@@ -14,7 +14,7 @@ import type { StreamTrack } from '#common/stream_queue'
 import { env } from '#src/env'
 import { ApplicationCommandOptionType } from 'discord.js'
 
-const youtubedl = create(env.YTDL_BIN_PATH)
+const youtubedl = env.YTDL_BIN_PATH ? create(env.YTDL_BIN_PATH) : create('yt-dlp')
 
 export default class VPlay extends Command {
   constructor(client: MahinaBot) {

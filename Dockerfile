@@ -25,7 +25,7 @@ ENV NODE_ENV=production
 WORKDIR /opt/mahina-bot
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    ca-certificates openssl \
+    ca-certificates openssl python3 python-is-python3 \
     && rm -rf /var/lib/apt/lists/*
 
 COPY --from=build /opt/mahina-bot/package.json ./package.json
