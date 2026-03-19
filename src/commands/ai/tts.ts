@@ -81,7 +81,6 @@ export default class TTSCommand extends Command {
   }
 
   async run(client: MahinaBot, ctx: Context, args: string[]): Promise<void> {
-    // Parse arguments
     let text: string
     let voice: string
     let speed: number
@@ -102,29 +101,32 @@ export default class TTSCommand extends Command {
       ephemeral = false
     }
 
-    // Validate input
     if (!text) {
       return await ctx.sendMessage({
         embeds: [
-          {
-            description: '❌ Por favor, forneça um texto para converter em áudio!',
-            color: client.config.color.red,
-          },
+          this.createEmbed(
+            client,
+            ctx,
+            'red',
+            'cmd.tts.ui.errors.missing_text.title',
+            'cmd.tts.ui.errors.missing_text.description'
+          ),
         ],
         flags: MessageFlags.Ephemeral,
       })
     }
 
-    // Get TTS service
     const ttsService = client.services.nvidiaTTS
     if (!ttsService) {
       return await ctx.sendMessage({
         embeds: [
-          {
-            description:
-              '❌ Serviço TTS não está disponível. Configure NVIDIA_API_KEY no ambiente.',
-            color: client.config.color.red,
-          },
+          this.createEmbed(
+            client,
+            ctx,
+            'red',
+            'cmd.tts.ui.errors.unavailable.title',
+            'cmd.tts.ui.errors.unavailable.description'
+          ),
         ],
         flags: MessageFlags.Ephemeral,
       })
@@ -133,56 +135,65 @@ export default class TTSCommand extends Command {
     if (!ttsService.isAvailable()) {
       return await ctx.sendMessage({
         embeds: [
-          {
-            description:
-              '❌ Serviço TTS não está configurado. Configure NVIDIA_API_KEY no ambiente.',
-            color: client.config.color.red,
-          },
+          this.createEmbed(
+            client,
+            ctx,
+            'red',
+            'cmd.tts.ui.errors.not_configured.title',
+            'cmd.tts.ui.errors.not_configured.description'
+          ),
         ],
         flags: MessageFlags.Ephemeral,
       })
     }
 
-    // Clean and validate text
     const cleanedText = ttsService.cleanTextForTTS(text)
     const validation = ttsService.validateTextLength(cleanedText)
 
     if (!validation.valid) {
       return await ctx.sendMessage({
         embeds: [
-          {
-            description: `❌ ${validation.message}`,
-            color: client.config.color.red,
-          },
+          new EmbedBuilder()
+            .setColor(client.config.color.red)
+            .setTitle(ctx.locale('cmd.tts.ui.errors.invalid_text.title'))
+            .setDescription(validation.message),
         ],
         flags: MessageFlags.Ephemeral,
       })
     }
 
-    // Show loading message
     const loadingEmbed = new EmbedBuilder()
       .setColor(client.config.color.main)
-      .setDescription('🎵 Gerando áudio... Isso pode levar alguns segundos.')
+      .setTitle(ctx.locale('cmd.tts.ui.loading.title'))
+      .setDescription(ctx.locale('cmd.tts.ui.loading.description'))
       .addFields(
         {
-          name: '📝 Texto',
+          name: ctx.locale('cmd.tts.ui.fields.text'),
           value: cleanedText.substring(0, 200) + (cleanedText.length > 200 ? '...' : ''),
           inline: false,
         },
-        { name: '🎤 Voz', value: this.getVoiceName(voice), inline: true },
-        { name: '⚡ Velocidade', value: `${speed}x`, inline: true },
         {
-          name: '🎵 Tom',
-          value: pitch === 0 ? 'Normal' : pitch > 0 ? 'Mais alto' : 'Mais baixo',
+          name: ctx.locale('cmd.tts.ui.fields.voice'),
+          value: this.getVoiceName(voice),
+          inline: true,
+        },
+        { name: ctx.locale('cmd.tts.ui.fields.speed'), value: `${speed}x`, inline: true },
+        {
+          name: ctx.locale('cmd.tts.ui.fields.pitch'),
+          value:
+            pitch === 0
+              ? ctx.locale('cmd.tts.ui.values.pitch.normal')
+              : pitch > 0
+                ? ctx.locale('cmd.tts.ui.values.pitch.higher')
+                : ctx.locale('cmd.tts.ui.values.pitch.lower'),
           inline: true,
         }
       )
-      .setFooter({ text: 'NVIDIA TTS • Powered by Magpie Multilingual' })
+      .setFooter({ text: ctx.locale('cmd.tts.ui.loading.footer') })
 
     const msg = await ctx.sendDeferMessage({ embeds: [loadingEmbed] })
 
     try {
-      // Generate TTS
       const result = await ttsService.textToSpeech(cleanedText, {
         voice,
         language: 'pt-BR',
@@ -193,77 +204,95 @@ export default class TTSCommand extends Command {
       if (!result || !result.audio_data) {
         return await ctx.editMessage({
           embeds: [
-            {
-              title: '❌ Erro na geração de áudio',
-              description: 'Não foi possível gerar o áudio. Tente novamente mais tarde.',
-              color: client.config.color.red,
-            },
+            this.createEmbed(
+              client,
+              ctx,
+              'red',
+              'cmd.tts.ui.errors.generation_failed.title',
+              'cmd.tts.ui.errors.generation_failed.description'
+            ),
           ],
         })
       }
 
-      // Create audio attachment
       const attachment = new AttachmentBuilder(result.audio_data, {
         name: 'tts_audio.wav',
         description: 'Áudio gerado pelo NVIDIA TTS',
       })
 
-      // Create success embed
       const successEmbed = new EmbedBuilder()
         .setColor(client.config.color.green)
-        .setTitle('🎵 Áudio Gerado com Sucesso!')
+        .setTitle(ctx.locale('cmd.tts.ui.success.title'))
         .addFields(
           {
-            name: '📝 Texto Original',
+            name: ctx.locale('cmd.tts.ui.fields.original_text'),
             value: text.substring(0, 500) + (text.length > 500 ? '...' : ''),
             inline: false,
           },
-          { name: '🎤 Voz Utilizada', value: this.getVoiceName(voice), inline: true },
-          { name: '⚡ Velocidade', value: `${speed}x`, inline: true },
           {
-            name: '🎵 Tom',
-            value: pitch === 0 ? 'Normal' : pitch > 0 ? 'Mais alto' : 'Mais baixo',
+            name: ctx.locale('cmd.tts.ui.fields.voice_used'),
+            value: this.getVoiceName(voice),
+            inline: true,
+          },
+          { name: ctx.locale('cmd.tts.ui.fields.speed'), value: `${speed}x`, inline: true },
+          {
+            name: ctx.locale('cmd.tts.ui.fields.pitch'),
+            value:
+              pitch === 0
+                ? ctx.locale('cmd.tts.ui.values.pitch.normal')
+                : pitch > 0
+                  ? ctx.locale('cmd.tts.ui.values.pitch.higher')
+                  : ctx.locale('cmd.tts.ui.values.pitch.lower'),
             inline: true,
           }
         )
         .setFooter({
-          text: `Solicitado por ${ctx.author!.username} • NVIDIA TTS`,
+          text: ctx.locale('cmd.tts.ui.success.footer', { user: ctx.author!.username }),
           iconURL: ctx.author!.avatarURL() || undefined,
         })
         .setTimestamp()
 
       if (result.duration) {
         successEmbed.addFields({
-          name: '⏱️ Duração',
+          name: ctx.locale('cmd.tts.ui.fields.duration'),
           value: `${result.duration.toFixed(1)}s`,
           inline: true,
         })
       }
 
-      // Send response with audio
       await ctx.editMessage({
         embeds: [successEmbed],
         files: [attachment],
       })
     } catch (error) {
-      console.error('TTS Generation Error:', error)
+      client.logger.error('TTS generation error:', error)
       await ctx.editMessage({
         embeds: [
-          {
-            title: '❌ Erro na geração de áudio',
-            description: 'Ocorreu um erro durante a geração do áudio. Tente novamente mais tarde.',
-            fields: [
-              {
-                name: 'Detalhes do erro',
-                value: (error as Error).message || 'Erro desconhecido',
-                inline: false,
-              },
-            ],
-            color: client.config.color.red,
-          },
+          new EmbedBuilder()
+            .setColor(client.config.color.red)
+            .setTitle(ctx.locale('cmd.tts.ui.errors.runtime.title'))
+            .setDescription(ctx.locale('cmd.tts.ui.errors.runtime.description'))
+            .addFields({
+              name: ctx.locale('cmd.tts.ui.errors.runtime.field'),
+              value: (error as Error).message || ctx.locale('cmd.tts.ui.errors.runtime.unknown'),
+              inline: false,
+            }),
         ],
       })
     }
+  }
+
+  private createEmbed(
+    client: MahinaBot,
+    ctx: Context,
+    color: 'red' | 'green' | 'main',
+    titleKey: string,
+    descriptionKey: string
+  ): EmbedBuilder {
+    return new EmbedBuilder()
+      .setColor(client.config.color[color])
+      .setTitle(ctx.locale(titleKey))
+      .setDescription(ctx.locale(descriptionKey))
   }
 
   private getVoiceName(voiceId: string): string {

@@ -92,7 +92,6 @@ export default class VisualizeCommand extends Command {
   }
 
   async run(client: MahinaBot, ctx: Context, args: string[]): Promise<void> {
-    // Parse arguments
     let type: VisualizationType
     let prompt: string
     let style: VisualizationStyle
@@ -116,14 +115,16 @@ export default class VisualizeCommand extends Command {
       imageAttachment = undefined
     }
 
-    // Validate input based on type
     if (type === 'custom' && !prompt) {
       return await ctx.sendMessage({
         embeds: [
-          {
-            description: '❌ Para visualização customizada, você deve fornecer um prompt!',
-            color: client.config.color.red,
-          },
+          this.createEmbed(
+            client,
+            ctx,
+            'red',
+            'cmd.visualize.ui.errors.missing_prompt.title',
+            'cmd.visualize.ui.errors.missing_prompt.description'
+          ),
         ],
         flags: MessageFlags.Ephemeral,
       })
@@ -134,25 +135,30 @@ export default class VisualizeCommand extends Command {
       if (!player?.playing || !player.queue.current) {
         return await ctx.sendMessage({
           embeds: [
-            {
-              description: '❌ Não há música tocando no momento para visualizar!',
-              color: client.config.color.red,
-            },
+            this.createEmbed(
+              client,
+              ctx,
+              'red',
+              'cmd.visualize.ui.errors.no_music.title',
+              'cmd.visualize.ui.errors.no_music.description'
+            ),
           ],
           flags: MessageFlags.Ephemeral,
         })
       }
     }
 
-    // Get Cosmos service
     const cosmosService = client.services.nvidiaCosmos
     if (!cosmosService) {
       return await ctx.sendMessage({
         embeds: [
-          {
-            description: '❌ Serviço de visualização não está disponível.',
-            color: client.config.color.red,
-          },
+          this.createEmbed(
+            client,
+            ctx,
+            'red',
+            'cmd.visualize.ui.errors.unavailable.title',
+            'cmd.visualize.ui.errors.unavailable.description'
+          ),
         ],
         flags: MessageFlags.Ephemeral,
       })
@@ -161,16 +167,18 @@ export default class VisualizeCommand extends Command {
     if (!cosmosService.isAvailable()) {
       return await ctx.sendMessage({
         embeds: [
-          {
-            description: '❌ Serviço Cosmos não está configurado. Configure NVIDIA_API_KEY.',
-            color: client.config.color.red,
-          },
+          this.createEmbed(
+            client,
+            ctx,
+            'red',
+            'cmd.visualize.ui.errors.not_configured.title',
+            'cmd.visualize.ui.errors.not_configured.description'
+          ),
         ],
         flags: MessageFlags.Ephemeral,
       })
     }
 
-    // Process image attachment if provided
     let imageBuffer: Buffer | undefined
     if (imageAttachment) {
       try {
@@ -179,31 +187,48 @@ export default class VisualizeCommand extends Command {
       } catch (error) {
         return await ctx.sendMessage({
           embeds: [
-            {
-              description: '❌ Erro ao processar a imagem anexada.',
-              color: client.config.color.red,
-            },
+            this.createEmbed(
+              client,
+              ctx,
+              'red',
+              'cmd.visualize.ui.errors.invalid_image.title',
+              'cmd.visualize.ui.errors.invalid_image.description'
+            ),
           ],
           flags: MessageFlags.Ephemeral,
         })
       }
     }
 
-    // Show loading message
     const loadingEmbed = new EmbedBuilder()
       .setColor(client.config.color.main)
-      .setDescription(
-        '🎬 Gerando visualização com física realista... Isso pode levar alguns minutos.'
-      )
+      .setTitle(ctx.locale('cmd.visualize.ui.loading.title'))
+      .setDescription(ctx.locale('cmd.visualize.ui.loading.description'))
       .addFields(
-        { name: '🎯 Tipo', value: this.getTypeName(type), inline: true },
-        { name: '🎨 Estilo', value: this.getStyleName(style), inline: true },
-        { name: '🎞️ Frames', value: `${frames} frames`, inline: true }
+        {
+          name: ctx.locale('cmd.visualize.ui.fields.type'),
+          value: this.getTypeName(type),
+          inline: true,
+        },
+        {
+          name: ctx.locale('cmd.visualize.ui.fields.style'),
+          value: this.getStyleName(style),
+          inline: true,
+        },
+        {
+          name: ctx.locale('cmd.visualize.ui.fields.frames'),
+          value: `${frames} frames`,
+          inline: true,
+        }
       )
-      .setFooter({ text: 'NVIDIA Cosmos • Physics-Aware AI' })
+      .setFooter({ text: ctx.locale('cmd.visualize.ui.loading.footer') })
 
     if (type === 'custom' && prompt) {
-      loadingEmbed.addFields({ name: '📝 Prompt', value: prompt.substring(0, 200), inline: false })
+      loadingEmbed.addFields({
+        name: ctx.locale('cmd.visualize.ui.fields.prompt'),
+        value: prompt.substring(0, 200),
+        inline: false,
+      })
     }
 
     await ctx.sendDeferMessage({ embeds: [loadingEmbed] })
@@ -260,35 +285,52 @@ export default class VisualizeCommand extends Command {
         })
       }
 
-      // Create success embed
       const successEmbed = new EmbedBuilder()
         .setColor(client.config.color.green)
-        .setTitle('🎬 Visualização Gerada com Sucesso!')
+        .setTitle(ctx.locale('cmd.visualize.ui.success.title'))
         .addFields(
-          { name: '🎯 Tipo', value: this.getTypeName(type), inline: true },
-          { name: '🎨 Estilo', value: this.getStyleName(style), inline: true },
-          { name: '🎞️ Frames', value: `${frames} frames`, inline: true }
+          {
+            name: ctx.locale('cmd.visualize.ui.fields.type'),
+            value: this.getTypeName(type),
+            inline: true,
+          },
+          {
+            name: ctx.locale('cmd.visualize.ui.fields.style'),
+            value: this.getStyleName(style),
+            inline: true,
+          },
+          {
+            name: ctx.locale('cmd.visualize.ui.fields.frames'),
+            value: `${frames} frames`,
+            inline: true,
+          }
         )
         .setFooter({
-          text: `Solicitado por ${ctx.author!.username} • NVIDIA Cosmos`,
+          text: ctx.locale('cmd.visualize.ui.success.footer', { user: ctx.author!.username }),
           iconURL: ctx.author!.avatarURL() || undefined,
         })
         .setTimestamp()
 
-      // Add metadata if available
       if (result.metadata) {
         successEmbed.addFields(
-          { name: '⏱️ Duração', value: `${result.metadata.duration.toFixed(1)}s`, inline: true },
           {
-            name: '📺 Resolução',
+            name: ctx.locale('cmd.visualize.ui.fields.duration'),
+            value: `${result.metadata.duration.toFixed(1)}s`,
+            inline: true,
+          },
+          {
+            name: ctx.locale('cmd.visualize.ui.fields.resolution'),
             value: `${result.metadata.width}x${result.metadata.height}`,
             inline: true,
           },
-          { name: '🎥 FPS', value: `${result.metadata.fps}`, inline: true }
+          {
+            name: ctx.locale('cmd.visualize.ui.fields.fps'),
+            value: `${result.metadata.fps}`,
+            inline: true,
+          }
         )
       }
 
-      // Handle video data
       let videoAttachment: AttachmentBuilder | undefined
 
       if (result.video_data) {
@@ -299,7 +341,6 @@ export default class VisualizeCommand extends Command {
         })
       }
 
-      // Send response
       const messageOptions: MessageEditOptions = {
         embeds: [successEmbed],
       }
@@ -308,19 +349,18 @@ export default class VisualizeCommand extends Command {
         messageOptions.files = [videoAttachment]
       } else if (result.video_url) {
         successEmbed.addFields({
-          name: '🔗 Video URL',
-          value: `[Clique aqui para baixar](${result.video_url})`,
+          name: ctx.locale('cmd.visualize.ui.fields.download'),
+          value: ctx.locale('cmd.visualize.ui.success.download', { url: result.video_url }),
           inline: false,
         })
       }
 
-      // Add now playing info if applicable
       if (type === 'nowplaying' && ctx.guild) {
         const player = client.manager.getPlayer(ctx.guild.id)
         if (player?.queue.current) {
           successEmbed.addFields({
-            name: '🎵 Música Visualizada',
-            value: `**${player.queue.current.info.title}**\n${player.queue.current.info.author}`,
+            name: ctx.locale('cmd.visualize.ui.fields.track'),
+            value: `${player.queue.current.info.title}\n${player.queue.current.info.author}`,
             inline: false,
           })
         }
@@ -328,24 +368,35 @@ export default class VisualizeCommand extends Command {
 
       await ctx.editMessage(messageOptions)
     } catch (error) {
-      console.error('Cosmos Generation Error:', error)
+      client.logger.error('Cosmos generation error:', error)
       await ctx.editMessage({
         embeds: [
-          {
-            title: '❌ Erro na geração',
-            description: 'Ocorreu um erro durante a geração da visualização.',
-            fields: [
-              {
-                name: 'Detalhes do erro',
-                value: (error as Error).message || 'Erro desconhecido',
-                inline: false,
-              },
-            ],
-            color: client.config.color.red,
-          },
+          new EmbedBuilder()
+            .setColor(client.config.color.red)
+            .setTitle(ctx.locale('cmd.visualize.ui.errors.runtime.title'))
+            .setDescription(ctx.locale('cmd.visualize.ui.errors.runtime.description'))
+            .addFields({
+              name: ctx.locale('cmd.visualize.ui.errors.runtime.field'),
+              value:
+                (error as Error).message || ctx.locale('cmd.visualize.ui.errors.runtime.unknown'),
+              inline: false,
+            }),
         ],
       })
     }
+  }
+
+  private createEmbed(
+    client: MahinaBot,
+    ctx: Context,
+    color: 'red' | 'green' | 'main',
+    titleKey: string,
+    descriptionKey: string
+  ): EmbedBuilder {
+    return new EmbedBuilder()
+      .setColor(client.config.color[color])
+      .setTitle(ctx.locale(titleKey))
+      .setDescription(ctx.locale(descriptionKey))
   }
 
   private getTypeName(type: string): string {
