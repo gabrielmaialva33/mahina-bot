@@ -21,6 +21,7 @@ export interface StreamTrack {
   error?: string
   seekTo?: number
   playbackStartedAt?: number
+  resumeAttempts?: number
 }
 
 export default class StreamQueue extends EventEmitter {

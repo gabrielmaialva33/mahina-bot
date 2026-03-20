@@ -958,11 +958,22 @@
     },
     "vplay": {
       "description": "Play a video stream",
+      "options": {
+        "url": "The video URL you want to play"
+      },
       "errors": {
-        "no_query": "Please provide a video URL or search query",
-        "not_in_voice": "You need to be in a voice channel",
-        "not_supported": "Video streaming is not supported yet"
-      }
+        "no_url": "Please provide a video URL.",
+        "invalid_url": "Please provide a valid video URL.",
+        "download_failed": "An error occurred while downloading the video.",
+        "general_error": "An error occurred while trying to play the video."
+      },
+      "info_fetching": "Fetching video info...",
+      "downloading": "Downloading video, please wait...",
+      "progress": "Progress: {percentage}% | Speed: {speed} | Size: {size}",
+      "download_complete": "Download complete! Preparing to play...",
+      "loading": "Loading...",
+      "cleanup": "Cleaning up...",
+      "added_to_queue": "Added [{title}]({uri}) to queue. (Position: {position})"
     }
   },
   "event": {

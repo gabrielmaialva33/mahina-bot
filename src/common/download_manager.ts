@@ -128,6 +128,7 @@ export default class DownloadManager extends EventEmitter {
     job.process.kill('SIGTERM')
     job.reject(new Error('Cancelled'))
     this.jobs.delete(downloadId)
+    this.cleanupPartialFiles(job.outputPath)
   }
 
   cancelAll(): void {
@@ -178,6 +179,27 @@ export default class DownloadManager extends EventEmitter {
       size: match[2],
       speed: match[3],
       eta: match[4],
+    }
+  }
+
+  private cleanupPartialFiles(outputTemplate: string): void {
+    const dir = path.dirname(outputTemplate)
+    const baseName = path.basename(outputTemplate).replace('.%(ext)s', '')
+
+    try {
+      const files = fs.readdirSync(dir)
+      for (const file of files) {
+        const name = path.parse(file).name
+        if (name === baseName || name.startsWith(`${baseName}.`)) {
+          const filePath = path.join(dir, file)
+          if (file.endsWith('.part') || file.endsWith('.ytdl')) {
+            fs.unlinkSync(filePath)
+            this.logger.debug(`Cleaned up partial download: ${file}`)
+          }
+        }
+      }
+    } catch {
+      // ignore cleanup errors
     }
   }
 

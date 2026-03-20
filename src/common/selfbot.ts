@@ -322,8 +322,12 @@ export default class SelfBot extends Client {
     return false
   }
 
+  private static readonly MAX_RESUME_ATTEMPTS = 3
+
   private canResume(track: StreamTrack): boolean {
-    return (track.type === 'local' || track.type === 'url') && track.status === 'ready'
+    if (track.type !== 'local' && track.type !== 'url') return false
+    if (track.status !== 'ready') return false
+    return (track.resumeAttempts || 0) < SelfBot.MAX_RESUME_ATTEMPTS
   }
 
   private async resumeFromCrash(
@@ -332,6 +336,8 @@ export default class SelfBot extends Client {
     track: StreamTrack,
     member?: StreamMemberLike
   ): Promise<void> {
+    track.resumeAttempts = (track.resumeAttempts || 0) + 1
+
     const elapsed = track.playbackStartedAt
       ? Math.floor((Date.now() - track.playbackStartedAt) / 1000)
       : 0
@@ -339,7 +345,7 @@ export default class SelfBot extends Client {
     track.seekTo = previousSeek + elapsed
 
     this.mahinaBot.logger.info(
-      `Stream crashed for "${track.title}", resuming from ${track.seekTo}s`
+      `Stream crashed for "${track.title}", resume attempt ${track.resumeAttempts}/${SelfBot.MAX_RESUME_ATTEMPTS} from ${track.seekTo}s`
     )
 
     this.notifyResume(guildId, track)
