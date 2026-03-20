@@ -78,10 +78,14 @@ export default class VPlay extends Command {
     try {
       await ctx.editMessage(ctx.locale('cmd.vplay.info_fetching'))
 
-      const ytdlpFlags = {
+      const ytdlpFlags: Record<string, unknown> = {
         jsRuntimes: 'node',
         extractorArgs: 'youtube:player_client=ios,tv',
         noCheckCertificates: true,
+      }
+
+      if (env.YOUTUBE_COOKIES_PATH && fs.existsSync(env.YOUTUBE_COOKIES_PATH)) {
+        ytdlpFlags.cookies = env.YOUTUBE_COOKIES_PATH
       }
 
       const videoInfo = await youtubedl(query, { dumpJson: true, ...ytdlpFlags })

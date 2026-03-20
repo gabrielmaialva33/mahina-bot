@@ -91,6 +91,7 @@ const envSchema = z.object({
   GENIUS_API: z.string().optional(),
   SELF_USER_TOKEN: z.string().optional(),
   YTDL_BIN_PATH: z.string().optional().default(''),
+  YOUTUBE_COOKIES_PATH: z.string().optional().default(''),
   PORT: z
     .string()
     .default('3050')
