@@ -513,6 +513,22 @@
         "footer": "Use {{prefix}}mplay <number> to play a stream"
       }
     },
+    "mseek": {
+      "description": "Seek to a timestamp in the video/movie",
+      "options": {
+        "timestamp": "Time to seek to (e.g. 1:30:00, 42:15, 90)"
+      },
+      "errors": {
+        "no_track": "There's no video playing.",
+        "not_seekable": "Seek only works for movies and local files.",
+        "invalid_format": "Invalid format. Use `MM:SS`, `HH:MM:SS` or seconds.",
+        "exceeds_duration": "The time exceeds the video duration.",
+        "seek_failed": "Failed to seek to that timestamp."
+      },
+      "messages": {
+        "seeked": "Seeked to **{time}** in **{title}**"
+      }
+    },
     "mstop": {
       "description": "Stop the current stream",
       "errors": {

@@ -1,5 +1,6 @@
 import type Context from '#common/context'
 import type MahinaBot from '#common/mahina_bot'
+import type StreamQueue from '#common/stream_queue'
 import type { EmbedBuilder } from 'discord.js'
 
 export function ensureStreamRuntime(client: MahinaBot): string | null {
@@ -32,6 +33,22 @@ export async function ensureStreamCommandReady(client: MahinaBot, ctx: Context):
   })
 
   return false
+}
+
+export async function requireStreamQueue(
+  client: MahinaBot,
+  ctx: Context
+): Promise<StreamQueue | null> {
+  if (!ctx.guild || !ctx.member || !ctx.author) return null
+  if (!(await ensureStreamCommandReady(client, ctx))) return null
+
+  const queue = client.selfbot.getQueue(ctx.guild.id)
+  if (!queue?.current) {
+    await ctx.sendMessage(ctx.locale('cmd.mseek.errors.no_track'))
+    return null
+  }
+
+  return queue
 }
 
 export function createStreamStatusEmbed(

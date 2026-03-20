@@ -17,15 +17,19 @@ export interface DownloadProgress {
 interface DownloadJob {
   id: string
   track: StreamTrack
-  process: ChildProcess
+  process?: ChildProcess
   resolve: () => void
   reject: (error: Error) => void
   promise: Promise<void>
   outputPath: string
+  query: string
+  started: boolean
 }
 
 export default class DownloadManager extends EventEmitter {
+  private static readonly MAX_CONCURRENT = 2
   private jobs = new Map<string, DownloadJob>()
+  private activeCount = 0
   private logger: Logger
   private idCounter = 0
 
@@ -39,9 +43,6 @@ export default class DownloadManager extends EventEmitter {
     track.downloadId = id
     track.status = 'downloading'
 
-    const binPath = env.YTDL_BIN_PATH || 'yt-dlp'
-    const args = this.buildArgs(query, outputTemplate)
-
     let jobResolve!: () => void
     let jobReject!: (error: Error) => void
     const promise = new Promise<void>((resolve, reject) => {
@@ -49,61 +50,19 @@ export default class DownloadManager extends EventEmitter {
       jobReject = reject
     })
 
-    const proc = spawn(binPath, args, { stdio: ['ignore', 'pipe', 'pipe'] })
-
     const job: DownloadJob = {
       id,
       track,
-      process: proc,
       resolve: jobResolve,
       reject: jobReject,
       promise,
       outputPath: outputTemplate,
+      query,
+      started: false,
     }
     this.jobs.set(id, job)
 
-    let stderrBuffer = ''
-
-    proc.stderr?.on('data', (chunk: Buffer) => {
-      stderrBuffer += chunk.toString()
-      const lines = stderrBuffer.split('\n')
-      stderrBuffer = lines.pop() || ''
-
-      for (const line of lines) {
-        const progress = this.parseProgress(line)
-        if (progress) {
-          this.emit('progress', id, progress)
-        }
-      }
-    })
-
-    proc.on('close', (code) => {
-      if (code === 0) {
-        track.status = 'ready'
-        const resolvedPath = this.findOutputFile(outputTemplate)
-        if (resolvedPath) {
-          track.resolvedPath = resolvedPath
-        }
-        this.emit('complete', id)
-        jobResolve()
-      } else if (track.status === 'downloading') {
-        const error = new Error(`yt-dlp exited with code ${code}`)
-        track.status = 'error'
-        track.error = error.message
-        this.emit('error', id, error)
-        jobReject(error)
-      }
-      this.jobs.delete(id)
-    })
-
-    proc.on('error', (error) => {
-      track.status = 'error'
-      track.error = error.message
-      this.emit('error', id, error)
-      jobReject(error)
-      this.jobs.delete(id)
-    })
-
+    this.tryStartNext()
     return id
   }
 
@@ -125,10 +84,16 @@ export default class DownloadManager extends EventEmitter {
 
     job.track.status = 'error'
     job.track.error = 'Cancelled'
-    job.process.kill('SIGTERM')
+    if (job.process) {
+      job.process.kill('SIGTERM')
+    }
     job.reject(new Error('Cancelled'))
     this.jobs.delete(downloadId)
-    this.cleanupPartialFiles(job.outputPath)
+    if (job.started) {
+      this.activeCount--
+      this.cleanupPartialFiles(job.outputPath)
+      this.tryStartNext()
+    }
   }
 
   cancelAll(): void {
@@ -141,6 +106,77 @@ export default class DownloadManager extends EventEmitter {
     if (track.downloadId && this.jobs.has(track.downloadId)) {
       this.cancel(track.downloadId)
     }
+  }
+
+  private tryStartNext(): void {
+    if (this.activeCount >= DownloadManager.MAX_CONCURRENT) return
+
+    for (const job of this.jobs.values()) {
+      if (!job.started) {
+        this.spawnJob(job)
+        if (this.activeCount >= DownloadManager.MAX_CONCURRENT) break
+      }
+    }
+  }
+
+  private spawnJob(job: DownloadJob): void {
+    job.started = true
+    this.activeCount++
+
+    const binPath = env.YTDL_BIN_PATH || 'yt-dlp'
+    const args = this.buildArgs(job.query, job.outputPath)
+    const proc = spawn(binPath, args, { stdio: ['ignore', 'pipe', 'pipe'] })
+    job.process = proc
+
+    this.logger.info(`Download started (${this.activeCount}/${DownloadManager.MAX_CONCURRENT}): "${job.track.title}"`)
+
+    let stderrBuffer = ''
+
+    proc.stderr?.on('data', (chunk: Buffer) => {
+      stderrBuffer += chunk.toString()
+      const lines = stderrBuffer.split('\n')
+      stderrBuffer = lines.pop() || ''
+
+      for (const line of lines) {
+        const progress = this.parseProgress(line)
+        if (progress) {
+          this.emit('progress', job.id, progress)
+        }
+      }
+    })
+
+    proc.on('close', (code) => {
+      this.activeCount--
+
+      if (code === 0) {
+        job.track.status = 'ready'
+        const resolvedPath = this.findOutputFile(job.outputPath)
+        if (resolvedPath) {
+          job.track.resolvedPath = resolvedPath
+        }
+        this.emit('complete', job.id)
+        job.resolve()
+      } else if (job.track.status === 'downloading') {
+        const error = new Error(`yt-dlp exited with code ${code}`)
+        job.track.status = 'error'
+        job.track.error = error.message
+        this.emit('error', job.id, error)
+        job.reject(error)
+      }
+
+      this.jobs.delete(job.id)
+      this.tryStartNext()
+    })
+
+    proc.on('error', (error) => {
+      this.activeCount--
+      job.track.status = 'error'
+      job.track.error = error.message
+      this.emit('error', job.id, error)
+      job.reject(error)
+      this.jobs.delete(job.id)
+      this.tryStartNext()
+    })
   }
 
   private buildArgs(query: string, outputTemplate: string): string[] {
@@ -168,7 +204,6 @@ export default class DownloadManager extends EventEmitter {
   }
 
   private parseProgress(line: string): DownloadProgress | null {
-    // [download]  45.2% of  1.23GiB at   12.3MiB/s ETA 00:42
     const match = line.match(
       /\[download\]\s+([\d.]+)%\s+of\s+~?([\d.]+\S+)\s+at\s+([\d.]+\S+)\s+ETA\s+(\S+)/
     )
@@ -204,7 +239,6 @@ export default class DownloadManager extends EventEmitter {
   }
 
   private findOutputFile(outputTemplate: string): string | null {
-    // outputTemplate has %(ext)s, resolve to actual file
     const dir = path.dirname(outputTemplate)
     const baseName = path.basename(outputTemplate).replace('.%(ext)s', '')
 

@@ -17,6 +17,13 @@ import { ApplicationCommandOptionType } from 'discord.js'
 const youtubedl = env.YTDL_BIN_PATH ? create(env.YTDL_BIN_PATH) : create('yt-dlp')
 
 const PROGRESS_EDIT_INTERVAL = 5_000
+const BAR_LENGTH = 14
+
+function progressBar(percent: number): string {
+  const filled = Math.round((percent / 100) * BAR_LENGTH)
+  const empty = BAR_LENGTH - filled
+  return `${'█'.repeat(filled)}${'░'.repeat(empty)}`
+}
 
 export default class VPlay extends Command {
   constructor(client: MahinaBot) {
@@ -181,10 +188,11 @@ export default class VPlay extends Command {
         if (now - lastEdit < PROGRESS_EDIT_INTERVAL) return
         lastEdit = now
 
+        const bar = `\`${progressBar(progress.percent)}\` ${progress.percent.toFixed(1)}% · ${progress.speed} · ETA ${progress.eta}`
         const desc =
           position === 0
-            ? `[${title}](${webpage_url})\n⏳ ${progress.percent.toFixed(1)}% · ${progress.speed} · ETA ${progress.eta}`
-            : `${T(locale, 'cmd.vplay.added_to_queue', { title, uri: webpage_url, position: String(position) })}\n⏳ ${progress.percent.toFixed(1)}% · ${progress.speed} · ETA ${progress.eta}`
+            ? `[${title}](${webpage_url})\n${bar}`
+            : `${T(locale, 'cmd.vplay.added_to_queue', { title, uri: webpage_url, position: String(position) })}\n${bar}`
 
         const embed = client
           .embed()

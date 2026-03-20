@@ -1515,6 +1515,22 @@
         }
       }
     },
+    "mseek": {
+      "description": "⏩ Pula para um timestamp no vídeo/filme",
+      "options": {
+        "timestamp": "⏱️ Tempo para pular (ex: 1:30:00, 42:15, 90)"
+      },
+      "errors": {
+        "no_track": "⚠️ Não há nenhum vídeo tocando.",
+        "not_seekable": "⚠️ Seek só funciona para filmes e arquivos locais.",
+        "invalid_format": "⚠️ Formato inválido. Use `MM:SS`, `HH:MM:SS` ou segundos.",
+        "exceeds_duration": "⚠️ O tempo excede a duração do vídeo.",
+        "seek_failed": "❌ Falha ao pular para o timestamp."
+      },
+      "messages": {
+        "seeked": "⏩ Pulando para **{time}** em **{title}**"
+      }
+    },
     "mskip": {
       "description": "⏭️ Pula o vídeo atual da stream",
       "messages": {

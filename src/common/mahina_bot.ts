@@ -136,7 +136,11 @@ export default class MahinaBot extends Client {
       .catch(console.error)
       .finally(() => this.logger.info('Successfully loaded plugins!'))
 
-    // this.selfbot.start(env.SELF_USER_TOKEN).then(() => this.logger.info('Self bot 1 is ready'))
+    if (this.runtime.selfbot && env.SELF_USER_TOKEN) {
+      this.selfbot.start(env.SELF_USER_TOKEN).then(() => this.logger.info('Selfbot is ready'))
+    } else {
+      this.logger.warn('Selfbot runtime is disabled or SELF_USER_TOKEN not set')
+    }
 
     this.registerInteractionHandlers()
   }

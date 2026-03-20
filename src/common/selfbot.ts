@@ -1,6 +1,6 @@
 import fs from 'node:fs'
 import { Client, StageChannel } from 'discord.js-selfbot-v13'
-import { NewApi, Streamer, Utils } from '@dank074/discord-video-stream'
+import { NewApi, Streamer, Utils, type PrepareStreamOptions } from '@dank074/discord-video-stream'
 import type MahinaBot from '#common/mahina_bot'
 import StreamQueue, { type StreamTrack } from '#common/stream_queue'
 
@@ -149,6 +149,27 @@ export default class SelfBot extends Client {
     return skipped
   }
 
+  async seekTrack(guildId: string, seconds: number, member?: StreamMemberLike): Promise<boolean> {
+    const queue = this.getQueue(guildId)
+    if (!queue?.current) return false
+    if (!this.canResume(queue.current)) return false
+
+    const track = queue.current
+    track.seekTo = seconds
+    track.resumeAttempts = 0
+
+    this.killCurrentProcess(guildId)
+
+    try {
+      await this.joinVoiceIfNeeded(guildId, member)
+      await this.startStream(guildId, queue, track)
+    } catch (error) {
+      this.mahinaBot.logger.error('Seek failed:', error)
+    }
+
+    return true
+  }
+
   async goBack(guildId: string, member?: StreamMemberLike): Promise<StreamTrack | null> {
     const queue = this.getQueue(guildId)
     if (!queue) return null
@@ -285,7 +306,7 @@ export default class SelfBot extends Client {
     const abortController = new AbortController()
     queue.abortController = abortController
 
-    const streamOptions: Record<string, unknown> = {
+    const streamOptions: Partial<PrepareStreamOptions> = {
       width: 1280,
       height: 720,
       frameRate: 30,

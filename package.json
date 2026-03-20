@@ -31,7 +31,9 @@
     "lint": "eslint .",
     "format": "prettier --write .",
     "db:push": "npx prisma db push",
-    "db:migrate": "npx prisma migrate dev --name init"
+    "db:migrate": "npx prisma migrate dev --name init",
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "imports": {
     "#src/*": "./src/*.js",
@@ -82,7 +84,8 @@
     "prisma": "^6.15.0",
     "tslib": "^2.8.1",
     "tsup": "^8.5.0",
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "vitest": "^4.1.0"
   },
   "dependencies": {
     "@dank074/discord-video-stream": "^6.0.0",
