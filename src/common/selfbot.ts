@@ -115,72 +115,23 @@ export default class SelfBot extends Client {
       return
     }
 
-    // Wait for download if still in progress
-    if (track.status === 'downloading') {
-      try {
-        await this.mahinaBot.downloadManager.waitForReady(track)
-      } catch {
-        this.mahinaBot.logger.warn(`Download failed for "${track.title}", skipping`)
-        this.notifyDownloadError(guildId, track)
-        await this.playNext(guildId, member)
-        return
-      }
-    }
-
-    if (track.status === 'error') {
-      this.mahinaBot.logger.warn(`Track "${track.title}" has error, skipping`)
-      this.notifyDownloadError(guildId, track)
-      await this.playNext(guildId, member)
-      return
-    }
+    if (!await this.ensureTrackReady(guildId, track, member)) return
 
     try {
-      // Join voice if not already connected
-      if (member?.voice?.channelId) {
-        await this.streamer.joinVoice(guildId, member.voice.channelId)
-        const channel = member.voice.channel
-        if (channel instanceof StageChannel) {
-          await this.streamer.client.user!.voice!.setSuppressed(false)
-        }
-      }
-
-      this.updateStatus(`🎥 ${track.title} 🍷`)
-
-      const source = track.resolvedPath || track.source
-      const abortController = new AbortController()
-      queue.abortController = abortController
-
-      const { command, output } = NewApi.prepareStream(source, {
-        width: 1280,
-        height: 720,
-        frameRate: 30,
-        videoCodec: Utils.normalizeVideoCodec('H264'),
-      })
-
-      this.playbackCommands.set(guildId, command)
-
-      queue.emit('trackStart', track)
-
-      await NewApi.playStream(output, this.streamer).catch((error) => {
-        if (!abortController.signal.aborted) {
-          this.mahinaBot.logger.error('Error playing stream:', error)
-        }
-        command?.kill('SIGTERM')
-      })
-
-      this.playbackCommands.delete(guildId)
-
-      // If aborted (skip/stop), don't auto-advance — the caller handles it
-      if (abortController.signal.aborted) return
-
-      // Auto-advance to next track
+      await this.joinVoiceIfNeeded(guildId, member)
+      const aborted = await this.startStream(guildId, queue, track)
+      if (aborted) return
       await this.playNext(guildId, member)
     } catch (error) {
       this.mahinaBot.logger.error('Stream play error:', error)
       this.playbackCommands.delete(guildId)
 
-      // Try next track on error
-      await this.playNext(guildId, member)
+      // Auto-resume for local/url tracks (not youtube downloads)
+      if (this.canResume(track)) {
+        await this.resumeFromCrash(guildId, queue, track, member)
+      } else {
+        await this.playNext(guildId, member)
+      }
     }
   }
 
@@ -268,44 +219,164 @@ export default class SelfBot extends Client {
 
     const track = queue.current
 
+    if (!await this.ensureTrackReady(guildId, track, member)) return
+
     try {
-      if (member?.voice?.channelId) {
-        await this.streamer.joinVoice(guildId, member.voice.channelId)
-      }
-
-      this.updateStatus(`🎥 ${track.title} 🍷`)
-
-      const source = track.resolvedPath || track.source
-      const abortController = new AbortController()
-      queue.abortController = abortController
-
-      const { command, output } = NewApi.prepareStream(source, {
-        width: 1280,
-        height: 720,
-        frameRate: 30,
-        videoCodec: Utils.normalizeVideoCodec('H264'),
-      })
-
-      this.playbackCommands.set(guildId, command)
-
-      queue.emit('trackStart', track)
-
-      await NewApi.playStream(output, this.streamer).catch((error) => {
-        if (!abortController.signal.aborted) {
-          this.mahinaBot.logger.error('Error playing stream:', error)
-        }
-        command?.kill('SIGTERM')
-      })
-
-      this.playbackCommands.delete(guildId)
-
-      if (abortController.signal.aborted) return
-
+      await this.joinVoiceIfNeeded(guildId, member)
+      const aborted = await this.startStream(guildId, queue, track)
+      if (aborted) return
       await this.playNext(guildId, member)
     } catch (error) {
       this.mahinaBot.logger.error('Stream play error:', error)
       this.playbackCommands.delete(guildId)
+
+      if (this.canResume(track)) {
+        await this.resumeFromCrash(guildId, queue, track, member)
+      } else {
+        await this.playNext(guildId, member)
+      }
+    }
+  }
+
+  private async ensureTrackReady(
+    guildId: string,
+    track: StreamTrack,
+    member?: StreamMemberLike
+  ): Promise<boolean> {
+    if (track.status === 'downloading') {
+      try {
+        await this.mahinaBot.downloadManager.waitForReady(track)
+      } catch {
+        this.mahinaBot.logger.warn(`Download failed for "${track.title}", skipping`)
+        this.notifyDownloadError(guildId, track)
+        await this.playNext(guildId, member)
+        return false
+      }
+    }
+
+    if (track.status === 'error') {
+      this.mahinaBot.logger.warn(`Track "${track.title}" has error, skipping`)
+      this.notifyDownloadError(guildId, track)
       await this.playNext(guildId, member)
+      return false
+    }
+
+    return true
+  }
+
+  private async joinVoiceIfNeeded(guildId: string, member?: StreamMemberLike): Promise<void> {
+    if (member?.voice?.channelId) {
+      await this.streamer.joinVoice(guildId, member.voice.channelId)
+      const channel = member.voice.channel
+      if (channel instanceof StageChannel) {
+        await this.streamer.client.user!.voice!.setSuppressed(false)
+      }
+    }
+  }
+
+  private async startStream(
+    guildId: string,
+    queue: StreamQueue,
+    track: StreamTrack
+  ): Promise<boolean> {
+    this.updateStatus(`🎥 ${track.title} 🍷`)
+
+    const source = track.resolvedPath || track.source
+    const abortController = new AbortController()
+    queue.abortController = abortController
+
+    const streamOptions: Record<string, unknown> = {
+      width: 1280,
+      height: 720,
+      frameRate: 30,
+      videoCodec: Utils.normalizeVideoCodec('H264'),
+    }
+
+    // Seek support for resuming local/url streams
+    if (track.seekTo && track.seekTo > 0) {
+      streamOptions.customInputOptions = ['-ss', String(track.seekTo)]
+      this.mahinaBot.logger.info(`Resuming "${track.title}" from ${track.seekTo}s`)
+    }
+
+    const { command, output } = NewApi.prepareStream(source, streamOptions)
+
+    this.playbackCommands.set(guildId, command)
+    track.playbackStartedAt = Date.now()
+
+    queue.emit('trackStart', track)
+
+    await NewApi.playStream(output, this.streamer).catch((error) => {
+      if (!abortController.signal.aborted) {
+        this.mahinaBot.logger.error('Error playing stream:', error)
+      }
+      command?.kill('SIGTERM')
+    })
+
+    this.playbackCommands.delete(guildId)
+
+    if (abortController.signal.aborted) return true
+
+    // Reset seek state on natural completion
+    track.seekTo = undefined
+    track.playbackStartedAt = undefined
+    return false
+  }
+
+  private canResume(track: StreamTrack): boolean {
+    return (track.type === 'local' || track.type === 'url') && track.status === 'ready'
+  }
+
+  private async resumeFromCrash(
+    guildId: string,
+    queue: StreamQueue,
+    track: StreamTrack,
+    member?: StreamMemberLike
+  ): Promise<void> {
+    const elapsed = track.playbackStartedAt
+      ? Math.floor((Date.now() - track.playbackStartedAt) / 1000)
+      : 0
+    const previousSeek = track.seekTo || 0
+    track.seekTo = previousSeek + elapsed
+
+    this.mahinaBot.logger.info(
+      `Stream crashed for "${track.title}", resuming from ${track.seekTo}s`
+    )
+
+    this.notifyResume(guildId, track)
+
+    try {
+      await this.joinVoiceIfNeeded(guildId, member)
+      const aborted = await this.startStream(guildId, queue, track)
+      if (aborted) return
+      await this.playNext(guildId, member)
+    } catch (error) {
+      this.mahinaBot.logger.error('Resume also failed, advancing:', error)
+      this.playbackCommands.delete(guildId)
+      await this.playNext(guildId, member)
+    }
+  }
+
+  private notifyResume(guildId: string, track: StreamTrack): void {
+    const queue = this.getQueue(guildId)
+    if (!queue?.textChannelId) return
+
+    const channel = this.mahinaBot.channels.cache.get(queue.textChannelId)
+    if (channel?.isTextBased()) {
+      const mins = Math.floor((track.seekTo || 0) / 60)
+      const secs = (track.seekTo || 0) % 60
+      channel
+        .send({
+          embeds: [
+            this.mahinaBot
+              .embed()
+              .setColor(this.mahinaBot.color.yellow)
+              .setDescription(
+                `🔄 Stream caiu, retomando **${track.title}** de ${mins}:${String(secs).padStart(2, '0')}`
+              )
+              .setTimestamp(),
+          ],
+        })
+        .catch(() => {})
     }
   }
 

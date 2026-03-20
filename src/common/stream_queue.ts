@@ -19,6 +19,8 @@ export interface StreamTrack {
   status: StreamTrackStatus
   downloadId?: string
   error?: string
+  seekTo?: number
+  playbackStartedAt?: number
 }
 
 export default class StreamQueue extends EventEmitter {
