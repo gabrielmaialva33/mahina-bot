@@ -17,15 +17,33 @@ services:
       retries: 5
       start_period: 10s
 
-  lavalink:
-    image: ghcr.io/lavalink-devs/lavalink:4.2.2
+  yt-cipher:
+    image: ghcr.io/kikkia/yt-cipher:master
     restart: unless-stopped
+    environment:
+      - OVERRIDE_PLAYER_VARIANT=IAS
+      - API_TOKEN=${YT_CIPHER_PASSWORD:-mahina-cipher-secret}
+
+  lavalink:
+    build:
+      context: .
+      dockerfile: Dockerfile.lavalink
+    restart: unless-stopped
+    depends_on:
+      - yt-cipher
     environment:
       SERVER_PORT: 2333
       _JAVA_OPTIONS: -Xmx6G
       LAVALINK_PASSWORD: ${LAVALINK_PASSWORD:-change-me-lavalink-password}
       SPOTIFY_CLIENT_ID: ${SPOTIFY_CLIENT_ID:-}
       SPOTIFY_CLIENT_SECRET: ${SPOTIFY_CLIENT_SECRET:-}
+      YT_OAUTH_ENABLED: ${YT_OAUTH_ENABLED:-false}
+      YT_OAUTH_REFRESH_TOKEN: ${YT_OAUTH_REFRESH_TOKEN:-}
+      YT_OAUTH_SKIP_INIT: ${YT_OAUTH_SKIP_INIT:-true}
+      YT_POT_TOKEN: ${YT_POT_TOKEN:-}
+      YT_POT_VISITOR_DATA: ${YT_POT_VISITOR_DATA:-}
+      YT_CIPHER_URL: http://yt-cipher:8001/
+      YT_CIPHER_PASSWORD: ${YT_CIPHER_PASSWORD:-mahina-cipher-secret}
     volumes:
       - ./application.yml:/opt/Lavalink/application.yml:ro
       - ./lavalink/plugins:/opt/Lavalink/plugins:ro

@@ -25,43 +25,52 @@ plugins:
   youtube:
     enabled: true
     oauth:
-      # setting "enabled: true" is the bare minimum to get OAuth working.
-      enabled: false # IF YOU RUN YOUR LAVALINK CHECK YOUR CONSOLE AND CLICK THE GOOGLE.COM/DEVICES LINK AND THERE IS A CODE THAT YOU NEED TO PUT IN TO THE GOOGLE AND USE A BURNER ACCOUNT OR ALT ACCOUNT THERE IS A POSSIBLE CHANGE YOU CAN GET BANNED FROM GOOGLE OR YOUTUBE SO JUST USE A BURNER ACCOUNT IN CASE.
-
-      # if you have a refresh token, you may set it below (make sure to uncomment the line to apply it).
-      # setting a valid refresh token will skip the OAuth flow entirely. See above note on how to retrieve
-      # your refreshToken.
-      # refreshToken: "paste your refresh token here if applicable"
-
-      # Set this if you don't want the OAuth flow to be triggered, if you intend to supply a refresh token later.
-      # Initialization is skipped automatically if a valid refresh token is supplied. Leave this commented if you're
-      # completing the OAuth flow for the first time/do not have a refresh token.
-      # skipInitialization: true
-    #pot:
-    #  token: "" # THIS REQUIRE INSTALLING https://github.com/iv-org/youtube-trusted-session-generator THIS IS A PYTHON FILE INSTALL THE REQUIREMENTS AND RUN PYTON INDEX FILE AND AFTER RUNNING YOU WILL RECIVE AND TOKEN AND VISTOR DATA AND PASTE IT BELOW.
-    #  visitorData: ""
+      enabled: ${YT_OAUTH_ENABLED:false}
+      refreshToken: '${YT_OAUTH_REFRESH_TOKEN:}'
+      skipInitialization: ${YT_OAUTH_SKIP_INIT:true}
+    pot:
+      token: '${YT_POT_TOKEN:}'
+      visitorData: '${YT_POT_VISITOR_DATA:}'
+    remoteCipher:
+      url: '${YT_CIPHER_URL:}'
+      userAgent: 'MahinaBot'
+      password: '${YT_CIPHER_PASSWORD:}'
     allowSearch: true
     allowDirectVideoIds: true
     allowDirectPlaylistIds: true
     clients:
-      - TV
       - TVHTML5_SIMPLY
-      - WEB
-      - MWEB
+      - TV
       - WEBEMBEDDED
-      - MUSIC
-      - ANDROID_VR
       - ANDROID_MUSIC
       - IOS
+      - WEB
+      - MWEB
+      - MUSIC
     clientOptions:
-      TV: #OAuth2 Client
-        playback: true #Requires sign-in (OAuth2)
+      TVHTML5_SIMPLY:
+        playback: true
+        playlistLoading: false
+        searching: true
+        videoLoading: true
+      TV:
+        playback: true
         playlistLoading: false
         searching: false
         videoLoading: false
-      TVHTML5_SIMPLY:
-        playback: true # No OAuth required
+      WEBEMBEDDED:
+        playback: true
         playlistLoading: false
+        searching: false
+        videoLoading: true
+      ANDROID_MUSIC:
+        playback: true
+        playlistLoading: false
+        searching: true
+        videoLoading: true
+      IOS:
+        playback: true
+        playlistLoading: true
         searching: true
         videoLoading: true
       WEB:
@@ -74,38 +83,16 @@ plugins:
         playlistLoading: true
         searching: true
         videoLoading: true
-      WEBEMBEDDED:
-        playback: true
-        playlistLoading: false
-        searching: false
-        videoLoading: true
       MUSIC:
         playback: false
         playlistLoading: false
         searching: true
         videoLoading: false
-      ANDROID_VR:
-        playback: true
-        playlistLoading: true
-        searching: true
-        videoLoading: true
-      ANDROID_MUSIC:
-        playback: true
-        playlistLoading: false
-        searching: true
-        videoLoading: true
-      IOS:
-        playback: true
-        playlistLoading: true
-        searching: true
-        videoLoading: true
   lavasrc:
-    providers: # Custom providers for track loading. This is the default
-      # - "dzisrc:%ISRC%" # Deezer ISRC provider
-      # - "dzsearch:%QUERY%" # Deezer search provider
-      - 'ytsearch:"%ISRC%"' # Will be ignored if track does not have an ISRC. See https://en.wikipedia.org/wiki/International_Standard_Recording_Code
-      - 'ytsearch:%QUERY%' # Will be used if track has no ISRC or no track could be found for the ISRC
-      #  you can add multiple other fallback sources here
+    providers:
+      - 'ytsearch:"%ISRC%"' # YouTube ISRC lookup (primary)
+      - 'ytsearch:%QUERY%' # YouTube text search (fallback)
+      - 'ytdlpsearch:%QUERY%' # yt-dlp search (final fallback if YouTube plugin fails)
     sources:
       spotify: true # Enable Spotify source
       applemusic: false # Enable Apple Music source
@@ -116,7 +103,7 @@ plugins:
       vkmusic: false # Enable Vk Music source
       tidal: false # Enable Tidal source
       qobuz: false # Enabled qobuz source
-      ytdlp: false # Enable yt-dlp source
+      ytdlp: true # Enable yt-dlp source (fallback when YouTube plugin fails)
     lyrics-sources:
       spotify: true # Enable Spotify lyrics source
       deezer: false # Enable Deezer lyrics source
@@ -179,10 +166,10 @@ plugins:
       #appId : optional (Only pass it when you are using an old userOauthToken)
       #appSecret : optional (Only pass it when you are using an old userOauthToken)
     ytdlp:
-      path: 'yt-dlp' # the path to the yt-dlp executable.
-      searchLimit: 10 # How many search results should be returned
-  #      customLoadArgs: ["-q", "--no-warnings", "--flat-playlist", "--skip-download", "-J"] # Custom arguments to pass to yt-dlp
-  #      customPlaybackArgs: ["-q", "--no-warnings", "-f", "bestaudio", "-J"] # Custom arguments for yt-dlp
+      path: 'yt-dlp'
+      searchLimit: 10
+      customLoadArgs: ["-q", "--no-warnings", "--flat-playlist", "--skip-download", "-J", "--cookies", "/opt/Lavalink/cookies.txt", "--proxy", "socks5://warp-socks:1080"]
+      customPlaybackArgs: ["-q", "--no-warnings", "-f", "bestaudio", "-J", "--cookies", "/opt/Lavalink/cookies.txt", "--proxy", "socks5://warp-socks:1080"]
 lavalink:
   # Plugins are mounted from ./lavalink/plugins. Keeping remote dependency entries here
   # makes Lavalink query Maven registries at startup, which can break boot if a registry
