@@ -89,6 +89,7 @@ export default class MPlay extends Command {
       title: movieName,
       requester: { id: ctx.author.id, username: ctx.author.username },
       deleteAfterPlay: false,
+      status: 'ready',
     }
 
     const position = await client.selfbot.enqueue(ctx.guild.id, ctx.member, track, ctx.channel!.id)

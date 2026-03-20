@@ -279,6 +279,7 @@ export default class MSearch extends Command {
             title: file.name,
             requester: { id: ctx.author!.id, username: ctx.author!.username },
             deleteAfterPlay: false,
+            status: 'ready',
           }
 
           try {

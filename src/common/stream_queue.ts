@@ -3,6 +3,8 @@ import { EventEmitter } from 'node:events'
 export type LoopMode = 'off' | 'track' | 'queue'
 export type StreamTrackType = 'local' | 'youtube' | 'url'
 
+export type StreamTrackStatus = 'ready' | 'downloading' | 'error'
+
 export interface StreamTrack {
   type: StreamTrackType
   source: string
@@ -14,6 +16,9 @@ export interface StreamTrack {
   url?: string
   requester: { id: string; username: string }
   deleteAfterPlay: boolean
+  status: StreamTrackStatus
+  downloadId?: string
+  error?: string
 }
 
 export default class StreamQueue extends EventEmitter {

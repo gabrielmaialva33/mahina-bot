@@ -1,4 +1,3 @@
-import fs from 'node:fs'
 import path from 'node:path'
 
 import { create } from 'youtube-dl-exec'
@@ -10,11 +9,14 @@ import Context from '#common/context'
 import { ensureStreamCommandReady } from '#common/stream_runtime'
 import { T } from '#common/i18n'
 import type { StreamTrack } from '#common/stream_queue'
+import type { DownloadProgress } from '#common/download_manager'
 
 import { env } from '#src/env'
 import { ApplicationCommandOptionType } from 'discord.js'
 
 const youtubedl = env.YTDL_BIN_PATH ? create(env.YTDL_BIN_PATH) : create('yt-dlp')
+
+const PROGRESS_EDIT_INTERVAL = 5_000
 
 export default class VPlay extends Command {
   constructor(client: MahinaBot) {
@@ -73,11 +75,9 @@ export default class VPlay extends Command {
       return await ctx.sendMessage(ctx.locale('cmd.vplay.errors.invalid_url'))
     }
 
-    await ctx.sendMessage(ctx.locale('cmd.vplay.loading'))
+    await ctx.sendMessage(ctx.locale('cmd.vplay.info_fetching'))
 
     try {
-      await ctx.editMessage(ctx.locale('cmd.vplay.info_fetching'))
-
       const ytdlpFlags: Record<string, unknown> = {
         jsRuntimes: 'node',
         remoteComponents: 'ejs:github',
@@ -86,35 +86,23 @@ export default class VPlay extends Command {
         cacheDir: path.join(process.cwd(), '.cache', 'yt-dlp'),
       }
 
-      if (env.YOUTUBE_COOKIES_PATH && fs.existsSync(env.YOUTUBE_COOKIES_PATH)) {
+      if (env.YOUTUBE_COOKIES_PATH) {
         ytdlpFlags.cookies = env.YOUTUBE_COOKIES_PATH
       }
 
+      // Step 1: Fetch video info (~3s)
       const videoInfo = await youtubedl(query, { dumpJson: true, ...ytdlpFlags })
       // eslint-disable-next-line @typescript-eslint/naming-convention
       const { title, webpage_url, thumbnail, channel, duration } = videoInfo
 
       const safeTitle = this.sanitizeFilename(title)
       const outputPath = path.join(process.cwd(), 'downloads', `${safeTitle}.%(ext)s`)
-
-      await ctx.editMessage(ctx.locale('cmd.vplay.downloading'))
-      await youtubedl(query, { output: outputPath, ...ytdlpFlags })
-
-      const downloadsPath = path.join(process.cwd(), 'downloads')
-      const files = fs.readdirSync(downloadsPath)
-
-      const matchedFile = files.find((file) => path.parse(file).name === safeTitle)
-      if (!matchedFile) {
-        return await ctx.editMessage(ctx.locale('cmd.vplay.errors.download_failed'))
-      }
-
-      const filePath = path.join(downloadsPath, matchedFile)
       const locale = await client.db.getLanguage(ctx.guild.id)
 
+      // Step 2: Create track with 'downloading' status and enqueue immediately
       const track: StreamTrack = {
         type: 'youtube',
         source: query,
-        resolvedPath: filePath,
         title,
         thumbnail,
         duration: duration ? duration * 1000 : undefined,
@@ -122,6 +110,7 @@ export default class VPlay extends Command {
         url: webpage_url,
         requester: { id: ctx.author.id, username: ctx.author.username },
         deleteAfterPlay: true,
+        status: 'downloading',
       }
 
       const position = await client.selfbot.enqueue(
@@ -131,6 +120,7 @@ export default class VPlay extends Command {
         ctx.channel!.id
       )
 
+      // Step 3: Show queued/playing embed immediately
       if (position === 0) {
         const embed = client
           .embed()
@@ -139,7 +129,7 @@ export default class VPlay extends Command {
             iconURL: client.config.icons['youtube'],
           })
           .setColor(client.color.main)
-          .setDescription(`[${title}](${webpage_url})`)
+          .setDescription(`[${title}](${webpage_url})\n⏳ Download em progresso...`)
           .setFooter({
             text: T(locale, 'player.trackStart.requested_by', { user: ctx.author.username }),
             iconURL: ctx.author.avatarURL() || ctx.author.defaultAvatarURL,
@@ -169,7 +159,7 @@ export default class VPlay extends Command {
               title,
               uri: webpage_url,
               position: String(position),
-            })
+            }) + '\n⏳ Download em progresso...'
           )
           .setFooter({
             text: T(locale, 'player.trackStart.requested_by', { user: ctx.author.username }),
@@ -179,6 +169,74 @@ export default class VPlay extends Command {
 
         await ctx.editMessage({ content: '', embeds: [embed] })
       }
+
+      // Step 4: Start background download
+      const downloadId = client.downloadManager.start(track, query, outputPath)
+
+      // Step 5: Progress updates (throttled)
+      let lastEdit = 0
+      const onProgress = (_id: string, progress: DownloadProgress) => {
+        if (_id !== downloadId) return
+        const now = Date.now()
+        if (now - lastEdit < PROGRESS_EDIT_INTERVAL) return
+        lastEdit = now
+
+        const desc =
+          position === 0
+            ? `[${title}](${webpage_url})\n⏳ ${progress.percent.toFixed(1)}% · ${progress.speed} · ETA ${progress.eta}`
+            : `${T(locale, 'cmd.vplay.added_to_queue', { title, uri: webpage_url, position: String(position) })}\n⏳ ${progress.percent.toFixed(1)}% · ${progress.speed} · ETA ${progress.eta}`
+
+        const embed = client
+          .embed()
+          .setColor(client.color.main)
+          .setDescription(desc)
+          .setTimestamp()
+
+        ctx.editMessage({ content: '', embeds: [embed] }).catch(() => {})
+      }
+
+      const onComplete = (_id: string) => {
+        if (_id !== downloadId) return
+        cleanup()
+
+        const desc =
+          position === 0
+            ? `[${title}](${webpage_url})\n✅ Download completo!`
+            : `${T(locale, 'cmd.vplay.added_to_queue', { title, uri: webpage_url, position: String(position) })}\n✅ Download completo!`
+
+        const embed = client
+          .embed()
+          .setColor(client.color.green)
+          .setDescription(desc)
+          .setTimestamp()
+
+        ctx.editMessage({ content: '', embeds: [embed] }).catch(() => {})
+      }
+
+      const onError = (_id: string, error: Error) => {
+        if (_id !== downloadId) return
+        cleanup()
+
+        if (error.message === 'Cancelled') return
+
+        const embed = client
+          .embed()
+          .setColor(client.color.red)
+          .setDescription(`❌ Download falhou: **${title}**\n${error.message}`)
+          .setTimestamp()
+
+        ctx.editMessage({ content: '', embeds: [embed] }).catch(() => {})
+      }
+
+      const cleanup = () => {
+        client.downloadManager.off('progress', onProgress)
+        client.downloadManager.off('complete', onComplete)
+        client.downloadManager.off('error', onError)
+      }
+
+      client.downloadManager.on('progress', onProgress)
+      client.downloadManager.on('complete', onComplete)
+      client.downloadManager.on('error', onError)
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error)
       this.client.logger.error(`vplay failed for ${query}: ${message}`, error)

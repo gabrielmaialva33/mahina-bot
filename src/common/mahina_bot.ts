@@ -28,6 +28,7 @@ import loadPlugins from '#src/extensions/index'
 import { Utils } from '#utils/utils'
 import { env } from '#src/env'
 import SelfBot from '#common/selfbot'
+import DownloadManager from '#common/download_manager'
 import { AnimeZey } from '#src/platforms/animezey'
 import { NvidiaAIService } from '#src/services/nvidia_ai_service'
 import { ProactiveInteractionService } from '#src/services/proactive_interaction_service'
@@ -87,6 +88,7 @@ export default class MahinaBot extends Client {
   env: typeof env = env
   manager!: MahinaLinkClient
   selfbot: SelfBot
+  downloadManager: DownloadManager
   animezey = new AnimeZey()
   services: BotServices = {}
   aiManager?: AIManager
@@ -102,6 +104,7 @@ export default class MahinaBot extends Client {
       selfbot: env.ENABLE_SELFBOT,
     }
     this.selfbot = new SelfBot(this)
+    this.downloadManager = new DownloadManager(this.logger)
   }
 
   embed(): EmbedBuilder {

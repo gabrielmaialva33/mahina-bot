@@ -115,6 +115,25 @@ export default class SelfBot extends Client {
       return
     }
 
+    // Wait for download if still in progress
+    if (track.status === 'downloading') {
+      try {
+        await this.mahinaBot.downloadManager.waitForReady(track)
+      } catch {
+        this.mahinaBot.logger.warn(`Download failed for "${track.title}", skipping`)
+        this.notifyDownloadError(guildId, track)
+        await this.playNext(guildId, member)
+        return
+      }
+    }
+
+    if (track.status === 'error') {
+      this.mahinaBot.logger.warn(`Track "${track.title}" has error, skipping`)
+      this.notifyDownloadError(guildId, track)
+      await this.playNext(guildId, member)
+      return
+    }
+
     try {
       // Join voice if not already connected
       if (member?.voice?.channelId) {
@@ -169,6 +188,11 @@ export default class SelfBot extends Client {
     const queue = this.getQueue(guildId)
     if (!queue) return null
 
+    // Cancel download if current track is still downloading
+    if (queue.current?.downloadId) {
+      this.mahinaBot.downloadManager.cancelForTrack(queue.current)
+    }
+
     const skipped = queue.skip()
     await this.playNext(guildId, member)
     return skipped
@@ -190,6 +214,14 @@ export default class SelfBot extends Client {
   stopStream(guildId: string): void {
     const queue = this.getQueue(guildId)
     if (queue) {
+      // Cancel all active downloads for this queue
+      for (const track of queue.tracks) {
+        if (track.downloadId) this.mahinaBot.downloadManager.cancelForTrack(track)
+      }
+      if (queue.current?.downloadId) {
+        this.mahinaBot.downloadManager.cancelForTrack(queue.current)
+      }
+
       const previousTrack = queue.current
       queue.stop()
       if (previousTrack && queue.shouldDeleteFile(previousTrack)) {
@@ -274,6 +306,26 @@ export default class SelfBot extends Client {
       this.mahinaBot.logger.error('Stream play error:', error)
       this.playbackCommands.delete(guildId)
       await this.playNext(guildId, member)
+    }
+  }
+
+  private notifyDownloadError(guildId: string, track: StreamTrack): void {
+    const queue = this.getQueue(guildId)
+    if (!queue?.textChannelId) return
+
+    const channel = this.mahinaBot.channels.cache.get(queue.textChannelId)
+    if (channel?.isTextBased()) {
+      channel
+        .send({
+          embeds: [
+            this.mahinaBot
+              .embed()
+              .setColor(this.mahinaBot.color.red)
+              .setDescription(`❌ Download falhou: **${track.title}**\n${track.error || 'Erro desconhecido'}`)
+              .setTimestamp(),
+          ],
+        })
+        .catch(() => {})
     }
   }
 
