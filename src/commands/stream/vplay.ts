@@ -80,8 +80,10 @@ export default class VPlay extends Command {
 
       const ytdlpFlags: Record<string, unknown> = {
         jsRuntimes: 'node',
+        remoteComponents: 'ejs:github',
         extractorArgs: 'youtube:player_client=ios,tv',
         noCheckCertificates: true,
+        cacheDir: path.join(process.cwd(), '.cache', 'yt-dlp'),
       }
 
       if (env.YOUTUBE_COOKIES_PATH && fs.existsSync(env.YOUTUBE_COOKIES_PATH)) {
