@@ -77,7 +77,14 @@ export default class VPlay extends Command {
 
     try {
       await ctx.editMessage(ctx.locale('cmd.vplay.info_fetching'))
-      const videoInfo = await youtubedl(query, { dumpJson: true })
+
+      const ytdlpFlags = {
+        jsRuntimes: 'node',
+        extractorArgs: 'youtube:player_client=ios,tv',
+        noCheckCertificates: true,
+      }
+
+      const videoInfo = await youtubedl(query, { dumpJson: true, ...ytdlpFlags })
       // eslint-disable-next-line @typescript-eslint/naming-convention
       const { title, webpage_url, thumbnail, channel, duration } = videoInfo
 
@@ -85,7 +92,7 @@ export default class VPlay extends Command {
       const outputPath = path.join(process.cwd(), 'downloads', `${safeTitle}.%(ext)s`)
 
       await ctx.editMessage(ctx.locale('cmd.vplay.downloading'))
-      await youtubedl(query, { output: outputPath })
+      await youtubedl(query, { output: outputPath, ...ytdlpFlags })
 
       const downloadsPath = path.join(process.cwd(), 'downloads')
       const files = fs.readdirSync(downloadsPath)
