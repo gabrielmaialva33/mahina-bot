@@ -1,4 +1,24 @@
 services:
+  warp:
+    image: caomingjun/warp
+    container_name: warp-socks
+    restart: unless-stopped
+    environment:
+      - WARP_SLEEP=2
+    cap_add:
+      - NET_ADMIN
+    sysctls:
+      - net.ipv6.conf.all.disable_ipv6=1
+      - net.ipv4.conf.all.src_valid_mark=1
+    volumes:
+      - warp-data:/var/lib/cloudflare-warp
+    healthcheck:
+      test: ['CMD', 'curl', '-f', '--socks5', 'localhost:1080', 'https://cloudflare.com/cdn-cgi/trace']
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 15s
+
   yt-cipher:
     image: ghcr.io/kikkia/yt-cipher:master
     container_name: yt-cipher
@@ -15,9 +35,10 @@ services:
     restart: unless-stopped
     depends_on:
       - yt-cipher
+      - warp
     environment:
       SERVER_PORT: 2333
-      _JAVA_OPTIONS: -Xmx6G
+      _JAVA_OPTIONS: -Xmx6G -DsocksProxyHost=warp-socks -DsocksProxyPort=1080 -Djava.net.preferIPv4Stack=true
       LAVALINK_PASSWORD: ${LAVALINK_PASSWORD:-change-me-lavalink-password}
       SPOTIFY_CLIENT_ID: ${SPOTIFY_CLIENT_ID:-}
       SPOTIFY_CLIENT_SECRET: ${SPOTIFY_CLIENT_SECRET:-}
@@ -52,3 +73,4 @@ services:
 
 volumes:
   lavalink-logs:
+  warp-data:
