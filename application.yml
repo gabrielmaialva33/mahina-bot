@@ -168,8 +168,30 @@ plugins:
     ytdlp:
       path: 'yt-dlp'
       searchLimit: 10
-      customLoadArgs: ["-q", "--no-warnings", "--flat-playlist", "--skip-download", "-J", "--cookies", "/opt/Lavalink/cookies.txt", "--proxy", "socks5://warp-socks:1080"]
-      customPlaybackArgs: ["-q", "--no-warnings", "-f", "bestaudio", "-J", "--cookies", "/opt/Lavalink/cookies.txt", "--proxy", "socks5://warp-socks:1080"]
+      customLoadArgs:
+        [
+          '-q',
+          '--no-warnings',
+          '--flat-playlist',
+          '--skip-download',
+          '-J',
+          '--cookies',
+          '/opt/Lavalink/cookies.txt',
+          '--proxy',
+          'socks5://warp-socks:1080',
+        ]
+      customPlaybackArgs:
+        [
+          '-q',
+          '--no-warnings',
+          '-f',
+          'bestaudio',
+          '-J',
+          '--cookies',
+          '/opt/Lavalink/cookies.txt',
+          '--proxy',
+          'socks5://warp-socks:1080',
+        ]
 lavalink:
   # Plugins are mounted from ./lavalink/plugins. Keeping remote dependency entries here
   # makes Lavalink query Maven registries at startup, which can break boot if a registry
