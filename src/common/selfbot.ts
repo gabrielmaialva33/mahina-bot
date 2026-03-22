@@ -115,7 +115,7 @@ export default class SelfBot extends Client {
       return
     }
 
-    if (!await this.ensureTrackReady(guildId, track, member)) return
+    if (!(await this.ensureTrackReady(guildId, track, member))) return
 
     try {
       await this.joinVoiceIfNeeded(guildId, member)
@@ -240,7 +240,7 @@ export default class SelfBot extends Client {
 
     const track = queue.current
 
-    if (!await this.ensureTrackReady(guildId, track, member)) return
+    if (!(await this.ensureTrackReady(guildId, track, member))) return
 
     try {
       await this.joinVoiceIfNeeded(guildId, member)
@@ -419,7 +419,9 @@ export default class SelfBot extends Client {
             this.mahinaBot
               .embed()
               .setColor(this.mahinaBot.color.red)
-              .setDescription(`❌ Download falhou: **${track.title}**\n${track.error || 'Erro desconhecido'}`)
+              .setDescription(
+                `❌ Download falhou: **${track.title}**\n${track.error || 'Erro desconhecido'}`
+              )
               .setTimestamp(),
           ],
         })

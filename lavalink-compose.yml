@@ -13,7 +13,8 @@ services:
     volumes:
       - warp-data:/var/lib/cloudflare-warp
     healthcheck:
-      test: ['CMD', 'curl', '-f', '--socks5', 'localhost:1080', 'https://cloudflare.com/cdn-cgi/trace']
+      test:
+        ['CMD', 'curl', '-f', '--socks5', 'localhost:1080', 'https://cloudflare.com/cdn-cgi/trace']
       interval: 30s
       timeout: 10s
       retries: 5

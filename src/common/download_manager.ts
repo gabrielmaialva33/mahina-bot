@@ -128,7 +128,9 @@ export default class DownloadManager extends EventEmitter {
     const proc = spawn(binPath, args, { stdio: ['ignore', 'pipe', 'pipe'] })
     job.process = proc
 
-    this.logger.info(`Download started (${this.activeCount}/${DownloadManager.MAX_CONCURRENT}): "${job.track.title}"`)
+    this.logger.info(
+      `Download started (${this.activeCount}/${DownloadManager.MAX_CONCURRENT}): "${job.track.title}"`
+    )
 
     let stderrBuffer = ''
 

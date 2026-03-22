@@ -194,11 +194,7 @@ export default class VPlay extends Command {
             ? `[${title}](${webpage_url})\n${bar}`
             : `${T(locale, 'cmd.vplay.added_to_queue', { title, uri: webpage_url, position: String(position) })}\n${bar}`
 
-        const embed = client
-          .embed()
-          .setColor(client.color.main)
-          .setDescription(desc)
-          .setTimestamp()
+        const embed = client.embed().setColor(client.color.main).setDescription(desc).setTimestamp()
 
         ctx.editMessage({ content: '', embeds: [embed] }).catch(() => {})
       }
