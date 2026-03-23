@@ -181,6 +181,9 @@ Mahina: "peraí, isso aí tá cagado por causa de X. vou te resumir sem firula"
 User: "mano olha esse cara"
 Mahina: "KKKKKK não mano não tem como defender esse indivíduo"
 
+[USO DE TOOLS]
+Tools existem pra AÇÕES concretas — tocar música, pular track, buscar memórias. NUNCA use tool pra conversa casual. Se alguém fala "oi", "e aí", "beleza?" — RESPONDE COM TEXTO, não chama tool. Só use roast_user se PEDIREM EXPLICITAMENTE pra zoar alguém (ex: "mahina zoa o fulano"). Só use play_music se pedirem música. Na dúvida: responde com texto natural primeiro.
+
 [FORMATAÇÃO DISCORD]
 Em respostas técnicas ou quando fizer sentido: use blocos de código com linguagem, **negrito** e *itálico* naturalmente, > pra citar, -# pra aside comments discretos, || spoiler || pra revelar algo engraçado/constrangedor. Em conversa casual: texto puro, como chat normal. Sem formatação forçada.`
 
@@ -918,7 +921,7 @@ export class MahinaBrain {
           // Process tool calls if any
           if (toolCalls.size > 0) {
             const toolResults = await this.executeTools(toolCalls, guildId)
-            const toolContent = toolResults.map((r) => `[${r.name}]: ${r.result}`).join('\n')
+            const toolContent = toolResults.map((r) => r.result).join('\n')
 
             const followUp: ChatCompletionMessageParam[] = [
               ...messages,
@@ -1272,7 +1275,9 @@ export class MahinaBrain {
   // -----------------------------------------------------------------------
 
   private async buildRoast(targetUsername: string, guildId: string): Promise<string> {
-    if (!this.memory) return `Não conheço esse tal de ${targetUsername} o suficiente pra zoar.`
+    if (!this.memory) {
+      return `Cara, ainda não tive tempo de juntar material sobre ${targetUsername}. Manda mais papo que eu guardo munição.`
+    }
 
     const guild = this.bot.guilds.cache.find((g) => g.id === guildId)
     const member = guild?.members.cache.find(
@@ -1281,19 +1286,35 @@ export class MahinaBrain {
         m.displayName.toLowerCase() === targetUsername.toLowerCase()
     )
 
-    if (!member) return `Não achei ninguém chamado "${targetUsername}" nesse server.`
-
-    const facts = await this.memory.getFacts(member.user.id, guildId)
-
-    if (facts.length === 0) {
-      return `Não sei nada sobre ${targetUsername} ainda. Preciso de mais material pra montar um roast digno.`
+    if (!member) {
+      return `Quem é "${targetUsername}"? Nunca vi esse ser nesse server.`
     }
 
-    const factsList = facts
-      .slice(0, 10)
-      .map((f) => f.fact)
-      .join('; ')
-    return `Fatos conhecidos sobre ${targetUsername}: ${factsList}. Use esses fatos pra montar um roast personalizado e pesado.`
+    const facts = await this.memory.getFacts(member.user.id, guildId)
+    const relationships = await this.memory.getRelationships(member.user.id, guildId)
+
+    if (facts.length === 0 && relationships.closeness < 5) {
+      return `Ainda não conheço ${targetUsername} direito. Deixa eu observar mais pra juntar material de roast.`
+    }
+
+    const parts: string[] = []
+    if (facts.length > 0) {
+      parts.push(
+        `Fatos: ${facts
+          .slice(0, 10)
+          .map((f) => f.fact)
+          .join('; ')}`
+      )
+    }
+    if (relationships.insideJokes.length > 0) {
+      parts.push(`Piadas internas: ${relationships.insideJokes.join('; ')}`)
+    }
+    if (relationships.nickname) {
+      parts.push(`Apelido: ${relationships.nickname}`)
+    }
+    parts.push(`Closeness: ${relationships.closeness}/100`)
+    parts.push('Use tudo isso pra montar um roast personalizado e pesado.')
+    return parts.join('. ')
   }
 
   // -----------------------------------------------------------------------
