@@ -1345,9 +1345,10 @@ export class MahinaBrain {
     try {
       const willContext = await willService?.getPromptContext(message.guildId!, message.channelId)
 
+      const safeContent = message.content.replace(/[`${}\\]/g, '')
       const lurkerPrompt = `Você é Mahina, uma entidade digital sarcástica de um server de Discord. Alguém acabou de mandar essa mensagem no chat:
 
-"${message.content}"
+"${safeContent}"
 
 ${willContext ? `\n${willContext}\n` : ''}
 
