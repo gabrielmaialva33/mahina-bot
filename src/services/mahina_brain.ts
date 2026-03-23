@@ -664,9 +664,23 @@ export class MahinaBrain {
     }
   }
 
-  /** Strip DeepSeek R1 <think> reasoning blocks from output. */
-  private stripThinkTags(text: string): string {
-    return text.replace(/<think>[\s\S]*?<\/think>/g, '').trim()
+  /** Strip reasoning blocks and hallucinated tool calls from LLM output. */
+  private sanitizeOutput(text: string): string {
+    let cleaned = text
+    // Closed <think>...</think> blocks (proper or malformed closing)
+    cleaned = cleaned.replace(/<think>[\s\S]*?<\/think>/g, '')
+    cleaned = cleaned.replace(/<think>[\s\S]*?think>/g, '')
+    // Unclosed <think> block (still streaming or model forgot to close)
+    cleaned = cleaned.replace(/<think>[\s\S]*$/g, '')
+    // Hallucinated tool calls (DeepSeek R1 outputs these as text)
+    cleaned = cleaned.replace(/<file_call>[\s\S]*?(?:<\/file_call>|file_call>)/g, '')
+    cleaned = cleaned.replace(
+      /<(?:tool_call|function_call|tool_use)>[\s\S]*?(?:<\/(?:tool_call|function_call|tool_use)>|(?:tool_call|function_call|tool_use)>)/g,
+      ''
+    )
+    // Unclosed hallucinated blocks
+    cleaned = cleaned.replace(/<(?:file_call|tool_call|function_call|tool_use)>[\s\S]*$/g, '')
+    return cleaned.trim()
   }
 
   // -----------------------------------------------------------------------
@@ -841,13 +855,16 @@ export class MahinaBrain {
           const client = this.resolveClient(providerName)
           logger.debug(`Streaming from ${provider.name} / ${model}`)
 
+          const isReasoningModel = /deepseek-r1|o1-|o3-/i.test(model)
+          const useTools = provider.supportsTools && !isReasoningModel
+
           const stream = await client.chat.completions.create({
             model,
             messages,
-            temperature,
+            temperature: isReasoningModel ? undefined : temperature,
             max_tokens: 500,
             stream: true,
-            tools: provider.supportsTools ? TOOLS : undefined,
+            tools: useTools ? TOOLS : undefined,
           })
 
           let fullContent = ''
@@ -882,16 +899,17 @@ export class MahinaBrain {
 
             if (delta?.content) {
               fullContent += delta.content
+              const sanitized = this.sanitizeOutput(fullContent)
 
-              if (!started && fullContent.length > 0) {
+              if (!started && sanitized.length > 0) {
                 started = true
-                await callbacks.onStart(this.stripThinkTags(fullContent))
+                await callbacks.onStart(sanitized)
                 lastUpdate = now
               }
 
               // Debounce edits to respect Discord rate limits
-              if (started && now - lastUpdate > STREAM_DEBOUNCE_MS && fullContent.length > 0) {
-                await callbacks.onUpdate(this.stripThinkTags(fullContent))
+              if (started && now - lastUpdate > STREAM_DEBOUNCE_MS && sanitized.length > 0) {
+                await callbacks.onUpdate(sanitized)
                 lastUpdate = now
               }
             }
@@ -931,7 +949,7 @@ export class MahinaBrain {
             fullContent = followUpResponse.choices[0]?.message?.content || toolContent
           }
 
-          fullContent = this.stripThinkTags(fullContent)
+          fullContent = this.sanitizeOutput(fullContent)
 
           if (fullContent) {
             this.recordProviderSuccess(providerName)
@@ -972,13 +990,16 @@ export class MahinaBrain {
           const client = this.resolveClient(providerName)
           logger.debug(`Trying ${provider.name} / ${model}`)
 
+          const isReasoningModel = /deepseek-r1|o1-|o3-/i.test(model)
+          const useTools = provider.supportsTools && !isReasoningModel
+
           const completion = await client.chat.completions.create({
             model,
             messages,
-            temperature,
+            temperature: isReasoningModel ? undefined : temperature,
             max_tokens: 500,
             stream: false,
-            tools: provider.supportsTools ? TOOLS : undefined,
+            tools: useTools ? TOOLS : undefined,
           })
 
           const choice = completion.choices[0]
@@ -1009,14 +1030,14 @@ export class MahinaBrain {
               stream: false,
             })
 
-            const content = this.stripThinkTags(followUpResponse.choices[0]?.message?.content ?? '')
+            const content = this.sanitizeOutput(followUpResponse.choices[0]?.message?.content ?? '')
             if (content) {
               this.recordProviderSuccess(providerName)
               return content
             }
           }
 
-          const content = this.stripThinkTags(choice?.message?.content ?? '')
+          const content = this.sanitizeOutput(choice?.message?.content ?? '')
           if (content) {
             this.recordProviderSuccess(providerName)
             return content
@@ -1340,7 +1361,7 @@ Mande UMA observação curta, espirituosa e debochada como se você tivesse vend
         stream: false,
       })
 
-      const response = this.stripThinkTags(completion.choices[0]?.message?.content ?? '')
+      const response = this.sanitizeOutput(completion.choices[0]?.message?.content ?? '')
 
       if (response && response.length > 3) {
         this.lurkerCooldown.set(channelId, now)
