@@ -13,6 +13,7 @@ import {
   getMemberVoiceChannel,
   startPlayerIfIdle,
 } from '#common/player_runtime'
+import { sanitizeQuery } from '#utils/functions/query'
 
 const AUTOCOMPLETE_TIMEOUT_MS = 2500
 
@@ -89,7 +90,7 @@ export default class Play extends Command {
   }
 
   async run(client: MahinaBot, ctx: Context, args: string[]): Promise<void> {
-    const query = args.join(' ')
+    const query = sanitizeQuery(args.join(' '))
     await ctx.sendDeferMessage(ctx.locale('cmd.play.loading'))
     const memberVoiceChannel = getMemberVoiceChannel(ctx.member)
     if (!memberVoiceChannel) return
@@ -147,10 +148,11 @@ export default class Play extends Command {
     }
 
     try {
-      this.client.logger.debug(`Play autocomplete query: ${query}`)
+      const sanitized = sanitizeQuery(query)
+      this.client.logger.debug(`Play autocomplete query: ${sanitized}`)
 
       const res = (await Promise.race([
-        this.client.manager.search(query, interaction.user),
+        this.client.manager.search(sanitized, interaction.user),
         new Promise<null>((resolve) => {
           setTimeout(() => resolve(null), AUTOCOMPLETE_TIMEOUT_MS)
         }),
@@ -163,7 +165,7 @@ export default class Play extends Command {
 
       if (res.loadType !== 'search') {
         this.client.logger.debug(
-          `Play autocomplete empty/non-search result for query: ${query} (${res.loadType})`
+          `Play autocomplete empty/non-search result for query: ${sanitized} (${res.loadType})`
         )
         return await respondSafely(interaction, [])
       }
@@ -177,7 +179,7 @@ export default class Play extends Command {
       })
 
       this.client.logger.debug(
-        `Play autocomplete returned ${songs.length} option(s) for query: ${query}`
+        `Play autocomplete returned ${songs.length} option(s) for query: ${sanitized}`
       )
       return await respondSafely(interaction, songs)
     } catch (error) {

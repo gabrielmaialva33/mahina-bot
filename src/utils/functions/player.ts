@@ -80,10 +80,14 @@ export async function autoPlayFunction(player: Player, lastTrack?: Track): Promi
     return
   }
   if (lastTrack.info.sourceName === 'youtube' || lastTrack.info.sourceName === 'youtubemusic') {
+    // NOTE: avoid `&list=RD${id}` mix URLs — youtube-source 1.18.0 returns tracks
+    // with null fields inside Mix/Radio playlists, which crash lavaplayer's
+    // DefaultAudioPlayerManager.encodeTrack with NPE on writeUTF(null).
+    const autoplayQuery = `ytsearch:${lastTrack.info.title} ${lastTrack.info.author}`.slice(0, 256)
     const res = await player
       .search(
         {
-          query: `https://www.youtube.com/watch?v=${lastTrack.info.identifier}&list=RD${lastTrack.info.identifier}`,
+          query: autoplayQuery,
           source: 'youtube',
         },
         lastTrack.requester

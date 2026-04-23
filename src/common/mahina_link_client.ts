@@ -7,6 +7,7 @@ import {
 
 import type MahinaBot from '#common/mahina_bot'
 import { autoPlayFunction, requesterTransformer } from '#utils/functions/player'
+import { sanitizeQuery } from '#utils/functions/query'
 
 export default class MahinaLinkClient extends LavalinkManager {
   client: MahinaBot
@@ -56,6 +57,6 @@ export default class MahinaLinkClient extends LavalinkManager {
       return { loadType: 'empty', tracks: [], playlist: null } as unknown as SearchResult
     }
     const node = nodes[Math.floor(Math.random() * nodes.length)]
-    return await node.search({ query, source }, user, false)
+    return await node.search({ query: sanitizeQuery(query), source }, user, false)
   }
 }
