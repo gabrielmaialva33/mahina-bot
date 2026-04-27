@@ -45,6 +45,7 @@ import { AIQueueService } from '#src/services/ai_queue_service'
 import { ServerLearningService } from '#src/services/server_learning_service'
 import { MahinaWillService } from '#src/services/mahina_will_service'
 import { AmbientPresenceService } from '#src/services/ambient_presence_service'
+import FallenApiService from '#src/services/fallen_api_service'
 import type { MahinaBrain } from '#src/services/mahina_brain'
 import type { Command as CommandInstance } from '#common/command'
 
@@ -66,6 +67,7 @@ interface BotServices {
   nvidiaEmbedding?: NvidiaEmbeddingService
   nvidiaCosmos?: NvidiaCosmosService
   nvidiaGuard?: NvidiaGuardService
+  fallenApi?: FallenApiService
 }
 
 interface RuntimeFeatures {
@@ -192,6 +194,10 @@ export default class MahinaBot extends Client {
 
     if (this.runtime.music) {
       this.services.lavalinkHealth = new LavalinkHealthService(this)
+      if (env.FALLEN_API_KEY) {
+        this.services.fallenApi = new FallenApiService(env.FALLEN_API_URL, env.FALLEN_API_KEY)
+        this.logger.info('Fallen API fallback ready')
+      }
     }
   }
 

@@ -65,6 +65,8 @@ const envSchema = z.object({
   REDIS_URL: z.string().optional().default('redis://:change-me-redis-password@127.0.0.1:6380'),
   REDIS_PASSWORD: z.string().default('change-me-redis-password'),
   QDRANT_URL: z.string().optional().default('http://qdrant:6333'),
+  FALLEN_API_KEY: z.string().optional(),
+  FALLEN_API_URL: z.string().optional().default('https://beta.fallenapi.fun'),
   SEARCH_ENGINE: z.preprocess(
     (val) => {
       if (typeof val === 'string') {
