@@ -67,6 +67,7 @@ const envSchema = z.object({
   QDRANT_URL: z.string().optional().default('http://qdrant:6333'),
   FALLEN_API_KEY: z.string().optional(),
   FALLEN_API_URL: z.string().optional().default('https://beta.fallenapi.fun'),
+  GEMINI_MODEL: z.string().default('gemini-3.1-pro-preview'),
   SEARCH_ENGINE: z.preprocess(
     (val) => {
       if (typeof val === 'string') {

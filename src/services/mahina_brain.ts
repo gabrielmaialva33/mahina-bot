@@ -55,6 +55,13 @@ type ToolJsonValue =
 
 type ToolArguments = Record<string, ToolJsonValue>
 
+type NvidiaChatExtraBody = {
+  chat_template_kwargs: {
+    thinking: boolean
+    reasoning_effort?: 'low' | 'medium' | 'high'
+  }
+}
+
 export interface ReflectionSessionMessage {
   userId: string
   userName: string
@@ -427,7 +434,15 @@ export class MahinaBrain {
     if (this.nvidiaKeys.length > 0) {
       this.providers.set('nvidia', {
         client: this.nvidiaKeys[0].client,
-        models: [env.AI_PRIMARY_MODEL, 'deepseek-ai/deepseek-r1'],
+        models: this.uniqueModels([
+          env.AI_PRIMARY_MODEL,
+          'deepseek-ai/deepseek-v4-flash',
+          'deepseek-ai/deepseek-v4-pro',
+          'nvidia/nemotron-3-super-120b-a12b',
+          'z-ai/glm4.7',
+          'minimaxai/minimax-m2.7',
+          'deepseek-ai/deepseek-r1',
+        ]),
         name: 'NVIDIA NIM',
         supportsTools: true,
       })
@@ -454,7 +469,7 @@ export class MahinaBrain {
           apiKey: env.GEMINI_API_KEY,
           baseURL: 'https://generativelanguage.googleapis.com/v1beta/openai/',
         }),
-        models: ['gemini-2.5-flash'],
+        models: [env.GEMINI_MODEL, 'gemini-pro-latest', 'gemini-2.5-flash'],
         name: 'Gemini',
         supportsTools: true,
       })
@@ -474,6 +489,10 @@ export class MahinaBrain {
     logger.info(
       `MahinaBrain: ${this.providerOrder.length} providers [${this.providerOrder.join(', ')}]`
     )
+  }
+
+  private uniqueModels(models: string[]): string[] {
+    return [...new Set(models.filter(Boolean))]
   }
 
   // -----------------------------------------------------------------------
@@ -811,6 +830,47 @@ export class MahinaBrain {
     }
   }
 
+  private isReasoningModel(model: string): boolean {
+    return /deepseek-r1|deepseek-v4-flash|qwen3-next-80b-a3b-thinking|kimi-k2-thinking|o1-|o3-/i.test(
+      model
+    )
+  }
+
+  private getNvidiaChatExtraBody(
+    model: string,
+    route: CognitiveRoute
+  ): NvidiaChatExtraBody | undefined {
+    if (/deepseek-ai\/deepseek-v4-flash/i.test(model)) {
+      return {
+        chat_template_kwargs: {
+          thinking: true,
+          reasoning_effort:
+            route.label === 'reasoning' || route.label === 'technical' ? 'high' : 'medium',
+        },
+      }
+    }
+
+    if (/deepseek-ai\/deepseek-v4-pro/i.test(model)) {
+      return {
+        chat_template_kwargs: {
+          thinking: false,
+        },
+      }
+    }
+
+    return undefined
+  }
+
+  private buildChatExtra(
+    providerName: string,
+    model: string,
+    route: CognitiveRoute
+  ): Record<string, unknown> {
+    const extraBody =
+      providerName === 'nvidia' ? this.getNvidiaChatExtraBody(model, route) : undefined
+    return extraBody ? { extra_body: extraBody } : {}
+  }
+
   /** Strip reasoning blocks and hallucinated tool calls from LLM output. */
   private sanitizeOutput(text: string): string {
     let cleaned = text
@@ -861,6 +921,9 @@ export class MahinaBrain {
     )
     parts.push(
       'Use o estado runtime do server como fonte de verdade para presença, voz, player e canal atual. Se o usuário citar um canal de voz existente, não trate automaticamente como o canal de texto só porque a mensagem veio do chat.'
+    )
+    parts.push(
+      'Leve em conta eventos recentes do servidor: entrada/saída de voice, mudanças de canal, músicas iniciadas/encerradas, canais criados/apagados e atividade recente de chat. Isso é memória operacional curta, não opinião.'
     )
 
     parts.push(
@@ -1067,7 +1130,7 @@ export class MahinaBrain {
           const client = this.resolveClient(providerName)
           logger.debug(`Streaming ${route.label} route from ${provider.name} / ${model}`)
 
-          const isReasoningModel = /deepseek-r1|o1-|o3-/i.test(model)
+          const isReasoningModel = this.isReasoningModel(model)
           const useTools = route.useTools && provider.supportsTools && !isReasoningModel
 
           const stream = await client.chat.completions.create({
@@ -1077,6 +1140,7 @@ export class MahinaBrain {
             max_tokens: route.maxTokens,
             stream: true,
             tools: useTools ? TOOLS : undefined,
+            ...this.buildChatExtra(providerName, model, route),
           })
 
           let fullContent = ''
@@ -1097,7 +1161,7 @@ export class MahinaBrain {
             }
             lastChunkTime = now
 
-            const delta = chunk.choices[0]?.delta
+            const delta = chunk.choices?.[0]?.delta
 
             if (delta?.tool_calls) {
               for (const tc of delta.tool_calls) {
@@ -1156,6 +1220,7 @@ export class MahinaBrain {
               temperature: route.temperature,
               max_tokens: Math.min(420, route.maxTokens),
               stream: false,
+              ...this.buildChatExtra(providerName, model, route),
             })
 
             fullContent = followUpResponse.choices[0]?.message?.content || toolContent
@@ -1202,7 +1267,7 @@ export class MahinaBrain {
           const client = this.resolveClient(providerName)
           logger.debug(`Trying ${route.label} route on ${provider.name} / ${model}`)
 
-          const isReasoningModel = /deepseek-r1|o1-|o3-/i.test(model)
+          const isReasoningModel = this.isReasoningModel(model)
           const useTools = route.useTools && provider.supportsTools && !isReasoningModel
 
           const completion = await client.chat.completions.create({
@@ -1212,6 +1277,7 @@ export class MahinaBrain {
             max_tokens: route.maxTokens,
             stream: false,
             tools: useTools ? TOOLS : undefined,
+            ...this.buildChatExtra(providerName, model, route),
           })
 
           const choice = completion.choices[0]
@@ -1251,6 +1317,7 @@ export class MahinaBrain {
               temperature: route.temperature,
               max_tokens: Math.min(420, route.maxTokens),
               stream: false,
+              ...this.buildChatExtra(providerName, model, route),
             })
 
             const content = this.sanitizeOutput(followUpResponse.choices[0]?.message?.content ?? '')
