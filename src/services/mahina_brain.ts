@@ -1,14 +1,13 @@
-import { randomUUID } from 'node:crypto'
 import OpenAI from 'openai'
 import type {
   ChatCompletionTool,
   ChatCompletionMessageParam,
 } from 'openai/resources/chat/completions'
-import { QdrantClient } from '@qdrant/js-client-rest'
 import { logger } from '#common/logger'
 import type MahinaBot from '#common/mahina_bot'
 import { env } from '#src/env'
 import type { AIMemoryService, UserFact, UserRelationships } from './ai_memory_service.js'
+import { MahinaMemoryController, type MahinaMemoryType } from './mahina_memory_controller.js'
 import type { Message } from 'discord.js'
 
 // ---------------------------------------------------------------------------
@@ -51,15 +50,6 @@ type ToolJsonValue =
   | { [key: string]: ToolJsonValue }
 
 type ToolArguments = Record<string, ToolJsonValue>
-
-interface MemoryPointPayload {
-  text?: string
-  userId?: string
-  guildId?: string
-  timestamp?: number
-  type?: string
-  [key: string]: ToolJsonValue | undefined
-}
 
 interface ProviderHealthEntry {
   failures: number
@@ -321,13 +311,6 @@ const TOOLS: ChatCompletionTool[] = [
 ]
 
 // ---------------------------------------------------------------------------
-// Qdrant RAG configuration
-// ---------------------------------------------------------------------------
-
-const QDRANT_COLLECTION = 'mahina_memories'
-const EMBEDDING_DIMENSIONS = 1024
-
-// ---------------------------------------------------------------------------
 // Constants
 // ---------------------------------------------------------------------------
 
@@ -360,9 +343,8 @@ export class MahinaBrain {
   private providerHealth: Map<string, ProviderHealthEntry> = new Map()
   private bot: MahinaBot
   private memory?: AIMemoryService
+  private memoryController: MahinaMemoryController
   private rateLimiter: Map<string, number[]> = new Map()
-  private qdrant?: QdrantClient
-  private qdrantReady = false
 
   // NVIDIA key round-robin state
   private nvidiaKeys: NvidiaKeyState[] = []
@@ -374,8 +356,8 @@ export class MahinaBrain {
   constructor(bot: MahinaBot) {
     this.bot = bot
     this.memory = bot.services.aiMemory
+    this.memoryController = new MahinaMemoryController(bot)
     this.setupProviders()
-    this.setupQdrant()
   }
 
   // -----------------------------------------------------------------------
@@ -524,55 +506,29 @@ export class MahinaBrain {
   }
 
   // -----------------------------------------------------------------------
-  // Qdrant RAG setup
+  // Semantic memory
   // -----------------------------------------------------------------------
 
-  private async setupQdrant(): Promise<void> {
-    try {
-      this.qdrant = new QdrantClient({ url: env.QDRANT_URL, checkCompatibility: false })
-
-      const collections = await this.qdrant.getCollections()
-      const exists = collections.collections.some((c) => c.name === QDRANT_COLLECTION)
-
-      if (!exists) {
-        await this.qdrant.createCollection(QDRANT_COLLECTION, {
-          vectors: { size: EMBEDDING_DIMENSIONS, distance: 'Cosine' },
-        })
-        logger.info(`Qdrant: created collection "${QDRANT_COLLECTION}"`)
-      }
-
-      this.qdrantReady = true
-      logger.info('Qdrant: connected and ready for RAG')
-    } catch {
-      logger.warn('Qdrant: not available, RAG disabled')
-      this.qdrantReady = false
-    }
-  }
-
-  private async storeEmbedding(
+  private async storeMemory(
     text: string,
     userId: string,
     guildId: string,
-    metadata: Record<string, ToolJsonValue> = {}
+    metadata: Record<string, ToolJsonValue> = {},
+    type: MahinaMemoryType = 'utterance'
   ): Promise<void> {
-    if (!this.qdrantReady || !this.bot.services.nvidiaEmbedding) return
-
-    try {
-      const embedding = await this.bot.services.nvidiaEmbedding.getEmbedding(text)
-      if (!embedding) return
-
-      await this.qdrant!.upsert(QDRANT_COLLECTION, {
-        points: [
-          {
-            id: randomUUID(),
-            vector: embedding,
-            payload: { text, userId, guildId, timestamp: Date.now(), ...metadata },
-          },
-        ],
-      })
-    } catch {
-      logger.debug('Qdrant store failed (non-critical)')
-    }
+    await this.memoryController.store({
+      text,
+      userId,
+      guildId,
+      type,
+      scope: type === 'social' ? 'guild' : 'personal',
+      topics: Array.isArray(metadata.topics)
+        ? metadata.topics.filter((topic): topic is string => typeof topic === 'string')
+        : undefined,
+      importance: typeof metadata.importance === 'number' ? metadata.importance : undefined,
+      confidence: typeof metadata.confidence === 'number' ? metadata.confidence : undefined,
+      metadata,
+    })
   }
 
   private async searchMemories(
@@ -581,54 +537,29 @@ export class MahinaBrain {
     guildId: string,
     limit: number = 5
   ): Promise<string[]> {
-    if (!this.qdrantReady || !this.bot.services.nvidiaEmbedding) return []
+    const memories = await this.memoryController.search({
+      query,
+      userId,
+      guildId,
+      scopes: ['personal'],
+      limit,
+      minScore: 0.62,
+    })
 
-    try {
-      const embedding = await this.bot.services.nvidiaEmbedding.getEmbedding(query)
-      if (!embedding) return []
-
-      const results = await this.qdrant!.query(QDRANT_COLLECTION, {
-        query: embedding,
-        limit,
-        filter: {
-          must: [
-            { key: 'userId', match: { value: userId } },
-            { key: 'guildId', match: { value: guildId } },
-          ],
-        },
-      })
-
-      return results.points
-        .filter((p) => p.score && p.score > 0.7)
-        .map((p) => this.extractPayloadText(p.payload))
-        .filter(Boolean)
-    } catch {
-      logger.debug('Qdrant search failed (non-critical)')
-      return []
-    }
+    return this.memoryController.formatForPrompt(memories)
   }
 
   /** Search Qdrant globally for a guild (no user filter). */
   private async searchMemoriesGlobal(query: string, guildId: string): Promise<string[]> {
-    if (!this.qdrantReady || !this.bot.services.nvidiaEmbedding) return []
+    const memories = await this.memoryController.search({
+      query,
+      guildId,
+      scopes: ['guild', 'channel'],
+      limit: 8,
+      minScore: 0.58,
+    })
 
-    try {
-      const embedding = await this.bot.services.nvidiaEmbedding.getEmbedding(query)
-      if (!embedding) return []
-
-      const results = await this.qdrant!.query(QDRANT_COLLECTION, {
-        query: embedding,
-        limit: 8,
-        filter: { must: [{ key: 'guildId', match: { value: guildId } }] },
-      })
-
-      return results.points
-        .filter((p) => p.score && p.score > 0.65)
-        .map((p) => this.extractPayloadText(p.payload))
-        .filter(Boolean)
-    } catch {
-      return []
-    }
+    return this.memoryController.formatForPrompt(memories)
   }
 
   // -----------------------------------------------------------------------
@@ -658,15 +589,6 @@ export class MahinaBrain {
 
   private getErrorMessage(): string {
     return ERROR_MESSAGES[Math.floor(Math.random() * ERROR_MESSAGES.length)]
-  }
-
-  private extractPayloadText(payload: unknown): string {
-    if (!payload || typeof payload !== 'object') {
-      return ''
-    }
-
-    const text = (payload as MemoryPointPayload).text
-    return typeof text === 'string' ? text : ''
   }
 
   private getErrorMessageFromUnknown(error: unknown): string {
@@ -1077,16 +999,26 @@ export class MahinaBrain {
       }
     }
 
-    this.storeEmbedding(`${userName}: ${lastUserMsg}`, userId, guildId, {
+    this.storeMemory(`${userName}: ${lastUserMsg}`, userId, guildId, {
       type: 'user',
       mode: cognitiveProfile.mode,
       intent: cognitiveProfile.intent ?? null,
       emotion: cognitiveProfile.emotion ?? null,
+      topics: cognitiveProfile.topics,
+      importance: cognitiveProfile.mode === 'casual' ? 0.42 : 0.62,
     }).catch(() => {})
-    this.storeEmbedding(`Mahina: ${response}`, userId, guildId, {
-      type: 'assistant',
-      mode: cognitiveProfile.mode,
-    }).catch(() => {})
+    this.storeMemory(
+      `Mahina: ${response}`,
+      userId,
+      guildId,
+      {
+        type: 'assistant',
+        mode: cognitiveProfile.mode,
+        topics: cognitiveProfile.topics,
+        importance: 0.48,
+      },
+      'assistant'
+    ).catch(() => {})
 
     return response
   }
@@ -1746,7 +1678,7 @@ Tópicos detectados localmente: ${profile.topics.join(', ') || 'nenhum'}`
         await this.memory.setNickname(userId, guildId, nickname)
       }
 
-      await this.storeEmbedding(
+      await this.storeMemory(
         `Reflexão Mahina sobre ${userId}: ${[...facts, ...topics, ...insideJokes]
           .slice(0, 8)
           .join('; ')}`,
@@ -1759,7 +1691,11 @@ Tópicos detectados localmente: ${profile.topics.join(', ') || 'nenhum'}`
             data.sentiment === 'positive' || data.sentiment === 'negative'
               ? data.sentiment
               : 'neutral',
-        }
+          topics,
+          importance: 0.82,
+          confidence: 0.78,
+        },
+        'reflection'
       )
     } catch {
       logger.debug('Cognitive signal extraction parse error (non-critical)')
@@ -1810,7 +1746,7 @@ Tópicos detectados localmente: ${profile.topics.join(', ') || 'nenhum'}`
       insights.sentiment === 'positive' ? '+' : insights.sentiment === 'negative' ? '-' : '~'
     parts.push(`\n**Vibe geral:** [${sentimentIcon}] ${insights.sentiment}`)
 
-    if (this.qdrantReady) {
+    if (this.memoryController.isReady()) {
       parts.push(`\n**Memória semântica:** ativa (Qdrant)`)
     }
 
