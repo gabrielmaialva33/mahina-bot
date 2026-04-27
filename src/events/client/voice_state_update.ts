@@ -111,6 +111,24 @@ export default class VoiceStateUpdate extends Event {
     const guildId = newState.guild.id
     if (!guildId) return
 
+    let type: 'join' | 'leave' | 'move' | null = null
+
+    if (!oldState.channelId && newState.channelId) {
+      type = 'join'
+    } else if (oldState.channelId && !newState.channelId) {
+      type = 'leave'
+    } else if (
+      oldState.channelId &&
+      newState.channelId &&
+      oldState.channelId !== newState.channelId
+    ) {
+      type = 'move'
+    }
+
+    if (type) {
+      this.client.services.serverAwareness?.observeVoiceState(type, oldState, newState)
+    }
+
     const player = this.client.manager.getPlayer(guildId)
     if (!player) return
 
@@ -126,20 +144,6 @@ export default class VoiceStateUpdate extends Event {
       player
     ) {
       return player.destroy()
-    }
-
-    let type: 'join' | 'leave' | 'move' | null = null
-
-    if (!oldState.channelId && newState.channelId) {
-      type = 'join'
-    } else if (oldState.channelId && !newState.channelId) {
-      type = 'leave'
-    } else if (
-      oldState.channelId &&
-      newState.channelId &&
-      oldState.channelId !== newState.channelId
-    ) {
-      type = 'move'
     }
 
     const playerChannelId = player.voiceChannelId

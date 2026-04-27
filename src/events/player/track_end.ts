@@ -12,6 +12,8 @@ export default class TrackEnd extends Event {
   }
 
   async run(player: Player, _track: Track | null, _payload: TrackStartEvent): Promise<void> {
+    this.client.services.serverAwareness?.observeTrackEnd(player, _track)
+
     const guild = this.client.guilds.cache.get(player.guildId)
     if (!guild) return
 

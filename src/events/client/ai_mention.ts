@@ -132,6 +132,11 @@ export default class AIMention extends Event {
         message.guildId!,
         message.channelId
       )
+      const awarenessContext = this.client.services.serverAwareness?.getPromptContext(
+        message.guildId!,
+        message.channelId,
+        message.author.id
+      )
       const runtimeContext = this.buildServerRuntimeContext(message, cleanContent)
 
       // Analyze image attachments if present
@@ -185,8 +190,9 @@ export default class AIMention extends Event {
             },
           },
           imageContext,
-          [runtimeContext, learnedServerContext, willContext].filter(Boolean).join('\n\n') ||
-            undefined
+          [runtimeContext, awarenessContext, learnedServerContext, willContext]
+            .filter(Boolean)
+            .join('\n\n') || undefined
         )
       )
 

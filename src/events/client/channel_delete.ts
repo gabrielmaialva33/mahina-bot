@@ -9,6 +9,8 @@ export default class ChannelDelete extends Event {
   }
 
   async run(channel: any): Promise<void> {
+    this.client.services.serverAwareness?.observeChannelDelete(channel)
+
     const { guild } = channel
     const setup = await this.client.db.getSetup(guild.id)
     const stay = await this.client.db.get_247(guild.id)

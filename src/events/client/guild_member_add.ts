@@ -11,6 +11,7 @@ export default class GuildMemberAdd extends Event {
 
   async run(member: GuildMember): Promise<void> {
     if (!this.client.runtime.ai || member.user.bot) return
+    this.client.services.serverAwareness?.observeMemberJoin(member)
     await this.client.services.ambientPresence?.sendMemberWelcome(member)
   }
 }

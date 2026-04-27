@@ -14,6 +14,8 @@ export default class PlayerDisconnect extends Event {
   }
 
   async run(player: Player, voiceChannelId: string): Promise<void> {
+    this.client.services.serverAwareness?.observePlayerDisconnect(player, voiceChannelId)
+
     const guild = this.client.guilds.cache.get(player.guildId)
     if (!guild) return
 

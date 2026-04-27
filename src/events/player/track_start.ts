@@ -34,6 +34,7 @@ export default class TrackStart extends Event {
     if (!guild) return
     if (!player.textChannelId) return
     if (!track) return
+    this.client.services.serverAwareness?.observeTrackStart(player, track)
     const channel = guild.channels.cache.get(player.textChannelId) as TextChannel
     if (!channel) return
 

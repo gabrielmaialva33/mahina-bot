@@ -10,6 +10,8 @@ export default class ChannelCreate extends Event {
   }
 
   async run(channel: unknown): Promise<void> {
+    this.client.services.serverAwareness?.observeChannelCreate(channel)
+
     if (channel instanceof TextChannel && this.client.services.proactiveInteraction) {
       await this.client.services.proactiveInteraction.handleChannelCreate(channel)
     }

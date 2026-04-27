@@ -15,6 +15,8 @@ export default class TrackError extends Event {
     track: Track | UnresolvedTrack | null,
     payload: TrackExceptionEvent
   ): Promise<void> {
+    this.client.services.serverAwareness?.observeTrackError(player, track, payload)
+
     const fallen = this.client.services.fallenApi
     const cause = payload.exception?.message ?? 'unknown'
     const uri = track?.info?.uri
