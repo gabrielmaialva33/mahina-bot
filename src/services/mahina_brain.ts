@@ -7,7 +7,11 @@ import { logger } from '#common/logger'
 import type MahinaBot from '#common/mahina_bot'
 import { env } from '#src/env'
 import type { AIMemoryService, UserFact, UserRelationships } from './ai_memory_service.js'
-import { MahinaMemoryController, type MahinaMemoryType } from './mahina_memory_controller.js'
+import {
+  MahinaMemoryController,
+  type MahinaMemoryScope,
+  type MahinaMemoryType,
+} from './mahina_memory_controller.js'
 import type { Message } from 'discord.js'
 
 // ---------------------------------------------------------------------------
@@ -50,6 +54,21 @@ type ToolJsonValue =
   | { [key: string]: ToolJsonValue }
 
 type ToolArguments = Record<string, ToolJsonValue>
+
+export interface ReflectionSessionMessage {
+  userId: string
+  userName: string
+  content: string
+  timestamp: number
+}
+
+export interface ReflectionSessionInput {
+  guildId: string
+  guildName: string
+  channelId: string
+  channelName: string
+  messages: ReflectionSessionMessage[]
+}
 
 interface ProviderHealthEntry {
   failures: number
@@ -511,17 +530,19 @@ export class MahinaBrain {
 
   private async storeMemory(
     text: string,
-    userId: string,
+    userId: string | undefined,
     guildId: string,
     metadata: Record<string, ToolJsonValue> = {},
-    type: MahinaMemoryType = 'utterance'
+    type: MahinaMemoryType = 'utterance',
+    options: { scope?: MahinaMemoryScope; channelId?: string } = {}
   ): Promise<void> {
     await this.memoryController.store({
       text,
       userId,
       guildId,
       type,
-      scope: type === 'social' ? 'guild' : 'personal',
+      channelId: options.channelId,
+      scope: options.scope ?? (type === 'social' ? 'guild' : 'personal'),
       topics: Array.isArray(metadata.topics)
         ? metadata.topics.filter((topic): topic is string => typeof topic === 'string')
         : undefined,
@@ -1597,6 +1618,148 @@ Mande UMA observação curta, espirituosa e debochada como se você tivesse vend
   }
 
   // -----------------------------------------------------------------------
+  // Session reflection (background memory consolidation)
+  // -----------------------------------------------------------------------
+
+  async reflectOnSession(input: ReflectionSessionInput): Promise<number> {
+    if (!input.messages.length) return 0
+
+    const fastProvider =
+      this.providers.get('groq') ||
+      this.providers.get('gemini') ||
+      this.providers.get(this.providerOrder[0])
+
+    if (!fastProvider) return 0
+
+    const participants = new Map(input.messages.map((message) => [message.userId, message]))
+    const transcript = input.messages
+      .slice(-40)
+      .map((message) => {
+        const time = new Date(message.timestamp).toISOString()
+        return `[${time}] ${message.userName} (${message.userId}): ${message.content}`
+      })
+      .join('\n')
+
+    const prompt = `Você é o subsistema de reflexão da Mahina.
+Analise esta sessão de Discord e consolide memórias úteis para conversas futuras.
+
+Retorne APENAS JSON válido neste formato:
+{
+  "summary": "resumo curto da sessão",
+  "topics": ["tópicos curtos"],
+  "memories": [
+    {
+      "scope": "personal|guild|channel",
+      "type": "fact|episodic|semantic|social|reflection",
+      "user_id": "id do usuário quando scope=personal, senão null",
+      "text": "memória reutilizável e objetiva",
+      "importance": 0.0,
+      "confidence": 0.0,
+      "topics": ["tópicos curtos"]
+    }
+  ]
+}
+
+Regras:
+- Gere no máximo 8 memórias.
+- Memória personal precisa citar algo durável sobre uma pessoa específica.
+- Memória social/guild deve capturar dinâmica do server, piada recorrente ou preferência coletiva.
+- Memória channel deve capturar contexto útil daquele canal.
+- Não salve fofoca fraca, xingamento solto, spam, mensagem casual sem valor futuro.
+- importance e confidence devem ficar entre 0 e 1.
+- Não invente fatos fora do transcript.
+
+Server: ${input.guildName} (${input.guildId})
+Canal: #${input.channelName} (${input.channelId})
+
+Transcript:
+${transcript}`
+
+    try {
+      const completion = await fastProvider.client.chat.completions.create({
+        model: fastProvider.models[0],
+        messages: [{ role: 'user', content: prompt }],
+        temperature: 0.15,
+        max_tokens: 700,
+        stream: false,
+      })
+
+      const raw = completion.choices[0]?.message?.content?.trim() ?? ''
+      const parsed = this.parseJsonObject(raw)
+      if (!parsed) return 0
+
+      const topics = this.extractStringArray(parsed.topics, 8, 60)
+      const memories = Array.isArray(parsed.memories) ? parsed.memories : []
+      let stored = 0
+
+      const summary = typeof parsed.summary === 'string' ? parsed.summary.trim() : ''
+      if (summary.length >= 12 && summary.length <= 500) {
+        await this.storeMemory(
+          `Reflexão de sessão em #${input.channelName}: ${summary}`,
+          undefined,
+          input.guildId,
+          {
+            type: 'reflection',
+            source: 'session_reflection',
+            topics,
+            importance: 0.72,
+            confidence: 0.72,
+          },
+          'reflection',
+          { scope: 'channel', channelId: input.channelId }
+        )
+        stored += 1
+      }
+
+      for (const item of memories.slice(0, 8)) {
+        if (!item || typeof item !== 'object' || Array.isArray(item)) continue
+
+        const memory = item as Record<string, unknown>
+        const text = typeof memory.text === 'string' ? memory.text.trim() : ''
+        if (text.length < 8 || text.length > 320) continue
+
+        const type = this.normalizeReflectionMemoryType(memory.type)
+        const requestedScope = this.normalizeReflectionScope(memory.scope)
+        const userId = typeof memory.user_id === 'string' ? memory.user_id.trim() : ''
+        const personalUserId = participants.has(userId) ? userId : undefined
+        const scope: MahinaMemoryScope =
+          requestedScope === 'personal' && !personalUserId ? 'guild' : requestedScope
+        const memoryTopics = this.extractStringArray(memory.topics, 6, 60)
+        const importance =
+          typeof memory.importance === 'number' ? this.clamp01(memory.importance) : 0.68
+        const confidence =
+          typeof memory.confidence === 'number' ? this.clamp01(memory.confidence) : 0.7
+
+        await this.storeMemory(
+          text,
+          personalUserId,
+          input.guildId,
+          {
+            type,
+            source: 'session_reflection',
+            topics: memoryTopics.length > 0 ? memoryTopics : topics,
+            importance,
+            confidence,
+          },
+          type,
+          { scope, channelId: scope === 'channel' ? input.channelId : undefined }
+        )
+
+        if (type === 'fact' && personalUserId && this.memory) {
+          await this.memory.addFact(personalUserId, input.guildId, text, 'extracted', confidence)
+        }
+
+        stored += 1
+      }
+
+      return stored
+    } catch (error: unknown) {
+      logger.debug(`Session reflection failed: ${this.getErrorMessageFromUnknown(error)}`)
+      return 0
+    }
+  }
+
+  // -----------------------------------------------------------------------
   // Cognitive signal extraction (async, fast provider)
   // -----------------------------------------------------------------------
 
@@ -1710,6 +1873,44 @@ Tópicos detectados localmente: ${profile.topics.join(', ') || 'nenhum'}`
       .map((item) => item.trim())
       .filter((item) => item.length > 2 && item.length <= maxLength)
       .slice(0, maxItems)
+  }
+
+  private parseJsonObject(raw: string): Record<string, unknown> | null {
+    try {
+      const cleaned = raw
+        .replace(/```json?\n?/g, '')
+        .replace(/```/g, '')
+        .trim()
+      const parsed = JSON.parse(cleaned)
+      return parsed && typeof parsed === 'object' && !Array.isArray(parsed)
+        ? (parsed as Record<string, unknown>)
+        : null
+    } catch {
+      return null
+    }
+  }
+
+  private normalizeReflectionMemoryType(value: unknown): MahinaMemoryType {
+    if (
+      value === 'fact' ||
+      value === 'episodic' ||
+      value === 'semantic' ||
+      value === 'social' ||
+      value === 'reflection'
+    ) {
+      return value
+    }
+
+    return 'reflection'
+  }
+
+  private normalizeReflectionScope(value: unknown): MahinaMemoryScope {
+    if (value === 'personal' || value === 'guild' || value === 'channel') return value
+    return 'guild'
+  }
+
+  private clamp01(value: number): number {
+    return Math.max(0, Math.min(1, value))
   }
 
   // -----------------------------------------------------------------------

@@ -45,6 +45,7 @@ import { AIQueueService } from '#src/services/ai_queue_service'
 import { ServerLearningService } from '#src/services/server_learning_service'
 import { MahinaWillService } from '#src/services/mahina_will_service'
 import { AmbientPresenceService } from '#src/services/ambient_presence_service'
+import { MahinaReflectionService } from '#src/services/mahina_reflection_service'
 import FallenApiService from '#src/services/fallen_api_service'
 import type { MahinaBrain } from '#src/services/mahina_brain'
 import type { Command as CommandInstance } from '#common/command'
@@ -63,6 +64,7 @@ interface BotServices {
   serverLearning?: ServerLearningService
   mahinaWill?: MahinaWillService
   ambientPresence?: AmbientPresenceService
+  mahinaReflection?: MahinaReflectionService
   nvidiaTTS?: NvidiaTTSService
   nvidiaEmbedding?: NvidiaEmbeddingService
   nvidiaCosmos?: NvidiaCosmosService
@@ -189,7 +191,10 @@ export default class MahinaBot extends Client {
       this.services.serverLearning = new ServerLearningService(this)
       this.services.mahinaWill = new MahinaWillService(this)
       this.services.ambientPresence = new AmbientPresenceService(this)
-      this.logger.debug('AI optional services ready: proactive, tts, embedding, cosmos, guard')
+      this.services.mahinaReflection = new MahinaReflectionService(this)
+      this.logger.debug(
+        'AI optional services ready: proactive, tts, embedding, cosmos, guard, reflection'
+      )
     }
 
     if (this.runtime.music) {

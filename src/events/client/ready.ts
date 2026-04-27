@@ -70,5 +70,10 @@ export default class Ready extends Event {
       await this.client.services.ambientPresence.updateDynamicPresence()
       this.client.logger.info('Ambient Presence Service started')
     }
+
+    if (this.client.services.mahinaReflection) {
+      this.client.services.mahinaReflection.start()
+      this.client.logger.info('Mahina Reflection Service started')
+    }
   }
 }
