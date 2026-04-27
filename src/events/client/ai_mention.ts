@@ -242,8 +242,14 @@ export default class AIMention extends Event {
 
     const parts: string[] = ['ESTADO RUNTIME DO SERVER AGORA:']
     const textChannelName = 'name' in message.channel ? message.channel.name : message.channelId
-    const memberVoice = message.member?.voice.channel
-    const botVoice = message.guild.members.me?.voice.channel
+    // voice.channel on message.member can be stale; voiceStates.cache is the
+    // authoritative source maintained by GUILD_VOICE_STATES intent
+    const authoritativeVoiceState = message.guild.voiceStates.cache.get(message.author.id)
+    const memberVoice = authoritativeVoiceState?.channel ?? message.member?.voice.channel ?? null
+    const botVoice =
+      message.guild.members.me?.voice.channel ??
+      message.guild.voiceStates.cache.get(this.client.user?.id ?? '')?.channel ??
+      null
     const player = this.client.manager?.getPlayer(message.guildId!)
     const normalizedMessage = this.normalizeForContext(cleanContent)
 
@@ -302,7 +308,7 @@ export default class AIMention extends Event {
     }
 
     parts.push(
-      '- use este estado runtime como verdade atual; se o user disser que está em um canal de voz e isso bater aqui, não confunda com o canal de texto'
+      '- ESSE bloco é VERDADE ABSOLUTA sobre presença em voz; NUNCA contradiga (ex: nunca acuse o user de estar fora de voz se este bloco diz que está dentro, e vice-versa). Se o user pediu música/play e este bloco diz que ele NÃO está em voz, peça pra entrar — caso contrário não invente que ele saiu.'
     )
 
     return parts.join('\n')
