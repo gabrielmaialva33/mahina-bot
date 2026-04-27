@@ -74,6 +74,41 @@ interface NvidiaKeyState {
   errors: number
 }
 
+type CognitiveMode =
+  | 'casual'
+  | 'music'
+  | 'vision'
+  | 'technical'
+  | 'reasoning'
+  | 'memory'
+  | 'creative'
+
+interface MessageAnalysis {
+  intent?: string
+  emotion?: string
+  topics?: string[]
+}
+
+interface CognitiveProfile {
+  mode: CognitiveMode
+  intent?: string
+  emotion?: string
+  topics: string[]
+  needsTools: boolean
+  needsReasoning: boolean
+  responseStyle: 'short' | 'balanced' | 'detailed'
+  memoryQuery: string
+  socialTemperature: number
+}
+
+interface CognitiveRoute {
+  label: string
+  providerOrder: string[]
+  maxTokens: number
+  temperature: number
+  useTools: boolean
+}
+
 // ---------------------------------------------------------------------------
 // Mood system
 // ---------------------------------------------------------------------------
@@ -656,6 +691,172 @@ export class MahinaBrain {
     return null
   }
 
+  private normalizeForMatching(text: string): string[] {
+    return text
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^a-z0-9\s]/g, ' ')
+      .split(/\s+/)
+      .filter((word) => word.length > 3)
+  }
+
+  private buildCognitiveProfile(
+    lastUserMsg: string,
+    messages: { role: 'user' | 'assistant'; content: string }[],
+    analysis: MessageAnalysis | undefined,
+    relationships: UserRelationships,
+    imageContext?: string
+  ): CognitiveProfile {
+    const content = lastUserMsg.toLowerCase()
+    const topics = [
+      ...new Set([...(analysis?.topics ?? []), ...this.normalizeForMatching(content)]),
+    ]
+      .filter((topic) => topic.length > 3)
+      .slice(0, 8)
+
+    const hasMusicIntent =
+      analysis?.intent === 'music' ||
+      /\b(toca|play|pula|skip|pausa|resume|volume|fila|queue|dj|playlist|musica|música|song)\b/i.test(
+        lastUserMsg
+      )
+    const hasMemoryIntent =
+      /\b(lembra|mem[oó]ria|sabe sobre|oque vc sabe|o que vc sabe|ja falei|já falei)\b/i.test(
+        lastUserMsg
+      )
+    const hasTechnicalIntent =
+      /\b(c[oó]digo|bug|erro|stack|api|docker|prisma|redis|typescript|node|build|deploy|arquitetura|refator)\b/i.test(
+        lastUserMsg
+      )
+    const hasReasoningIntent =
+      hasTechnicalIntent ||
+      /\b(pensa|raciocina|analisa|diagn[oó]stico|porque|por que|plano|estrat[eé]gia|decide|compara)\b/i.test(
+        lastUserMsg
+      )
+    const hasCreativeIntent =
+      /\b(cria|inventa|imagina|hist[oó]ria|roteiro|ideia|persona|meme|piada)\b/i.test(lastUserMsg)
+
+    let mode: CognitiveMode = 'casual'
+    if (imageContext) mode = 'vision'
+    else if (hasMusicIntent) mode = 'music'
+    else if (hasMemoryIntent) mode = 'memory'
+    else if (hasTechnicalIntent) mode = 'technical'
+    else if (hasReasoningIntent) mode = 'reasoning'
+    else if (hasCreativeIntent) mode = 'creative'
+
+    const recentText = messages
+      .slice(-4)
+      .map((m) => m.content)
+      .join(' ')
+    const memoryQuery = [...new Set([lastUserMsg, ...topics, recentText.slice(0, 240)])]
+      .filter(Boolean)
+      .join(' | ')
+
+    const responseStyle: CognitiveProfile['responseStyle'] =
+      mode === 'technical' || mode === 'reasoning'
+        ? 'detailed'
+        : content.length < 80 && relationships.closeness > 15
+          ? 'short'
+          : 'balanced'
+
+    return {
+      mode,
+      intent: analysis?.intent,
+      emotion: analysis?.emotion,
+      topics,
+      needsTools:
+        hasMusicIntent || /\b(busca|procura|pesquisa|roast|zoa|imagem|gera)\b/i.test(content),
+      needsReasoning: hasReasoningIntent,
+      responseStyle,
+      memoryQuery,
+      socialTemperature: Math.min(1, 0.35 + relationships.closeness / 160),
+    }
+  }
+
+  private buildCognitiveRoute(profile: CognitiveProfile, baseTemperature: number): CognitiveRoute {
+    const preferredByMode: Record<CognitiveMode, string[]> = {
+      casual: ['groq', 'gemini', 'nvidia', 'openai'],
+      music: ['groq', 'nvidia', 'gemini', 'openai'],
+      vision: ['nvidia', 'gemini', 'groq', 'openai'],
+      technical: ['nvidia', 'gemini', 'groq', 'openai'],
+      reasoning: ['nvidia', 'gemini', 'groq', 'openai'],
+      memory: ['nvidia', 'groq', 'gemini', 'openai'],
+      creative: ['nvidia', 'groq', 'gemini', 'openai'],
+    }
+
+    const providerOrder = this.orderProviders(preferredByMode[profile.mode])
+    const temperature =
+      profile.mode === 'technical' || profile.mode === 'reasoning'
+        ? Math.min(baseTemperature, 0.45)
+        : Math.min(1, baseTemperature + profile.socialTemperature * 0.12)
+
+    const maxTokensByMode: Record<CognitiveMode, number> = {
+      casual: 360,
+      music: 420,
+      vision: 520,
+      technical: 850,
+      reasoning: 760,
+      memory: 620,
+      creative: 700,
+    }
+
+    return {
+      label: profile.mode,
+      providerOrder,
+      maxTokens: maxTokensByMode[profile.mode],
+      temperature,
+      useTools: profile.needsTools,
+    }
+  }
+
+  private orderProviders(preferred: string[]): string[] {
+    const ordered = preferred.filter((name) => this.providers.has(name))
+    for (const providerName of this.providerOrder) {
+      if (!ordered.includes(providerName)) ordered.push(providerName)
+    }
+    return ordered
+  }
+
+  private rankFactsForPrompt(
+    facts: UserFact[],
+    query: string,
+    profile: CognitiveProfile
+  ): UserFact[] {
+    const queryWords = new Set(this.normalizeForMatching(`${query} ${profile.topics.join(' ')}`))
+    return [...facts]
+      .map((fact) => {
+        const factWords = this.normalizeForMatching(fact.fact)
+        const overlap = factWords.filter((word) => queryWords.has(word)).length
+        return {
+          fact,
+          score: overlap * 2 + fact.confidence + fact.lastMentioned.getTime() / 1_000_000_000_000,
+        }
+      })
+      .sort((a, b) => b.score - a.score)
+      .map(({ fact }) => fact)
+  }
+
+  private mergeMemoryContext(personal: string[], social: string[], limit = 8): string[] {
+    const seen = new Set<string>()
+    const merged: string[] = []
+
+    for (const item of [...personal, ...social]) {
+      const normalized = item.toLowerCase().trim()
+      if (!normalized || seen.has(normalized)) continue
+      seen.add(normalized)
+      merged.push(item)
+      if (merged.length >= limit) break
+    }
+
+    return merged
+  }
+
+  private sentimentFromProfile(profile: CognitiveProfile): 'positive' | 'neutral' | 'negative' {
+    if (profile.emotion === 'happy' || profile.emotion === 'excited') return 'positive'
+    if (profile.emotion === 'sad' || profile.emotion === 'angry') return 'negative'
+    return 'neutral'
+  }
+
   private parseToolArguments(rawArgs: string): ToolArguments {
     try {
       const parsed = JSON.parse(rawArgs || '{}')
@@ -698,6 +899,7 @@ export class MahinaBrain {
     relationships: UserRelationships,
     personality: string,
     mood: MahinaMood,
+    cognitiveProfile: CognitiveProfile,
     ragContext: string[] = [],
     imageContext?: string,
     learnedServerContext?: string
@@ -715,8 +917,32 @@ export class MahinaBrain {
       `\nCONTEXTO: Você tá no server "${guildName}", canal #${channelName}. Falando com ${userName}.`
     )
 
+    parts.push(
+      [
+        '\nESTADO COGNITIVO NESTA RESPOSTA:',
+        `- modo: ${cognitiveProfile.mode}`,
+        cognitiveProfile.intent ? `- intenção detectada: ${cognitiveProfile.intent}` : undefined,
+        cognitiveProfile.emotion ? `- emoção provável: ${cognitiveProfile.emotion}` : undefined,
+        cognitiveProfile.topics.length > 0
+          ? `- tópicos ativos: ${cognitiveProfile.topics.slice(0, 6).join(', ')}`
+          : undefined,
+        `- estilo de resposta: ${cognitiveProfile.responseStyle}`,
+        cognitiveProfile.needsReasoning
+          ? '- pense antes de responder, mas NÃO mostre raciocínio interno'
+          : undefined,
+        cognitiveProfile.needsTools
+          ? '- use tools só quando a mensagem pedir uma ação concreta'
+          : '- não procure tool; responda como conversa normal',
+      ]
+        .filter(Boolean)
+        .join('\n')
+    )
+
     if (facts.length > 0) {
-      const factsList = facts.map((f) => `- ${f.fact}`).join('\n')
+      const factsList = facts
+        .slice(0, 12)
+        .map((f) => `- ${f.fact}`)
+        .join('\n')
       parts.push(`\nO QUE VOCÊ SABE SOBRE ${userName.toUpperCase()}:\n${factsList}`)
     }
 
@@ -784,7 +1010,22 @@ export class MahinaBrain {
     }
 
     const lastUserMsg = messages.filter((m) => m.role === 'user').pop()?.content ?? ''
-    const ragContext = await this.searchMemories(lastUserMsg, userId, guildId)
+    const analysis = await this.bot.services.aiContext
+      ?.analyzeMessage(lastUserMsg)
+      .catch(() => undefined)
+    const cognitiveProfile = this.buildCognitiveProfile(
+      lastUserMsg,
+      messages,
+      analysis,
+      relationships,
+      imageContext
+    )
+    const [personalRagContext, socialRagContext] = await Promise.all([
+      this.searchMemories(cognitiveProfile.memoryQuery, userId, guildId, 6),
+      this.searchMemoriesGlobal(cognitiveProfile.memoryQuery, guildId),
+    ])
+    const ragContext = this.mergeMemoryContext(personalRagContext, socialRagContext)
+    const promptFacts = this.rankFactsForPrompt(facts, lastUserMsg, cognitiveProfile)
 
     const brHour = new Date(Date.now() - 3 * 60 * 60 * 1000).getUTCHours()
     const mood = calculateMood(brHour)
@@ -793,16 +1034,18 @@ export class MahinaBrain {
       userName,
       channelName,
       guildName,
-      facts,
+      promptFacts,
       relationships,
       personality,
       mood,
+      cognitiveProfile,
       ragContext,
       imageContext,
       learnedServerContext
     )
 
     const personalityConfig = PERSONALITIES[personality] || PERSONALITIES.humor_negro
+    const route = this.buildCognitiveRoute(cognitiveProfile, personalityConfig.temperature)
 
     const apiMessages: ChatCompletionMessageParam[] = [
       { role: 'system', content: systemPrompt },
@@ -811,29 +1054,39 @@ export class MahinaBrain {
 
     let response: string
     if (callbacks) {
-      response = await this.streamWithFallback(
-        apiMessages,
-        personalityConfig.temperature,
-        guildId,
-        callbacks
-      )
+      response = await this.streamWithFallback(apiMessages, route, guildId, callbacks)
     } else {
-      response = await this.callWithFallback(apiMessages, personalityConfig.temperature, guildId)
+      response = await this.callWithFallback(apiMessages, route, guildId)
     }
 
-    // Fire-and-forget: extract facts, update closeness, store in Qdrant
+    // Fire-and-forget: extract cognitive signals, update closeness, store in Qdrant
     if (this.memory) {
-      this.extractAndSaveFacts(lastUserMsg, response, userId, guildId).catch(() => {})
+      this.extractAndSaveCognitiveSignals(
+        lastUserMsg,
+        response,
+        userId,
+        guildId,
+        cognitiveProfile
+      ).catch(() => {})
       this.memory.updateCloseness(userId, guildId).catch(() => {})
-      this.memory.recordInteraction(userId, guildId, 'ai_chat', 'neutral').catch(() => {})
+      this.memory
+        .recordInteraction(userId, guildId, 'ai_chat', this.sentimentFromProfile(cognitiveProfile))
+        .catch(() => {})
+      for (const topic of cognitiveProfile.topics.slice(0, 3)) {
+        this.memory.learn(userId, guildId, topic).catch(() => {})
+      }
     }
 
-    this.storeEmbedding(`${userName}: ${lastUserMsg}`, userId, guildId, { type: 'user' }).catch(
-      () => {}
-    )
-    this.storeEmbedding(`Mahina: ${response}`, userId, guildId, { type: 'assistant' }).catch(
-      () => {}
-    )
+    this.storeEmbedding(`${userName}: ${lastUserMsg}`, userId, guildId, {
+      type: 'user',
+      mode: cognitiveProfile.mode,
+      intent: cognitiveProfile.intent ?? null,
+      emotion: cognitiveProfile.emotion ?? null,
+    }).catch(() => {})
+    this.storeEmbedding(`Mahina: ${response}`, userId, guildId, {
+      type: 'assistant',
+      mode: cognitiveProfile.mode,
+    }).catch(() => {})
 
     return response
   }
@@ -844,11 +1097,11 @@ export class MahinaBrain {
 
   private async streamWithFallback(
     messages: ChatCompletionMessageParam[],
-    temperature: number,
+    route: CognitiveRoute,
     guildId: string,
     callbacks: StreamCallbacks
   ): Promise<string> {
-    for (const providerName of this.providerOrder) {
+    for (const providerName of route.providerOrder) {
       if (!this.isProviderAvailable(providerName)) continue
 
       const provider = this.providers.get(providerName)!
@@ -856,16 +1109,16 @@ export class MahinaBrain {
       for (const model of provider.models) {
         try {
           const client = this.resolveClient(providerName)
-          logger.debug(`Streaming from ${provider.name} / ${model}`)
+          logger.debug(`Streaming ${route.label} route from ${provider.name} / ${model}`)
 
           const isReasoningModel = /deepseek-r1|o1-|o3-/i.test(model)
-          const useTools = provider.supportsTools && !isReasoningModel
+          const useTools = route.useTools && provider.supportsTools && !isReasoningModel
 
           const stream = await client.chat.completions.create({
             model,
             messages,
-            temperature: isReasoningModel ? undefined : temperature,
-            max_tokens: 500,
+            temperature: isReasoningModel ? undefined : route.temperature,
+            max_tokens: route.maxTokens,
             stream: true,
             tools: useTools ? TOOLS : undefined,
           })
@@ -944,8 +1197,8 @@ export class MahinaBrain {
             const followUpResponse = await client.chat.completions.create({
               model,
               messages: followUp,
-              temperature,
-              max_tokens: 300,
+              temperature: route.temperature,
+              max_tokens: Math.min(420, route.maxTokens),
               stream: false,
             })
 
@@ -980,10 +1233,10 @@ export class MahinaBrain {
 
   private async callWithFallback(
     messages: ChatCompletionMessageParam[],
-    temperature: number,
+    route: CognitiveRoute,
     guildId: string
   ): Promise<string> {
-    for (const providerName of this.providerOrder) {
+    for (const providerName of route.providerOrder) {
       if (!this.isProviderAvailable(providerName)) continue
 
       const provider = this.providers.get(providerName)!
@@ -991,16 +1244,16 @@ export class MahinaBrain {
       for (const model of provider.models) {
         try {
           const client = this.resolveClient(providerName)
-          logger.debug(`Trying ${provider.name} / ${model}`)
+          logger.debug(`Trying ${route.label} route on ${provider.name} / ${model}`)
 
           const isReasoningModel = /deepseek-r1|o1-|o3-/i.test(model)
-          const useTools = provider.supportsTools && !isReasoningModel
+          const useTools = route.useTools && provider.supportsTools && !isReasoningModel
 
           const completion = await client.chat.completions.create({
             model,
             messages,
-            temperature: isReasoningModel ? undefined : temperature,
-            max_tokens: 500,
+            temperature: isReasoningModel ? undefined : route.temperature,
+            max_tokens: route.maxTokens,
             stream: false,
             tools: useTools ? TOOLS : undefined,
           })
@@ -1010,26 +1263,37 @@ export class MahinaBrain {
           if (choice?.message?.tool_calls && choice.message.tool_calls.length > 0) {
             const toolMap = new Map<number, { name: string; args: string }>()
             for (const [idx, tc] of choice.message.tool_calls.entries()) {
-              toolMap.set(idx, { name: tc.function.name, args: tc.function.arguments })
+              if ('function' in tc) {
+                toolMap.set(idx, { name: tc.function.name, args: tc.function.arguments })
+              }
             }
 
             const toolResults = await this.executeTools(toolMap, guildId)
+            const toolMessages: ChatCompletionMessageParam[] = choice.message.tool_calls.flatMap(
+              (tc) => {
+                if (!('function' in tc)) return []
+
+                return [
+                  {
+                    role: 'tool' as const,
+                    tool_call_id: tc.id,
+                    content: toolResults.find((r) => r.name === tc.function.name)?.result || 'Done',
+                  },
+                ]
+              }
+            )
 
             const followUp: ChatCompletionMessageParam[] = [
               ...messages,
               choice.message as ChatCompletionMessageParam,
-              ...choice.message.tool_calls.map((tc) => ({
-                role: 'tool' as const,
-                tool_call_id: tc.id,
-                content: toolResults.find((r) => r.name === tc.function.name)?.result || 'Done',
-              })),
+              ...toolMessages,
             ]
 
             const followUpResponse = await client.chat.completions.create({
               model,
               messages: followUp,
-              temperature,
-              max_tokens: 300,
+              temperature: route.temperature,
+              max_tokens: Math.min(420, route.maxTokens),
               stream: false,
             })
 
@@ -1401,14 +1665,15 @@ Mande UMA observação curta, espirituosa e debochada como se você tivesse vend
   }
 
   // -----------------------------------------------------------------------
-  // Fact extraction (async, fast provider)
+  // Cognitive signal extraction (async, fast provider)
   // -----------------------------------------------------------------------
 
-  private async extractAndSaveFacts(
+  private async extractAndSaveCognitiveSignals(
     userMessage: string,
     aiResponse: string,
     userId: string,
-    guildId: string
+    guildId: string,
+    profile: CognitiveProfile
   ): Promise<void> {
     if (!this.memory || !userMessage.trim()) return
 
@@ -1419,13 +1684,27 @@ Mande UMA observação curta, espirituosa e debochada como se você tivesse vend
 
     if (!fastProvider) return
 
-    const extractionPrompt = `Extraia fatos concretos sobre o user desta conversa. Retorne APENAS um JSON array de strings.
-Só fatos concretos e específicos (gosta de X, trabalha com Y, mora em Z, tem N anos, etc).
-Se não houver fatos novos ou relevantes, retorne [].
-NÃO inclua opiniões, emoções temporárias ou fatos genéricos.
+    const extractionPrompt = `Extraia sinais cognitivos desta conversa para memória persistente da Mahina.
+Retorne APENAS JSON válido neste formato:
+{
+  "facts": ["fatos concretos sobre o user"],
+  "topics": ["tópicos recorrentes ou interesses"],
+  "inside_jokes": ["piadas internas novas ou bordões do server"],
+  "nickname": "apelido curto se a Mahina acabou de criar um, senão null",
+  "sentiment": "positive|neutral|negative"
+}
+
+Regras:
+- facts só com fatos específicos e úteis no futuro, não emoções passageiras.
+- topics devem ser curtos, sem hashtags, no máximo 3 palavras.
+- inside_jokes só se for realmente reutilizável depois.
+- nickname precisa ser carinhoso/zoeiro e curto, nunca ofensivo pesado.
+- se não houver nada novo, use arrays vazios e nickname null.
 
 User disse: "${userMessage}"
-AI respondeu: "${aiResponse}"`
+AI respondeu: "${aiResponse}"
+Modo detectado: ${profile.mode}
+Tópicos detectados localmente: ${profile.topics.join(', ') || 'nenhum'}`
 
     try {
       const completion = await fastProvider.client.chat.completions.create({
@@ -1443,16 +1722,58 @@ AI respondeu: "${aiResponse}"`
         .trim()
       const parsed = JSON.parse(jsonStr)
 
-      if (Array.isArray(parsed)) {
-        for (const fact of parsed) {
-          if (typeof fact === 'string' && fact.length > 3 && fact.length < 200) {
-            await this.memory.addFact(userId, guildId, fact, 'extracted', 0.7)
-          }
-        }
+      if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) return
+
+      const data = parsed as Record<string, unknown>
+      const facts = this.extractStringArray(data.facts, 8, 200)
+      const topics = this.extractStringArray(data.topics, 6, 60)
+      const insideJokes = this.extractStringArray(data.inside_jokes, 4, 140)
+      const nickname = typeof data.nickname === 'string' ? data.nickname.trim() : ''
+
+      for (const fact of facts) {
+        await this.memory.addFact(userId, guildId, fact, 'extracted', 0.75)
       }
+
+      for (const topic of topics) {
+        await this.memory.learn(userId, guildId, topic)
+      }
+
+      for (const joke of insideJokes) {
+        await this.memory.addInsideJoke(userId, guildId, joke)
+      }
+
+      if (nickname.length >= 3 && nickname.length <= 24) {
+        await this.memory.setNickname(userId, guildId, nickname)
+      }
+
+      await this.storeEmbedding(
+        `Reflexão Mahina sobre ${userId}: ${[...facts, ...topics, ...insideJokes]
+          .slice(0, 8)
+          .join('; ')}`,
+        userId,
+        guildId,
+        {
+          type: 'reflection',
+          mode: profile.mode,
+          sentiment:
+            data.sentiment === 'positive' || data.sentiment === 'negative'
+              ? data.sentiment
+              : 'neutral',
+        }
+      )
     } catch {
-      logger.debug('Fact extraction parse error (non-critical)')
+      logger.debug('Cognitive signal extraction parse error (non-critical)')
     }
+  }
+
+  private extractStringArray(value: unknown, maxItems: number, maxLength: number): string[] {
+    if (!Array.isArray(value)) return []
+
+    return value
+      .filter((item): item is string => typeof item === 'string')
+      .map((item) => item.trim())
+      .filter((item) => item.length > 2 && item.length <= maxLength)
+      .slice(0, maxItems)
   }
 
   // -----------------------------------------------------------------------
