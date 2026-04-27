@@ -118,11 +118,24 @@ interface CognitiveProfile {
 }
 
 interface CognitiveRoute {
-  label: string
+  label: CognitiveMode
   providerOrder: string[]
   maxTokens: number
   temperature: number
   useTools: boolean
+}
+
+interface CognitiveBriefContext {
+  userName: string
+  guildName: string
+  channelName: string
+  lastUserMsg: string
+  profile: CognitiveProfile
+  facts: UserFact[]
+  relationships: UserRelationships
+  ragContext: string[]
+  imageContext?: string
+  learnedServerContext?: string
 }
 
 // ---------------------------------------------------------------------------
@@ -464,13 +477,24 @@ export class MahinaBrain {
     }
 
     if (env.GEMINI_API_KEY) {
+      this.providers.set('gemini-pro', {
+        client: new OpenAI({
+          apiKey: env.GEMINI_API_KEY,
+          baseURL: 'https://generativelanguage.googleapis.com/v1beta/openai/',
+        }),
+        models: this.uniqueModels([env.GEMINI_MODEL, 'gemini-2.5-pro']),
+        name: 'Gemini Pro',
+        supportsTools: true,
+      })
+      this.providerOrder.push('gemini-pro')
+
       this.providers.set('gemini', {
         client: new OpenAI({
           apiKey: env.GEMINI_API_KEY,
           baseURL: 'https://generativelanguage.googleapis.com/v1beta/openai/',
         }),
-        models: [env.GEMINI_MODEL, 'gemini-pro-latest', 'gemini-2.5-flash'],
-        name: 'Gemini',
+        models: ['gemini-2.5-flash'],
+        name: 'Gemini Flash',
         supportsTools: true,
       })
       this.providerOrder.push('gemini')
@@ -737,13 +761,13 @@ export class MahinaBrain {
 
   private buildCognitiveRoute(profile: CognitiveProfile, baseTemperature: number): CognitiveRoute {
     const preferredByMode: Record<CognitiveMode, string[]> = {
-      casual: ['groq', 'gemini', 'nvidia', 'openai'],
-      music: ['groq', 'nvidia', 'gemini', 'openai'],
-      vision: ['nvidia', 'gemini', 'groq', 'openai'],
-      technical: ['nvidia', 'gemini', 'groq', 'openai'],
-      reasoning: ['nvidia', 'gemini', 'groq', 'openai'],
-      memory: ['nvidia', 'groq', 'gemini', 'openai'],
-      creative: ['nvidia', 'groq', 'gemini', 'openai'],
+      casual: ['groq', 'gemini', 'nvidia', 'gemini-pro', 'openai'],
+      music: ['groq', 'nvidia', 'gemini', 'gemini-pro', 'openai'],
+      vision: ['nvidia', 'gemini-pro', 'gemini', 'groq', 'openai'],
+      technical: ['gemini-pro', 'nvidia', 'gemini', 'groq', 'openai'],
+      reasoning: ['gemini-pro', 'nvidia', 'gemini', 'groq', 'openai'],
+      memory: ['gemini-pro', 'nvidia', 'gemini', 'groq', 'openai'],
+      creative: ['gemini-pro', 'nvidia', 'gemini', 'groq', 'openai'],
     }
 
     const providerOrder = this.orderProviders(preferredByMode[profile.mode])
@@ -871,6 +895,134 @@ export class MahinaBrain {
     return extraBody ? { extra_body: extraBody } : {}
   }
 
+  private shouldBuildCognitiveBrief(context: CognitiveBriefContext): boolean {
+    const { profile, lastUserMsg, ragContext, learnedServerContext, imageContext } = context
+    if (profile.mode !== 'casual') return true
+    if (profile.needsReasoning || profile.needsTools) return true
+    if (imageContext) return true
+    if (ragContext.length >= 3) return true
+    if (
+      learnedServerContext &&
+      /voice|canal de voz|player|evento|música|runtime/i.test(learnedServerContext)
+    ) {
+      return true
+    }
+    return lastUserMsg.length > 180
+  }
+
+  private async buildCognitiveBrief(context: CognitiveBriefContext): Promise<string | undefined> {
+    if (!this.shouldBuildCognitiveBrief(context)) return undefined
+
+    const candidates = [
+      { providerName: 'gemini-pro', model: env.GEMINI_MODEL },
+      { providerName: 'nvidia', model: 'deepseek-ai/deepseek-v4-flash' },
+      { providerName: 'nvidia', model: 'nvidia/nemotron-3-super-120b-a12b' },
+    ].filter(({ providerName, model }) => {
+      const provider = this.providers.get(providerName)
+      return provider && provider.models.includes(model) && this.isProviderAvailable(providerName)
+    })
+
+    for (const candidate of candidates) {
+      const provider = this.providers.get(candidate.providerName)
+      if (!provider) continue
+
+      try {
+        const client = this.resolveClient(candidate.providerName)
+        const route: CognitiveRoute = {
+          label: context.profile.mode,
+          providerOrder: [candidate.providerName],
+          maxTokens: 360,
+          temperature: 0.18,
+          useTools: false,
+        }
+
+        const completion = await this.withTimeout(
+          client.chat.completions.create({
+            model: candidate.model,
+            messages: [
+              {
+                role: 'system',
+                content:
+                  'Você é o córtex executivo interno da Mahina. Gere um brief curto para outro modelo responder melhor. Não escreva resposta final ao usuário.',
+              },
+              { role: 'user', content: this.buildCognitiveBriefPrompt(context) },
+            ],
+            temperature: 0.18,
+            max_tokens: route.maxTokens,
+            stream: false,
+            ...this.buildChatExtra(candidate.providerName, candidate.model, route),
+          }),
+          9000
+        )
+
+        const brief = this.sanitizeOutput(completion.choices[0]?.message?.content ?? '')
+        if (brief.length > 20) {
+          this.recordProviderSuccess(candidate.providerName)
+          return brief.slice(0, 1800)
+        }
+      } catch (error) {
+        logger.debug(
+          `Cognitive brief failed on ${candidate.providerName}/${candidate.model}: ${this.getErrorMessageFromUnknown(error)}`
+        )
+        this.handleProviderError(candidate.providerName, error)
+      }
+    }
+
+    return undefined
+  }
+
+  private buildCognitiveBriefPrompt(context: CognitiveBriefContext): string {
+    const factLines = context.facts
+      .slice(0, 8)
+      .map((fact) => `- ${fact.fact}`)
+      .join('\n')
+    const memoryLines = context.ragContext
+      .slice(0, 8)
+      .map((memory) => `- ${memory}`)
+      .join('\n')
+
+    return [
+      `Usuário: ${context.userName}`,
+      `Server/canal: ${context.guildName} / #${context.channelName}`,
+      `Modo detectado: ${context.profile.mode}`,
+      context.profile.intent ? `Intenção detectada: ${context.profile.intent}` : '',
+      context.profile.emotion ? `Emoção provável: ${context.profile.emotion}` : '',
+      context.profile.topics.length > 0
+        ? `Tópicos: ${context.profile.topics.slice(0, 6).join(', ')}`
+        : '',
+      `Mensagem atual: ${context.lastUserMsg}`,
+      factLines ? `\nFatos pessoais:\n${factLines}` : '',
+      memoryLines ? `\nMemórias semânticas:\n${memoryLines}` : '',
+      context.learnedServerContext
+        ? `\nEstado social/runtime:\n${context.learnedServerContext}`
+        : '',
+      context.imageContext ? `\nImagem/contexto visual:\n${context.imageContext}` : '',
+      `\nRetorne em PT-BR, no máximo 8 bullets curtos:
+- intenção real provável
+- contexto do servidor que importa agora
+- memórias/fatos que devem influenciar a resposta
+- ação/tool necessária, se houver
+- tom recomendado para soar natural como Mahina
+- risco de confusão ou alucinação a evitar`,
+    ]
+      .filter(Boolean)
+      .join('\n')
+  }
+
+  private async withTimeout<T>(promise: Promise<T>, timeoutMs: number): Promise<T> {
+    let timeout: NodeJS.Timeout | undefined
+    try {
+      return await Promise.race([
+        promise,
+        new Promise<T>((_, reject) => {
+          timeout = setTimeout(() => reject(new Error('Cognitive brief timeout')), timeoutMs)
+        }),
+      ])
+    } finally {
+      if (timeout) clearTimeout(timeout)
+    }
+  }
+
   /** Strip reasoning blocks and hallucinated tool calls from LLM output. */
   private sanitizeOutput(text: string): string {
     let cleaned = text
@@ -905,7 +1057,8 @@ export class MahinaBrain {
     cognitiveProfile: CognitiveProfile,
     ragContext: string[] = [],
     imageContext?: string,
-    learnedServerContext?: string
+    learnedServerContext?: string,
+    cognitiveBrief?: string
   ): string {
     const parts: string[] = [CORE_IDENTITY]
 
@@ -981,6 +1134,12 @@ export class MahinaBrain {
       parts.push(`\nCONTEXTO SOCIAL/RUNTIME DO SERVER:\n${learnedServerContext}`)
     }
 
+    if (cognitiveBrief) {
+      parts.push(
+        `\nBRIEF COGNITIVO INTERNO:\n${cognitiveBrief}\nUse isso para escolher melhor intenção, tom, contexto e ação. Não mencione que recebeu um brief.`
+      )
+    }
+
     // Currently playing music
     const player = this.bot.manager?.getPlayer(
       this.bot.guilds.cache.find((g) => g.name === guildName)?.id ?? ''
@@ -1035,6 +1194,20 @@ export class MahinaBrain {
     ])
     const ragContext = this.mergeMemoryContext(personalRagContext, socialRagContext)
     const promptFacts = this.rankFactsForPrompt(facts, lastUserMsg, cognitiveProfile)
+    const personalityConfig = PERSONALITIES[personality] || PERSONALITIES.humor_negro
+    const route = this.buildCognitiveRoute(cognitiveProfile, personalityConfig.temperature)
+    const cognitiveBrief = await this.buildCognitiveBrief({
+      userName,
+      guildName,
+      channelName,
+      lastUserMsg,
+      profile: cognitiveProfile,
+      facts: promptFacts,
+      relationships,
+      ragContext,
+      imageContext,
+      learnedServerContext,
+    })
 
     const brHour = new Date(Date.now() - 3 * 60 * 60 * 1000).getUTCHours()
     const mood = calculateMood(brHour)
@@ -1050,11 +1223,9 @@ export class MahinaBrain {
       cognitiveProfile,
       ragContext,
       imageContext,
-      learnedServerContext
+      learnedServerContext,
+      cognitiveBrief
     )
-
-    const personalityConfig = PERSONALITIES[personality] || PERSONALITIES.humor_negro
-    const route = this.buildCognitiveRoute(cognitiveProfile, personalityConfig.temperature)
 
     const apiMessages: ChatCompletionMessageParam[] = [
       { role: 'system', content: systemPrompt },
