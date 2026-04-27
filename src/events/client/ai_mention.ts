@@ -2,6 +2,7 @@ import {
   ActionRowBuilder,
   ButtonBuilder,
   ButtonStyle,
+  ChannelType,
   ComponentType,
   EmbedBuilder,
   Message,
@@ -131,6 +132,7 @@ export default class AIMention extends Event {
         message.guildId!,
         message.channelId
       )
+      const runtimeContext = this.buildServerRuntimeContext(message, cleanContent)
 
       // Analyze image attachments if present
       let imageContext: string | undefined
@@ -183,7 +185,8 @@ export default class AIMention extends Event {
             },
           },
           imageContext,
-          [learnedServerContext, willContext].filter(Boolean).join('\n\n') || undefined
+          [runtimeContext, learnedServerContext, willContext].filter(Boolean).join('\n\n') ||
+            undefined
         )
       )
 
@@ -226,6 +229,87 @@ export default class AIMention extends Event {
         })
         .catch(() => {})
     }
+  }
+
+  private buildServerRuntimeContext(message: Message, cleanContent: string): string {
+    if (!message.guild) return ''
+
+    const parts: string[] = ['ESTADO RUNTIME DO SERVER AGORA:']
+    const textChannelName = 'name' in message.channel ? message.channel.name : message.channelId
+    const memberVoice = message.member?.voice.channel
+    const botVoice = message.guild.members.me?.voice.channel
+    const player = this.client.manager?.getPlayer(message.guildId!)
+    const normalizedMessage = this.normalizeForContext(cleanContent)
+
+    parts.push(`- canal de texto desta mensagem: #${textChannelName} (${message.channelId})`)
+
+    if (memberVoice) {
+      const humans = memberVoice.members.filter((member) => !member.user.bot).size
+      parts.push(
+        `- ${message.member?.displayName || message.author.username} está AGORA no canal de voz "${memberVoice.name}" (<#${memberVoice.id}>), com ${humans} humano(s)`
+      )
+    } else {
+      parts.push(
+        `- ${message.member?.displayName || message.author.username} NÃO está em canal de voz agora`
+      )
+    }
+
+    if (botVoice) {
+      parts.push(`- Mahina está AGORA no canal de voz "${botVoice.name}" (<#${botVoice.id}>)`)
+    } else {
+      parts.push('- Mahina NÃO está conectada em canal de voz agora')
+    }
+
+    if (player) {
+      const playerVoiceName = player.voiceChannelId
+        ? message.guild.channels.cache.get(player.voiceChannelId)?.name
+        : undefined
+      const currentTrack = player.queue.current
+      parts.push(
+        [
+          '- player Lavalink:',
+          playerVoiceName ? `voz="${playerVoiceName}"` : 'sem canal de voz',
+          player.playing ? 'tocando' : player.paused ? 'pausado' : 'parado',
+          currentTrack ? `música="${currentTrack.info.title}"` : 'sem música atual',
+        ].join(' ')
+      )
+    } else {
+      parts.push('- player Lavalink: nenhum player ativo neste server')
+    }
+
+    const mentionedVoiceChannels = message.guild.channels.cache
+      .filter(
+        (channel) =>
+          channel.type === ChannelType.GuildVoice || channel.type === ChannelType.GuildStageVoice
+      )
+      .filter((channel) => {
+        const normalizedName = this.normalizeForContext(channel.name)
+        return normalizedName.length > 0 && normalizedMessage.includes(normalizedName)
+      })
+      .map((channel) => `"${channel.name}" (<#${channel.id}>)`)
+      .slice(0, 4)
+
+    if (mentionedVoiceChannels.length > 0) {
+      parts.push(
+        `- a mensagem menciona nome de canal de voz existente: ${mentionedVoiceChannels.join(', ')}`
+      )
+    }
+
+    parts.push(
+      '- use este estado runtime como verdade atual; se o user disser que está em um canal de voz e isso bater aqui, não confunda com o canal de texto'
+    )
+
+    return parts.join('\n')
+  }
+
+  private normalizeForContext(value: string): string {
+    return value
+      .normalize('NFKD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .toLowerCase()
+      .replace(/[^\p{Letter}\p{Number}\s-]/gu, ' ')
+      .replace(/\s+/g, ' ')
+      .trim()
   }
 
   private buildButtons(): ActionRowBuilder<ButtonBuilder> {
