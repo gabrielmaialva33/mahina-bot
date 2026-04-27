@@ -41,6 +41,72 @@ export const NVIDIA_MODELS: Record<string, NvidiaModel> = {
     topP: 0.7,
     maxTokens: 4096,
   },
+  'deepseek-v4-flash': {
+    id: 'deepseek-ai/deepseek-v4-flash',
+    name: 'DeepSeek V4 Flash',
+    description: 'Fast DeepSeek V4 reasoning model with controllable thinking on NVIDIA NIM',
+    category: 'reasoning',
+    contextLength: 213000,
+    streaming: true,
+    temperature: 1,
+    topP: 0.95,
+    maxTokens: 16384,
+  },
+  'deepseek-v4-pro': {
+    id: 'deepseek-ai/deepseek-v4-pro',
+    name: 'DeepSeek V4 Pro',
+    description: 'Large-context DeepSeek V4 model for coding and agentic tasks',
+    category: 'coding',
+    contextLength: 1000000,
+    streaming: true,
+    temperature: 1,
+    topP: 0.95,
+    maxTokens: 16384,
+  },
+  'nemotron-3-super': {
+    id: 'nvidia/nemotron-3-super-120b-a12b',
+    name: 'Nemotron 3 Super 120B',
+    description: 'Hybrid MoE model with long context for reasoning, planning, coding, and tools',
+    category: 'reasoning',
+    contextLength: 1000000,
+    streaming: true,
+    temperature: 0.7,
+    topP: 0.9,
+    maxTokens: 16384,
+  },
+  'glm-4.7': {
+    id: 'z-ai/glm4.7',
+    name: 'GLM 4.7',
+    description: 'Agentic multilingual coding and tool-use model',
+    category: 'coding',
+    contextLength: 128000,
+    streaming: true,
+    temperature: 0.7,
+    topP: 0.9,
+    maxTokens: 8192,
+  },
+  'glm-5.1': {
+    id: 'z-ai/glm5.1',
+    name: 'GLM 5.1',
+    description: 'Flagship long-horizon model for agentic workflows and coding',
+    category: 'reasoning',
+    contextLength: 265000,
+    streaming: true,
+    temperature: 0.7,
+    topP: 0.9,
+    maxTokens: 16384,
+  },
+  'minimax-m2.7': {
+    id: 'minimaxai/minimax-m2.7',
+    name: 'MiniMax M2.7',
+    description: 'Large model for coding, reasoning, and office-style tasks',
+    category: 'general',
+    contextLength: 74000,
+    streaming: true,
+    temperature: 0.7,
+    topP: 0.95,
+    maxTokens: 8192,
+  },
   // Qwen Models
   'qwen-coder': {
     id: 'qwen/qwen2.5-coder-32b-instruct',
@@ -536,7 +602,14 @@ export class NvidiaAIService {
     }
 
     // Check if model supports function calling (mainly newer models)
-    const supportsFunctions = ['deepseek-r1', 'mistral-large-2', 'mixtral-8x22b'].includes(modelKey)
+    const supportsFunctions = [
+      'deepseek-r1',
+      'deepseek-v4-pro',
+      'nemotron-3-super',
+      'glm-4.7',
+      'mistral-large-2',
+      'mixtral-8x22b',
+    ].includes(modelKey)
 
     if (!supportsFunctions) {
       throw new Error(
@@ -594,9 +667,14 @@ export class NvidiaAIService {
         case 'streaming':
           return model.streaming
         case 'function-calling':
-          return ['deepseek-r1', 'mistral-large-2', 'mixtral-8x22b'].includes(
-            Object.keys(NVIDIA_MODELS).find((key) => NVIDIA_MODELS[key] === model) || ''
-          )
+          return [
+            'deepseek-r1',
+            'deepseek-v4-pro',
+            'nemotron-3-super',
+            'glm-4.7',
+            'mistral-large-2',
+            'mixtral-8x22b',
+          ].includes(Object.keys(NVIDIA_MODELS).find((key) => NVIDIA_MODELS[key] === model) || '')
         case 'coding':
           return model.category === 'coding'
         case 'reasoning':
