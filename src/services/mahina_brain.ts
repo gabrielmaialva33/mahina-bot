@@ -494,7 +494,7 @@ export class MahinaBrain {
 
   private async setupQdrant(): Promise<void> {
     try {
-      this.qdrant = new QdrantClient({ url: 'http://localhost:6333' })
+      this.qdrant = new QdrantClient({ url: env.QDRANT_URL, checkCompatibility: false })
 
       const collections = await this.qdrant.getCollections()
       const exists = collections.collections.some((c) => c.name === QDRANT_COLLECTION)

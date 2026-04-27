@@ -64,6 +64,7 @@ const envSchema = z.object({
   AI_QUEUE_ENABLED: z.preprocess((val) => val !== 'false', z.boolean().default(true)),
   REDIS_URL: z.string().optional().default('redis://:change-me-redis-password@127.0.0.1:6380'),
   REDIS_PASSWORD: z.string().default('change-me-redis-password'),
+  QDRANT_URL: z.string().optional().default('http://qdrant:6333'),
   SEARCH_ENGINE: z.preprocess(
     (val) => {
       if (typeof val === 'string') {

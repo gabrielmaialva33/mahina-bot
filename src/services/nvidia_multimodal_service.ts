@@ -315,6 +315,27 @@ export class NvidiaMultimodalService {
     }
   }
 
+  async analyzeImage(imageUrl: string, prompt: string): Promise<string | undefined> {
+    const visionModel = Object.entries(NVIDIA_MULTIMODAL_MODELS).find(([, m]) =>
+      m.features.includes('image-to-text')
+    )
+    if (!visionModel) return undefined
+    const [visionModelKey] = visionModel
+
+    const previousModel = this.userModels.get('__system__')
+    this.userModels.set('__system__', visionModelKey)
+    try {
+      return await this.chat('__system__', prompt, undefined, undefined, {
+        images: [imageUrl],
+        maxTokens: 220,
+        temperature: 0.4,
+      })
+    } finally {
+      if (previousModel) this.userModels.set('__system__', previousModel)
+      else this.userModels.delete('__system__')
+    }
+  }
+
   async *chatStream(
     userId: string,
     message: string,
