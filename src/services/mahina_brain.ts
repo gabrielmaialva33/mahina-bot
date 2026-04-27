@@ -859,6 +859,9 @@ export class MahinaBrain {
     parts.push(
       `\nCONTEXTO: Você tá no server "${guildName}", canal #${channelName}. Falando com ${userName}.`
     )
+    parts.push(
+      'Use o estado runtime do server como fonte de verdade para presença, voz, player e canal atual. Se o usuário citar um canal de voz existente, não trate automaticamente como o canal de texto só porque a mensagem veio do chat.'
+    )
 
     parts.push(
       [
@@ -912,7 +915,7 @@ export class MahinaBrain {
     }
 
     if (learnedServerContext) {
-      parts.push(`\nMEMÓRIA SOCIAL DO SERVER:\n${learnedServerContext}`)
+      parts.push(`\nCONTEXTO SOCIAL/RUNTIME DO SERVER:\n${learnedServerContext}`)
     }
 
     // Currently playing music
