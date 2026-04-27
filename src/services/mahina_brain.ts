@@ -381,7 +381,6 @@ export class MahinaBrain {
   private providerOrder: string[] = []
   private providerHealth: Map<string, ProviderHealthEntry> = new Map()
   private bot: MahinaBot
-  private memory?: AIMemoryService
   private memoryController: MahinaMemoryController
   private rateLimiter: Map<string, number[]> = new Map()
 
@@ -394,9 +393,17 @@ export class MahinaBrain {
 
   constructor(bot: MahinaBot) {
     this.bot = bot
-    this.memory = bot.services.aiMemory
     this.memoryController = new MahinaMemoryController(bot)
     this.setupProviders()
+  }
+
+  private get memory(): AIMemoryService | undefined {
+    // Lazy lookup: AIManager wires bot.services.aiMemory only AFTER
+    // MahinaBrain has already been constructed inside
+    // aiManager.initialize(), so capturing the ref once in the
+    // constructor pinned it to undefined forever and every memory
+    // command bailed out with "Minha memória tá off no momento."
+    return this.bot.services.aiMemory ?? this.bot.aiManager?.memory
   }
 
   // -----------------------------------------------------------------------
