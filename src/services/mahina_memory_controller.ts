@@ -77,7 +77,7 @@ interface MemoryPayload {
 
 const QDRANT_COLLECTION = 'mahina_memories'
 const EMBEDDING_DIMENSIONS = 1024
-const INDEX_FIELDS: Array<{ name: string; schema: unknown }> = [
+const INDEX_FIELDS: Array<{ name: string; schema: 'keyword' | 'datetime' }> = [
   { name: 'guildId', schema: 'keyword' },
   { name: 'userId', schema: 'keyword' },
   { name: 'channelId', schema: 'keyword' },
