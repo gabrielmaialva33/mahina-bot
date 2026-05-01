@@ -25,9 +25,10 @@ ENV NODE_ENV=production
 WORKDIR /opt/mahina-bot
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    ca-certificates openssl python3 python-is-python3 ffmpeg curl \
+    ca-certificates openssl python3 python3-pip python-is-python3 ffmpeg curl \
     && curl -L https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp -o /usr/local/bin/yt-dlp \
     && chmod a+rx /usr/local/bin/yt-dlp \
+    && pip install --break-system-packages --no-cache-dir -U yt-dlp-youtube-oauth2 \
     && rm -rf /var/lib/apt/lists/*
 
 COPY --from=build /opt/mahina-bot/package.json ./package.json

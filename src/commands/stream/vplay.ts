@@ -94,6 +94,18 @@ export default class VPlay extends Command {
         cacheDir: path.join(process.cwd(), '.cache', 'yt-dlp'),
       }
 
+      // Prefer OAuth via the yt-dlp-youtube-oauth2 plugin: once the device-code
+      // flow is completed inside the container, the refresh token is cached at
+      // ~/.cache/yt-dlp/youtube-oauth2.token_data.json and survives restarts
+      // through the persisted volume.
+      if (env.YOUTUBE_OAUTH_ENABLED) {
+        ytdlpFlags.username = 'oauth2'
+        ytdlpFlags.password = ''
+      }
+
+      // Cookies stay configured as a secondary fallback for cases where OAuth
+      // is unavailable or revoked; yt-dlp uses whichever auth path the
+      // extractor accepts first.
       if (env.YOUTUBE_COOKIES_PATH) {
         ytdlpFlags.cookies = env.YOUTUBE_COOKIES_PATH
       }

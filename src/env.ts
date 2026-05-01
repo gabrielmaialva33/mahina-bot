@@ -68,6 +68,9 @@ const envSchema = z.object({
   FALLEN_API_KEY: z.string().optional(),
   FALLEN_API_URL: z.string().optional().default('https://beta.fallenapi.fun'),
   GEMINI_MODEL: z.string().default('gemini-3.1-pro-preview'),
+  YOUTUBE_OAUTH_ENABLED: z
+    .preprocess((val) => val === 'true' || val === true, z.boolean())
+    .default(false),
   SEARCH_ENGINE: z.preprocess(
     (val) => {
       if (typeof val === 'string') {
