@@ -10,6 +10,7 @@ import { ensureStreamCommandReady } from '#common/stream_runtime'
 import { T } from '#common/i18n'
 import type { StreamTrack } from '#common/stream_queue'
 import type { DownloadProgress } from '#common/download_manager'
+import type { FallenMetadata } from '#src/services/fallen_api_service'
 
 import { env } from '#src/env'
 import { ApplicationCommandOptionType } from 'discord.js'
@@ -97,10 +98,10 @@ export default class VPlay extends Command {
         ytdlpFlags.cookies = env.YOUTUBE_COOKIES_PATH
       }
 
-      // Step 1: Fetch video info (~3s)
-      const videoInfo = await youtubedl(query, { dumpJson: true, ...ytdlpFlags })
-      // eslint-disable-next-line @typescript-eslint/naming-convention
-      const { title, webpage_url, thumbnail, channel, duration } = videoInfo
+      // Step 1: Fetch video info (~3s) — fall back to Fallen API when yt-dlp
+      // hits YouTube anti-bot ("Sign in to confirm you're not a bot.")
+      const resolved = await this.fetchMetadataWithFallback(query, ytdlpFlags)
+      const { title, webpageUrl, thumbnail, channel, duration, downloadSource } = resolved
 
       const safeTitle = this.sanitizeFilename(title)
       const outputPath = path.join(process.cwd(), 'downloads', `${safeTitle}.%(ext)s`)
@@ -109,12 +110,12 @@ export default class VPlay extends Command {
       // Step 2: Create track with 'downloading' status and enqueue immediately
       const track: StreamTrack = {
         type: 'youtube',
-        source: query,
+        source: downloadSource,
         title,
         thumbnail,
         duration: duration ? duration * 1000 : undefined,
         author: channel,
-        url: webpage_url,
+        url: webpageUrl,
         requester: { id: ctx.author.id, username: ctx.author.username },
         deleteAfterPlay: true,
         status: 'downloading',
@@ -136,7 +137,7 @@ export default class VPlay extends Command {
             iconURL: client.config.icons['youtube'],
           })
           .setColor(client.color.main)
-          .setDescription(`[${title}](${webpage_url})\n⏳ Download em progresso...`)
+          .setDescription(`[${title}](${webpageUrl})\n⏳ Download em progresso...`)
           .setFooter({
             text: T(locale, 'player.trackStart.requested_by', { user: ctx.author.username }),
             iconURL: ctx.author.avatarURL() || ctx.author.defaultAvatarURL,
@@ -164,7 +165,7 @@ export default class VPlay extends Command {
           .setDescription(
             T(locale, 'cmd.vplay.added_to_queue', {
               title,
-              uri: webpage_url,
+              uri: webpageUrl,
               position: String(position),
             }) + '\n⏳ Download em progresso...'
           )
@@ -178,7 +179,7 @@ export default class VPlay extends Command {
       }
 
       // Step 4: Start background download
-      const downloadId = client.downloadManager.start(track, query, outputPath)
+      const downloadId = client.downloadManager.start(track, downloadSource, outputPath)
 
       // Step 5: Progress updates (throttled)
       let lastEdit = 0
@@ -191,8 +192,8 @@ export default class VPlay extends Command {
         const bar = `\`${progressBar(progress.percent)}\` ${progress.percent.toFixed(1)}% · ${progress.speed} · ETA ${progress.eta}`
         const desc =
           position === 0
-            ? `[${title}](${webpage_url})\n${bar}`
-            : `${T(locale, 'cmd.vplay.added_to_queue', { title, uri: webpage_url, position: String(position) })}\n${bar}`
+            ? `[${title}](${webpageUrl})\n${bar}`
+            : `${T(locale, 'cmd.vplay.added_to_queue', { title, uri: webpageUrl, position: String(position) })}\n${bar}`
 
         const embed = client.embed().setColor(client.color.main).setDescription(desc).setTimestamp()
 
@@ -205,8 +206,8 @@ export default class VPlay extends Command {
 
         const desc =
           position === 0
-            ? `[${title}](${webpage_url})\n✅ Download completo!`
-            : `${T(locale, 'cmd.vplay.added_to_queue', { title, uri: webpage_url, position: String(position) })}\n✅ Download completo!`
+            ? `[${title}](${webpageUrl})\n✅ Download completo!`
+            : `${T(locale, 'cmd.vplay.added_to_queue', { title, uri: webpageUrl, position: String(position) })}\n✅ Download completo!`
 
         const embed = client
           .embed()
@@ -245,6 +246,57 @@ export default class VPlay extends Command {
       const message = error instanceof Error ? error.message : String(error)
       this.client.logger.error(`vplay failed for ${query}: ${message}`, error)
       await ctx.editMessage(ctx.locale('cmd.vplay.errors.general_error'))
+    }
+  }
+
+  private async fetchMetadataWithFallback(
+    query: string,
+    ytdlpFlags: Record<string, unknown>
+  ): Promise<{
+    title: string
+    webpageUrl: string
+    thumbnail: string | undefined
+    channel: string | undefined
+    duration: number
+    downloadSource: string
+  }> {
+    try {
+      const info = await youtubedl(query, { dumpJson: true, ...ytdlpFlags })
+      return {
+        title: info.title,
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        webpageUrl: (info as { webpage_url?: string }).webpage_url ?? query,
+        thumbnail: info.thumbnail,
+        channel: info.channel,
+        duration: info.duration ?? 0,
+        downloadSource: query,
+      }
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error)
+      const fallen = this.client.services.fallenApi
+      const looksLikeBlocked =
+        /Sign in to confirm|cookies|HTTP Error 403|Private video|This video is unavailable/i.test(
+          message
+        )
+      if (!fallen?.isAvailable() || !looksLikeBlocked) throw error
+
+      this.client.logger.warn(`vplay: yt-dlp failed (${message.slice(0, 80)}…); trying FallenAPI`)
+      const [meta, stream] = await Promise.all([
+        fallen.getMetadata(query),
+        fallen.resolveStreamUrl(query),
+      ])
+      if (!stream) throw error
+
+      const fallenMeta: FallenMetadata = meta ?? { title: query, url: query }
+      this.client.logger.info(`vplay: Fallen fallback for "${fallenMeta.title}"`)
+      return {
+        title: fallenMeta.title,
+        webpageUrl: fallenMeta.url || query,
+        thumbnail: fallenMeta.thumbnail,
+        channel: fallenMeta.channel,
+        duration: fallenMeta.duration ?? 0,
+        downloadSource: stream,
+      }
     }
   }
 
