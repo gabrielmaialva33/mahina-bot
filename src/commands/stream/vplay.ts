@@ -107,7 +107,11 @@ export default class VPlay extends Command {
       const outputPath = path.join(process.cwd(), 'downloads', `${safeTitle}.%(ext)s`)
       const locale = await client.db.getLanguage(ctx.guild.id)
 
-      // Step 2: Create track with 'downloading' status and enqueue immediately
+      // Step 2: Create track with 'downloading' status. We MUST start the
+      // download job BEFORE enqueue, otherwise the selfbot may consume the
+      // first item, call waitForReady() and throw "Download job not found"
+      // because track.downloadId is still undefined → "Download failed for X,
+      // skipping" race that briefly drops a fresh play.
       const track: StreamTrack = {
         type: 'youtube',
         source: downloadSource,
@@ -120,6 +124,10 @@ export default class VPlay extends Command {
         deleteAfterPlay: true,
         status: 'downloading',
       }
+
+      // Start the background download FIRST so track.downloadId is populated
+      // before any consumer (selfbot) calls waitForReady on it.
+      const downloadId = client.downloadManager.start(track, downloadSource, outputPath)
 
       const position = await client.selfbot.enqueue(
         ctx.guild.id,
@@ -178,10 +186,8 @@ export default class VPlay extends Command {
         await ctx.editMessage({ content: '', embeds: [embed] })
       }
 
-      // Step 4: Start background download
-      const downloadId = client.downloadManager.start(track, downloadSource, outputPath)
-
-      // Step 5: Progress updates (throttled)
+      // Step 4: Progress updates (throttled) — download already kicked off
+      // before enqueue above to avoid the waitForReady race.
       let lastEdit = 0
       const onProgress = (_id: string, progress: DownloadProgress) => {
         if (_id !== downloadId) return
