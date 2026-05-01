@@ -275,7 +275,7 @@ export default class VPlay extends Command {
       const message = error instanceof Error ? error.message : String(error)
       const fallen = this.client.services.fallenApi
       const looksLikeBlocked =
-        /Sign in to confirm|cookies|HTTP Error 403|Private video|This video is unavailable/i.test(
+        /Sign in to confirm|cookies|HTTP Error 403|Private video|This video is unavailable|Requested format is not available|Video unavailable|members-only|age.?restricted/i.test(
           message
         )
       if (!fallen?.isAvailable() || !looksLikeBlocked) throw error
