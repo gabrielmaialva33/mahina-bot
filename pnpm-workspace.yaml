@@ -1,0 +1,23 @@
+onlyBuiltDependencies:
+  - '@discordjs/opus'
+  - '@img/sharp-libvips-linux-x64'
+  - '@img/sharp-linux-x64'
+  - '@lng2004/node-datachannel'
+  - '@prisma/client'
+  - '@prisma/engines'
+  - '@seydx/node-av-linux-x64'
+  - bufferutil
+  - es5-ext
+  - esbuild
+  - msgpackr-extract
+  - node-av
+  - prisma
+  - sharp
+  - sodium-native
+  - utf-8-validate
+  - youtube-dl-exec
+  - zeromq
+
+peerDependencyRules:
+  allowedVersions:
+    zod: '4'

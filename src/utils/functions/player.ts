@@ -1,6 +1,6 @@
 import type { Player, Track } from 'lavalink-client'
 
-import { Requester } from '#src/types'
+import { type Requester } from '#src/types'
 
 /**
  * Transforms a requester into a standardized requester object.

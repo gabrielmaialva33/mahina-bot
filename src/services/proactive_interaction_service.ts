@@ -1,4 +1,4 @@
-import { EmbedBuilder, Guild, TextChannel } from 'discord.js'
+import { EmbedBuilder, type Guild, TextChannel } from 'discord.js'
 import type MahinaBot from '#common/mahina_bot'
 import { logger } from '#common/logger'
 

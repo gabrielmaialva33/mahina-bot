@@ -1,8 +1,8 @@
 import {
-  ButtonInteraction,
+  type ButtonInteraction,
   ComponentType,
   EmbedBuilder,
-  Message,
+  type Message,
   MessageFlags,
   ApplicationCommandOptionType,
 } from 'discord.js'
@@ -29,8 +29,8 @@ import {
   resolveChatMode,
   splitChatResponse,
 } from '#common/chat_runtime'
-import MahinaBot from '#common/mahina_bot'
-import Context from '#common/context'
+import type MahinaBot from '#common/mahina_bot'
+import type Context from '#common/context'
 
 export default class ChatCommand extends Command {
   private conversations: Map<string, Array<{ role: 'user' | 'assistant'; content: string }>> =

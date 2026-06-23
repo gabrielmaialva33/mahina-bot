@@ -1,11 +1,11 @@
 import {
   ApplicationCommandOptionType,
-  ButtonInteraction,
+  type ButtonInteraction,
   ComponentType,
   EmbedBuilder,
-  Message,
+  type Message,
   MessageFlags,
-  StringSelectMenuInteraction,
+  type StringSelectMenuInteraction,
 } from 'discord.js'
 import Command from '#common/command'
 import type Context from '#common/context'

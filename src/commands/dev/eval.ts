@@ -3,7 +3,7 @@ import { fetch } from 'undici'
 import {
   ActionRowBuilder,
   ButtonBuilder,
-  ButtonInteraction,
+  type ButtonInteraction,
   ButtonStyle,
   ComponentType,
 } from 'discord.js'

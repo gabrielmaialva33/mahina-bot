@@ -4,12 +4,12 @@ import {
   ButtonBuilder,
   ButtonStyle,
   CommandInteraction,
-  Message,
+  type Message,
   MessageFlags,
   type TextChannel,
 } from 'discord.js'
 import type Context from '#common/context'
-import MahinaBot from '#common/mahina_bot'
+import type MahinaBot from '#common/mahina_bot'
 
 export class Utils {
   public static formatTime(ms: number): string {

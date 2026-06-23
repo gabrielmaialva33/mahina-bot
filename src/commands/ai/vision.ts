@@ -1,11 +1,11 @@
 import {
   ApplicationCommandOptionType,
-  Attachment,
-  ButtonInteraction,
+  type Attachment,
+  type ButtonInteraction,
   ComponentType,
   EmbedBuilder,
   MessageFlags,
-  Message,
+  type Message,
 } from 'discord.js'
 import { chatWithPreferredAI, getLastAIRoute } from '#common/ai_runtime'
 import Command from '#common/command'

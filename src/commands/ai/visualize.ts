@@ -3,7 +3,7 @@ import type Context from '#common/context'
 import type MahinaBot from '#common/mahina_bot'
 import {
   ApplicationCommandOptionType,
-  Attachment,
+  type Attachment,
   AttachmentBuilder,
   EmbedBuilder,
   MessageFlags,

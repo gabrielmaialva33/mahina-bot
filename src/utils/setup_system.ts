@@ -11,7 +11,7 @@ import type { Player, Track } from 'lavalink-client'
 import type MahinaBot from '#common/mahina_bot'
 import { T } from '#common/i18n'
 
-import { Requester } from '#src/types'
+import { type Requester } from '#src/types'
 import { getButtons } from '#utils/buttons'
 
 function getLoopLabel(player: Player, locale: string): string {

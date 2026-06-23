@@ -6,8 +6,8 @@ import {
   getLastAIRoute,
   getPreferredAIService,
 } from '#common/ai_runtime'
-import MahinaBot from '#common/mahina_bot'
-import Context from '#common/context'
+import type MahinaBot from '#common/mahina_bot'
+import type Context from '#common/context'
 import { createAIHealthStatusSummary, createAIStatusEmbed } from '#common/aistatus_runtime'
 
 export default class AIStatus extends Command {

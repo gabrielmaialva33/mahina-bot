@@ -2,18 +2,18 @@ import {
   ActionRowBuilder,
   ApplicationCommandOptionType,
   ButtonBuilder,
-  ButtonInteraction,
+  type ButtonInteraction,
   ButtonStyle,
   ComponentType,
   EmbedBuilder,
   MessageFlags,
   StringSelectMenuBuilder,
-  StringSelectMenuInteraction,
+  type StringSelectMenuInteraction,
 } from 'discord.js'
 import Command from '#common/command'
 import { AIService } from '#src/services/ai_service'
-import MahinaBot from '#common/mahina_bot'
-import Context from '#common/context'
+import type MahinaBot from '#common/mahina_bot'
+import type Context from '#common/context'
 
 export default class AIConfigCommand extends Command {
   private aiService: AIService

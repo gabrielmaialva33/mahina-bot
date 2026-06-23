@@ -11,8 +11,8 @@ import {
 } from 'discord.js'
 
 import Command from '#common/command'
-import MahinaBot from '#common/mahina_bot'
-import Context from '#common/context'
+import type MahinaBot from '#common/mahina_bot'
+import type Context from '#common/context'
 import { ensureStreamCommandReady } from '#common/stream_runtime'
 
 import {

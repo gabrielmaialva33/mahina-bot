@@ -12,7 +12,7 @@ import type MahinaBot from '#common/mahina_bot'
 import { type AIContextService, type ContextMessage } from '#src/services/ai_context_service'
 import { type AIMemoryService, type UserMemory } from '#src/services/ai_memory_service'
 import {
-  TextChannel,
+  type TextChannel,
   ApplicationCommandOptionType,
   EmbedBuilder,
   Message,

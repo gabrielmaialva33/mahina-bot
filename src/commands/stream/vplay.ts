@@ -4,8 +4,8 @@ import { create } from 'youtube-dl-exec'
 import ytdl from '@distube/ytdl-core'
 
 import Command from '#common/command'
-import MahinaBot from '#common/mahina_bot'
-import Context from '#common/context'
+import type MahinaBot from '#common/mahina_bot'
+import type Context from '#common/context'
 import { ensureStreamCommandReady } from '#common/stream_runtime'
 import { T } from '#common/i18n'
 import type { StreamTrack } from '#common/stream_queue'
@@ -282,7 +282,7 @@ export default class VPlay extends Command {
       const info = await youtubedl(query, { dumpJson: true, ...ytdlpFlags })
       return {
         title: info.title,
-        // eslint-disable-next-line @typescript-eslint/naming-convention
+
         webpageUrl: (info as { webpage_url?: string }).webpage_url ?? query,
         thumbnail: info.thumbnail,
         channel: info.channel,

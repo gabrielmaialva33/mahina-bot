@@ -1,4 +1,4 @@
-import { PrismaClient } from '@prisma/client'
+import { type PrismaClient } from '@prisma/client'
 import { logger } from '#common/logger'
 import type { AIManagerStatistics, AIManagerStatus } from '#common/ai_types'
 import { env } from '#src/env'

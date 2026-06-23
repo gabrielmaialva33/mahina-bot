@@ -7,7 +7,7 @@ import {
   type APIApplicationCommandOption,
   ApplicationCommandType,
   Client,
-  ClientOptions,
+  type ClientOptions,
   Collection,
   EmbedBuilder,
   Events,
@@ -30,18 +30,18 @@ import { env } from '#src/env'
 import SelfBot from '#common/selfbot'
 import DownloadManager from '#common/download_manager'
 import { AnimeZey } from '#src/platforms/animezey'
-import { NvidiaAIService } from '#src/services/nvidia_ai_service'
+import { type NvidiaAIService } from '#src/services/nvidia_ai_service'
 import { ProactiveInteractionService } from '#src/services/proactive_interaction_service'
 import { LavalinkHealthService } from '#src/services/lavalink_health_service'
-import { AIContextService } from '#src/services/ai_context_service'
-import { AIMemoryService } from '#src/services/ai_memory_service'
-import { AIManager, getAIManager } from '#src/services/ai_manager'
+import { type AIContextService } from '#src/services/ai_context_service'
+import { type AIMemoryService } from '#src/services/ai_memory_service'
+import { type AIManager, getAIManager } from '#src/services/ai_manager'
 import { NvidiaTTSService } from '#src/services/nvidia_tts_service'
 import { NvidiaEmbeddingService } from '#src/services/nvidia_embedding_service'
 import { NvidiaCosmosService } from '#src/services/nvidia_cosmos_service'
 import { NvidiaGuardService } from '#src/services/nvidia_guard_service'
-import { NvidiaMultimodalService } from '#src/services/nvidia_multimodal_service'
-import { AIQueueService } from '#src/services/ai_queue_service'
+import { type NvidiaMultimodalService } from '#src/services/nvidia_multimodal_service'
+import { type AIQueueService } from '#src/services/ai_queue_service'
 import { ServerLearningService } from '#src/services/server_learning_service'
 import { MahinaWillService } from '#src/services/mahina_will_service'
 import { AmbientPresenceService } from '#src/services/ambient_presence_service'

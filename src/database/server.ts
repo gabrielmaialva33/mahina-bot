@@ -3,7 +3,7 @@ import {
   type Dj,
   type Guild,
   type Playlist,
-  Prisma,
+  type Prisma,
   PrismaClient,
   type Role,
   type Setup,

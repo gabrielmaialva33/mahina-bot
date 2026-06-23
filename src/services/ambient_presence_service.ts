@@ -2,7 +2,7 @@ import {
   ActivityType,
   ChannelType,
   EmbedBuilder,
-  GuildMember,
+  type GuildMember,
   type Message,
   type TextChannel,
 } from 'discord.js'

@@ -1,4 +1,4 @@
-import { ApplicationCommandOptionType, AutocompleteInteraction } from 'discord.js'
+import { ApplicationCommandOptionType, type AutocompleteInteraction } from 'discord.js'
 
 import Command from '#common/command'
 import type MahinaBot from '#common/mahina_bot'

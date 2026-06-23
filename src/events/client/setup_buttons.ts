@@ -8,7 +8,7 @@ import { buttonReply } from '#utils/setup_system'
 import { getButtons } from '#utils/buttons'
 
 import { checkDj } from '#src/events/player/track_start'
-import { Requester } from '#src/types'
+import { type Requester } from '#src/types'
 
 export default class SetupButtons extends Event {
   constructor(client: MahinaBot, file: string) {

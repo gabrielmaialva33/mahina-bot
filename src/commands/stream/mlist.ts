@@ -2,8 +2,8 @@ import fs from 'node:fs'
 import path from 'node:path'
 
 import Command from '#common/command'
-import MahinaBot from '#common/mahina_bot'
-import Context from '#common/context'
+import type MahinaBot from '#common/mahina_bot'
+import type Context from '#common/context'
 import { createStreamStatusEmbed, ensureStreamCommandReady } from '#common/stream_runtime'
 
 export default class MList extends Command {

@@ -5,7 +5,7 @@ import {
   ChannelType,
   ComponentType,
   EmbedBuilder,
-  Message,
+  type Message,
   MessageFlags,
   StringSelectMenuBuilder,
 } from 'discord.js'

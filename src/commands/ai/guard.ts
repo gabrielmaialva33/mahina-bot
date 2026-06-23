@@ -2,7 +2,7 @@ import Command from '#common/command'
 import type Context from '#common/context'
 import type MahinaBot from '#common/mahina_bot'
 import type { ContentSafetyResponse, NvidiaGuardService } from '#src/services/nvidia_guard_service'
-import { ApplicationCommandOptionType, EmbedBuilder, Message, MessageFlags } from 'discord.js'
+import { ApplicationCommandOptionType, EmbedBuilder, type Message, MessageFlags } from 'discord.js'
 
 export default class GuardCommand extends Command {
   constructor(client: MahinaBot) {
