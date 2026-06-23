@@ -95,6 +95,17 @@ export class AIMemoryService {
         if (!memory.relationships) {
           memory.relationships = { closeness: 0, lastRoast: '', insideJokes: [] }
         }
+        // JSON.parse revives Date fields as ISO strings; the `as UserMemory` cast
+        // hides that from TS, so downstream `.getTime()` calls crash. Coerce back.
+        const toDate = (v: unknown): Date =>
+          v instanceof Date ? v : new Date((v as string | number | null) ?? Date.now())
+        if (memory.interactions) {
+          memory.interactions.lastSeen = toDate(memory.interactions.lastSeen)
+        }
+        for (const fact of memory.facts) {
+          fact.createdAt = toDate(fact.createdAt)
+          fact.lastMentioned = toDate(fact.lastMentioned)
+        }
         this.memoryCache.set(key, memory)
         this.cacheAccessTime.set(key, Date.now())
         return memory
