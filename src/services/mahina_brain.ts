@@ -456,6 +456,7 @@ export class MahinaBrain {
         client: this.nvidiaKeys[0].client,
         models: this.uniqueModels([
           env.AI_PRIMARY_MODEL,
+          'meta/llama-3.1-8b-instruct',
           'deepseek-ai/deepseek-v4-flash',
           'deepseek-ai/deepseek-v4-pro',
           'nvidia/nemotron-3-super-120b-a12b',
@@ -476,7 +477,8 @@ export class MahinaBrain {
           apiKey: env.GROQ_API_KEY,
           baseURL: 'https://api.groq.com/openai/v1',
         }),
-        models: [env.AI_FAST_MODEL],
+        // 8b-instant (~720 t/s) powers the cognitive brief; versatile is the casual route.
+        models: this.uniqueModels([env.AI_FAST_MODEL, 'llama-3.1-8b-instant']),
         name: 'Groq',
         supportsTools: true,
       })
@@ -920,10 +922,14 @@ export class MahinaBrain {
   private async buildCognitiveBrief(context: CognitiveBriefContext): Promise<string | undefined> {
     if (!this.shouldBuildCognitiveBrief(context)) return undefined
 
+    // Brief is a short routing task (≤360 tokens): favor fast, non-thinking models.
+    // Groq llama-3.1-8b-instant (~720 t/s) returns in <1s; heavy reasoning models
+    // (deepseek-v4-flash thinking / nemotron-120b) blew past the 9s timeout every time.
     const candidates = [
+      { providerName: 'groq', model: 'llama-3.1-8b-instant' },
+      { providerName: 'groq', model: env.AI_FAST_MODEL },
+      { providerName: 'nvidia', model: 'meta/llama-3.1-8b-instruct' },
       { providerName: 'gemini-pro', model: env.GEMINI_MODEL },
-      { providerName: 'nvidia', model: 'deepseek-ai/deepseek-v4-flash' },
-      { providerName: 'nvidia', model: 'nvidia/nemotron-3-super-120b-a12b' },
     ].filter(({ providerName, model }) => {
       const provider = this.providers.get(providerName)
       return provider && provider.models.includes(model) && this.isProviderAvailable(providerName)
