@@ -2,11 +2,30 @@ import axios from 'axios'
 import type MahinaBot from '#common/mahina_bot'
 import { logger } from '#common/logger'
 
+type EmbeddingInputType = 'query' | 'passage'
+
 interface EmbeddingRequest {
   input: string | string[]
   model?: string
   encoding_format?: 'float' | 'base64'
   dimensions?: number
+  // NVIDIA NV-EmbedQA models require the asymmetric input_type ("query" for
+  // search terms, "passage" for stored documents). Omitting it yields errors.
+  input_type?: EmbeddingInputType
+}
+
+/**
+ * Summarize an error without leaking request headers (the raw AxiosError
+ * serializes config.headers.Authorization, exposing the API key in logs).
+ */
+function describeRequestError(error: unknown): string {
+  if (axios.isAxiosError(error)) {
+    const status = error.response?.status ?? 'no-response'
+    const data = error.response?.data
+    const detail = typeof data === 'string' ? data : data ? JSON.stringify(data) : error.message
+    return `HTTP ${status}: ${detail.slice(0, 300)}`
+  }
+  return error instanceof Error ? error.message : String(error)
 }
 
 interface EmbeddingResponse {
@@ -33,7 +52,7 @@ export class NvidiaEmbeddingService {
   private client: MahinaBot
   private baseUrl: string
   private apiKey: string
-  private model: string = 'nv-embedqa-e5-v5'
+  private model: string = process.env.NVIDIA_EMBEDDING_MODEL || 'nvidia/nv-embedqa-e5-v5'
   private embeddingCache: Map<string, number[]> = new Map()
 
   constructor(client: MahinaBot) {
@@ -49,7 +68,10 @@ export class NvidiaEmbeddingService {
   /**
    * Generate embeddings for text using NVIDIA NV-EmbedQA
    */
-  async generateEmbedding(text: string | string[]): Promise<number[][] | null> {
+  async generateEmbedding(
+    text: string | string[],
+    inputType: EmbeddingInputType = 'query'
+  ): Promise<number[][] | null> {
     if (!this.apiKey) {
       logger.error('NVIDIA API key not configured')
       return null
@@ -60,6 +82,7 @@ export class NvidiaEmbeddingService {
         input: text,
         model: this.model,
         encoding_format: 'float',
+        input_type: inputType,
       }
 
       logger.debug(`Generating embeddings for ${Array.isArray(text) ? text.length : 1} text(s)`)
@@ -80,9 +103,10 @@ export class NvidiaEmbeddingService {
 
         logger.debug(`Generated ${embeddings.length} embeddings successfully`)
 
-        // Cache single embeddings
+        // Cache single embeddings, keyed by input_type so query/passage
+        // vectors for the same text don't clobber each other.
         if (typeof text === 'string') {
-          this.embeddingCache.set(text, embeddings[0])
+          this.embeddingCache.set(`${inputType}:${text}`, embeddings[0])
         }
 
         return embeddings
@@ -91,7 +115,7 @@ export class NvidiaEmbeddingService {
       logger.error('Invalid embedding response format')
       return null
     } catch (error) {
-      logger.error('Embedding generation failed:', error)
+      logger.error(`Embedding generation failed: ${describeRequestError(error)}`)
       return null
     }
   }
@@ -99,13 +123,17 @@ export class NvidiaEmbeddingService {
   /**
    * Get embedding for single text (with cache)
    */
-  async getEmbedding(text: string): Promise<number[] | null> {
+  async getEmbedding(
+    text: string,
+    inputType: EmbeddingInputType = 'query'
+  ): Promise<number[] | null> {
     // Check cache first
-    if (this.embeddingCache.has(text)) {
-      return this.embeddingCache.get(text)!
+    const cacheKey = `${inputType}:${text}`
+    if (this.embeddingCache.has(cacheKey)) {
+      return this.embeddingCache.get(cacheKey)!
     }
 
-    const embeddings = await this.generateEmbedding(text)
+    const embeddings = await this.generateEmbedding(text, inputType)
     return embeddings ? embeddings[0] : null
   }
 
@@ -150,7 +178,7 @@ export class NvidiaEmbeddingService {
 
       // Generate embeddings for knowledge base if not already done
       const contents = knowledgeBase.map((item) => item.content)
-      const contentEmbeddings = await this.generateEmbedding(contents)
+      const contentEmbeddings = await this.generateEmbedding(contents, 'passage')
 
       if (!contentEmbeddings) {
         logger.error('Failed to generate knowledge base embeddings')
@@ -175,7 +203,7 @@ export class NvidiaEmbeddingService {
       // Sort by similarity and limit results
       return results.sort((a, b) => b.similarity - a.similarity).slice(0, limit)
     } catch (error) {
-      logger.error('Search similar failed:', error)
+      logger.error(`Search similar failed: ${describeRequestError(error)}`)
       return []
     }
   }

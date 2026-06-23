@@ -323,7 +323,7 @@ export class AIQueueService extends EventEmitter {
       throw new Error('Embedding service not available')
     }
 
-    const embedding = await embeddingService.generateEmbedding(job.data.content)
+    const embedding = await embeddingService.generateEmbedding(job.data.content, 'passage')
 
     return {
       type: 'embedding',

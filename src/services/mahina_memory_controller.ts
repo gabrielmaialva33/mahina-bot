@@ -129,7 +129,7 @@ export class MahinaMemoryController {
     if (!memory.text.trim()) return
 
     try {
-      const embedding = await this.bot.services.nvidiaEmbedding.getEmbedding(memory.text)
+      const embedding = await this.bot.services.nvidiaEmbedding.getEmbedding(memory.text, 'passage')
       if (!embedding) return
 
       const now = new Date()
