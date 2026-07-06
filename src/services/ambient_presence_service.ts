@@ -13,13 +13,10 @@ type PresenceMood = 'social' | 'music' | 'chaos' | 'tech' | 'visual'
 
 const REACTION_COOLDOWN_MS = 90_000
 const PRESENCE_INTERVAL_MS = 15 * 60 * 1000
-const RITUAL_INTERVAL_MS = 6 * 60 * 60 * 1000
 
 export class AmbientPresenceService {
   private reactionCooldown = new Map<string, number>()
   private presenceInterval: NodeJS.Timeout | null = null
-  private ritualInterval: NodeJS.Timeout | null = null
-  private ritualCooldown = new Map<string, number>()
   private milestoneCooldown = new Map<string, number>()
   private readonly messageMilestones = [50, 150, 300, 500, 1000]
 
@@ -34,21 +31,15 @@ export class AmbientPresenceService {
       })
     }, PRESENCE_INTERVAL_MS)
 
-    this.ritualInterval = setInterval(() => {
-      this.runSocialRituals().catch((error) => {
-        logger.debug(`Ambient social ritual failed: ${String(error)}`)
-      })
-    }, RITUAL_INTERVAL_MS)
+    // Daily "🌙 Ritual social da Mahina" broadcast disabled by request — it posted an
+    // unsolicited embed in the general channel roughly once a day. Dynamic presence
+    // (bot status only, no messages) stays on.
   }
 
   stop(): void {
     if (this.presenceInterval) {
       clearInterval(this.presenceInterval)
       this.presenceInterval = null
-    }
-    if (this.ritualInterval) {
-      clearInterval(this.ritualInterval)
-      this.ritualInterval = null
     }
   }
 
@@ -262,74 +253,6 @@ export class AmbientPresenceService {
     }
 
     return null
-  }
-
-  private async runSocialRituals(): Promise<void> {
-    for (const guild of this.client.guilds.cache.values()) {
-      const channel = await this.getPreferredSocialChannel(guild.id)
-      if (!channel) continue
-
-      const cooldownKey = `${guild.id}:${channel.id}`
-      const lastRitual = this.ritualCooldown.get(cooldownKey) ?? 0
-      if (Date.now() - lastRitual < 18 * 60 * 60 * 1000) continue
-
-      const socialPulse = await this.client.services.serverLearning?.getSocialPulseSnapshot(
-        guild.id,
-        channel.id
-      )
-      const willSnapshot = await this.client.services.mahinaWill?.getStateSnapshot(
-        guild.id,
-        channel.id
-      )
-
-      if (!socialPulse || socialPulse.recentSummaries.length < 3) continue
-
-      const embed = new EmbedBuilder()
-        .setColor(this.client.config.color.main)
-        .setTitle('🌙 Ritual social da Mahina')
-        .setDescription('passei o olho no clima daqui e ficou esse retrato do momento:')
-        .addFields(
-          {
-            name: '🌆 Vibe do server',
-            value:
-              socialPulse.guildVibe.length > 0
-                ? socialPulse.guildVibe.join(', ')
-                : 'ainda entendendo melhor',
-            inline: false,
-          },
-          {
-            name: '🎯 Foco do canal',
-            value:
-              socialPulse.channelFocus.length > 0
-                ? socialPulse.channelFocus.join(', ')
-                : 'sem assunto dominante agora',
-            inline: false,
-          },
-          {
-            name: '🧠 Cabeça da Mahina',
-            value: willSnapshot
-              ? `humor: ${willSnapshot.mood}\nfixações: ${willSnapshot.currentFixations.slice(0, 3).join(', ') || 'nenhuma forte'}`
-              : 'quietinha e observando',
-            inline: false,
-          },
-          {
-            name: '📝 Sinais recentes',
-            value: socialPulse.recentSummaries
-              .slice(0, 3)
-              .map((item) => `• ${item}`)
-              .join('\n'),
-            inline: false,
-          }
-        )
-        .setFooter({
-          text: 'Mahina ritual social',
-          iconURL: this.client.user?.displayAvatarURL(),
-        })
-
-      await channel.send({ embeds: [embed] }).catch(() => {})
-      this.ritualCooldown.set(cooldownKey, Date.now())
-      await this.client.services.mahinaWill?.markSpoke(guild.id, channel.id)
-    }
   }
 
   private buildWelcomeDescription(member: GuildMember, styleHint: string | null): string {
