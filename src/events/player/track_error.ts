@@ -2,18 +2,10 @@ import type { Player, Track, TrackExceptionEvent, UnresolvedTrack } from 'lavali
 
 import Event from '#common/event'
 import type MahinaBot from '#common/mahina_bot'
+import { hasRecoveryAttempted, markRecoveryAttempted } from '#utils/functions/music_recovery'
 
-const RECOVERY_ATTEMPTED_KEY = 'mahinaRecoveryAttempted'
 const YOUTUBE_ACCESS_ERROR =
   /all clients failed|sign in to confirm|not a bot|requires login|http (?:error )?403|forbidden|requested format is not available/i
-
-function hasRecoveryAttempted(track: Track | UnresolvedTrack): boolean {
-  return track.userData?.[RECOVERY_ATTEMPTED_KEY] === 1
-}
-
-function markRecoveryAttempted(track: Track | UnresolvedTrack): void {
-  track.userData = { ...track.userData, [RECOVERY_ATTEMPTED_KEY]: 1 }
-}
 
 function recoveryQueries(track: Track | UnresolvedTrack): string[] {
   const queries: string[] = []

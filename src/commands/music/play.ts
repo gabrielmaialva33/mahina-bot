@@ -14,6 +14,7 @@ import {
 } from '#common/player_runtime'
 import { sanitizeQuery } from '#utils/functions/query'
 import AutocompleteCoordinator from '#utils/functions/autocomplete_coordinator'
+import { resolveSoundCloudReplacement } from '#utils/functions/music_recovery'
 
 const AUTOCOMPLETE_MIN_QUERY_LENGTH = 3
 const AUTOCOMPLETE_TIMEOUT_MS = 2000
@@ -114,7 +115,26 @@ export default class Play extends Command {
       })
     }
 
-    await player.queue.add(response.loadType === 'playlist' ? response.tracks : response.tracks[0])
+    let trackToQueue = response.tracks[0]
+    if (response.loadType !== 'playlist' && trackToQueue.info.sourceName === 'spotify') {
+      try {
+        const replacement = await resolveSoundCloudReplacement(
+          player,
+          trackToQueue,
+          ctx.author ?? undefined
+        )
+        if (replacement) {
+          trackToQueue = replacement
+          client.logger.info(
+            `Resolved Spotify playback through SoundCloud: ${trackToQueue.info.title}`
+          )
+        }
+      } catch (error) {
+        client.logger.warn(`Could not resolve Spotify track through SoundCloud: ${String(error)}`)
+      }
+    }
+
+    await player.queue.add(response.loadType === 'playlist' ? response.tracks : trackToQueue)
 
     if (response.loadType === 'playlist') {
       await ctx.editMessage({
