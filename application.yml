@@ -39,8 +39,9 @@ plugins:
     allowDirectVideoIds: true
     allowDirectPlaylistIds: true
     clients:
-      - TVHTML5_SIMPLY
       - TV
+      - TVHTML5_SIMPLY
+      - ANDROID_VR
       - WEBEMBEDDED
       - ANDROID_MUSIC
       - IOS
@@ -58,6 +59,11 @@ plugins:
         playlistLoading: false
         searching: false
         videoLoading: false
+      ANDROID_VR:
+        playback: true
+        playlistLoading: true
+        searching: true
+        videoLoading: true
       WEBEMBEDDED:
         playback: true
         playlistLoading: false

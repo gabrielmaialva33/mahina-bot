@@ -1,6 +1,5 @@
 import type {
   APIApplicationCommandOptionChoice,
-  ApplicationCommandOptionChoiceData,
   AutocompleteInteraction,
   VoiceChannel,
 } from 'discord.js'
@@ -14,8 +13,13 @@ import {
   startPlayerIfIdle,
 } from '#common/player_runtime'
 import { sanitizeQuery } from '#utils/functions/query'
+import AutocompleteCoordinator from '#utils/functions/autocomplete_coordinator'
 
-const AUTOCOMPLETE_TIMEOUT_MS = 2500
+const AUTOCOMPLETE_MIN_QUERY_LENGTH = 3
+const AUTOCOMPLETE_TIMEOUT_MS = 2000
+const autocompleteCoordinator = new AutocompleteCoordinator<
+  APIApplicationCommandOptionChoice<string>[]
+>({ delayMs: 200, ttlMs: 30_000 })
 
 function buildAutocompleteValue(track: {
   info: { title: string; author: string; uri?: string | null; identifier?: string | null }
@@ -143,8 +147,17 @@ export default class Play extends Command {
     const focusedValue = interaction.options.getFocused(true)
     const query = focusedValue?.value.trim()
 
-    if (!query || query.length < 2) {
+    if (!query || query.length < AUTOCOMPLETE_MIN_QUERY_LENGTH) {
       return await respondSafely(interaction, [])
+    }
+
+    const request = await autocompleteCoordinator.wait(
+      `${interaction.guildId ?? 'dm'}:${interaction.user.id}`,
+      query
+    )
+    if (request.status === 'stale') return await respondSafely(interaction, [])
+    if (request.status === 'cached') {
+      return await respondSafely(interaction, request.value)
     }
 
     try {
@@ -159,6 +172,7 @@ export default class Play extends Command {
       ])) as Awaited<ReturnType<typeof this.client.manager.search>> | null
 
       if (!res) {
+        autocompleteCoordinator.cancel(request)
         this.client.logger.warn(`Play autocomplete timed out for query: ${query}`)
         return await respondSafely(interaction, [])
       }
@@ -167,22 +181,27 @@ export default class Play extends Command {
         this.client.logger.debug(
           `Play autocomplete empty/non-search result for query: ${sanitized} (${res.loadType})`
         )
+        autocompleteCoordinator.complete(request, [])
         return await respondSafely(interaction, [])
       }
 
-      const songs: ApplicationCommandOptionChoiceData[] = res.tracks.slice(0, 10).map((track) => {
-        const name = `${track.info.title} by ${track.info.author}`
-        return {
-          name: name.length > 100 ? `${name.substring(0, 97)}...` : name,
-          value: buildAutocompleteValue(track),
-        }
-      })
+      const songs: APIApplicationCommandOptionChoice<string>[] = res.tracks
+        .slice(0, 10)
+        .map((track) => {
+          const name = `${track.info.title} by ${track.info.author}`
+          return {
+            name: name.length > 100 ? `${name.substring(0, 97)}...` : name,
+            value: buildAutocompleteValue(track),
+          }
+        })
 
       this.client.logger.debug(
         `Play autocomplete returned ${songs.length} option(s) for query: ${sanitized}`
       )
+      autocompleteCoordinator.complete(request, songs)
       return await respondSafely(interaction, songs)
     } catch (error) {
+      autocompleteCoordinator.cancel(request)
       this.client.logger.error('Play autocomplete failed:', error)
       return await respondSafely(interaction, [])
     }
