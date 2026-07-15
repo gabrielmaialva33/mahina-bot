@@ -71,6 +71,24 @@ export default class TrackError extends Event {
         return
       }
 
+      let recoveryPath = 'direct YouTube retry'
+      const oneGrab = this.client.services.fallenApi
+      if (oneGrab?.isAvailable() && replacement.info.uri) {
+        const stream = await oneGrab.resolveStreamUrl(replacement.info.uri, false)
+        if (stream) {
+          try {
+            const streamResult = await player.search({ query: stream }, requester)
+            const streamReplacement = streamResult?.tracks?.[0]
+            if (streamReplacement) {
+              replacement = streamReplacement
+              recoveryPath = 'OneGrab CDN'
+            }
+          } catch (error) {
+            this.client.logger.warn(`OneGrab stream could not be loaded: ${String(error)}`)
+          }
+        }
+      }
+
       if (track?.info) {
         replacement.info.title = track.info.title || replacement.info.title
         replacement.info.author = track.info.author || replacement.info.author
@@ -82,9 +100,7 @@ export default class TrackError extends Event {
       if (!player.playing && !player.paused) {
         await player.play()
       }
-      this.client.logger.info(
-        `Music recovery queued a direct YouTube retry for ${replacement.info.title}`
-      )
+      this.client.logger.info(`Music recovery queued ${recoveryPath} for ${replacement.info.title}`)
     } catch (err) {
       this.client.logger.error(`Music recovery failed: ${String(err)}`)
     }

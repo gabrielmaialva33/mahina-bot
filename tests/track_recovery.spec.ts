@@ -33,10 +33,14 @@ function makeSearchResult(track: Track): SearchResult {
   } as SearchResult
 }
 
-function makeClient() {
+function makeClient(fallenApi?: {
+  isAvailable: () => boolean
+  resolveStreamUrl: (uri: string, video?: boolean) => Promise<string | null>
+}) {
   return {
     services: {
       serverAwareness: undefined,
+      fallenApi,
     },
     logger: {
       debug: vi.fn(),
@@ -142,5 +146,46 @@ describe('TrackError recovery', () => {
       spotifyTrack.requester
     )
     expect(player.queue.add).toHaveBeenCalledOnce()
+  })
+
+  it('prefers a OneGrab CDN stream when the integration is available', async () => {
+    const youtubeTrack = makeTrack({
+      identifier: 'X_cR_7bKvJk',
+      uri: 'https://www.youtube.com/watch?v=X_cR_7bKvJk',
+      sourceName: 'youtube',
+    })
+    const cdnTrack = makeTrack({
+      identifier: 'cdn-stream',
+      uri: 'https://cdn.onegrab.fun/audio.mp3',
+      sourceName: 'http',
+    })
+    const player = makePlayer(makeSearchResult(youtubeTrack))
+    vi.mocked(player.search)
+      .mockResolvedValueOnce(makeSearchResult(youtubeTrack))
+      .mockResolvedValueOnce(makeSearchResult(cdnTrack))
+    const fallenApi = {
+      isAvailable: vi.fn().mockReturnValue(true),
+      resolveStreamUrl: vi.fn().mockResolvedValue('https://cdn.onegrab.fun/audio.mp3'),
+    }
+    const event = new TrackError(makeClient(fallenApi), 'track_error.ts')
+
+    await event.run(player, makeTrack(), antiBotPayload)
+
+    expect(fallenApi.resolveStreamUrl).toHaveBeenCalledWith(
+      'https://www.youtube.com/watch?v=X_cR_7bKvJk',
+      false
+    )
+    expect(player.search).toHaveBeenNthCalledWith(
+      2,
+      { query: 'https://cdn.onegrab.fun/audio.mp3' },
+      { id: 'requester' }
+    )
+    expect(player.queue.add).toHaveBeenCalledWith(
+      expect.objectContaining({
+        info: expect.objectContaining({ sourceName: 'http' }),
+        userData: expect.objectContaining({ mahinaRecoveryAttempted: 1 }),
+      }),
+      0
+    )
   })
 })

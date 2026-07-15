@@ -66,7 +66,7 @@ const envSchema = z.object({
   REDIS_PASSWORD: z.string().default('change-me-redis-password'),
   QDRANT_URL: z.string().optional().default('http://qdrant:6333'),
   FALLEN_API_KEY: z.string().optional(),
-  FALLEN_API_URL: z.string().optional().default('https://beta.fallenapi.fun'),
+  FALLEN_API_URL: z.string().optional().default('https://api.onegrab.fun'),
   GEMINI_MODEL: z.string().default('gemini-3.1-pro-preview'),
   YOUTUBE_OAUTH_ENABLED: z
     .preprocess((val) => val === 'true' || val === true, z.boolean())
